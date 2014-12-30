@@ -1,0 +1,6 @@
+[report]
+omit =
+    */python?.?/*
+    */site-packages/nose/*
+    */tests/*
+    */assertpy/__init__.py
