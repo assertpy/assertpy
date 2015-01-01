@@ -314,7 +314,7 @@ The `assertpy` framework is already super useful, but there is still lots of wor
 1. **Classes** - dynamic assertion methods about class attributes
 1. Lots more...
 
-If you'd like to help, see [Contributing](CONTRIBUTING.md).
+If you'd like to help, check out the [open issues](https://github.com/ActivisionGameScience/assertpy/issues?q=is%3Aopen+is%3Aissue) and see our [Contributing](CONTRIBUTING.md) doc.
 
 ## License
 
