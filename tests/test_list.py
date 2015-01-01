@@ -31,14 +31,14 @@ from assertpy import assert_that
 class TestList(object):
     
     def testHasLength(self):
-        assert_that(['a','b','c']).has_length(3)
-        assert_that((1,2,3,4)).has_length(4)
-        assert_that({ 'a':1,'b':2 }).has_length(2)
-        assert_that({ 'a','b' }).has_length(2)
+        assert_that(['a','b','c']).is_length(3)
+        assert_that((1,2,3,4)).is_length(4)
+        assert_that({ 'a':1,'b':2 }).is_length(2)
+        assert_that({ 'a','b' }).is_length(2)
     
     def testHasLengthFailure(self):
         try:
-            assert_that(['a','b','c']).has_length(4)
+            assert_that(['a','b','c']).is_length(4)
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to("Expected <['a', 'b', 'c']> to be of length <4>, but was <3>.")
             return
@@ -46,7 +46,7 @@ class TestList(object):
             
     def testHasLengthBadArgFailure(self):
         try:
-            assert_that(['a','b','c']).has_length('bar')
+            assert_that(['a','b','c']).is_length('bar')
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('given arg must be an int')
             return
@@ -54,7 +54,7 @@ class TestList(object):
 
     def testHasLengthNegativeArgFailure(self):
         try:
-            assert_that(['a','b','c']).has_length(-1)
+            assert_that(['a','b','c']).is_length(-1)
         except ValueError, ex:
             assert_that(ex.message).is_equal_to('given arg must be a positive int')
             return
@@ -140,6 +140,6 @@ class TestList(object):
         self.fail('should not fail')
 
     def testAssertChaining(self):
-        assert_that(['a','b','c']).is_type_of(list).has_length(3).contains('a').does_not_contain('x')
-        assert_that(['a','b','c']).is_type_of(list).has_length(3).contains('a','b').does_not_contain('x','y')
+        assert_that(['a','b','c']).is_type_of(list).is_length(3).contains('a').does_not_contain('x')
+        assert_that(['a','b','c']).is_type_of(list).is_length(3).contains('a','b').does_not_contain('x','y')
 

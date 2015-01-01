@@ -15,7 +15,7 @@ from assertpy import assert_that
 class TestSomething(object):
 
     def testSomething(self):
-        assert_that('something').has_length(9).is_equal_to('something')
+        assert_that('something').is_length(9).is_equal_to('something')
 ```
 
 ## The API
@@ -35,7 +35,7 @@ assert_that('').is_false()
 assert_that('').is_type_of(str)
 assert_that('').is_instance_of(str)
 
-assert_that('foo').has_length(3)
+assert_that('foo').is_length(3)
 assert_that('foo').is_not_empty()
 assert_that('foo').is_true()
 assert_that('foo').is_equal_to('foo')
@@ -120,7 +120,7 @@ assert_that([]).is_false()
 assert_that([]).is_type_of(list)
 assert_that([]).is_instance_of(list)
 
-assert_that(['a','b']).has_length(2)
+assert_that(['a','b']).is_length(2)
 assert_that(['a','b']).is_not_empty()
 assert_that(['a','b']).is_equal_to(['a','b'])
 assert_that(['a','b']).is_not_equal_to(['b','a'])
@@ -141,7 +141,7 @@ assert_that(()).is_false()
 assert_that(()).is_type_of(tuple)
 assert_that(()).is_instance_of(tuple)
 
-assert_that((1,2,3)).has_length(3)
+assert_that((1,2,3)).is_length(3)
 assert_that((1,2,3)).is_not_empty()
 assert_that((1,2,3)).is_equal_to((1,2,3))
 assert_that((1,2,3)).is_not_equal_to((1,2,4))
@@ -162,7 +162,7 @@ assert_that({}).is_false()
 assert_that({}).is_type_of(dict)
 assert_that({}).is_instance_of(dict)
 
-assert_that({'a':1,'b':2}).has_length(2)
+assert_that({'a':1,'b':2}).is_length(2)
 assert_that({'a':1,'b':2}).is_not_empty()
 assert_that({'a':1,'b':2}).is_equal_to({'a':1,'b':2})
 assert_that({'a':1,'b':2}).is_equal_to({'b':2,'a':1})
@@ -190,7 +190,7 @@ assert_that(set({})).is_false()
 assert_that(set({})).is_type_of(set)
 assert_that(set({})).is_instance_of(set)
 
-assert_that({'a','b'}).has_length(2)
+assert_that({'a','b'}).is_length(2)
 assert_that({'a','b'}).is_not_empty()
 assert_that({'a','b'}).is_equal_to({'a','b'})
 assert_that({'a','b'}).is_equal_to({'b','a'})
@@ -293,7 +293,7 @@ One of the nicest aspects of any fluent API is the ability to chain methods toge
 Here are just a few examples:
 
 ```py
-assert_that('foo').has_length(3).starts_with('f').ends_with('oo')
+assert_that('foo').is_length(3).starts_with('f').ends_with('oo')
 ```
 
 ```py
@@ -301,7 +301,7 @@ assert_that([1,2,3]).is_type_of(list).contains(1,2).does_not_contain(4,5)
 ```
 
 ```py
-assert_that(people).has_length(2).extract('first_name').contains('Fred','Joe')
+assert_that(people).is_length(2).extract('first_name').contains('Fred','Joe')
 ```
 
 ## Future

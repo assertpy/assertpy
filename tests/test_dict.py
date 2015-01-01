@@ -31,11 +31,11 @@ from assertpy import assert_that
 class TestDict(object):
     
     def testHasLength(self):
-        assert_that({ 'a':1,'b':2 }).has_length(2)
+        assert_that({ 'a':1,'b':2 }).is_length(2)
     
     def testHasLengthFailure(self):
         try:
-            assert_that({ 'a':1,'b':2,'c':3 }).has_length(4)
+            assert_that({ 'a':1,'b':2,'c':3 }).is_length(4)
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to("Expected <{'a': 1, 'c': 3, 'b': 2}> to be of length <4>, but was <3>.")
             return

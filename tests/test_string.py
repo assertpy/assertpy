@@ -31,11 +31,11 @@ from assertpy import assert_that
 class TestString(object):
     
     def testHasLength(self):
-        assert_that('foo').has_length(3)
+        assert_that('foo').is_length(3)
     
     def testHasLengthFailure(self):
         try:
-            assert_that('foo').has_length(4)
+            assert_that('foo').is_length(4)
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to('Expected <foo> to be of length <4>, but was <3>.')
             return
@@ -287,6 +287,6 @@ class TestString(object):
         self.fail('should not fail')
 
     def testAssertChaining(self):
-        assert_that('foo').is_type_of(str).has_length(3).contains('f').does_not_contain('x')
+        assert_that('foo').is_type_of(str).is_length(3).contains('f').does_not_contain('x')
         assert_that('fred').starts_with('f').ends_with('d').matches('^f.*?d$').does_not_match('\d')
 

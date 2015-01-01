@@ -81,7 +81,7 @@ class TestClass(object):
         assert_that(people).extract('first_name', 'name').contains(('Fred','Fred Smith'), ('Joe','Joe Coder'))
         assert_that(people).extract('say_hello').contains('Hello, Fred!', 'Joe writes code.')
 
-        assert_that(people).is_type_of(list).has_length(2).extract('first_name').contains('Fred','Joe').does_not_contain('Charlie')
+        assert_that(people).is_type_of(list).is_length(2).extract('first_name').contains('Fred','Joe').does_not_contain('Charlie')
 
 class Person(object):
     def __init__(self, first_name, last_name):

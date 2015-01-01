@@ -105,8 +105,8 @@ class AssertionBuilder(object):
             raise AssertionError('Expected <%s:%s> to be instance of class <%s>, but was not.' % (self.val, t, some_class.__name__))
         return self
 
-    def has_length(self, length):
-        """Asserts that val has given length."""
+    def is_length(self, length):
+        """Asserts that val is the given length."""
         if type(length) is not int:
             raise TypeError('given arg must be an int')
         if length < 0:
