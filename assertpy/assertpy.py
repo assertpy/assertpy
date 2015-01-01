@@ -152,11 +152,10 @@ class AssertionBuilder(object):
 
     def is_not_empty(self):
         """Asserts that val is not empty."""
-        if type(self.val) is str:
-            if len(self.val) == 0:
+        if len(self.val) == 0:
+            if type(self.val) is str:
                 raise AssertionError('Expected not empty string, but was empty.')
-        else:
-            if len(self.val) == 0:
+            else:
                 raise AssertionError('Expected not empty, but was empty.')
         return self
 
