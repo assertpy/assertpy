@@ -372,6 +372,19 @@ class TestString(object):
             return
         self.fail('should not fail')
 
+    def testIsUnicode(self):
+        assert_that(u'unicorn').is_unicode()
+        assert_that(u'unicorn 123').is_unicode()
+        assert_that(unicode('unicorn')).is_unicode()
+
+    def testIsUnicodeFailure(self):
+        try:
+            assert_that('foo').is_unicode()
+        except AssertionError, ex:
+            assert_that(ex.message).is_equal_to('Expected <foo> to be unicode, but was <str>.')
+            return
+        self.fail('should not fail')
+
     def testAssertChaining(self):
         assert_that('foo').is_type_of(str).is_length(3).contains('f').does_not_contain('x')
         assert_that('fred').starts_with('f').ends_with('d').matches('^f.*?d$').does_not_match('\d')

@@ -295,6 +295,11 @@ class AssertionBuilder(object):
             raise AssertionError('Expected <%s> to contain only digits, but did not.' % self.val)
         return self
 
+    def is_unicode(self):
+        if type(self.val) is not unicode:
+            raise AssertionError('Expected <%s> to be unicode, but was <%s>.' % (self.val, type(self.val).__name__))
+        return self
+
 ### dict assertions ###
     def contains_value(self, *values):
         """Asserts that val is a dict and contains the given value or values."""
