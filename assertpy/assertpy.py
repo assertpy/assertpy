@@ -275,6 +275,26 @@ class AssertionBuilder(object):
             raise AssertionError('Expected <%s> to not match pattern <%s>, but did.' % (self.val, pattern))
         return self
 
+    def is_alpha(self):
+        """Asserts that val is non-empty string and all characters are alphabetic."""
+        if type(self.val) is not str:
+            raise TypeError('val is not a string')
+        if len(self.val) == 0:
+            raise ValueError('val is empty')
+        if not self.val.isalpha():
+            raise AssertionError('Expected <%s> to contain only alphabetic chars, but did not.' % self.val)
+        return self
+
+    def is_digit(self):
+        """Asserts that val is non-empty string and all characters are digits."""
+        if type(self.val) is not str:
+            raise TypeError('val is not a string')
+        if len(self.val) == 0:
+            raise ValueError('val is empty')
+        if not self.val.isdigit():
+            raise AssertionError('Expected <%s> to contain only digits, but did not.' % self.val)
+        return self
+
 ### dict assertions ###
     def contains_value(self, *values):
         """Asserts that val is a dict and contains the given value or values."""

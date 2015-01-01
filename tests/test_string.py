@@ -286,7 +286,92 @@ class TestString(object):
             return
         self.fail('should not fail')
 
+    def testIsAlpha(self):
+        assert_that('foo').is_alpha()
+
+    def testIsAlphaFailureWithDigits(self):
+        try:
+            assert_that('foo123').is_alpha()
+        except AssertionError, ex:
+            assert_that(ex.message).is_equal_to('Expected <foo123> to contain only alphabetic chars, but did not.')
+            return
+        self.fail('should not fail')
+
+    def testIsAlphaFailureWithSpaces(self):
+        try:
+            assert_that('foo bar').is_alpha()
+        except AssertionError, ex:
+            assert_that(ex.message).is_equal_to('Expected <foo bar> to contain only alphabetic chars, but did not.')
+            return
+        self.fail('should not fail')
+
+    def testIsAlphaFailureWithPunctuation(self):
+        try:
+            assert_that('foo,bar').is_alpha()
+        except AssertionError, ex:
+            assert_that(ex.message).is_equal_to('Expected <foo,bar> to contain only alphabetic chars, but did not.')
+            return
+        self.fail('should not fail')
+
+    def testIsAlphaBadValueTypeFailure(self):
+        try:
+            assert_that(123).is_alpha()
+        except TypeError, ex:
+            assert_that(ex.message).is_equal_to('val is not a string')
+            return
+        self.fail('should not fail')
+
+    def testIsAlphaEmptyValueFailure(self):
+        try:
+            assert_that('').is_alpha()
+        except ValueError, ex:
+            assert_that(ex.message).is_equal_to('val is empty')
+            return
+        self.fail('should not fail')
+
+    def testIsDigit(self):
+        assert_that('123').is_digit()
+
+    def testIsDigitFailureWithAlpha(self):
+        try:
+            assert_that('foo123').is_digit()
+        except AssertionError, ex:
+            assert_that(ex.message).is_equal_to('Expected <foo123> to contain only digits, but did not.')
+            return
+        self.fail('should not fail')
+
+    def testIsDigitFailureWithSpaces(self):
+        try:
+            assert_that('1 000 000').is_digit()
+        except AssertionError, ex:
+            assert_that(ex.message).is_equal_to('Expected <1 000 000> to contain only digits, but did not.')
+            return
+        self.fail('should not fail')
+
+    def testIsDigitFailureWithPunctuation(self):
+        try:
+            assert_that('-123').is_digit()
+        except AssertionError, ex:
+            assert_that(ex.message).is_equal_to('Expected <-123> to contain only digits, but did not.')
+            return
+        self.fail('should not fail')
+
+    def testIsDigitBadValueTypeFailure(self):
+        try:
+            assert_that(123).is_digit()
+        except TypeError, ex:
+            assert_that(ex.message).is_equal_to('val is not a string')
+            return
+        self.fail('should not fail')
+
+    def testIsDigitEmptyValueFailure(self):
+        try:
+            assert_that('').is_digit()
+        except ValueError, ex:
+            assert_that(ex.message).is_equal_to('val is empty')
+            return
+        self.fail('should not fail')
+
     def testAssertChaining(self):
         assert_that('foo').is_type_of(str).is_length(3).contains('f').does_not_contain('x')
         assert_that('fred').starts_with('f').ends_with('d').matches('^f.*?d$').does_not_match('\d')
-
