@@ -38,17 +38,15 @@ assert_that('').is_instance_of(str)
 assert_that('foo').is_length(3)
 assert_that('foo').is_not_empty()
 assert_that('foo').is_true()
+assert_that('foo').is_alpha()
+assert_that('123').is_digit()
 assert_that('foo').is_equal_to('foo')
 assert_that('foo').is_not_equal_to('bar')
+assert_that('foo').is_equal_to_ignoring_case('FOO')
 
 assert_that('foo').contains('f')
 assert_that('foo').contains('f','oo')
 assert_that('foo').does_not_contain('x')
-
-assert_that('').is_empty()
-assert_that('foo').is_not_empty()
-        
-assert_that('foo').is_equal_to_ignoring_case('FOO')
 
 assert_that('foo').starts_with('f')
 assert_that('foo').ends_with('oo')
