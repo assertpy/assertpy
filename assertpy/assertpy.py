@@ -353,3 +353,17 @@ class AssertionBuilder(object):
                     raise ValueError('val does not have property or zero-arg method <%s>' % name)
             extracted.append(tuple(items) if len(items) > 1 else items[0])
         return AssertionBuilder(extracted)
+
+### dynamic assertions ###
+    def __getattr__(self, attr):
+        if not attr.startswith('has_'):
+            raise AttributeError("assertpy has no assertion <%s()>" % attr)
+        if not hasattr(self.val, attr[4:]):
+            raise AttributeError('val has no attribute <%s>' % attr[4:])
+        def _wrapper(*args, **kwargs):
+            if len(args) != 1:
+                raise TypeError('assertion <%s()> takes exactly 1 argument (%d given)' % (attr, len(args)))
+            if getattr(self.val, attr[4:]) != args[0]:
+                raise AssertionError('Expected <%s> to be equal to <%s>, but was not.' % (getattr(self.val, attr[4:]), args[0]))
+            return self
+        return _wrapper
