@@ -357,8 +357,9 @@ class AssertionBuilder(object):
 
 ### dynamic assertions ###
     def __getattr__(self, attr):
+        """Asserts that val has attribute attr and that attribute's value is equal to other via a dynamic assertion of the form: has_<attr>()."""
         if not attr.startswith('has_'):
-            raise AttributeError("assertpy has no assertion <%s()>" % attr)
+            raise AttributeError('assertpy has no assertion <%s()>' % attr)
         if not hasattr(self.val, attr[4:]):
             raise AttributeError('val has no attribute <%s>' % attr[4:])
         def _wrapper(*args, **kwargs):
