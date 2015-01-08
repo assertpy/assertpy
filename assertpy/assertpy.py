@@ -305,7 +305,7 @@ class AssertionBuilder(object):
     def contains_value(self, *values):
         """Asserts that val is a dict and contains the given value or values."""
         if type(self.val) is not dict:
-            raise TypeError('val is not dict')
+            raise TypeError('val is not a dict')
         if len(values) == 0:
             raise ValueError('one or more value args must be given')
         for v in values:
@@ -316,12 +316,12 @@ class AssertionBuilder(object):
     def contains_entry(self, *entries):
         """Asserts that val is a dict and contains the given entry or entries."""
         if type(self.val) is not dict:
-            raise TypeError('val is not dict')
+            raise TypeError('val is not a dict')
         if len(entries) == 0:
             raise ValueError('one or more entry args must be given')
         for e in entries:
             if type(e) is not dict:
-                raise TypeError('given entry arg must be dict')
+                raise TypeError('given entry arg must be a dict')
             if len(e) != 1:
                 raise ValueError('given entry args must contain exactly one key-value pair')
             k = e.keys()[0]
@@ -331,11 +331,11 @@ class AssertionBuilder(object):
                 raise AssertionError('Expected <%s> to contain entry %s, but key <%s> did not contain value <%s>.' % (self.val, e, k, e[k]))
         return self
 
-### collection of classes assertions###
+### collection of objects assertions ###
     def extract(self, *names):
         """Asserts that val is collection, then extracts the named properties or named zero-arg methods into a list (or list of tuples if multiple names are given)."""
         if type(self.val) not in [list, tuple, set]:
-            raise TypeError('val is not collection')
+            raise TypeError('val is not a collection')
         if len(names) == 0:
             raise ValueError('one or more name args must be given')
         extracted = []
