@@ -302,6 +302,12 @@ class AssertionBuilder(object):
         return self
 
 ### dict assertions ###
+    def contains_key(self, *keys):
+        """Asserts the val is a dict and contains the given key or keys.  Alias for contains()."""
+        if type(self.val) is not dict:
+            raise TypeError('val is not a dict')
+        return self.contains(*keys)
+
     def contains_value(self, *values):
         """Asserts that val is a dict and contains the given value or values."""
         if type(self.val) is not dict:

@@ -69,6 +69,34 @@ class TestDict(object):
             return
         self.fail('should not fail')
 
+    def testContainsKey(self):
+        assert_that({ 'a':1,'b':2,'c':3 }).contains_key('a')
+        assert_that({ 'a':1,'b':2,'c':3 }).contains_key('a','b')
+
+    def testContainsKeyNotADictFailure(self):
+        try:
+            assert_that(123).contains_key(1)
+        except TypeError, ex:
+            assert_that(ex.message).is_equal_to('val is not a dict')
+            return
+        self.fail('should not fail')
+
+    def testContainsKeySingleItemFailure(self):
+        try:
+            assert_that({ 'a':1,'b':2,'c':3 }).contains_key('x')
+        except AssertionError, ex:
+            assert_that(ex.message).is_equal_to("Expected <{'a': 1, 'c': 3, 'b': 2}> to contain item <x>, but did not.")
+            return
+        self.fail('should not fail')
+
+    def testContainsKeyMultiItemFailure(self):
+        try:
+            assert_that({ 'a':1,'b':2,'c':3 }).contains_key('a','x','z')
+        except AssertionError, ex:
+            assert_that(ex.message).is_equal_to("Expected <{'a': 1, 'c': 3, 'b': 2}> to contain items ('a', 'x', 'z'), but did not contain <x>.")
+            return
+        self.fail('should not fail')
+
     def testDoesNotContain(self):
         assert_that({ 'a':1,'b':2,'c':3 }).does_not_contain('x')
         assert_that({ 'a':1,'b':2,'c':3 }).does_not_contain('x','y')
