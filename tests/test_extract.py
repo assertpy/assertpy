@@ -51,7 +51,7 @@ class TestExtract(object):
         try:
             assert_that('foo').extract('bar')
         except TypeError, ex:
-            assert_that(ex.message).is_equal_to('val is not collection')
+            assert_that(ex.message).is_equal_to('val is not a collection')
             return
         self.fail('should not fail')
 
