@@ -331,6 +331,7 @@ class AssertionBuilder(object):
                 raise AssertionError('Expected <%s> to contain entry %s, but key <%s> did not contain value <%s>.' % (self.val, e, k, e[k]))
         return self
 
+### collection of classes assertions###
     def extract(self, *names):
         """Asserts that val is collection, then extracts the named properties or named zero-arg methods into a list (or list of tuples if multiple names are given)."""
         if type(self.val) not in [list, tuple, set]:
