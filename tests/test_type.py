@@ -30,8 +30,8 @@ import types
 from assertpy import assert_that
 
 class TestType(object):
-    
-    def testIsTypeOf(self):
+
+    def test_is_type_of(self):
         assert_that('foo').is_type_of(str)
         assert_that(123).is_type_of(int)
         assert_that(0.456).is_type_of(float)
@@ -43,8 +43,8 @@ class TestType(object):
         assert_that(None).is_type_of(types.NoneType)
         assert_that(Foo()).is_type_of(Foo)
         assert_that(Bar()).is_type_of(Bar)
-    
-    def testIsTypeOfFailure(self):
+
+    def test_is_type_of_failure(self):
         try:
             assert_that('foo').is_type_of(int)
         except AssertionError, ex:
@@ -52,7 +52,7 @@ class TestType(object):
             return
         self.fail('should not fail')
 
-    def testIsTypeOfBadArgFailure(self):
+    def test_is_type_of_bad_arg_failure(self):
         try:
             assert_that('foo').is_type_of('bad')
         except TypeError, ex:
@@ -60,7 +60,7 @@ class TestType(object):
             return
         self.fail('should not fail')
 
-    def testIsTypeOfSubClassFailure(self):
+    def test_is_type_of_subclass_failure(self):
         try:
             assert_that(Bar()).is_type_of(Foo)
         except AssertionError, ex:
@@ -68,8 +68,8 @@ class TestType(object):
             assert_that(ex.message).ends_with(':Bar> to be of type <Foo>, but was not.')
             return
         self.fail('should not fail')
-        
-    def testIsInstanceOf(self):
+
+    def test_is_instance_of(self):
         assert_that('foo').is_instance_of(str)
         assert_that(123).is_instance_of(int)
         assert_that(0.456).is_instance_of(float)
@@ -82,8 +82,8 @@ class TestType(object):
         assert_that(Foo()).is_instance_of(Foo)
         assert_that(Bar()).is_instance_of(Bar)
         assert_that(Bar()).is_instance_of(Foo)
-   
-    def testIsInstanceOfFailure(self):
+
+    def test_is_instance_of_failure(self):
         try:
             assert_that('foo').is_instance_of(int)
         except AssertionError, ex:
@@ -91,7 +91,7 @@ class TestType(object):
             return
         self.fail('should not fail')
 
-    def testIsInstanceOfBadArgFailure(self):
+    def test_is_instance_of_bad_arg_failure(self):
         try:
             assert_that('foo').is_instance_of('bad')
         except TypeError, ex:

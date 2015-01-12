@@ -29,11 +29,11 @@
 from assertpy import assert_that
 
 class TestString(object):
-    
-    def testHasLength(self):
+
+    def test_is_length(self):
         assert_that('foo').is_length(3)
-    
-    def testHasLengthFailure(self):
+
+    def test_is_length_failure(self):
         try:
             assert_that('foo').is_length(4)
         except AssertionError, ex:
@@ -41,22 +41,22 @@ class TestString(object):
             return
         self.fail('should not fail')
 
-    def testContains(self):
+    def test_contains(self):
         assert_that('foo').contains('f')
         assert_that('foo').contains('o')
         assert_that('foo').contains('fo','o')
         assert_that('fred').contains('d')
         assert_that('fred').contains('fr','e','d')
-    
-    def testContainsSingleItemFailure(self):
+
+    def test_contains_single_item_failure(self):
         try:
             assert_that('foo').contains('x')
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to('Expected <foo> to contain item <x>, but did not.')
             return
         self.fail('should not fail')
-    
-    def testContainsMultiItemFailure(self):
+
+    def test_contains_multi_item_failure(self):
         try:
             assert_that('foo').contains('f','x','z')
         except AssertionError, ex:
@@ -64,11 +64,11 @@ class TestString(object):
             return
         self.fail('should not fail')
 
-    def testDoesNotContain(self):
+    def test_does_not_contain(self):
         assert_that('foo').does_not_contain('x')
         assert_that('foo').does_not_contain('x','y')
-    
-    def testDoesNotContainSingleItemFailure(self):
+
+    def test_does_not_contain_single_item_failure(self):
         try:
             assert_that('foo').does_not_contain('f')
         except AssertionError, ex:
@@ -76,7 +76,7 @@ class TestString(object):
             return
         self.fail('should not fail')
 
-    def testDoesNotContainListItemFailure(self):
+    def test_does_not_contain_list_item_failure(self):
         try:
             assert_that('foo').does_not_contain('x','y','f')
         except AssertionError, ex:
@@ -84,10 +84,10 @@ class TestString(object):
             return
         self.fail('should not fail')
 
-    def testIsEmpty(self):
+    def test_is_empty(self):
         assert_that('').is_empty()
-        
-    def testIsEmptyFailure(self):
+
+    def test_is_empty_failure(self):
         try:
             assert_that('foo').is_empty()
         except AssertionError, ex:
@@ -95,10 +95,10 @@ class TestString(object):
             return
         self.fail('should not fail')
 
-    def testIsNotEmpty(self):
+    def test_is_not_empty(self):
         assert_that('foo').is_not_empty()
-        
-    def testIsNotEmptyFailure(self):
+
+    def test_is_not_empty_failure(self):
         try:
             assert_that('').is_not_empty()
         except AssertionError, ex:
@@ -106,12 +106,12 @@ class TestString(object):
             return
         self.fail('should not fail')
 
-    def testIsEqualIgnoringCase(self):
+    def test_is_equal_ignoring_case(self):
         assert_that('FOO').is_equal_to_ignoring_case('foo')
         assert_that('foo').is_equal_to_ignoring_case('FOO')
         assert_that('fOO').is_equal_to_ignoring_case('foo')
-    
-    def testIsEqualIgnoringCaseFailure(self):
+
+    def test_is_equal_ignoring_case_failure(self):
         try:
             assert_that('foo').is_equal_to_ignoring_case('bar')
         except AssertionError, ex:
@@ -119,7 +119,7 @@ class TestString(object):
             return
         self.fail('should not fail')
 
-    def testIsEqualIgnoringWithBadValueTypeFailure(self):
+    def test_is_equal_ignoring_case_bad_value_type_failure(self):
         try:
             assert_that(123).is_equal_to_ignoring_case(12)
         except TypeError, ex:
@@ -127,7 +127,7 @@ class TestString(object):
             return
         self.fail('should not fail')
 
-    def testIsEqualIgnoringWithBadArgTypeFailure(self):
+    def test_is_equal_ignoring_case_bad_arg_type_failure(self):
         try:
             assert_that('fred').is_equal_to_ignoring_case(12)
         except TypeError, ex:
@@ -135,12 +135,12 @@ class TestString(object):
             return
         self.fail('should not fail')
 
-    def testStartsWith(self):
+    def test_starts_with(self):
         assert_that('fred').starts_with('f')
         assert_that('fred').starts_with('fr')
         assert_that('fred').starts_with('fred')
-    
-    def testStartsWithFailure(self):
+
+    def test_starts_with_failure(self):
         try:
             assert_that('fred').starts_with('bar')
         except AssertionError, ex:
@@ -148,23 +148,23 @@ class TestString(object):
             return
         self.fail('should not fail')
 
-    def testStartsWithBadValueTypeFailure(self):
+    def test_starts_with_bad_value_type_failure(self):
         try:
             assert_that(123).starts_with(12)
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('val is not a string')
             return
         self.fail('should not fail')
-        
-    def testStartsWithBadArgTypeFailure(self):
+
+    def test_starts_with_bad_arg_type_failure(self):
         try:
             assert_that('fred').starts_with(123)
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('given prefix arg must be a string')
             return
         self.fail('should not fail')
-        
-    def testStartsWithBadArgEmptyFailure(self):
+
+    def test_starts_with_bad_arg_empty_failure(self):
         try:
             assert_that('fred').starts_with('')
         except ValueError, ex:
@@ -172,12 +172,12 @@ class TestString(object):
             return
         self.fail('should not fail')
 
-    def testEndsWith(self):
+    def test_ends_with(self):
         assert_that('fred').ends_with('d')
         assert_that('fred').ends_with('ed')
         assert_that('fred').ends_with('fred')
 
-    def testEndsWithFailure(self):
+    def test_ends_with_failure(self):
         try:
             assert_that('fred').ends_with('bar')
         except AssertionError, ex:
@@ -185,23 +185,23 @@ class TestString(object):
             return
         self.fail('should not fail')
 
-    def testEndsWithBadValueTypeFailure(self):
+    def test_ends_with_bad_value_type_failure(self):
         try:
             assert_that(123).ends_with(12)
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('val is not a string')
             return
         self.fail('should not fail')
-        
-    def testEndsWithBadArgTypeFailure(self):
+
+    def test_ends_with_bad_arg_type_failure(self):
         try:
             assert_that('fred').ends_with(123)
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('given suffix arg must be a string')
             return
         self.fail('should not fail')
-        
-    def testEndsWithBadArgEmptyFailure(self):
+
+    def test_ends_with_bad_arg_empty_failure(self):
         try:
             assert_that('fred').ends_with('')
         except ValueError, ex:
@@ -209,7 +209,7 @@ class TestString(object):
             return
         self.fail('should not fail')
 
-    def testMatches(self):
+    def test_matches(self):
         assert_that('fred').matches('\w')
         assert_that('fred').matches('\w{2}')
         assert_that('fred').matches('\w+')
@@ -217,7 +217,7 @@ class TestString(object):
         assert_that('fred').matches('^.*?$')
         assert_that('123-456-7890').matches('\d{3}-\d{3}-\d{4}')
 
-    def testMatchesFailure(self):
+    def test_matches_failure(self):
         try:
             assert_that('fred').matches('\d+')
         except AssertionError, ex:
@@ -225,23 +225,23 @@ class TestString(object):
             return
         self.fail('should not fail')
 
-    def testMatchesBadValueTypeFailure(self):
+    def test_matches_bad_value_type_failure(self):
         try:
             assert_that(123).matches(12)
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('val is not a string')
             return
         self.fail('should not fail')
-        
-    def testMatchesBadArgTypeFailure(self):
+
+    def test_matches_bad_arg_type_failure(self):
         try:
             assert_that('fred').matches(123)
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('given pattern arg must be a string')
             return
         self.fail('should not fail')
-        
-    def testMatchesBadArgEmptyFailure(self):
+
+    def test_matches_bad_arg_empty_failure(self):
         try:
             assert_that('fred').matches('')
         except ValueError, ex:
@@ -249,12 +249,12 @@ class TestString(object):
             return
         self.fail('should not fail')
 
-    def testDoesNotMatch(self):
+    def test_does_not_match(self):
         assert_that('fred').does_not_match('\d+')
         assert_that('fred').does_not_match('\w{5}')
         assert_that('123-456-7890').does_not_match('^\d+$')
 
-    def testDoesNotMatchFailure(self):
+    def test_does_not_match_failure(self):
         try:
             assert_that('fred').does_not_match('\w+')
         except AssertionError, ex:
@@ -262,23 +262,23 @@ class TestString(object):
             return
         self.fail('should not fail')
 
-    def testDoesNotMatchBadValueTypeFailure(self):
+    def test_does_not_match_bad_value_type_failure(self):
         try:
             assert_that(123).does_not_match(12)
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('val is not a string')
             return
         self.fail('should not fail')
-        
-    def testDoesNotMatchBadArgTypeFailure(self):
+
+    def test_does_not_match_bad_arg_type_failure(self):
         try:
             assert_that('fred').does_not_match(123)
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('given pattern arg must be a string')
             return
         self.fail('should not fail')
-        
-    def testDoesNotMatchBadArgEmptyFailure(self):
+
+    def test_does_not_match_bad_arg_empty_failure(self):
         try:
             assert_that('fred').does_not_match('')
         except ValueError, ex:
@@ -286,10 +286,10 @@ class TestString(object):
             return
         self.fail('should not fail')
 
-    def testIsAlpha(self):
+    def test_is_alpha(self):
         assert_that('foo').is_alpha()
 
-    def testIsAlphaFailureWithDigits(self):
+    def test_is_alpha_digit_failure(self):
         try:
             assert_that('foo123').is_alpha()
         except AssertionError, ex:
@@ -297,7 +297,7 @@ class TestString(object):
             return
         self.fail('should not fail')
 
-    def testIsAlphaFailureWithSpaces(self):
+    def test_is_alpha_space_failure(self):
         try:
             assert_that('foo bar').is_alpha()
         except AssertionError, ex:
@@ -305,7 +305,7 @@ class TestString(object):
             return
         self.fail('should not fail')
 
-    def testIsAlphaFailureWithPunctuation(self):
+    def test_is_alpha_punctuation_failure(self):
         try:
             assert_that('foo,bar').is_alpha()
         except AssertionError, ex:
@@ -313,7 +313,7 @@ class TestString(object):
             return
         self.fail('should not fail')
 
-    def testIsAlphaBadValueTypeFailure(self):
+    def test_is_alpha_bad_value_type_failure(self):
         try:
             assert_that(123).is_alpha()
         except TypeError, ex:
@@ -321,7 +321,7 @@ class TestString(object):
             return
         self.fail('should not fail')
 
-    def testIsAlphaEmptyValueFailure(self):
+    def test_is_alpha_empty_value_failure(self):
         try:
             assert_that('').is_alpha()
         except ValueError, ex:
@@ -329,10 +329,10 @@ class TestString(object):
             return
         self.fail('should not fail')
 
-    def testIsDigit(self):
+    def test_is_digit(self):
         assert_that('123').is_digit()
 
-    def testIsDigitFailureWithAlpha(self):
+    def test_is_digit_alpha_failure(self):
         try:
             assert_that('foo123').is_digit()
         except AssertionError, ex:
@@ -340,7 +340,7 @@ class TestString(object):
             return
         self.fail('should not fail')
 
-    def testIsDigitFailureWithSpaces(self):
+    def test_is_digit_space_failure(self):
         try:
             assert_that('1 000 000').is_digit()
         except AssertionError, ex:
@@ -348,7 +348,7 @@ class TestString(object):
             return
         self.fail('should not fail')
 
-    def testIsDigitFailureWithPunctuation(self):
+    def test_is_digit_punctuation_failure(self):
         try:
             assert_that('-123').is_digit()
         except AssertionError, ex:
@@ -356,7 +356,7 @@ class TestString(object):
             return
         self.fail('should not fail')
 
-    def testIsDigitBadValueTypeFailure(self):
+    def test_is_digit_bad_value_type_failure(self):
         try:
             assert_that(123).is_digit()
         except TypeError, ex:
@@ -364,7 +364,7 @@ class TestString(object):
             return
         self.fail('should not fail')
 
-    def testIsDigitEmptyValueFailure(self):
+    def test_is_digit_empty_value_failure(self):
         try:
             assert_that('').is_digit()
         except ValueError, ex:
@@ -372,12 +372,12 @@ class TestString(object):
             return
         self.fail('should not fail')
 
-    def testIsUnicode(self):
+    def test_is_unicode(self):
         assert_that(u'unicorn').is_unicode()
         assert_that(u'unicorn 123').is_unicode()
         assert_that(unicode('unicorn')).is_unicode()
 
-    def testIsUnicodeFailure(self):
+    def test_is_unicode_failure(self):
         try:
             assert_that('foo').is_unicode()
         except AssertionError, ex:
@@ -385,6 +385,6 @@ class TestString(object):
             return
         self.fail('should not fail')
 
-    def testAssertChaining(self):
+    def test_chaining(self):
         assert_that('foo').is_type_of(str).is_length(3).contains('f').does_not_contain('x')
         assert_that('fred').starts_with('f').ends_with('d').matches('^f.*?d$').does_not_match('\d')

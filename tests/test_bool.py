@@ -29,13 +29,13 @@
 from assertpy import assert_that
 
 class TestBool(object):
-    
-    def testIsTrue(self):
+
+    def test_is_true(self):
         assert_that(True).is_true()
         assert_that(1 == 1).is_true()
         assert_that(1).is_true()
-    
-    def testIsTrueFailure(self):
+
+    def test_is_true_failure(self):
         try:
             assert_that(False).is_true()
         except AssertionError, ex:
@@ -43,19 +43,18 @@ class TestBool(object):
             return
         self.fail('should not fail')
 
-    def testIsFalse(self):
+    def test_is_false(self):
         assert_that(False).is_false()
         assert_that(1 == 2).is_false()
         assert_that(0).is_false()
         assert_that([]).is_false()
         assert_that({}).is_false()
         assert_that(()).is_false()
-    
-    def testIsFalseFailure(self):
+
+    def test_is_false_failure(self):
         try:
             assert_that(True).is_false()
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to('Expected <False>, but was not.')
             return
         self.fail('should not fail')
-

@@ -30,10 +30,10 @@ from assertpy import assert_that
 
 class TestDict(object):
 
-    def testHasLength(self):
+    def test_is_length(self):
         assert_that({ 'a':1,'b':2 }).is_length(2)
 
-    def testHasLengthFailure(self):
+    def test_is_length_failure(self):
         try:
             assert_that({ 'a':1,'b':2,'c':3 }).is_length(4)
         except AssertionError, ex:
@@ -41,11 +41,11 @@ class TestDict(object):
             return
         self.fail('should not fail')
 
-    def testContains(self):
+    def test_contains(self):
         assert_that({ 'a':1,'b':2,'c':3 }).contains('a')
         assert_that({ 'a':1,'b':2,'c':3 }).contains('a','b')
 
-    def testContainsEmptyArgFailure(self):
+    def test_contains_empty_arg_failure(self):
         try:
             assert_that({ 'a':1,'b':2,'c':3 }).contains()
         except ValueError, ex:
@@ -53,7 +53,7 @@ class TestDict(object):
             return
         self.fail('should not fail')
 
-    def testContainsSingleItemFailure(self):
+    def test_contains_single_item_failure(self):
         try:
             assert_that({ 'a':1,'b':2,'c':3 }).contains('x')
         except AssertionError, ex:
@@ -61,7 +61,7 @@ class TestDict(object):
             return
         self.fail('should not fail')
 
-    def testContainsMultiItemFailure(self):
+    def test_contains_multi_item_failure(self):
         try:
             assert_that({ 'a':1,'b':2,'c':3 }).contains('a','x','z')
         except AssertionError, ex:
@@ -69,11 +69,11 @@ class TestDict(object):
             return
         self.fail('should not fail')
 
-    def testContainsKey(self):
+    def test_contains_key(self):
         assert_that({ 'a':1,'b':2,'c':3 }).contains_key('a')
         assert_that({ 'a':1,'b':2,'c':3 }).contains_key('a','b')
 
-    def testContainsKeyNotADictFailure(self):
+    def test_contains_key_bad_val_failure(self):
         try:
             assert_that(123).contains_key(1)
         except TypeError, ex:
@@ -81,7 +81,7 @@ class TestDict(object):
             return
         self.fail('should not fail')
 
-    def testContainsKeySingleItemFailure(self):
+    def test_contains_key_single_item_failure(self):
         try:
             assert_that({ 'a':1,'b':2,'c':3 }).contains_key('x')
         except AssertionError, ex:
@@ -89,7 +89,7 @@ class TestDict(object):
             return
         self.fail('should not fail')
 
-    def testContainsKeyMultiItemFailure(self):
+    def test_contains_key_multi_item_failure(self):
         try:
             assert_that({ 'a':1,'b':2,'c':3 }).contains_key('a','x','z')
         except AssertionError, ex:
@@ -97,11 +97,11 @@ class TestDict(object):
             return
         self.fail('should not fail')
 
-    def testDoesNotContain(self):
+    def test_does_not_contain(self):
         assert_that({ 'a':1,'b':2,'c':3 }).does_not_contain('x')
         assert_that({ 'a':1,'b':2,'c':3 }).does_not_contain('x','y')
 
-    def testDoesNotContainEmptyArgFailure(self):
+    def test_does_not_contain_empty_arg_failure(self):
         try:
             assert_that({ 'a':1,'b':2,'c':3 }).does_not_contain()
         except ValueError, ex:
@@ -109,7 +109,7 @@ class TestDict(object):
             return
         self.fail('should not fail')
 
-    def testDoesNotContainSingleItemFailure(self):
+    def test_does_not_contain_single_item_failure(self):
         try:
             assert_that({ 'a':1,'b':2,'c':3 }).does_not_contain('a')
         except AssertionError, ex:
@@ -117,7 +117,7 @@ class TestDict(object):
             return
         self.fail('should not fail')
 
-    def testDoesNotContainListItemFailure(self):
+    def test_does_not_contain_list_item_failure(self):
         try:
             assert_that({ 'a':1,'b':2,'c':3 }).does_not_contain('x','y','a')
         except AssertionError, ex:
@@ -125,10 +125,10 @@ class TestDict(object):
             return
         self.fail('should not fail')
 
-    def testIsEmpty(self):
+    def test_is_empty(self):
         assert_that({}).is_empty()
 
-    def testIsEmptyFailure(self):
+    def test_is_empty_failure(self):
         try:
             assert_that({ 'a':1,'b':2 }).is_empty()
         except AssertionError, ex:
@@ -136,11 +136,11 @@ class TestDict(object):
             return
         self.fail('should not fail')
 
-    def testIsNotEmpty(self):
+    def test_is_not_empty(self):
         assert_that({'a':1,'b':2}).is_not_empty()
         assert_that({'a','b'}).is_not_empty()
 
-    def testIsNotEmptyFailure(self):
+    def test_is_not_empty_failure(self):
         try:
             assert_that({}).is_not_empty()
         except AssertionError, ex:
@@ -148,11 +148,11 @@ class TestDict(object):
             return
         self.fail('should not fail')
 
-    def testContainsValue(self):
+    def test_contains_value(self):
         assert_that({ 'a':1,'b':2,'c':3 }).contains_value(1)
         assert_that({ 'a':1,'b':2,'c':3 }).contains_value(1,2)
 
-    def testContainsValueBadValFailure(self):
+    def test_contains_value_bad_val_failure(self):
         try:
             assert_that('foo').contains_value('x')
         except TypeError, ex:
@@ -160,7 +160,7 @@ class TestDict(object):
             return
         self.fail('should not fail')
 
-    def testContainsValueSingleItemFailure(self):
+    def test_contains_value_single_item_failure(self):
         try:
             assert_that({ 'a':1,'b':2,'c':3 }).contains_value(4)
         except AssertionError, ex:
@@ -168,7 +168,7 @@ class TestDict(object):
             return
         self.fail('should not fail')
 
-    def testContainsValueMultiItemFailure(self):
+    def test_contains_value_multi_item_failure(self):
         try:
             assert_that({ 'a':1,'b':2,'c':3 }).contains_value(1,4,5)
         except AssertionError, ex:
@@ -176,11 +176,11 @@ class TestDict(object):
             return
         self.fail('should not fail')
 
-    def testContainsEntry(self):
+    def test_contains_entry(self):
         assert_that({ 'a':1,'b':2,'c':3 }).contains_entry({ 'a':1 })
         assert_that({ 'a':1,'b':2,'c':3 }).contains_entry({ 'a':1 },{ 'b':2 })
 
-    def testContainsEntryBadValFailure(self):
+    def test_contains_entry_bad_val_failure(self):
         try:
             assert_that('foo').contains_entry({ 'a':1 })
         except TypeError, ex:
@@ -188,7 +188,7 @@ class TestDict(object):
             return
         self.fail('should not fail')
 
-    def testContainsEntryEmptyArgFailure(self):
+    def test_contains_entry_empty_arg_failure(self):
         try:
             assert_that({ 'a':1,'b':2,'c':3 }).contains_entry()
         except ValueError, ex:
@@ -196,7 +196,7 @@ class TestDict(object):
             return
         self.fail('should not fail')
 
-    def testContainsEntryBadArgTypeFailure(self):
+    def test_contains_entry_bad_arg_type_failure(self):
         try:
             assert_that({ 'a':1,'b':2,'c':3 }).contains_entry('x')
         except TypeError, ex:
@@ -204,7 +204,7 @@ class TestDict(object):
             return
         self.fail('should not fail')
 
-    def testContainsEntryBadArgTooBigFailure(self):
+    def test_contains_entry_bad_arg_too_big_failure(self):
         try:
             assert_that({ 'a':1,'b':2,'c':3 }).contains_entry({ 'a':1, 'b':2 })
         except ValueError, ex:
@@ -212,7 +212,7 @@ class TestDict(object):
             return
         self.fail('should not fail')
 
-    def testContainsEntrySingleEntryKeyFailure(self):
+    def test_contains_entry_bad_key_failure(self):
         try:
             assert_that({ 'a':1,'b':2,'c':3 }).contains_entry({ 'x':1 })
         except AssertionError, ex:
@@ -220,7 +220,7 @@ class TestDict(object):
             return
         self.fail('should not fail')
 
-    def testContainsEntrySingleEntryValueFailure(self):
+    def test_contains_entry_bad_value_failure(self):
         try:
             assert_that({ 'a':1,'b':2,'c':3 }).contains_entry({ 'a':2 })
         except AssertionError, ex:
@@ -228,7 +228,7 @@ class TestDict(object):
             return
         self.fail('should not fail')
 
-    def testContainsEntryMultiEntryKeyFailure(self):
+    def test_contains_entry_bad_keys_failure(self):
         try:
             assert_that({ 'a':1,'b':2,'c':3 }).contains_entry({ 'a':1 },{ 'x':2 })
         except AssertionError, ex:
@@ -236,11 +236,10 @@ class TestDict(object):
             return
         self.fail('should not fail')
 
-    def testContainsEntryMultiEntryValueFailure(self):
+    def test_contains_entry_bad_values_failure(self):
         try:
             assert_that({ 'a':1,'b':2,'c':3 }).contains_entry({ 'a':1 },{ 'b':4 })
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to("Expected <{'a': 1, 'c': 3, 'b': 2}> to contain entry {'b': 4}, but key <b> did not contain value <4>.")
             return
         self.fail('should not fail')
-

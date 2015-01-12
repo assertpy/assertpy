@@ -29,17 +29,17 @@
 from assertpy import assert_that
 
 class TestClass(object):
-    
+
     def setup(self):
         self.fred = Person('Fred','Smith')
         self.joe = Developer('Joe','Coder')
         self.people = [self.fred, self.joe]
 
-    def testIsTypeOf(self):
+    def test_is_type_of(self):
         assert_that(self.fred).is_type_of(Person)
         assert_that(self.joe).is_type_of(Developer)
 
-    def testIsInstanceOf(self):
+    def test_is_instance_of(self):
         assert_that(self.fred).is_instance_of(Person)
         assert_that(self.fred).is_instance_of(object)
 
@@ -47,20 +47,20 @@ class TestClass(object):
         assert_that(self.joe).is_instance_of(Person)
         assert_that(self.joe).is_instance_of(object)
 
-    def testExtractAttribute(self):
+    def test_extract_attribute(self):
         assert_that(self.people).extract('first_name').is_equal_to(['Fred','Joe'])
         assert_that(self.people).extract('first_name').contains('Fred','Joe')
 
-    def testExtractProperty(self):
+    def test_extract_property(self):
         assert_that(self.people).extract('name').contains('Fred Smith','Joe Coder')
 
-    def testExtractMultiple(self):
+    def test_extract_multiple(self):
         assert_that(self.people).extract('first_name', 'name').contains(('Fred','Fred Smith'), ('Joe','Joe Coder'))
 
-    def testExtractZeroArgMethod(self):
+    def test_extract_zero_arg_method(self):
         assert_that(self.people).extract('say_hello').contains('Hello, Fred!', 'Joe writes code.')
 
-    def testReadme(self):
+    def test_github_readme(self):
         fred = Person('Fred','Smith')
 
         assert_that(fred).is_not_none()

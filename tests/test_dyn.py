@@ -33,7 +33,7 @@ class TestDyn(object):
     def setup(self):
         self.fred = Person('Fred','Smith',12)
 
-    def testDynamicAssertion(self):
+    def test_dynamic_assertion(self):
         assert_that(self.fred).is_type_of(Person)
         assert_that(self.fred).is_instance_of(object)
 
@@ -45,7 +45,7 @@ class TestDyn(object):
         assert_that(self.fred).has_last_name('Smith')
         assert_that(self.fred).has_shoe_size(12)
 
-    def testDynamicAssertionFailure(self):
+    def test_dynamic_assertion_failure(self):
         try:
             assert_that(self.fred).has_first_name('Joe')
         except AssertionError, ex:
@@ -53,7 +53,7 @@ class TestDyn(object):
             return
         self.fail('should not fail')
 
-    def testDynamicAssertionFailureBadName(self):
+    def test_dynamic_assertion_bad_name_failure(self):
         try:
             assert_that(self.fred).foo()
         except AttributeError, ex:
@@ -61,7 +61,7 @@ class TestDyn(object):
             return
         self.fail('should not fail')
 
-    def testDynamicAssertionFailureUnknownAttribute(self):
+    def test_dynamic_assertion_unknown_attribute_failure(self):
         try:
             assert_that(self.fred).has_foo()
         except AttributeError, ex:
@@ -69,7 +69,7 @@ class TestDyn(object):
             return
         self.fail('should not fail')
 
-    def testDynamicAssertionFailureNoArgs(self):
+    def test_dynamic_assertion_no_args_failure(self):
         try:
             assert_that(self.fred).has_first_name()
         except TypeError, ex:
@@ -77,7 +77,7 @@ class TestDyn(object):
             return
         self.fail('should not fail')
 
-    def testDynamicAssertionFailureTooManyArgs(self):
+    def test_dynamic_assertion_too_many_args_failure(self):
         try:
             assert_that(self.fred).has_first_name('Fred','Joe')
         except TypeError, ex:
@@ -85,7 +85,7 @@ class TestDyn(object):
             return
         self.fail('should not fail')
 
-    def testDynamicAssertionChaining(self):
+    def test_chaining(self):
         assert_that(self.fred).has_first_name('Fred').has_last_name('Smith').has_shoe_size(12)
 
 class Person(object):
