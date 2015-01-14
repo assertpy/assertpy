@@ -57,7 +57,7 @@ class TestDict(object):
         try:
             assert_that({ 'a':1,'b':2,'c':3 }).contains('x')
         except AssertionError, ex:
-            assert_that(ex.message).is_equal_to("Expected <{'a': 1, 'c': 3, 'b': 2}> to contain item <x>, but did not.")
+            assert_that(ex.message).is_equal_to("Expected <{'a': 1, 'c': 3, 'b': 2}> to contain key <x>, but did not.")
             return
         self.fail('should not fail')
 
@@ -65,7 +65,7 @@ class TestDict(object):
         try:
             assert_that({ 'a':1,'b':2,'c':3 }).contains('a','x','z')
         except AssertionError, ex:
-            assert_that(ex.message).is_equal_to("Expected <{'a': 1, 'c': 3, 'b': 2}> to contain items ('a', 'x', 'z'), but did not contain <x>.")
+            assert_that(ex.message).is_equal_to("Expected <{'a': 1, 'c': 3, 'b': 2}> to contain keys ('a', 'x', 'z'), but did not contain key <x>.")
             return
         self.fail('should not fail')
 
@@ -85,7 +85,7 @@ class TestDict(object):
         try:
             assert_that({ 'a':1,'b':2,'c':3 }).contains_key('x')
         except AssertionError, ex:
-            assert_that(ex.message).is_equal_to("Expected <{'a': 1, 'c': 3, 'b': 2}> to contain item <x>, but did not.")
+            assert_that(ex.message).is_equal_to("Expected <{'a': 1, 'c': 3, 'b': 2}> to contain key <x>, but did not.")
             return
         self.fail('should not fail')
 
@@ -93,7 +93,7 @@ class TestDict(object):
         try:
             assert_that({ 'a':1,'b':2,'c':3 }).contains_key('a','x','z')
         except AssertionError, ex:
-            assert_that(ex.message).is_equal_to("Expected <{'a': 1, 'c': 3, 'b': 2}> to contain items ('a', 'x', 'z'), but did not contain <x>.")
+            assert_that(ex.message).is_equal_to("Expected <{'a': 1, 'c': 3, 'b': 2}> to contain keys ('a', 'x', 'z'), but did not contain key <x>.")
             return
         self.fail('should not fail')
 

@@ -121,11 +121,17 @@ class AssertionBuilder(object):
             raise ValueError('one or more args must be given')
         elif len(items) == 1:
             if items[0] not in self.val:
-                raise AssertionError('Expected <%s> to contain item <%s>, but did not.' % (self.val, items[0]))
+                if type(self.val) is dict:
+                    raise AssertionError('Expected <%s> to contain key <%s>, but did not.' % (self.val, items[0]))
+                else:
+                    raise AssertionError('Expected <%s> to contain item <%s>, but did not.' % (self.val, items[0]))
         else:
             for i in items:
                 if i not in self.val:
-                    raise AssertionError('Expected <%s> to contain items %s, but did not contain <%s>.' % (self.val, items, i))
+                    if type(self.val) is dict:
+                        raise AssertionError('Expected <%s> to contain keys %s, but did not contain key <%s>.' % (self.val, items, i))
+                    else:
+                        raise AssertionError('Expected <%s> to contain items %s, but did not contain <%s>.' % (self.val, items, i))
         return self
 
     def does_not_contain(self, *items):
