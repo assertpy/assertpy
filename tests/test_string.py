@@ -372,6 +372,64 @@ class TestString(object):
             return
         self.fail('should not fail')
 
+    def test_is_lower(self):
+        assert_that('foo').is_lower()
+        assert_that('foo 123').is_lower()
+        assert_that('123 456').is_lower()
+
+    def test_is_lower_failure(self):
+        try:
+            assert_that('FOO').is_lower()
+        except AssertionError, ex:
+            assert_that(ex.message).is_equal_to('Expected <FOO> to contain only lowercase chars, but did not.')
+            return
+        self.fail('should not fail')
+
+    def test_is_lower_bad_value_type_failure(self):
+        try:
+            assert_that(123).is_lower()
+        except TypeError, ex:
+            assert_that(ex.message).is_equal_to('val is not a string')
+            return
+        self.fail('should not fail')
+
+    def test_is_lower_empty_value_failure(self):
+        try:
+            assert_that('').is_lower()
+        except ValueError, ex:
+            assert_that(ex.message).is_equal_to('val is empty')
+            return
+        self.fail('should not fail')
+
+    def test_is_upper(self):
+        assert_that('FOO').is_upper()
+        assert_that('FOO 123').is_upper()
+        assert_that('123 456').is_upper()
+
+    def test_is_upper_failure(self):
+        try:
+            assert_that('foo').is_upper()
+        except AssertionError, ex:
+            assert_that(ex.message).is_equal_to('Expected <foo> to contain only uppercase chars, but did not.')
+            return
+        self.fail('should not fail')
+
+    def test_is_upper_bad_value_type_failure(self):
+        try:
+            assert_that(123).is_upper()
+        except TypeError, ex:
+            assert_that(ex.message).is_equal_to('val is not a string')
+            return
+        self.fail('should not fail')
+
+    def test_is_upper_empty_value_failure(self):
+        try:
+            assert_that('').is_upper()
+        except ValueError, ex:
+            assert_that(ex.message).is_equal_to('val is empty')
+            return
+        self.fail('should not fail')
+
     def test_is_unicode(self):
         assert_that(u'unicorn').is_unicode()
         assert_that(u'unicorn 123').is_unicode()

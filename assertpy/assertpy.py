@@ -301,6 +301,26 @@ class AssertionBuilder(object):
             raise AssertionError('Expected <%s> to contain only digits, but did not.' % self.val)
         return self
 
+    def is_lower(self):
+        """Asserts that val is non-empty string and all characters are lowercase."""
+        if type(self.val) is not str:
+            raise TypeError('val is not a string')
+        if len(self.val) == 0:
+            raise ValueError('val is empty')
+        if self.val != self.val.lower():
+            raise AssertionError('Expected <%s> to contain only lowercase chars, but did not.' % self.val)
+        return self
+
+    def is_upper(self):
+        """Asserts that val is non-empty string and all characters are uppercase."""
+        if type(self.val) is not str:
+            raise TypeError('val is not a string')
+        if len(self.val) == 0:
+            raise ValueError('val is empty')
+        if self.val != self.val.upper():
+            raise AssertionError('Expected <%s> to contain only uppercase chars, but did not.' % self.val)
+        return self
+
     def is_unicode(self):
         """Asserts that val is a unicode string."""
         if type(self.val) is not unicode:
