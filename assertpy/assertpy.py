@@ -393,12 +393,26 @@ class AssertionBuilder(object):
         """Asserts that val has attribute attr and that attribute's value is equal to other via a dynamic assertion of the form: has_<attr>()."""
         if not attr.startswith('has_'):
             raise AttributeError('assertpy has no assertion <%s()>' % attr)
-        if not hasattr(self.val, attr[4:]):
-            raise AttributeError('val has no attribute <%s>' % attr[4:])
+
+        attr_name = attr[4:]
+        if not hasattr(self.val, attr_name):
+            raise AttributeError('val has no attribute <%s>' % attr_name)
+
         def _wrapper(*args, **kwargs):
             if len(args) != 1:
                 raise TypeError('assertion <%s()> takes exactly 1 argument (%d given)' % (attr, len(args)))
-            if getattr(self.val, attr[4:]) != args[0]:
-                raise AssertionError('Expected <%s> to be equal to <%s>, but was not.' % (getattr(self.val, attr[4:]), args[0]))
+            other = args[0]
+            val_attr = getattr(self.val, attr_name)
+
+            if callable(val_attr):
+                try:
+                    val = val_attr()
+                except TypeError:
+                    raise TypeError('val does not have zero-arg method <%s()>' % attr_name)
+            else:
+                val = val_attr
+
+            if val != other:
+                raise AssertionError('Expected <%s> to be equal to <%s>, but was not.' % (val, other))
             return self
         return _wrapper

@@ -45,6 +45,14 @@ class TestDyn(object):
         assert_that(self.fred).has_last_name('Smith')
         assert_that(self.fred).has_shoe_size(12)
 
+    def test_dynamic_assertion_on_property(self):
+        assert_that(self.fred.name).is_equal_to('Fred Smith')
+        assert_that(self.fred).has_name('Fred Smith')
+
+    def test_dynamic_assertion_on_method(self):
+        assert_that(self.fred.say_hello()).is_equal_to('Hello, Fred!')
+        assert_that(self.fred).has_say_hello('Hello, Fred!')
+
     def test_dynamic_assertion_failure(self):
         try:
             assert_that(self.fred).has_first_name('Joe')
@@ -85,6 +93,14 @@ class TestDyn(object):
             return
         self.fail('should not fail')
 
+    def test_dynamic_assertion_on_method_failure(self):
+        try:
+            assert_that(self.fred).has_say_goodbye('Foo')
+        except TypeError, ex:
+            assert_that(ex.message).contains('val does not have zero-arg method <say_goodbye()>')
+            return
+        self.fail('should not fail')
+
     def test_chaining(self):
         assert_that(self.fred).has_first_name('Fred').has_last_name('Smith').has_shoe_size(12)
 
@@ -93,3 +109,13 @@ class Person(object):
         self.first_name = first_name
         self.last_name = last_name
         self.shoe_size = shoe_size
+
+    @property
+    def name(self):
+        return '%s %s' % (self.first_name, self.last_name)
+
+    def say_hello(self):
+        return 'Hello, %s!' % self.first_name
+
+    def say_goodbye(self, target):
+        return 'Bye, %s!' % target
