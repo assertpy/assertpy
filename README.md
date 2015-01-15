@@ -22,7 +22,7 @@ class TestSomething(object):
 
 The fluent API of `assertpy` is designed to create compact, yet readable tests.
 The API has been modeled after other fluent testing APIs, especially the awesome 
-[AssertJ](http://joel-costigliola.github.io/assertj/) assertion framework for Java.  Of course, in `assertpy` everything is fully pythonic and designed to take full advantage of the dynamism in the Python runtime.
+[AssertJ](http://joel-costigliola.github.io/assertj/) assertion framework for Java.  Of course, in the `assertpy` framework everything is fully pythonic and designed to take full advantage of the dynamism in the Python runtime.
 
 ### Strings
 
@@ -40,6 +40,8 @@ assert_that('foo').is_not_empty()
 assert_that('foo').is_true()
 assert_that('foo').is_alpha()
 assert_that('123').is_digit()
+assert_that('foo').is_lower()
+assert_that('FOO').is_upper()
 assert_that('foo').is_equal_to('foo')
 assert_that('foo').is_not_equal_to('bar')
 assert_that('foo').is_equal_to_ignoring_case('FOO')
@@ -107,6 +109,8 @@ assert_that(123.4).is_between(100.1, 200.2)
 assert_that(123.4).is_close_to(123, 0.5)
 ```
 
+Of course, using `is_equal_to()` with a `float` value is just asking for trouble. You'll always want to use the assertions methods like `is_close_to()` and `is_between()`.
+
 ### Lists
 
 Matching lists:
@@ -170,6 +174,10 @@ assert_that({'a':1,'b':2}).contains('a')
 assert_that({'a':1,'b':2}).contains('b','a')
 assert_that({'a':1,'b':2}).does_not_contain('x','y')
 
+# contains_key() is just an alias for contains()
+assert_that({'a':1,'b':2}).contains_key('a')
+assert_that({'a':1,'b':2}).contains_key('b','a')
+
 assert_that({'a':1,'b':2}).contains_value(1)
 assert_that({'a':1,'b':2}).contains_value(2,1)
 
@@ -209,9 +217,9 @@ assert_that(False).is_false()
 assert_that(True).is_type_of(bool)
 ```
 
-### Classes
+### Objects
 
-Matching classes:
+Matching an object:
 
 ```py
 fred = Person('Fred','Smith')
@@ -220,13 +228,17 @@ assert_that(fred).is_not_none()
 assert_that(fred).is_true()
 assert_that(fred).is_type_of(Person)
 assert_that(fred).is_instance_of(object)
+```
 
+Matching an attribute, a property, and a method:
+
+```py
 assert_that(fred.first_name).is_equal_to('Fred')
 assert_that(fred.name).is_equal_to('Fred Smith')
 assert_that(fred.say_hello()).is_equal_to('Hello, Fred!')
 ```
 
-Given the `Person` class:
+Given `fred` is an instance of the following `Person` class:
 
 ```py
 class Person(object):
@@ -242,7 +254,9 @@ class Person(object):
         return 'Hello, %s!' % self.first_name
 ```
 
-When testing a collection of objects, use the `extract` method to flatten the collection on a given attribute, like this:
+#### Extracting Attributes from Objects
+
+It is frequently necessary to test collections of objects.  The `assertpy` framework includes an `extract` method to flatten the collection on a given attribute, like this:
 
 ```py
 fred = Person('Fred','Smith')
@@ -275,14 +289,39 @@ assert_that(people).extract('first_name').contains('Fred','Joe')
 Additionally, the `extract` method can accept a list of attributes to be extracted, in this case it returns a list of tuples:
 
 ```py
-assert_that(people).extract('first_name', 'name').contains(('Fred','Fred Smith'), ('Joe','Joe Coder'))
+assert_that(people).extract('first_name', 'last_name').contains(('Fred','Smith'), ('Joe','Coder'))
 ```
 
-Lastly, `extract` can accept zero-argument methods as if they were attributes:
+Lastly, `extract` works on not just attributes, but also properties, and even zero-argument methods:
 
 ```py
+assert_that(people).extract('name').contains('Fred Smith', 'Joe Coder')
 assert_that(people).extract('say_hello').contains('Hello, Fred!', 'Joe writes code.')
 ```
+
+#### Dynamic Assertions on Objects
+
+When testing attribute of an object, the basic `assertpy` assertions can get a little verbose like this:
+
+```py
+fred = Person('Fred','Smith')
+
+assert_that(fred.first_name).is_equal_to('Fred')
+assert_that(fred.name).is_equal_to('Fred Smith')
+assert_that(fred.say_hello()).is_equal_to('Hello, Fred!')
+```
+
+So, `assertpy` takes advantage of the awesome dyanmism in the Python runtime to provide dynamic assertions in the form of `has_blah()` where `blah` is the name of any attribute, property, or zero-argument method on the given object.
+
+Using dynamic assertions, we can rewrite the above assertions in a more compact and readable way like this:
+
+```py
+assert_that(fred).has_first_name('Fred')
+assert_that(fred).has_name('Fred Smith')
+assert_that(fred).has_say_hello('Hello, Fred!')
+```
+
+Since `fred` has the attribute `first_name`, the dynamic assertion method `has_first_name()` is available.  Similarly for the property `name` and the zero-argument method `say_hello()`.
 
 ### Chaining
 
@@ -299,6 +338,10 @@ assert_that([1,2,3]).is_type_of(list).contains(1,2).does_not_contain(4,5)
 ```
 
 ```py
+assert_that(fred).has_first_name('Fred').has_last_name('Smith).has_shoe_size(12)
+```
+
+```py
 assert_that(people).is_length(2).extract('first_name').contains('Fred','Joe')
 ```
 
@@ -306,10 +349,9 @@ assert_that(people).is_length(2).extract('first_name').contains('Fred','Joe')
 
 The `assertpy` framework is already super useful, but there is still lots of work to do:
 
-1. **packaging** - get everything packaged and uploaded to PyPI
-1. **Dates** - support for assertions around dates and times
-1. **Files** - support for file assertions, including file metadata and file contents
-1. **Classes** - dynamic assertion methods about class attributes
+1. **Dates** - assertions for dates and times (see [#11](https://github.com/ActivisionGameScience/assertpy/issues/11))
+1. **Files** - assertions for files and folders, including file metadata and file contents (see [#13](https://github.com/ActivisionGameScience/assertpy/issues/13))
+1. **packaging** - get everything packaged and uploaded to PyPI (see [#14](https://github.com/ActivisionGameScience/assertpy/issues/14))
 1. Lots more...
 
 If you'd like to help, check out the [open issues](https://github.com/ActivisionGameScience/assertpy/issues?q=is%3Aopen+is%3Aissue) and see our [Contributing](CONTRIBUTING.md) doc.
