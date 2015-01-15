@@ -217,6 +217,29 @@ assert_that(False).is_false()
 assert_that(True).is_type_of(bool)
 ```
 
+### Files
+
+Matching files:
+
+```py
+assert_that('foo.txt').exists()
+assert_that('foo.txt').is_file()
+
+assert_that('mydir').exists()
+assert_that('mydir').is_directory()
+
+assert_that('foo.txt').is_named('foo.txt')
+assert_that('foo.txt').is_child_of('mydir')
+```
+
+Matching file contents is done using the `contents_of()` helper to read the file into a string.  Then you can make quick work of it using the `assertpy` string assertions like this:
+
+```py
+from assertpy import assert_that, contents_of
+
+assert_that(contents_of('foo.txt')).starts_with('foo').ends_with('bar').contains('oob')
+```
+
 ### Objects
 
 Matching an object:
