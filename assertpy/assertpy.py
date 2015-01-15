@@ -29,10 +29,22 @@
 """Fluent assertion framework for better, more readable tests."""
 
 import re
+import os
 
 def assert_that(val):
     """Factory method for the assertion builder."""
     return AssertionBuilder(val)
+
+def contents_of(f):
+    """Helper to read the contents of the given file or path into a string."""
+    if type(f) is str:
+        with open(f, 'r') as fp:
+            contents = fp.read()
+    elif type(f) is file:
+        contents = f.read()
+    else:
+        raise ValueError('val must be file or path, but was type <%s>' % type(f).__name__)
+    return contents
 
 class AssertionBuilder(object):
     """Assertion builder."""
@@ -361,6 +373,50 @@ class AssertionBuilder(object):
                 raise AssertionError('Expected <%s> to contain entry %s, but did not contain key <%s>.' % (self.val, e, k))
             elif self.val[k] != e[k]:
                 raise AssertionError('Expected <%s> to contain entry %s, but key <%s> did not contain value <%s>.' % (self.val, e, k, e[k]))
+        return self
+
+### file assertions ###
+    def exists(self):
+        """Asserts that val is a path and that it exists."""
+        if type(self.val) is not str:
+            raise TypeError('val is not a path')
+        if not os.path.exists(self.val):
+            raise AssertionError('Expected <%s> to exist, but not found.' % self.val)
+        return self
+
+    def is_file(self):
+        """Asserts that val is an existing path to a file."""
+        self.exists()
+        if not os.path.isfile(self.val):
+            raise AssertionError('Expected <%s> to be a file, but was not.' % self.val)
+        return self
+
+    def is_directory(self):
+        """Asserts that val is an existing path to a directory."""
+        self.exists()
+        if not os.path.isdir(self.val):
+            raise AssertionError('Expected <%s> to be a directory, but was not.' % self.val)
+        return self
+
+    def is_named(self, filename):
+        """Asserts that val is an existing path to a file and that file is named filename."""
+        self.is_file()
+        if type(filename) is not str:
+            raise TypeError('given filename arg must be a path')
+        val_filename = os.path.basename(os.path.abspath(self.val))
+        if val_filename != filename:
+            raise AssertionError('Expected filename <%s> to be equal to <%s>, but was not.' % (val_filename, filename))
+        return self
+
+    def is_child_of(self, parent):
+        """Asserts that val is an existing path to a file and that file is a child of parent."""
+        self.is_file()
+        if type(parent) is not str:
+            raise TypeError('given parent directory arg must be a path')
+        val_abspath = os.path.abspath(self.val)
+        parent_abspath = os.path.abspath(parent)
+        if not val_abspath.startswith(parent_abspath):
+            raise AssertionError('Expected file <%s> to be a child of <%s>, but was not.' % (val_abspath, parent_abspath))
         return self
 
 ### collection of objects assertions ###
