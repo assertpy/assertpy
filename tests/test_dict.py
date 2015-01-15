@@ -152,6 +152,14 @@ class TestDict(object):
         assert_that({ 'a':1,'b':2,'c':3 }).contains_value(1)
         assert_that({ 'a':1,'b':2,'c':3 }).contains_value(1,2)
 
+    def test_contains_value_empty_arg_failure(self):
+        try:
+            assert_that({ 'a':1,'b':2,'c':3 }).contains_value()
+        except ValueError, ex:
+            assert_that(ex.message).is_equal_to('one or more value args must be given')
+            return
+        self.fail('should not fail')
+
     def test_contains_value_bad_val_failure(self):
         try:
             assert_that('foo').contains_value('x')
