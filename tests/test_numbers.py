@@ -44,6 +44,14 @@ class TestNumbers(object):
             return
         self.fail('should not fail')
 
+    def test_is_greater_than_complex_failure(self):
+        try:
+            assert_that(1 + 2j).is_greater_than(0)
+        except TypeError, ex:
+            assert_that(ex.message).is_equal_to('ordering is not defined for complex numbers')
+            return
+        self.fail('should not fail')
+
     def test_is_greater_than_bad_value_type_failure(self):
         try:
             assert_that('foo').is_greater_than(0)
@@ -74,6 +82,14 @@ class TestNumbers(object):
             return
         self.fail('should not fail')
 
+    def test_is_less_than_complex_failure(self):
+        try:
+            assert_that(1 + 2j).is_less_than(0)
+        except TypeError, ex:
+            assert_that(ex.message).is_equal_to('ordering is not defined for complex numbers')
+            return
+        self.fail('should not fail')
+
     def test_is_less_than_bad_value_type_failure(self):
         try:
             assert_that('foo').is_less_than(0)
@@ -101,6 +117,14 @@ class TestNumbers(object):
             assert_that(123).is_between(0,1)
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to('Expected <123> to be between <0> and <1>, but was not.')
+            return
+        self.fail('should not fail')
+
+    def test_is_between_complex_failure(self):
+        try:
+            assert_that(1 + 2j).is_between(0,1)
+        except TypeError, ex:
+            assert_that(ex.message).is_equal_to('ordering is not defined for complex numbers')
             return
         self.fail('should not fail')
 
@@ -146,6 +170,14 @@ class TestNumbers(object):
             assert_that(123.01).is_close_to(100,1)
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to('Expected <123.01> to be close to <100> within tolerance <1>, but was not.')
+            return
+        self.fail('should not fail')
+
+    def test_is_close_to_complex_failure(self):
+        try:
+            assert_that(1 + 2j).is_close_to(0,1)
+        except TypeError, ex:
+            assert_that(ex.message).is_equal_to('ordering is not defined for complex numbers')
             return
         self.fail('should not fail')
 
