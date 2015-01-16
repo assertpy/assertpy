@@ -30,6 +30,7 @@
 
 import re
 import os
+import datetime
 
 def assert_that(val):
     """Factory method for the assertion builder."""
@@ -373,6 +374,54 @@ class AssertionBuilder(object):
                 raise AssertionError('Expected <%s> to contain entry %s, but did not contain key <%s>.' % (self.val, e, k))
             elif self.val[k] != e[k]:
                 raise AssertionError('Expected <%s> to contain entry %s, but key <%s> did not contain value <%s>.' % (self.val, e, k, e[k]))
+        return self
+
+### datetime assertions ###
+    def is_before(self, other):
+        """Asserts that val is a date and is before other date."""
+        if type(self.val) is not datetime.datetime:
+            raise TypeError('val must be datetime, but was type <%s>' % type(self.val).__name__)
+        if type(other) is not datetime.datetime:
+            raise TypeError('given arg must be datetime, but was type <%s>' % type(other).__name__)
+        if self.val >= other:
+            raise AssertionError('Expected <%s> to be before <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
+        return self
+
+    def is_after(self, other):
+        """Asserts that val is a date and is after other date."""
+        if type(self.val) is not datetime.datetime:
+            raise TypeError('val must be datetime, but was type <%s>' % type(self.val).__name__)
+        if type(other) is not datetime.datetime:
+            raise TypeError('given arg must be datetime, but was type <%s>' % type(other).__name__)
+        if self.val <= other:
+            raise AssertionError('Expected <%s> to be after <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
+        return self
+
+    def is_equal_to_ignoring_milliseconds(self, other):
+        if type(self.val) is not datetime.datetime:
+            raise TypeError('val must be datetime, but was type <%s>' % type(self.val).__name__)
+        if type(other) is not datetime.datetime:
+            raise TypeError('given arg must be datetime, but was type <%s>' % type(other).__name__)
+        if self.val.date() != other.date() or self.val.hour != other.hour or self.val.minute != other.minute or self.val.second != other.second:
+            raise AssertionError('Expected <%s> to be equal to <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
+        return self
+
+    def is_equal_to_ignoring_seconds(self, other):
+        if type(self.val) is not datetime.datetime:
+            raise TypeError('val must be datetime, but was type <%s>' % type(self.val).__name__)
+        if type(other) is not datetime.datetime:
+            raise TypeError('given arg must be datetime, but was type <%s>' % type(other).__name__)
+        if self.val.date() != other.date() or self.val.hour != other.hour or self.val.minute != other.minute:
+            raise AssertionError('Expected <%s> to be equal to <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M'), other.strftime('%Y-%m-%d %H:%M')))
+        return self
+
+    def is_equal_to_ignoring_time(self, other):
+        if type(self.val) is not datetime.datetime:
+            raise TypeError('val must be datetime, but was type <%s>' % type(self.val).__name__)
+        if type(other) is not datetime.datetime:
+            raise TypeError('given arg must be datetime, but was type <%s>' % type(other).__name__)
+        if self.val.date() != other.date():
+            raise AssertionError('Expected <%s> to be equal to <%s>, but was not.' % (self.val.strftime('%Y-%m-%d'), other.strftime('%Y-%m-%d')))
         return self
 
 ### file assertions ###
