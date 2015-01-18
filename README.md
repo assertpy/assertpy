@@ -217,6 +217,21 @@ assert_that(False).is_false()
 assert_that(True).is_type_of(bool)
 ```
 
+### Dates
+
+Date assertions:
+
+```py
+today = datetime.datetime.today()
+yesterday = today - datetime.timedelta(days=1)
+
+assert_that(yesterday).is_before(today)
+assert_that(today).is_after(yesterday)
+assert_that(today).is_equal_to_ignoring_milliseconds(today + datetime.timedelta(milliseconds=5))
+assert_that(today).is_equal_to_ignoring_seconds(today + datetime.timedelta(seconds=5))
+assert_that(today).is_equal_to_ignoring_time(today + datetime.timedelta(hours=1, minutes=10, seconds=5))
+```
+
 ### Files
 
 Matching files:
