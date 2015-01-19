@@ -244,6 +244,19 @@ assert_that(today).is_equal_to_ignoring_time(today_5h)
 assert_that(today).is_equal_to(today)
 ```
 
+You can use these numeric assertions on dates:
+
+```
+middle = today - datetime.timedelta(hours=12)
+hours_24 = datetime.timedelta(hours=24)
+
+assert_that(today).is_greater_than(yesterday)
+assert_that(yesterday).is_less_than(today)
+assert_that(middle).is_between(yesterday, today)
+#note that the tolerance must be a datetime.timedelta object
+assert_that(yesterday).is_close_to(today, hours_24)
+```
+
 Currently, `assertpy` only supports dates via the `datetime` type.
 
 ### Files
