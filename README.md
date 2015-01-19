@@ -222,7 +222,7 @@ assert_that(True).is_type_of(bool)
 Matching dates:
 
 ```py
-import datetine
+import datetime
 
 today = datetime.datetime.today()
 yesterday = today - datetime.timedelta(days=1)
