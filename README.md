@@ -219,18 +219,32 @@ assert_that(True).is_type_of(bool)
 
 ### Dates
 
-Date assertions:
+Matching dates:
 
 ```py
+import datetine
+
 today = datetime.datetime.today()
 yesterday = today - datetime.timedelta(days=1)
 
 assert_that(yesterday).is_before(today)
 assert_that(today).is_after(yesterday)
-assert_that(today).is_equal_to_ignoring_milliseconds(today + datetime.timedelta(milliseconds=5))
-assert_that(today).is_equal_to_ignoring_seconds(today + datetime.timedelta(seconds=5))
-assert_that(today).is_equal_to_ignoring_time(today + datetime.timedelta(hours=1, minutes=10, seconds=5))
 ```
+
+You can also make assertions about date equality (ignoring various units of time) like this:
+
+```py
+today_5ms = today + datetime.timedelta(milliseconds=5)
+today_5s = today + datetime.timedelta(seconds=5)
+today_5h = today + datetime.timedelta(hours=5)
+
+assert_that(today).is_equal_to_ignoring_milliseconds(today_5ms)
+assert_that(today).is_equal_to_ignoring_seconds(today_5s)
+assert_that(today).is_equal_to_ignoring_time(today_5h)
+assert_that(today).is_equal_to(today)
+```
+
+Currently, `assertpy` only supports dates via the `datetime` type.
 
 ### Files
 
@@ -387,8 +401,6 @@ assert_that(people).is_length(2).extract('first_name').contains('Fred','Joe')
 
 The `assertpy` framework is already super useful, but there is still lots of work to do:
 
-1. **Dates** - assertions for dates and times (see [#11](https://github.com/ActivisionGameScience/assertpy/issues/11))
-1. **Files** - assertions for files and folders, including file metadata and file contents (see [#13](https://github.com/ActivisionGameScience/assertpy/issues/13))
 1. **packaging** - get everything packaged and uploaded to PyPI (see [#14](https://github.com/ActivisionGameScience/assertpy/issues/14))
 1. Lots more...
 
