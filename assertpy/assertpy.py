@@ -183,9 +183,9 @@ class AssertionBuilder(object):
         """Asserts that val is numeric and is greater than other."""
         if type(self.val) is complex or type(other) is complex:
             raise TypeError('ordering is not defined for complex numbers')
-        if type(self.val) not in (int, float, long):
+        if type(self.val) not in (int, float, long, datetime.datetime):
             raise TypeError('val is not numeric')
-        if type(other) not in (int, float, long):
+        if type(other) not in (int, float, long, datetime.datetime):
             raise TypeError('given arg must be numeric')
         if self.val <= other:
             raise AssertionError('Expected <%s> to be greater than <%s>, but was not.' % (self.val, other))
@@ -195,9 +195,9 @@ class AssertionBuilder(object):
         """Asserts that val is numeric and is less than other."""
         if type(self.val) is complex or type(other) is complex:
             raise TypeError('ordering is not defined for complex numbers')
-        if type(self.val) not in (int, float, long):
+        if type(self.val) not in (int, float, long, datetime.datetime):
             raise TypeError('val is not numeric')
-        if type(other) not in (int, float, long):
+        if type(other) not in (int, float, long, datetime.datetime):
             raise TypeError('given arg must be numeric')
         if self.val >= other:
             raise AssertionError('Expected <%s> to be less than <%s>, but was not.' % (self.val, other))
@@ -207,11 +207,11 @@ class AssertionBuilder(object):
         """Asserts that val is numeric and is between low and high."""
         if type(self.val) is complex or type(low) is complex or type(high) is complex:
             raise TypeError('ordering is not defined for complex numbers')
-        if type(self.val) not in (int, float, long):
+        if type(self.val) not in (int, float, long, datetime.datetime):
             raise TypeError('val is not numeric')
-        if type(low) not in (int, float, long):
+        if type(low) not in (int, float, long, datetime.datetime):
             raise TypeError('given low arg must be numeric')
-        if type(high) not in (int, float, long):
+        if type(high) not in (int, float, long, datetime.datetime):
             raise TypeError('given high arg must be numeric')
         if low > high:
             raise ValueError('given low arg must be less than given high arg')
@@ -223,13 +223,13 @@ class AssertionBuilder(object):
         """Asserts that val is numeric and is close to other within tolerance."""
         if type(self.val) is complex or type(other) is complex or type(tolerance) is complex:
             raise TypeError('ordering is not defined for complex numbers')
-        if type(self.val) not in (int, float, long):
+        if type(self.val) not in (int, float, long, datetime.datetime):
             raise TypeError('val is not numeric')
-        if type(other) not in (int, float, long):
+        if type(other) not in (int, float, long, datetime.datetime):
             raise TypeError('given arg must be numeric')
-        if type(tolerance) not in (int, float, long):
+        if type(tolerance) not in (int, float, long, datetime.timedelta):
             raise TypeError('given tolerance arg must be numeric')
-        if tolerance < 0:
+        if type(tolerance) in (int, float, long) and tolerance < 0:
             raise ValueError('given tolerance arg must be positive')
         if self.val < (other-tolerance) or self.val > (other+tolerance):
             raise AssertionError('Expected <%s> to be close to <%s> within tolerance <%s>, but was not.' % (self.val, other, tolerance))
