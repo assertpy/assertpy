@@ -391,28 +391,6 @@ assert_that(fred).has_say_hello('Hello, Fred!')
 
 Since `fred` has the attribute `first_name`, the dynamic assertion method `has_first_name()` is available.  Similarly for the property `name` and the zero-argument method `say_hello()`.
 
-### Chaining
-
-One of the nicest aspects of any fluent API is the ability to chain methods together.  In the case of `assertpy`, chaining allows you to  assertions into a single statement -- that reads like a sentance, and is easy to understand.
-
-Here are just a few examples:
-
-```py
-assert_that('foo').is_length(3).starts_with('f').ends_with('oo')
-```
-
-```py
-assert_that([1,2,3]).is_type_of(list).contains(1,2).does_not_contain(4,5)
-```
-
-```py
-assert_that(fred).has_first_name('Fred').has_last_name('Smith).has_shoe_size(12)
-```
-
-```py
-assert_that(people).is_length(2).extract('first_name').contains('Fred','Joe')
-```
-
 ### Failure
 
 The `assertpy` framework includes a `fail()` method to explicitly force a test failure.  It can be used like this:
@@ -445,6 +423,28 @@ class TestFailure(object):
 In the above code, we invoke `some_func()` with a bad argument which raises an exception.  The exception is then handled by the `try..except` block and the contents of the error message are specifically verified (and then we explicitly `return`).  Lastly, if an exception is not thrown as expected, we fail the test via `fail()`.
 
 This pattern is only used when you need to verify the contents of the error message.  If you only wish to check for an expected exception (and don't need to verify the error message), you're much better off using a test runner that supports expected exceptions.  [Nose](http://nose.readthedocs.org/) provides a [@raises](http://nose.readthedocs.org/en/latest/testing_tools.html#nose.tools.raises) decorator. [Pytest](http://pytest.org/latest/contents.html) has a [pytest.raises](http://pytest.org/latest/assert.html#assertions-about-expected-exceptions) method.
+
+### Chaining
+
+One of the nicest aspects of any fluent API is the ability to chain methods together.  In the case of `assertpy`, chaining allows you to write assertions as single statement -- that reads like a sentance, and is easy to understand.
+
+Here are just a few examples:
+
+```py
+assert_that('foo').is_length(3).starts_with('f').ends_with('oo')
+```
+
+```py
+assert_that([1,2,3]).is_type_of(list).contains(1,2).does_not_contain(4,5)
+```
+
+```py
+assert_that(fred).has_first_name('Fred').has_last_name('Smith).has_shoe_size(12)
+```
+
+```py
+assert_that(people).is_length(2).extract('first_name').contains('Fred','Joe')
+```
 
 ## Future
 
