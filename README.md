@@ -14,9 +14,12 @@ from assertpy import assert_that
 
 class TestSomething(object):
 
-    def testSomething(self):
-        assert_that('something').is_length(9).is_equal_to('something')
+    def test_something(self):
+        assert_that(1 + 2).is_equal_to(3)
+        assert_that('foobar').is_length(6).starts_with('foo').ends_with('bar')
 ```
+
+Of course, `assertpy` works best with a python test runner like [Nose](http://nose.readthedocs.org/) or [pytest](http://pytest.org/latest/contents.html).
 
 ## The API
 
@@ -409,6 +412,28 @@ assert_that(fred).has_first_name('Fred').has_last_name('Smith).has_shoe_size(12)
 ```py
 assert_that(people).is_length(2).extract('first_name').contains('Fred','Joe')
 ```
+
+### Failure
+
+The `assertpy` framework also included a `fail()` method to explicitly force a test to fail.  This is useful when testing exception messages like this:
+
+```py
+from assertpy import assert_that,fail
+
+class TestFailure(object):
+
+    def test_fail(self):
+        try:
+            some_func('bad arg')
+        except RuntimeError, ex:
+            assert_that(ex.message).contains('some msg')
+            return
+        fail('should not fail')
+```
+
+In the above test pattern, we invoke `some_func()` with a bad argument which raises an exception.  The exception is then handled and the contents of the error message are specifically verified.  Lastly, if an exception is not thrown as expected, we fail the test via `fail()`.
+
+In the case where you only wish to check for an expected exception, and do not wish to verify the error message contents, you're better off using a test runner that supports expected exceptions.  [Nose](http://nose.readthedocs.org/) provides a [@raises](http://nose.readthedocs.org/en/latest/testing_tools.html#nose.tools.raises) decorator, [pytest](http://pytest.org/latest/contents.html) has a [pytest.raises](http://pytest.org/latest/assert.html#assertions-about-expected-exceptions) method.
 
 ## Future
 
