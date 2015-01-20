@@ -184,11 +184,17 @@ class AssertionBuilder(object):
         if type(self.val) is complex or type(other) is complex:
             raise TypeError('ordering is not defined for complex numbers')
         if type(self.val) not in (int, float, long, datetime.datetime):
-            raise TypeError('val is not numeric')
-        if type(other) not in (int, float, long, datetime.datetime):
+            raise TypeError('val is not numeric or datetime')
+        if type(self.val) is datetime.datetime:
+            if type(other) is not datetime.datetime:
+                raise TypeError('given arg must be datetime, but was <%s>' % type(other).__name__)
+        elif type(other) not in (int, float, long):
             raise TypeError('given arg must be numeric')
         if self.val <= other:
-            raise AssertionError('Expected <%s> to be greater than <%s>, but was not.' % (self.val, other))
+            if type(self.val) is datetime.datetime:
+                raise AssertionError('Expected <%s> to be greater than <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
+            else:
+                raise AssertionError('Expected <%s> to be greater than <%s>, but was not.' % (self.val, other))
         return self
 
     def is_less_than(self, other):
@@ -196,11 +202,17 @@ class AssertionBuilder(object):
         if type(self.val) is complex or type(other) is complex:
             raise TypeError('ordering is not defined for complex numbers')
         if type(self.val) not in (int, float, long, datetime.datetime):
-            raise TypeError('val is not numeric')
-        if type(other) not in (int, float, long, datetime.datetime):
+            raise TypeError('val is not numeric or datetime')
+        if type(self.val) is datetime.datetime:
+            if type(other) is not datetime.datetime:
+                raise TypeError('given arg must be datetime, but was <%s>' % type(other).__name__)
+        elif type(other) not in (int, float, long):
             raise TypeError('given arg must be numeric')
         if self.val >= other:
-            raise AssertionError('Expected <%s> to be less than <%s>, but was not.' % (self.val, other))
+            if type(self.val) is datetime.datetime:
+                raise AssertionError('Expected <%s> to be less than <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
+            else:
+                raise AssertionError('Expected <%s> to be less than <%s>, but was not.' % (self.val, other))
         return self
 
     def is_between(self, low, high):
@@ -208,15 +220,24 @@ class AssertionBuilder(object):
         if type(self.val) is complex or type(low) is complex or type(high) is complex:
             raise TypeError('ordering is not defined for complex numbers')
         if type(self.val) not in (int, float, long, datetime.datetime):
-            raise TypeError('val is not numeric')
-        if type(low) not in (int, float, long, datetime.datetime):
+            raise TypeError('val is not numeric or datetime')
+        if type(self.val) is datetime.datetime:
+            if type(low) is not datetime.datetime:
+                raise TypeError('given low arg must be datetime, but was <%s>' % type(low).__name__)
+        elif type(low) not in (int, float, long):
             raise TypeError('given low arg must be numeric')
-        if type(high) not in (int, float, long, datetime.datetime):
+        if type(self.val) is datetime.datetime:
+            if type(high) is not datetime.datetime:
+                raise TypeError('given high arg must be datetime, but was <%s>' % type(high).__name__)
+        elif type(high) not in (int, float, long):
             raise TypeError('given high arg must be numeric')
         if low > high:
             raise ValueError('given low arg must be less than given high arg')
         if self.val < low or self.val > high:
-            raise AssertionError('Expected <%s> to be between <%s> and <%s>, but was not.' % (self.val, low, high))
+            if type(self.val) is datetime.datetime:
+                raise AssertionError('Expected <%s> to be between <%s> and <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), low.strftime('%Y-%m-%d %H:%M:%S'), high.strftime('%Y-%m-%d %H:%M:%S')))
+            else:
+                raise AssertionError('Expected <%s> to be between <%s> and <%s>, but was not.' % (self.val, low, high))
         return self
 
     def is_close_to(self, other, tolerance):
@@ -224,15 +245,26 @@ class AssertionBuilder(object):
         if type(self.val) is complex or type(other) is complex or type(tolerance) is complex:
             raise TypeError('ordering is not defined for complex numbers')
         if type(self.val) not in (int, float, long, datetime.datetime):
-            raise TypeError('val is not numeric')
-        if type(other) not in (int, float, long, datetime.datetime):
-            raise TypeError('given arg must be numeric')
-        if type(tolerance) not in (int, float, long, datetime.timedelta):
-            raise TypeError('given tolerance arg must be numeric')
-        if type(tolerance) in (int, float, long) and tolerance < 0:
-            raise ValueError('given tolerance arg must be positive')
+            raise TypeError('val is not numeric or datetime')
+        if type(self.val) is datetime.datetime:
+            if type(other) is not datetime.datetime:
+                raise TypeError('given arg must be datetime, but was <%s>' % type(other).__name__)
+            if type(tolerance) is not datetime.timedelta:
+                raise TypeError('given tolerance arg must be timedelta, but was <%s>' % type(tolerance).__name__)
+        else:
+            if type(other) not in (int, float, long):
+                raise TypeError('given arg must be numeric')
+            if type(tolerance) not in (int, float, long):
+                raise TypeError('given tolerance arg must be numeric')
+            if tolerance < 0:
+                raise ValueError('given tolerance arg must be positive')
         if self.val < (other-tolerance) or self.val > (other+tolerance):
-            raise AssertionError('Expected <%s> to be close to <%s> within tolerance <%s>, but was not.' % (self.val, other, tolerance))
+            if type(self.val) is datetime.datetime:
+                h, rem = divmod(tolerance.total_seconds(), 3600)
+                m, s = divmod(rem, 60)
+                raise AssertionError('Expected <%s> to be close to <%s> within tolerance <%d:%02d:%02d>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S'), h, m, s))
+            else:
+                raise AssertionError('Expected <%s> to be close to <%s> within tolerance <%s>, but was not.' % (self.val, other, tolerance))
         return self
 
 ### string assertions ###
