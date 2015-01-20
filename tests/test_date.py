@@ -175,3 +175,107 @@ class TestDate(object):
             assert_that(ex.message).is_equal_to('given arg must be datetime, but was type <int>')
             return
         self.fail('should not fail')
+
+    def test_is_greater_than(self):
+        d2 = datetime.datetime.today()
+        assert_that(d2).is_greater_than(self.d1)
+
+    def test_is_greater_than_failure(self):
+        try:
+            d2 = datetime.datetime.today()
+            assert_that(self.d1).is_greater_than(d2)
+        except AssertionError, ex:
+            assert_that(ex.message).matches('Expected <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> to be greater than <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}>, but was not.')
+            return
+        self.fail('should not fail')
+
+    def test_is_greater_than_bad_arg_type_failure(self):
+        try:
+            assert_that(self.d1).is_greater_than(123)
+        except TypeError, ex:
+            assert_that(ex.message).is_equal_to('given arg must be datetime, but was <int>')
+            return
+        self.fail('should not fail')
+
+    def test_is_less_than(self):
+        d2 = datetime.datetime.today()
+        assert_that(self.d1).is_less_than(d2)
+
+    def test_is_less_than_failure(self):
+        try:
+            d2 = datetime.datetime.today()
+            assert_that(d2).is_less_than(self.d1)
+        except AssertionError, ex:
+            assert_that(ex.message).matches('Expected <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> to be less than <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}>, but was not.')
+            return
+        self.fail('should not fail')
+
+    def test_is_less_than_bad_arg_type_failure(self):
+        try:
+            assert_that(self.d1).is_less_than(123)
+        except TypeError, ex:
+            assert_that(ex.message).is_equal_to('given arg must be datetime, but was <int>')
+            return
+        self.fail('should not fail')
+
+    def test_is_between(self):
+        d2 = datetime.datetime.today()
+        d3 = datetime.datetime.today()
+        assert_that(d2).is_between(self.d1, d3)
+
+    def test_is_between_failure(self):
+        try:
+            d2 = datetime.datetime.today()
+            d3 = datetime.datetime.today()
+            assert_that(self.d1).is_between(d2, d3)
+        except AssertionError, ex:
+            assert_that(ex.message).matches('Expected <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> to be between <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> and <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}>, but was not.')
+            return
+        self.fail('should not fail')
+
+    def test_is_between_bad_arg1_type_failure(self):
+        try:
+            assert_that(self.d1).is_between(123, 456)
+        except TypeError, ex:
+            assert_that(ex.message).is_equal_to('given low arg must be datetime, but was <int>')
+            return
+        self.fail('should not fail')
+
+    def test_is_between_bad_arg2_type_failure(self):
+        try:
+            d2 = datetime.datetime.today()
+            assert_that(self.d1).is_between(d2, 123)
+        except TypeError, ex:
+            assert_that(ex.message).is_equal_to('given high arg must be datetime, but was <int>')
+            return
+        self.fail('should not fail')
+
+    def test_is_close_to(self):
+        d2 = datetime.datetime.today()
+        assert_that(self.d1).is_close_to(d2, datetime.timedelta(minutes=5))
+
+    def test_is_close_to_failure(self):
+        try:
+            d2 = self.d1 + datetime.timedelta(minutes=5)
+            assert_that(self.d1).is_close_to(d2, datetime.timedelta(minutes=1))
+        except AssertionError, ex:
+            assert_that(ex.message).matches('Expected <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> to be close to <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> within tolerance <\d+:\d{2}:\d{2}>, but was not.')
+            return
+        self.fail('should not fail')
+
+    def test_is_close_to_bad_arg_type_failure(self):
+        try:
+            assert_that(self.d1).is_close_to(123, 456)
+        except TypeError, ex:
+            assert_that(ex.message).is_equal_to('given arg must be datetime, but was <int>')
+            return
+        self.fail('should not fail')
+
+    def test_is_close_to_bad_tolerance_arg_type_failure(self):
+        try:
+            d2 = datetime.datetime.today()
+            assert_that(self.d1).is_close_to(d2, 123)
+        except TypeError, ex:
+            assert_that(ex.message).is_equal_to('given tolerance arg must be timedelta, but was <int>')
+            return
+        self.fail('should not fail')
