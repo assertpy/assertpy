@@ -47,6 +47,13 @@ def contents_of(f):
         raise ValueError('val must be file or path, but was type <%s>' % type(f).__name__)
     return contents
 
+def fail(msg = ''):
+    """Force test failure with the given message."""
+    if len(msg) == 0:
+        raise AssertionError('Fail!')
+    else:
+        raise AssertionError('Fail: %s!' % msg)
+
 class AssertionBuilder(object):
     """Assertion builder."""
 

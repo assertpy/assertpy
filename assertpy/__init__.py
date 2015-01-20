@@ -1,1 +1,1 @@
-from assertpy import assert_that, contents_of
+from assertpy import assert_that, contents_of, fail
