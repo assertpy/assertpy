@@ -56,7 +56,7 @@ class TestNumbers(object):
         try:
             assert_that('foo').is_greater_than(0)
         except TypeError, ex:
-            assert_that(ex.message).is_equal_to('val is not numeric')
+            assert_that(ex.message).is_equal_to('val is not numeric or datetime')
             return
         self.fail('should not fail')
 
@@ -94,7 +94,7 @@ class TestNumbers(object):
         try:
             assert_that('foo').is_less_than(0)
         except TypeError, ex:
-            assert_that(ex.message).is_equal_to('val is not numeric')
+            assert_that(ex.message).is_equal_to('val is not numeric or datetime')
             return
         self.fail('should not fail')
 
@@ -132,7 +132,7 @@ class TestNumbers(object):
         try:
             assert_that('foo').is_between(0,1)
         except TypeError, ex:
-            assert_that(ex.message).is_equal_to('val is not numeric')
+            assert_that(ex.message).is_equal_to('val is not numeric or datetime')
             return
         self.fail('should not fail')
 
@@ -185,7 +185,7 @@ class TestNumbers(object):
         try:
             assert_that('foo').is_close_to(123,1)
         except TypeError, ex:
-            assert_that(ex.message).is_equal_to('val is not numeric')
+            assert_that(ex.message).is_equal_to('val is not numeric or datetime')
             return
         self.fail('should not fail')
 
