@@ -415,7 +415,7 @@ assert_that(people).is_length(2).extract('first_name').contains('Fred','Joe')
 
 ### Failure
 
-The `assertpy` framework also included a `fail()` method to explicitly force a test to fail.  This is useful when testing exception messages like this:
+The `assertpy` framework includes a `fail()` method to explicitly force a test failure.  It can be used like this:
 
 ```py
 from assertpy import assert_that,fail
@@ -423,21 +423,32 @@ from assertpy import assert_that,fail
 class TestFailure(object):
 
     def test_fail(self):
+        fail('forced failure')
+```
+
+A useful test pattern that requires the `fail()` method is checking the contents of an error message on an exception. For example:
+
+```py
+from assertpy import assert_that,fail
+
+class TestFailure(object):
+
+    def test_error_msg(self):
         try:
             some_func('bad arg')
-        except RuntimeError, ex:
+        except ValueError, ex:
             assert_that(ex.message).contains('some msg')
             return
         fail('should not fail')
 ```
 
-In the above test pattern, we invoke `some_func()` with a bad argument which raises an exception.  The exception is then handled and the contents of the error message are specifically verified.  Lastly, if an exception is not thrown as expected, we fail the test via `fail()`.
+In the above code, we invoke `some_func()` with a bad argument which raises an exception.  The exception is then handled by the `try..except` block and the contents of the error message are specifically verified (and then we explicitly `return`).  Lastly, if an exception is not thrown as expected, we fail the test via `fail()`.
 
-In the case where you only wish to check for an expected exception, and do not wish to verify the error message contents, you're better off using a test runner that supports expected exceptions.  [Nose](http://nose.readthedocs.org/) provides a [@raises](http://nose.readthedocs.org/en/latest/testing_tools.html#nose.tools.raises) decorator, [pytest](http://pytest.org/latest/contents.html) has a [pytest.raises](http://pytest.org/latest/assert.html#assertions-about-expected-exceptions) method.
+This pattern is only used when you need to verify the contents of the error message.  If you only wish to check for an expected exception (and don't need to verify the error message), you're much better off using a test runner that supports expected exceptions.  [Nose](http://nose.readthedocs.org/) provides a [@raises](http://nose.readthedocs.org/en/latest/testing_tools.html#nose.tools.raises) decorator. [Pytest](http://pytest.org/latest/contents.html) has a [pytest.raises](http://pytest.org/latest/assert.html#assertions-about-expected-exceptions) method.
 
 ## Future
 
-The `assertpy` framework is already super useful, but there is still lots of work to do:
+The `assertpy` framework is already super useful, but there are still new features in the works:
 
 1. **packaging** - get everything packaged and uploaded to PyPI (see [#14](https://github.com/ActivisionGameScience/assertpy/issues/14))
 1. Lots more...
