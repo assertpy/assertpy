@@ -27,7 +27,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import types
-from assertpy import assert_that
+from assertpy import assert_that,fail
 
 class TestType(object):
 
@@ -50,7 +50,7 @@ class TestType(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to('Expected <foo:str> to be of type <int>, but was not.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_type_of_bad_arg_failure(self):
         try:
@@ -58,7 +58,7 @@ class TestType(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('given arg must be a type')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_type_of_subclass_failure(self):
         try:
@@ -67,7 +67,7 @@ class TestType(object):
             assert_that(ex.message).starts_with('Expected <')
             assert_that(ex.message).ends_with(':Bar> to be of type <Foo>, but was not.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_instance_of(self):
         assert_that('foo').is_instance_of(str)
@@ -89,7 +89,7 @@ class TestType(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to('Expected <foo:str> to be instance of class <int>, but was not.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_instance_of_bad_arg_failure(self):
         try:
@@ -97,7 +97,7 @@ class TestType(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('given arg must be a class')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
 class Foo(object):
     pass

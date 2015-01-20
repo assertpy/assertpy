@@ -26,7 +26,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from assertpy import assert_that
+from assertpy import assert_that,fail
 
 class TestExtract(object):
 
@@ -53,7 +53,7 @@ class TestExtract(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('val is not a collection')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_extract_empty_args_failure(self):
         try:
@@ -61,7 +61,7 @@ class TestExtract(object):
         except ValueError, ex:
             assert_that(ex.message).is_equal_to('one or more name args must be given')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_extract_bad_property_failure(self):
         try:
@@ -69,7 +69,7 @@ class TestExtract(object):
         except ValueError, ex:
             assert_that(ex.message).is_equal_to('val does not have property or zero-arg method <foo>')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
 class Person(object):
     def __init__(self, first_name, last_name, shoe_size):

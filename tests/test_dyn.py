@@ -26,7 +26,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from assertpy import assert_that
+from assertpy import assert_that,fail
 
 class TestDyn(object):
 
@@ -59,7 +59,7 @@ class TestDyn(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to('Expected <Fred> to be equal to <Joe>, but was not.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_dynamic_assertion_bad_name_failure(self):
         try:
@@ -67,7 +67,7 @@ class TestDyn(object):
         except AttributeError, ex:
             assert_that(ex.message).is_equal_to("assertpy has no assertion <foo()>")
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_dynamic_assertion_unknown_attribute_failure(self):
         try:
@@ -75,7 +75,7 @@ class TestDyn(object):
         except AttributeError, ex:
             assert_that(ex.message).is_equal_to('val has no attribute <foo>')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_dynamic_assertion_no_args_failure(self):
         try:
@@ -83,7 +83,7 @@ class TestDyn(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('assertion <has_first_name()> takes exactly 1 argument (0 given)')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_dynamic_assertion_too_many_args_failure(self):
         try:
@@ -91,7 +91,7 @@ class TestDyn(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('assertion <has_first_name()> takes exactly 1 argument (2 given)')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_dynamic_assertion_on_method_failure(self):
         try:
@@ -99,7 +99,7 @@ class TestDyn(object):
         except TypeError, ex:
             assert_that(ex.message).contains('val does not have zero-arg method <say_goodbye()>')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_chaining(self):
         assert_that(self.fred).has_first_name('Fred').has_last_name('Smith').has_shoe_size(12)

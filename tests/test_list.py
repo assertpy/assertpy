@@ -26,7 +26,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from assertpy import assert_that
+from assertpy import assert_that,fail
 
 class TestList(object):
 
@@ -42,7 +42,7 @@ class TestList(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to("Expected <['a', 'b', 'c']> to be of length <4>, but was <3>.")
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_length_bad_arg_failure(self):
         try:
@@ -50,7 +50,7 @@ class TestList(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('given arg must be an int')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_length_negative_arg_failure(self):
         try:
@@ -58,7 +58,7 @@ class TestList(object):
         except ValueError, ex:
             assert_that(ex.message).is_equal_to('given arg must be a positive int')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_contains(self):
         assert_that(['a','b','c']).contains('a')
@@ -76,7 +76,7 @@ class TestList(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to("Expected <['a', 'b', 'c']> to contain item <x>, but did not.")
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_contains_multi_item_failure(self):
         try:
@@ -84,7 +84,7 @@ class TestList(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to("Expected <['a', 'b', 'c']> to contain items ('a', 'x', 'z'), but did not contain <x>.")
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_does_not_contain(self):
         assert_that(['a','b','c']).does_not_contain('x')
@@ -102,7 +102,7 @@ class TestList(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to("Expected <['a', 'b', 'c']> to not contain item <a>, but did.")
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_does_not_contain_list_item_failure(self):
         try:
@@ -110,7 +110,7 @@ class TestList(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to("Expected <['a', 'b', 'c']> to not contain items ('x', 'y', 'a'), but did contain <a>.")
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_empty(self):
         assert_that([]).is_empty()
@@ -123,7 +123,7 @@ class TestList(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to("Expected <['a', 'b']> to be empty, but was not.")
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_not_empty(self):
         assert_that(['a','b']).is_not_empty()
@@ -137,7 +137,7 @@ class TestList(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to('Expected not empty, but was empty.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_chaining(self):
         assert_that(['a','b','c']).is_type_of(list).is_length(3).contains('a').does_not_contain('x')

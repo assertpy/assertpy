@@ -26,7 +26,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from assertpy import assert_that
+from assertpy import assert_that,fail
 
 class TestBool(object):
 
@@ -41,7 +41,7 @@ class TestBool(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to('Expected <True>, but was not.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_false(self):
         assert_that(False).is_false()
@@ -57,4 +57,4 @@ class TestBool(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to('Expected <False>, but was not.')
             return
-        self.fail('should not fail')
+        fail('should not fail')

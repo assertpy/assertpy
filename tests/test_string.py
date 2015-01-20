@@ -26,7 +26,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from assertpy import assert_that
+from assertpy import assert_that,fail
 
 class TestString(object):
 
@@ -39,7 +39,7 @@ class TestString(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to('Expected <foo> to be of length <4>, but was <3>.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_contains(self):
         assert_that('foo').contains('f')
@@ -54,7 +54,7 @@ class TestString(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to('Expected <foo> to contain item <x>, but did not.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_contains_multi_item_failure(self):
         try:
@@ -62,7 +62,7 @@ class TestString(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to("Expected <foo> to contain items ('f', 'x', 'z'), but did not contain <x>.")
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_does_not_contain(self):
         assert_that('foo').does_not_contain('x')
@@ -74,7 +74,7 @@ class TestString(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to('Expected <foo> to not contain item <f>, but did.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_does_not_contain_list_item_failure(self):
         try:
@@ -82,7 +82,7 @@ class TestString(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to("Expected <foo> to not contain items ('x', 'y', 'f'), but did contain <f>.")
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_empty(self):
         assert_that('').is_empty()
@@ -93,7 +93,7 @@ class TestString(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to('Expected <foo> to be empty string, but was not.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_not_empty(self):
         assert_that('foo').is_not_empty()
@@ -104,7 +104,7 @@ class TestString(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to('Expected not empty string, but was empty.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_equal_ignoring_case(self):
         assert_that('FOO').is_equal_to_ignoring_case('foo')
@@ -117,7 +117,7 @@ class TestString(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to('Expected <foo> to be case-insensitive equal to <bar>, but was not.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_equal_ignoring_case_bad_value_type_failure(self):
         try:
@@ -125,7 +125,7 @@ class TestString(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('val is not a string')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_equal_ignoring_case_bad_arg_type_failure(self):
         try:
@@ -133,7 +133,7 @@ class TestString(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('given arg must be a string')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_starts_with(self):
         assert_that('fred').starts_with('f')
@@ -146,7 +146,7 @@ class TestString(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to('Expected <fred> to start with <bar>, but did not.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_starts_with_bad_value_type_failure(self):
         try:
@@ -154,7 +154,7 @@ class TestString(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('val is not a string')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_starts_with_bad_arg_type_failure(self):
         try:
@@ -162,7 +162,7 @@ class TestString(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('given prefix arg must be a string')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_starts_with_bad_arg_empty_failure(self):
         try:
@@ -170,7 +170,7 @@ class TestString(object):
         except ValueError, ex:
             assert_that(ex.message).is_equal_to('given prefix arg must not be empty')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_ends_with(self):
         assert_that('fred').ends_with('d')
@@ -183,7 +183,7 @@ class TestString(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to('Expected <fred> to end with <bar>, but did not.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_ends_with_bad_value_type_failure(self):
         try:
@@ -191,7 +191,7 @@ class TestString(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('val is not a string')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_ends_with_bad_arg_type_failure(self):
         try:
@@ -199,7 +199,7 @@ class TestString(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('given suffix arg must be a string')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_ends_with_bad_arg_empty_failure(self):
         try:
@@ -207,7 +207,7 @@ class TestString(object):
         except ValueError, ex:
             assert_that(ex.message).is_equal_to('given suffix arg must not be empty')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_matches(self):
         assert_that('fred').matches('\w')
@@ -223,7 +223,7 @@ class TestString(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to('Expected <fred> to match pattern <\d+>, but did not.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_matches_bad_value_type_failure(self):
         try:
@@ -231,7 +231,7 @@ class TestString(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('val is not a string')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_matches_bad_arg_type_failure(self):
         try:
@@ -239,7 +239,7 @@ class TestString(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('given pattern arg must be a string')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_matches_bad_arg_empty_failure(self):
         try:
@@ -247,7 +247,7 @@ class TestString(object):
         except ValueError, ex:
             assert_that(ex.message).is_equal_to('given pattern arg must not be empty')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_does_not_match(self):
         assert_that('fred').does_not_match('\d+')
@@ -260,7 +260,7 @@ class TestString(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to('Expected <fred> to not match pattern <\w+>, but did.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_does_not_match_bad_value_type_failure(self):
         try:
@@ -268,7 +268,7 @@ class TestString(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('val is not a string')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_does_not_match_bad_arg_type_failure(self):
         try:
@@ -276,7 +276,7 @@ class TestString(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('given pattern arg must be a string')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_does_not_match_bad_arg_empty_failure(self):
         try:
@@ -284,7 +284,7 @@ class TestString(object):
         except ValueError, ex:
             assert_that(ex.message).is_equal_to('given pattern arg must not be empty')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_alpha(self):
         assert_that('foo').is_alpha()
@@ -295,7 +295,7 @@ class TestString(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to('Expected <foo123> to contain only alphabetic chars, but did not.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_alpha_space_failure(self):
         try:
@@ -303,7 +303,7 @@ class TestString(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to('Expected <foo bar> to contain only alphabetic chars, but did not.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_alpha_punctuation_failure(self):
         try:
@@ -311,7 +311,7 @@ class TestString(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to('Expected <foo,bar> to contain only alphabetic chars, but did not.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_alpha_bad_value_type_failure(self):
         try:
@@ -319,7 +319,7 @@ class TestString(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('val is not a string')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_alpha_empty_value_failure(self):
         try:
@@ -327,7 +327,7 @@ class TestString(object):
         except ValueError, ex:
             assert_that(ex.message).is_equal_to('val is empty')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_digit(self):
         assert_that('123').is_digit()
@@ -338,7 +338,7 @@ class TestString(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to('Expected <foo123> to contain only digits, but did not.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_digit_space_failure(self):
         try:
@@ -346,7 +346,7 @@ class TestString(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to('Expected <1 000 000> to contain only digits, but did not.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_digit_punctuation_failure(self):
         try:
@@ -354,7 +354,7 @@ class TestString(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to('Expected <-123> to contain only digits, but did not.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_digit_bad_value_type_failure(self):
         try:
@@ -362,7 +362,7 @@ class TestString(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('val is not a string')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_digit_empty_value_failure(self):
         try:
@@ -370,7 +370,7 @@ class TestString(object):
         except ValueError, ex:
             assert_that(ex.message).is_equal_to('val is empty')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_lower(self):
         assert_that('foo').is_lower()
@@ -383,7 +383,7 @@ class TestString(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to('Expected <FOO> to contain only lowercase chars, but did not.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_lower_bad_value_type_failure(self):
         try:
@@ -391,7 +391,7 @@ class TestString(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('val is not a string')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_lower_empty_value_failure(self):
         try:
@@ -399,7 +399,7 @@ class TestString(object):
         except ValueError, ex:
             assert_that(ex.message).is_equal_to('val is empty')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_upper(self):
         assert_that('FOO').is_upper()
@@ -412,7 +412,7 @@ class TestString(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to('Expected <foo> to contain only uppercase chars, but did not.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_upper_bad_value_type_failure(self):
         try:
@@ -420,7 +420,7 @@ class TestString(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('val is not a string')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_upper_empty_value_failure(self):
         try:
@@ -428,7 +428,7 @@ class TestString(object):
         except ValueError, ex:
             assert_that(ex.message).is_equal_to('val is empty')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_unicode(self):
         assert_that(u'unicorn').is_unicode()
@@ -441,7 +441,7 @@ class TestString(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to('Expected <foo> to be unicode, but was <str>.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_chaining(self):
         assert_that('foo').is_type_of(str).is_length(3).contains('f').does_not_contain('x')

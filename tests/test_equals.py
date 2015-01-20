@@ -26,7 +26,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from assertpy import assert_that
+from assertpy import assert_that,fail
 
 class TestEquals(object):
 
@@ -47,7 +47,7 @@ class TestEquals(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to('Expected <foo> to be equal to <bar>, but was not.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_equal_int_failure(self):
         try:
@@ -55,7 +55,7 @@ class TestEquals(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to('Expected <123> to be equal to <234>, but was not.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_equal_list_failure(self):
         try:
@@ -63,7 +63,7 @@ class TestEquals(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to("Expected <['a', 'b']> to be equal to <['a', 'b', 'c']>, but was not.")
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_not_equal(self):
         assert_that('foo').is_not_equal_to('bar')
@@ -85,7 +85,7 @@ class TestEquals(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to('Expected <foo> to be not equal to <foo>, but was.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_not_equal_int_failure(self):
         try:
@@ -93,7 +93,7 @@ class TestEquals(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to('Expected <123> to be not equal to <123>, but was.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_not_equal_list_failure(self):
         try:
@@ -101,4 +101,4 @@ class TestEquals(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to("Expected <['a', 'b']> to be not equal to <['a', 'b']>, but was.")
             return
-        self.fail('should not fail')
+        fail('should not fail')

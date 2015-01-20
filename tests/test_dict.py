@@ -26,7 +26,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from assertpy import assert_that
+from assertpy import assert_that,fail
 
 class TestDict(object):
 
@@ -39,7 +39,7 @@ class TestDict(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to("Expected <{'a': 1, 'c': 3, 'b': 2}> to be of length <4>, but was <3>.")
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_contains(self):
         assert_that({ 'a':1,'b':2,'c':3 }).contains('a')
@@ -51,7 +51,7 @@ class TestDict(object):
         except ValueError, ex:
             assert_that(ex.message).is_equal_to('one or more args must be given')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_contains_single_item_failure(self):
         try:
@@ -59,7 +59,7 @@ class TestDict(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to("Expected <{'a': 1, 'c': 3, 'b': 2}> to contain key <x>, but did not.")
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_contains_multi_item_failure(self):
         try:
@@ -67,7 +67,7 @@ class TestDict(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to("Expected <{'a': 1, 'c': 3, 'b': 2}> to contain keys ('a', 'x', 'z'), but did not contain key <x>.")
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_contains_key(self):
         assert_that({ 'a':1,'b':2,'c':3 }).contains_key('a')
@@ -79,7 +79,7 @@ class TestDict(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('val is not a dict')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_contains_key_single_item_failure(self):
         try:
@@ -87,7 +87,7 @@ class TestDict(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to("Expected <{'a': 1, 'c': 3, 'b': 2}> to contain key <x>, but did not.")
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_contains_key_multi_item_failure(self):
         try:
@@ -95,7 +95,7 @@ class TestDict(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to("Expected <{'a': 1, 'c': 3, 'b': 2}> to contain keys ('a', 'x', 'z'), but did not contain key <x>.")
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_does_not_contain(self):
         assert_that({ 'a':1,'b':2,'c':3 }).does_not_contain('x')
@@ -107,7 +107,7 @@ class TestDict(object):
         except ValueError, ex:
             assert_that(ex.message).is_equal_to('one or more args must be given')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_does_not_contain_single_item_failure(self):
         try:
@@ -115,7 +115,7 @@ class TestDict(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to("Expected <{'a': 1, 'c': 3, 'b': 2}> to not contain item <a>, but did.")
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_does_not_contain_list_item_failure(self):
         try:
@@ -123,7 +123,7 @@ class TestDict(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to("Expected <{'a': 1, 'c': 3, 'b': 2}> to not contain items ('x', 'y', 'a'), but did contain <a>.")
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_empty(self):
         assert_that({}).is_empty()
@@ -134,7 +134,7 @@ class TestDict(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to("Expected <{'a': 1, 'b': 2}> to be empty, but was not.")
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_not_empty(self):
         assert_that({'a':1,'b':2}).is_not_empty()
@@ -146,7 +146,7 @@ class TestDict(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to('Expected not empty, but was empty.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_contains_value(self):
         assert_that({ 'a':1,'b':2,'c':3 }).contains_value(1)
@@ -158,7 +158,7 @@ class TestDict(object):
         except ValueError, ex:
             assert_that(ex.message).is_equal_to('one or more value args must be given')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_contains_value_bad_val_failure(self):
         try:
@@ -166,7 +166,7 @@ class TestDict(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('val is not a dict')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_contains_value_single_item_failure(self):
         try:
@@ -174,7 +174,7 @@ class TestDict(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to("Expected <{'a': 1, 'c': 3, 'b': 2}> to contain value <4>, but did not.")
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_contains_value_multi_item_failure(self):
         try:
@@ -182,7 +182,7 @@ class TestDict(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to("Expected <{'a': 1, 'c': 3, 'b': 2}> to contain value <4>, but did not.")
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_contains_entry(self):
         assert_that({ 'a':1,'b':2,'c':3 }).contains_entry({ 'a':1 })
@@ -194,7 +194,7 @@ class TestDict(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('val is not a dict')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_contains_entry_empty_arg_failure(self):
         try:
@@ -202,7 +202,7 @@ class TestDict(object):
         except ValueError, ex:
             assert_that(ex.message).is_equal_to('one or more entry args must be given')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_contains_entry_bad_arg_type_failure(self):
         try:
@@ -210,7 +210,7 @@ class TestDict(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('given entry arg must be a dict')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_contains_entry_bad_arg_too_big_failure(self):
         try:
@@ -218,7 +218,7 @@ class TestDict(object):
         except ValueError, ex:
             assert_that(ex.message).is_equal_to('given entry args must contain exactly one key-value pair')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_contains_entry_bad_key_failure(self):
         try:
@@ -226,7 +226,7 @@ class TestDict(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to("Expected <{'a': 1, 'c': 3, 'b': 2}> to contain entry {'x': 1}, but did not contain key <x>.")
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_contains_entry_bad_value_failure(self):
         try:
@@ -234,7 +234,7 @@ class TestDict(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to("Expected <{'a': 1, 'c': 3, 'b': 2}> to contain entry {'a': 2}, but key <a> did not contain value <2>.")
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_contains_entry_bad_keys_failure(self):
         try:
@@ -242,7 +242,7 @@ class TestDict(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to("Expected <{'a': 1, 'c': 3, 'b': 2}> to contain entry {'x': 2}, but did not contain key <x>.")
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_contains_entry_bad_values_failure(self):
         try:
@@ -250,4 +250,4 @@ class TestDict(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to("Expected <{'a': 1, 'c': 3, 'b': 2}> to contain entry {'b': 4}, but key <b> did not contain value <4>.")
             return
-        self.fail('should not fail')
+        fail('should not fail')

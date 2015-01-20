@@ -27,7 +27,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import datetime
-from assertpy import assert_that
+from assertpy import assert_that,fail
 
 class TestDate(object):
 
@@ -45,7 +45,7 @@ class TestDate(object):
         except AssertionError, ex:
             assert_that(ex.message).matches('Expected <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> to be before <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}>, but was not.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_before_bad_val_type_failure(self):
         try:
@@ -53,7 +53,7 @@ class TestDate(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('val must be datetime, but was type <int>')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_before_bad_arg_type_failure(self):
         try:
@@ -61,7 +61,7 @@ class TestDate(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('given arg must be datetime, but was type <int>')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_after(self):
         d2 = datetime.datetime.today()
@@ -74,7 +74,7 @@ class TestDate(object):
         except AssertionError, ex:
             assert_that(ex.message).matches('Expected <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> to be after <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}>, but was not.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_after_bad_val_type_failure(self):
         try:
@@ -82,7 +82,7 @@ class TestDate(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('val must be datetime, but was type <int>')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_after_bad_arg_type_failure(self):
         try:
@@ -90,7 +90,7 @@ class TestDate(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('given arg must be datetime, but was type <int>')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_equal_to_ignoring_milliseconds(self):
         assert_that(self.d1).is_equal_to_ignoring_milliseconds(self.d1)
@@ -102,7 +102,7 @@ class TestDate(object):
         except AssertionError, ex:
             assert_that(ex.message).matches('Expected <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> to be equal to <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}>, but was not.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_equal_to_ignoring_milliseconds_bad_val_type_failure(self):
         try:
@@ -110,7 +110,7 @@ class TestDate(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('val must be datetime, but was type <int>')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_equal_to_ignoring_milliseconds_bad_arg_type_failure(self):
         try:
@@ -118,7 +118,7 @@ class TestDate(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('given arg must be datetime, but was type <int>')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_equal_to_ignoring_seconds(self):
         assert_that(self.d1).is_equal_to_ignoring_seconds(self.d1)
@@ -130,7 +130,7 @@ class TestDate(object):
         except AssertionError, ex:
             assert_that(ex.message).matches('Expected <\d{4}-\d{2}-\d{2} \d{2}:\d{2}> to be equal to <\d{4}-\d{2}-\d{2} \d{2}:\d{2}>, but was not.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_equal_to_ignoring_seconds_bad_val_type_failure(self):
         try:
@@ -138,7 +138,7 @@ class TestDate(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('val must be datetime, but was type <int>')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_equal_to_ignoring_seconds_bad_arg_type_failure(self):
         try:
@@ -146,7 +146,7 @@ class TestDate(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('given arg must be datetime, but was type <int>')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_equal_to_ignoring_time(self):
         assert_that(self.d1).is_equal_to_ignoring_time(self.d1)
@@ -158,7 +158,7 @@ class TestDate(object):
         except AssertionError, ex:
             assert_that(ex.message).matches('Expected <\d{4}-\d{2}-\d{2}> to be equal to <\d{4}-\d{2}-\d{2}>, but was not.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_equal_to_ignoring_time_bad_val_type_failure(self):
         try:
@@ -166,7 +166,7 @@ class TestDate(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('val must be datetime, but was type <int>')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_equal_to_ignoring_time_bad_arg_type_failure(self):
         try:
@@ -174,7 +174,7 @@ class TestDate(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('given arg must be datetime, but was type <int>')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_greater_than(self):
         d2 = datetime.datetime.today()
@@ -187,7 +187,7 @@ class TestDate(object):
         except AssertionError, ex:
             assert_that(ex.message).matches('Expected <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> to be greater than <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}>, but was not.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_greater_than_bad_arg_type_failure(self):
         try:
@@ -195,7 +195,7 @@ class TestDate(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('given arg must be datetime, but was <int>')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_less_than(self):
         d2 = datetime.datetime.today()
@@ -208,7 +208,7 @@ class TestDate(object):
         except AssertionError, ex:
             assert_that(ex.message).matches('Expected <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> to be less than <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}>, but was not.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_less_than_bad_arg_type_failure(self):
         try:
@@ -216,7 +216,7 @@ class TestDate(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('given arg must be datetime, but was <int>')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_between(self):
         d2 = datetime.datetime.today()
@@ -231,7 +231,7 @@ class TestDate(object):
         except AssertionError, ex:
             assert_that(ex.message).matches('Expected <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> to be between <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> and <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}>, but was not.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_between_bad_arg1_type_failure(self):
         try:
@@ -239,7 +239,7 @@ class TestDate(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('given low arg must be datetime, but was <int>')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_between_bad_arg2_type_failure(self):
         try:
@@ -248,7 +248,7 @@ class TestDate(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('given high arg must be datetime, but was <int>')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_close_to(self):
         d2 = datetime.datetime.today()
@@ -261,7 +261,7 @@ class TestDate(object):
         except AssertionError, ex:
             assert_that(ex.message).matches('Expected <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> to be close to <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> within tolerance <\d+:\d{2}:\d{2}>, but was not.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_close_to_bad_arg_type_failure(self):
         try:
@@ -269,7 +269,7 @@ class TestDate(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('given arg must be datetime, but was <int>')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_close_to_bad_tolerance_arg_type_failure(self):
         try:
@@ -278,4 +278,4 @@ class TestDate(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('given tolerance arg must be timedelta, but was <int>')
             return
-        self.fail('should not fail')
+        fail('should not fail')

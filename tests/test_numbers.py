@@ -26,7 +26,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from assertpy import assert_that
+from assertpy import assert_that,fail
 
 class TestNumbers(object):
 
@@ -42,7 +42,7 @@ class TestNumbers(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to('Expected <123> to be greater than <1000>, but was not.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_greater_than_complex_failure(self):
         try:
@@ -50,7 +50,7 @@ class TestNumbers(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('ordering is not defined for complex numbers')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_greater_than_bad_value_type_failure(self):
         try:
@@ -58,7 +58,7 @@ class TestNumbers(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('val is not numeric or datetime')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_greater_than_bad_arg_type_failure(self):
         try:
@@ -66,7 +66,7 @@ class TestNumbers(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('given arg must be numeric')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_less_than(self):
         assert_that(123).is_less_than(1000)
@@ -80,7 +80,7 @@ class TestNumbers(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to('Expected <123> to be less than <1>, but was not.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_less_than_complex_failure(self):
         try:
@@ -88,7 +88,7 @@ class TestNumbers(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('ordering is not defined for complex numbers')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_less_than_bad_value_type_failure(self):
         try:
@@ -96,7 +96,7 @@ class TestNumbers(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('val is not numeric or datetime')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_less_than_bad_arg_type_failure(self):
         try:
@@ -104,7 +104,7 @@ class TestNumbers(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('given arg must be numeric')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_between(self):
         assert_that(123).is_between(120,125)
@@ -118,7 +118,7 @@ class TestNumbers(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to('Expected <123> to be between <0> and <1>, but was not.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_between_complex_failure(self):
         try:
@@ -126,7 +126,7 @@ class TestNumbers(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('ordering is not defined for complex numbers')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_between_bad_value_type_failure(self):
         try:
@@ -134,7 +134,7 @@ class TestNumbers(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('val is not numeric or datetime')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_between_low_arg_type_failure(self):
         try:
@@ -142,7 +142,7 @@ class TestNumbers(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('given low arg must be numeric')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_between_high_arg_type_failure(self):
         try:
@@ -150,7 +150,7 @@ class TestNumbers(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('given high arg must be numeric')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_between_bad_arg_delta_failure(self):
         try:
@@ -158,7 +158,7 @@ class TestNumbers(object):
         except ValueError, ex:
             assert_that(ex.message).is_equal_to('given low arg must be less than given high arg')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_close_to(self):
         assert_that(123.01).is_close_to(123,1)
@@ -171,7 +171,7 @@ class TestNumbers(object):
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to('Expected <123.01> to be close to <100> within tolerance <1>, but was not.')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_close_to_complex_failure(self):
         try:
@@ -179,7 +179,7 @@ class TestNumbers(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('ordering is not defined for complex numbers')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_close_to_bad_value_type_failure(self):
         try:
@@ -187,7 +187,7 @@ class TestNumbers(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('val is not numeric or datetime')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_close_to_bad_arg_type_failure(self):
         try:
@@ -195,7 +195,7 @@ class TestNumbers(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('given arg must be numeric')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_close_to_bad_tolerance_arg_type_failure(self):
         try:
@@ -203,7 +203,7 @@ class TestNumbers(object):
         except TypeError, ex:
             assert_that(ex.message).is_equal_to('given tolerance arg must be numeric')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_is_close_to_negative_tolerance_failure(self):
         try:
@@ -211,7 +211,7 @@ class TestNumbers(object):
         except ValueError, ex:
             assert_that(ex.message).is_equal_to('given tolerance arg must be positive')
             return
-        self.fail('should not fail')
+        fail('should not fail')
 
     def test_chaining(self):
         assert_that(123).is_greater_than(100).is_less_than(1000).is_between(120,125).is_close_to(100,25)
