@@ -7,5 +7,9 @@
 cover
 .coverage
 
+# packaging
+MANIFEST
+dist
+
 # mac
 .DS_Store
