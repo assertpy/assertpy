@@ -28,6 +28,8 @@
 
 """Fluent assertion framework for better, more readable tests."""
 
+__version__ = '0.5'
+
 import re
 import os
 import datetime
