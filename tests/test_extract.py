@@ -71,6 +71,14 @@ class TestExtract(object):
             return
         fail('should not fail')
 
+    def test_extract_too_many_args_method_failure(self):
+        try:
+            assert_that(self.people).extract('say_hello')
+        except ValueError, ex:
+            assert_that(ex.message).is_equal_to('val method <say_hello()> exists, but is not zero-arg method')
+            return
+        fail('should not fail')
+
 class Person(object):
     def __init__(self, first_name, last_name, shoe_size):
         self.first_name = first_name
@@ -79,3 +87,6 @@ class Person(object):
 
     def full_name(self):
         return '%s %s' % (self.first_name, self.last_name)
+
+    def say_hello(self, name):
+        return 'Hello, %s!' % name
