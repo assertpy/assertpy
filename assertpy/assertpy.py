@@ -28,7 +28,7 @@
 
 """Fluent assertion framework for better, more readable tests."""
 
-__version__ = '0.5'
+__version__ = '0.6'
 
 import re
 import os
