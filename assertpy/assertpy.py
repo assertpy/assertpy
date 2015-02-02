@@ -526,7 +526,7 @@ class AssertionBuilder(object):
                         try:
                             items.append(attr())
                         except TypeError:
-                            raise ValueError('val does not have zero-arg method <%s()>' % name)
+                            raise ValueError('val method <%s()> exists, but is not zero-arg method' % name)
                     else:
                         items.append(attr)
                 else:
