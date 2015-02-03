@@ -21,6 +21,22 @@ class TestSomething(object):
 
 Of course, `assertpy` works best with a python test runner like [Nose](http://nose.readthedocs.org/) or [pytest](http://pytest.org/latest/contents.html).
 
+## Installation
+
+The `assertpy` framework is available via [PyPI](https://pypi.python.org/pypi/assertpy).
+Just install with:
+
+```
+pip install assertpy
+```
+
+Or, if you are a big fan of [conda](http://conda.pydata.org/) like we are, `assertpy` is also on [binstar](https://binstar.org/ActivisionGameScience/assertpy).
+Just install from our channel:
+
+```
+conda install --channel ActivisionGameScience assertpy
+```
+
 ## The API
 
 The fluent API of `assertpy` is designed to create compact, yet readable tests.
@@ -448,12 +464,22 @@ assert_that(people).is_length(2).extract('first_name').contains('Fred','Joe')
 
 ## Future
 
-The `assertpy` framework is already super useful, but there are still new features in the works:
+The `assertpy` framework is already super useful, but there are always a few new features in the works:
 
-1. **packaging** - get everything packaged and uploaded to PyPI (see [#14](https://github.com/ActivisionGameScience/assertpy/issues/14))
-1. Lots more...
+ * **none** - accepting suggestions from our users...
 
 If you'd like to help, check out the [open issues](https://github.com/ActivisionGameScience/assertpy/issues?q=is%3Aopen+is%3Aissue) and see our [Contributing](CONTRIBUTING.md) doc.
+
+## History
+
+#### v0.6 - Feb 2, 2015
+
+- minor error message cleanups
+- initial release on binstar
+
+#### v0.5 - Jan 31, 2015
+
+- initial release on PyPI
 
 ## License
 
