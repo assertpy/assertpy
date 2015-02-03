@@ -455,7 +455,7 @@ assert_that([1,2,3]).is_type_of(list).contains(1,2).does_not_contain(4,5)
 ```
 
 ```py
-assert_that(fred).has_first_name('Fred').has_last_name('Smith).has_shoe_size(12)
+assert_that(fred).has_first_name('Fred').has_last_name('Smith').has_shoe_size(12)
 ```
 
 ```py
