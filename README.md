@@ -480,9 +480,7 @@ assert_that(people).is_length(2).extract('first_name').contains('Fred','Joe')
 
 ## Future
 
-The `assertpy` framework is already super useful, but there are always a few new features in the works:
-
- * **none** - accepting suggestions from our users...
+The `assertpy` framework is already super useful, but there are always a few new features in the works...
 
 If you'd like to help, check out the [open issues](https://github.com/ActivisionGameScience/assertpy/issues?q=is%3Aopen+is%3Aissue) and see our [Contributing](CONTRIBUTING.md) doc.
 
