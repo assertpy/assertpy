@@ -265,15 +265,31 @@ assert_that(today).is_equal_to(today)
 
 You can use these numeric assertions on dates:
 
-```
+```py
 middle = today - datetime.timedelta(hours=12)
 hours_24 = datetime.timedelta(hours=24)
 
 assert_that(today).is_greater_than(yesterday)
 assert_that(yesterday).is_less_than(today)
 assert_that(middle).is_between(yesterday, today)
+
 #note that the tolerance must be a datetime.timedelta object
 assert_that(yesterday).is_close_to(today, hours_24)
+```
+
+Lastly, because of the dynamic assertions (see [Dynamic Assertions on Objects](#dynamic-assertions-on-objects) below) we can easily test the properties of a given date:
+
+```py
+# 1980-01-02 03:04:05.000006
+x = datetime.datetime(1980, 1, 2, 3, 4, 5, 6)
+
+assert_that(x).has_year(1980)
+assert_that(x).has_month(1)
+assert_that(x).has_day(2)
+assert_that(x).has_hour(3)
+assert_that(x).has_minute(4)
+assert_that(x).has_second(5)
+assert_that(x).has_microsecond(6)
 ```
 
 Currently, `assertpy` only supports dates via the `datetime` type.
