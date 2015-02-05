@@ -224,6 +224,14 @@ class AssertionBuilder(object):
                 raise AssertionError('Expected <%s> to be less than <%s>, but was not.' % (self.val, other))
         return self
 
+    def is_positive(self):
+        """Asserts that val is numeric and greater than zero."""
+        return self.is_greater_than(0)
+
+    def is_negative(self):
+        """Asserts that val is numeric and less than zero."""
+        return self.is_less_than(0)
+
     def is_between(self, low, high):
         """Asserts that val is numeric and is between low and high."""
         if type(self.val) is complex or type(low) is complex or type(high) is complex:
