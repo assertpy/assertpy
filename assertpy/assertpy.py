@@ -188,8 +188,7 @@ class AssertionBuilder(object):
         return self
 
 ### numeric assertions ###
-    def is_greater_than(self, other):
-        """Asserts that val is numeric and is greater than other."""
+    def _validate_numeric_or_datetime(self, other):
         if type(self.val) is complex or type(other) is complex:
             raise TypeError('ordering is not defined for complex numbers')
         if type(self.val) not in (int, float, long, datetime.datetime):
@@ -199,6 +198,10 @@ class AssertionBuilder(object):
                 raise TypeError('given arg must be datetime, but was <%s>' % type(other).__name__)
         elif type(other) not in (int, float, long):
             raise TypeError('given arg must be numeric')
+
+    def is_greater_than(self, other):
+        """Asserts that val is numeric and is greater than other."""
+        self._validate_numeric_or_datetime(other)
         if self.val <= other:
             if type(self.val) is datetime.datetime:
                 raise AssertionError('Expected <%s> to be greater than <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
@@ -206,22 +209,34 @@ class AssertionBuilder(object):
                 raise AssertionError('Expected <%s> to be greater than <%s>, but was not.' % (self.val, other))
         return self
 
+    def is_greater_than_or_equal_to(self, other):
+        """Asserts that val is numeric and is greater than or equal to other."""
+        self._validate_numeric_or_datetime(other)
+        if self.val < other:
+            if type(self.val) is datetime.datetime:
+                raise AssertionError('Expected <%s> to be greater than or equal to <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
+            else:
+                raise AssertionError('Expected <%s> to be greater than or equal to <%s>, but was not.' % (self.val, other))
+        return self
+
     def is_less_than(self, other):
         """Asserts that val is numeric and is less than other."""
-        if type(self.val) is complex or type(other) is complex:
-            raise TypeError('ordering is not defined for complex numbers')
-        if type(self.val) not in (int, float, long, datetime.datetime):
-            raise TypeError('val is not numeric or datetime')
-        if type(self.val) is datetime.datetime:
-            if type(other) is not datetime.datetime:
-                raise TypeError('given arg must be datetime, but was <%s>' % type(other).__name__)
-        elif type(other) not in (int, float, long):
-            raise TypeError('given arg must be numeric')
+        self._validate_numeric_or_datetime(other)
         if self.val >= other:
             if type(self.val) is datetime.datetime:
                 raise AssertionError('Expected <%s> to be less than <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
             else:
                 raise AssertionError('Expected <%s> to be less than <%s>, but was not.' % (self.val, other))
+        return self
+
+    def is_less_than_or_equal_to(self, other):
+        """Asserts that val is numeric and is less than or equal to other."""
+        self._validate_numeric_or_datetime(other)
+        if self.val > other:
+            if type(self.val) is datetime.datetime:
+                raise AssertionError('Expected <%s> to be less than or equal to <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
+            else:
+                raise AssertionError('Expected <%s> to be less than or equal to <%s>, but was not.' % (self.val, other))
         return self
 
     def is_positive(self):
