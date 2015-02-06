@@ -436,7 +436,7 @@ class TestFailure(object):
         fail('forced failure')
 ```
 
-A useful test pattern that requires the `fail()` method is checking the contents of an error message on an exception. For example:
+A useful test pattern that requires the `fail()` method is to specifically verify the contents of an error message. For example:
 
 ```py
 from assertpy import assert_that,fail
@@ -446,15 +446,14 @@ class TestFailure(object):
     def test_error_msg(self):
         try:
             some_func('bad arg')
+            fail('should have raised error')
         except ValueError, ex:
             assert_that(ex.message).contains('some msg')
-            return
-        fail('should not fail')
 ```
 
-In the above code, we invoke `some_func()` with a bad argument which raises an exception.  The exception is then handled by the `try..except` block and the contents of the error message are specifically verified (and then we explicitly `return`).  Lastly, if an exception is not thrown as expected, we fail the test via `fail()`.
+In the above code, we invoke `some_func()` with a bad argument which raises an exception.  The exception is then handled by the `try..except` block and the exact contents of the error message are verified.  Lastly, if an exception is not thrown by `some_func()` as expected, we fail the test via `fail()`.
 
-This pattern is only used when you need to verify the contents of the error message.  If you only wish to check for an expected exception (and don't need to verify the error message), you're much better off using a test runner that supports expected exceptions.  [Nose](http://nose.readthedocs.org/) provides a [@raises](http://nose.readthedocs.org/en/latest/testing_tools.html#nose.tools.raises) decorator. [Pytest](http://pytest.org/latest/contents.html) has a [pytest.raises](http://pytest.org/latest/assert.html#assertions-about-expected-exceptions) method.
+This pattern is only used when you need to verify the contents of the error message.  If you only wish to check for an expected exception (and don't need to verify the error message itself), you're much better off using a test runner that supports expected exceptions.  [Nose](http://nose.readthedocs.org/) provides a [@raises](http://nose.readthedocs.org/en/latest/testing_tools.html#nose.tools.raises) decorator. [Pytest](http://pytest.org/latest/contents.html) has a [pytest.raises](http://pytest.org/latest/assert.html#assertions-about-expected-exceptions) method.
 
 ### Chaining
 
