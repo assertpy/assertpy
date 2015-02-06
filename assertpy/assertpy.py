@@ -256,13 +256,13 @@ class AssertionBuilder(object):
         if type(self.val) is datetime.datetime:
             if type(low) is not datetime.datetime:
                 raise TypeError('given low arg must be datetime, but was <%s>' % type(low).__name__)
-        elif type(low) not in (int, float, long):
-            raise TypeError('given low arg must be numeric')
-        if type(self.val) is datetime.datetime:
             if type(high) is not datetime.datetime:
                 raise TypeError('given high arg must be datetime, but was <%s>' % type(high).__name__)
-        elif type(high) not in (int, float, long):
-            raise TypeError('given high arg must be numeric')
+        else:
+            if type(low) not in (int, float, long):
+                raise TypeError('given low arg must be numeric')
+            if type(high) not in (int, float, long):
+                raise TypeError('given high arg must be numeric')
         if low > high:
             raise ValueError('given low arg must be less than given high arg')
         if self.val < low or self.val > high:
