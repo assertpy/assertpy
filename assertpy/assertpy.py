@@ -187,6 +187,26 @@ class AssertionBuilder(object):
                 raise AssertionError('Expected not empty, but was empty.')
         return self
 
+    def is_in(self, *items):
+        """Asserts that val is equal to one of the given items."""
+        if len(items) == 0:
+            raise ValueError('one or more args must be given')
+        else:
+            for i in items:
+                if self.val == i:
+                    return self
+        raise AssertionError('Expected <%s> to be in %s, but was not.' % (self.val, items))
+
+    def is_not_in(self, *items):
+        """Asserts that val is not equal to one of the given items."""
+        if len(items) == 0:
+            raise ValueError('one or more args must be given')
+        else:
+            for i in items:
+                if self.val == i:
+                    raise AssertionError('Expected <%s> to not be in %s, but was.' % (self.val, items))
+        return self
+
 ### numeric assertions ###
     def _validate_numeric_or_datetime(self, other):
         if type(self.val) is complex or type(other) is complex:
