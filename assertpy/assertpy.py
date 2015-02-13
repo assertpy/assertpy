@@ -219,6 +219,18 @@ class AssertionBuilder(object):
         elif type(other) not in (int, float, long):
             raise TypeError('given arg must be numeric')
 
+    def is_zero(self):
+        """Asserts that val is numeric and equal to zero."""
+        if type(self.val) not in (int, float, long, complex):
+            raise TypeError('val is not numeric')
+        return self.is_equal_to(0)
+
+    def is_not_zero(self):
+        """Asserts that val is numeric and not equal to zero."""
+        if type(self.val) not in (int, float, long, complex):
+            raise TypeError('val is not numeric')
+        return self.is_not_equal_to(0)
+
     def is_greater_than(self, other):
         """Asserts that val is numeric and is greater than other."""
         self._validate_numeric_or_datetime(other)

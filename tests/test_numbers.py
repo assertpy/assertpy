@@ -30,6 +30,46 @@ from assertpy import assert_that,fail
 
 class TestNumbers(object):
 
+    def test_is_zero(self):
+        assert_that(0).is_zero()
+        assert_that(0L).is_zero()
+        assert_that(0.0).is_zero()
+        assert_that(0 + 0j).is_zero()
+
+    def test_is_zero_failure(self):
+        try:
+            assert_that(1).is_zero()
+            fail('should have raised error')
+        except AssertionError, ex:
+            assert_that(ex.message).is_equal_to('Expected <1> to be equal to <0>, but was not.')
+
+    def test_is_zero_bad_type_failure(self):
+        try:
+            assert_that('foo').is_zero()
+            fail('should have raised error')
+        except TypeError, ex:
+            assert_that(ex.message).is_equal_to('val is not numeric')
+
+    def test_is_not_zero(self):
+        assert_that(1).is_not_zero()
+        assert_that(1L).is_not_zero()
+        assert_that(0.001).is_not_zero()
+        assert_that(0 + 1j).is_not_zero()
+
+    def test_is_not_zero_failure(self):
+        try:
+            assert_that(0).is_not_zero()
+            fail('should have raised error')
+        except AssertionError, ex:
+            assert_that(ex.message).is_equal_to('Expected <0> to be not equal to <0>, but was.')
+
+    def test_is_not_zero_bad_type_failure(self):
+        try:
+            assert_that('foo').is_not_zero()
+            fail('should have raised error')
+        except TypeError, ex:
+            assert_that(ex.message).is_equal_to('val is not numeric')
+
     def test_is_greater_than(self):
         assert_that(123).is_greater_than(100)
         assert_that(123).is_greater_than(0)
