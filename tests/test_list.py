@@ -112,6 +112,46 @@ class TestList(object):
             return
         fail('should not fail')
 
+    def test_contains_sequence(self):
+        assert_that(['a','b','c']).contains_sequence('a')
+        assert_that(['a','b','c']).contains_sequence('b')
+        assert_that(['a','b','c']).contains_sequence('c')
+        assert_that(['a','b','c']).contains_sequence('a', 'b')
+        assert_that(['a','b','c']).contains_sequence('b', 'c')
+        assert_that(['a','b','c']).contains_sequence('a', 'b', 'c')
+        assert_that((1,2,3,4)).contains_sequence(1)
+        assert_that((1,2,3,4)).contains_sequence(2)
+        assert_that((1,2,3,4)).contains_sequence(3)
+        assert_that((1,2,3,4)).contains_sequence(4)
+        assert_that((1,2,3,4)).contains_sequence(1,2)
+        assert_that((1,2,3,4)).contains_sequence(2,3)
+        assert_that((1,2,3,4)).contains_sequence(3,4)
+        assert_that((1,2,3,4)).contains_sequence(1,2,3)
+        assert_that((1,2,3,4)).contains_sequence(2,3,4)
+        assert_that((1,2,3,4)).contains_sequence(1,2,3,4)
+        assert_that('foobar').contains_sequence('o','o','b')
+
+    def test_contains_sequence_failure(self):
+        try:
+            assert_that([1,2,3]).contains_sequence(4,5)
+            fail('should have raised error')
+        except AssertionError, ex:
+            assert_that(ex.message).is_equal_to('Expected <[1, 2, 3]> to contain sequence (4, 5), but did not.')
+
+    def test_contains_sequence_bad_val_failure(self):
+        try:
+            assert_that(123).contains_sequence(1,2)
+            fail('should have raised error')
+        except TypeError, ex:
+            assert_that(ex.message).is_equal_to('val is not iterable')
+
+    def test_contains_sequence_no_args_failure(self):
+        try:
+            assert_that([1,2,3]).contains_sequence()
+            fail('should have raised error')
+        except ValueError, ex:
+            assert_that(ex.message).is_equal_to('one or more args must be given')
+
     def test_is_empty(self):
         assert_that([]).is_empty()
         assert_that(()).is_empty()
