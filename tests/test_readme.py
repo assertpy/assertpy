@@ -90,7 +90,7 @@ class TestNumbers(object):
         # fails
         try:
             assert_that('foo').matches(r'^\w{2}$')
-            fail('should have failed')
+            fail('should have raised error')
         except AssertionError:
             pass
 
