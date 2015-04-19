@@ -70,6 +70,11 @@ class TestList(object):
         assert_that({ 'a','b','c' }).contains('a')
         assert_that({ 'a','b','c' }).contains('c','b')
 
+        fred = Person('fred')
+        joe = Person('joe')
+        bob = Person('bob')
+        assert_that([fred,joe,bob]).contains(joe)
+
     def test_contains_single_item_failure(self):
         try:
             assert_that(['a','b','c']).contains('x')
@@ -95,6 +100,11 @@ class TestList(object):
         assert_that({ 'a':1,'b':2,'c':3 }).does_not_contain('x','y')
         assert_that({ 'a','b','c' }).does_not_contain('x')
         assert_that({ 'a','b','c' }).does_not_contain('x','y')
+
+        fred = Person('fred')
+        joe = Person('joe')
+        bob = Person('bob')
+        assert_that([fred,joe]).does_not_contain(bob)
 
     def test_does_not_contain_single_item_failure(self):
         try:
@@ -130,6 +140,11 @@ class TestList(object):
         assert_that((1,2,3,4)).contains_sequence(2,3,4)
         assert_that((1,2,3,4)).contains_sequence(1,2,3,4)
         assert_that('foobar').contains_sequence('o','o','b')
+
+        fred = Person('fred')
+        joe = Person('joe')
+        bob = Person('bob')
+        assert_that([fred,joe,bob]).contains_sequence(fred,joe)
 
     def test_contains_sequence_failure(self):
         try:
@@ -182,3 +197,8 @@ class TestList(object):
     def test_chaining(self):
         assert_that(['a','b','c']).is_type_of(list).is_length(3).contains('a').does_not_contain('x')
         assert_that(['a','b','c']).is_type_of(list).is_length(3).contains('a','b').does_not_contain('x','y')
+
+class Person(object):
+    def __init__(self, name):
+        self.name = name
+
