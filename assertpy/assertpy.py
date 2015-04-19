@@ -459,6 +459,12 @@ class AssertionBuilder(object):
             raise TypeError('val is not a dict')
         return self.contains(*keys)
 
+    def does_not_contain_key(self, *keys):
+        """Asserts the val is a dict and does not contain the given key or keys.  Alias for does_not_contain()."""
+        if type(self.val) is not dict:
+            raise TypeError('val is not a dict')
+        return self.does_not_contain(*keys)
+
     def contains_value(self, *values):
         """Asserts that val is a dict and contains the given value or values."""
         if type(self.val) is not dict:
@@ -468,6 +474,21 @@ class AssertionBuilder(object):
         for v in values:
             if v not in self.val.values():
                 raise AssertionError('Expected <%s> to contain value <%s>, but did not.' % (self.val, v))
+        return self
+
+    def does_not_contain_value(self, *values):
+        """Asserts that val is a dict and does not contain the given value or values."""
+        if type(self.val) is not dict:
+            raise TypeError('val is not a dict')
+        if len(values) == 0:
+            raise ValueError('one or more value args must be given')
+        elif len(values) == 1:
+            if values[0] in self.val.values():
+                raise AssertionError('Expected <%s> to not contain value <%s>, but did.' % (self.val, values[0]))
+        else:
+            for v in values:
+                if v in self.val.values():
+                    raise AssertionError('Expected <%s> to not contain values %s, but did contain <%s>.' % (self.val, values, v))
         return self
 
     def contains_entry(self, *entries):

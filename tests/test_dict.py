@@ -81,6 +81,18 @@ class TestDict(object):
             return
         fail('should not fail')
 
+    def test_does_not_contain_key(self):
+        assert_that({ 'a':1,'b':2,'c':3 }).does_not_contain_key('x')
+        assert_that({ 'a':1,'b':2,'c':3 }).does_not_contain_key('x','y')
+
+    def test_does_not_contain_key_bad_val_failure(self):
+        try:
+            assert_that(123).does_not_contain_key(1)
+        except TypeError, ex:
+            assert_that(ex.message).is_equal_to('val is not a dict')
+            return
+        fail('should not fail')
+
     def test_contains_key_single_item_failure(self):
         try:
             assert_that({ 'a':1,'b':2,'c':3 }).contains_key('x')
@@ -181,6 +193,42 @@ class TestDict(object):
             assert_that({ 'a':1,'b':2,'c':3 }).contains_value(1,4,5)
         except AssertionError, ex:
             assert_that(ex.message).is_equal_to("Expected <{'a': 1, 'c': 3, 'b': 2}> to contain value <4>, but did not.")
+            return
+        fail('should not fail')
+
+    def test_does_not_contain_value(self):
+        assert_that({ 'a':1,'b':2,'c':3 }).does_not_contain_value(4)
+        assert_that({ 'a':1,'b':2,'c':3 }).does_not_contain_value(4,5)
+
+    def test_does_not_contain_value_bad_val_failure(self):
+        try:
+            assert_that(123).does_not_contain_value(1)
+        except TypeError, ex:
+            assert_that(ex.message).is_equal_to('val is not a dict')
+            return
+        fail('should not fail')
+
+    def test_does_not_contain_value_empty_arg_failure(self):
+        try:
+            assert_that({ 'a':1,'b':2,'c':3 }).does_not_contain_value()
+        except ValueError, ex:
+            assert_that(ex.message).is_equal_to('one or more value args must be given')
+            return
+        fail('should not fail')
+
+    def test_does_not_contain_value_single_item_failure(self):
+        try:
+            assert_that({ 'a':1,'b':2,'c':3 }).does_not_contain_value(1)
+        except AssertionError, ex:
+            assert_that(ex.message).is_equal_to("Expected <{'a': 1, 'c': 3, 'b': 2}> to not contain value <1>, but did.")
+            return
+        fail('should not fail')
+
+    def test_does_not_contain_value_list_item_failure(self):
+        try:
+            assert_that({ 'a':1,'b':2,'c':3 }).does_not_contain_value(4,5,1)
+        except AssertionError, ex:
+            assert_that(ex.message).is_equal_to("Expected <{'a': 1, 'c': 3, 'b': 2}> to not contain values (4, 5, 1), but did contain <1>.")
             return
         fail('should not fail')
 
