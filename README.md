@@ -68,6 +68,13 @@ assert_that('foo').is_equal_to_ignoring_case('FOO')
 assert_that('foo').contains('f')
 assert_that('foo').contains('f','oo')
 assert_that('foo').does_not_contain('x')
+assert_that('foo').contains_sequence('o','o')
+
+assert_that('foo').contains_duplicates()
+assert_that('fox').does_not_contain_duplicates()
+
+assert_that('foo').is_in('foo','bar','baz')
+assert_that('foo').is_not_in('boo','bar','baz')
 
 assert_that('foo').starts_with('f')
 assert_that('foo').ends_with('oo')
@@ -102,13 +109,23 @@ assert_that(0).is_false()
 assert_that(0).is_type_of(int)
 assert_that(0).is_instance_of(int)
 
+assert_that(0).is_zero()
+assert_that(1).is_not_zero()
+assert_that(1).is_positive()
+assert_that(-1).is_negative()
+
 assert_that(123).is_equal_to(123)
 assert_that(123).is_not_equal_to(456)
 
 assert_that(123).is_greater_than(100)
+assert_that(123).is_greater_than_or_equal_to(123)
 assert_that(123).is_less_than(200)
+assert_that(123).is_less_than_or_equal_to(200)
 assert_that(123).is_between(100, 200)
 assert_that(123).is_close_to(100, 25)
+
+assert_that(1).is_in(0,1,2,3)
+assert_that(1).is_not_in(-1,-2,-3)
 ```
 
 Matching floats:
@@ -123,7 +140,9 @@ assert_that(123.4).is_equal_to(123.4)
 assert_that(123.4).is_not_equal_to(456.7)
 
 assert_that(123.4).is_greater_than(100.1)
+assert_that(123.4).is_greater_than_or_equal_to(123.4)
 assert_that(123.4).is_less_than(200.2)
+assert_that(123.4).is_less_than_or_equal_to(123.4)
 assert_that(123.4).is_between(100.1, 200.2)
 assert_that(123.4).is_close_to(123, 0.5)
 ```
@@ -149,6 +168,10 @@ assert_that(['a','b']).is_not_equal_to(['b','a'])
 assert_that(['a','b']).contains('a')
 assert_that(['a','b']).contains('b','a')
 assert_that(['a','b']).does_not_contain('x','y')
+assert_that(['a','b','c']).contains_sequence('b','c')
+
+assert_that(['a','x','x']).contains_duplicates()
+assert_that(['a','b','c']).does_not_contain_duplicates()
 ```
 
 ### Tuples
@@ -170,6 +193,10 @@ assert_that((1,2,3)).is_not_equal_to((1,2,4))
 assert_that((1,2,3)).contains(1)
 assert_that((1,2,3)).contains(3,2,1)
 assert_that((1,2,3)).does_not_contain(4,5,6)
+assert_that((1,2,3)).contains_sequence(2,3)
+
+assert_that((1,2,2)).contains_duplicates()
+assert_that((1,2,3)).does_not_contain_duplicates()
 ```
 
 ### Dicts
@@ -191,14 +218,21 @@ assert_that({'a':1,'b':2}).is_not_equal_to({'a':1,'b':3})
 
 assert_that({'a':1,'b':2}).contains('a')
 assert_that({'a':1,'b':2}).contains('b','a')
+assert_that({'a':1,'b':2}).does_not_contain('x')
 assert_that({'a':1,'b':2}).does_not_contain('x','y')
 
 # contains_key() is just an alias for contains()
 assert_that({'a':1,'b':2}).contains_key('a')
 assert_that({'a':1,'b':2}).contains_key('b','a')
 
+# does_not_contain_key() is just an alias for does_not_contain()
+assert_that({'a':1,'b':2}).does_not_contain_key('x')
+assert_that({'a':1,'b':2}).does_not_contain_key('x','y')
+
 assert_that({'a':1,'b':2}).contains_value(1)
 assert_that({'a':1,'b':2}).contains_value(2,1)
+assert_that({'a':1,'b':2}).does_not_contain_value(3)
+assert_that({'a':1,'b':2}).does_not_contain_value(3,4)
 
 assert_that({'a':1,'b':2}).contains_entry({'a':1})
 assert_that({'a':1,'b':2}).contains_entry({'a':1},{'b':2})
@@ -253,13 +287,13 @@ assert_that(today).is_after(yesterday)
 You can also make assertions about date equality (ignoring various units of time) like this:
 
 ```py
-today_5ms = today + datetime.timedelta(milliseconds=5)
-today_5s = today + datetime.timedelta(seconds=5)
-today_5h = today + datetime.timedelta(hours=5)
+today_0us = today - datetime.timedelta(microseconds=today.microsecond)
+today_0s = today - datetime.timedelta(seconds=today.second)
+today_0h = today - datetime.timedelta(hours=today.hour)
 
-assert_that(today).is_equal_to_ignoring_milliseconds(today_5ms)
-assert_that(today).is_equal_to_ignoring_seconds(today_5s)
-assert_that(today).is_equal_to_ignoring_time(today_5h)
+assert_that(today).is_equal_to_ignoring_milliseconds(today_0us)
+assert_that(today).is_equal_to_ignoring_seconds(today_0s)
+assert_that(today).is_equal_to_ignoring_time(today_0h)
 assert_that(today).is_equal_to(today)
 ```
 
