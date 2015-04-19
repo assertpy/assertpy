@@ -167,6 +167,58 @@ class TestList(object):
         except ValueError, ex:
             assert_that(ex.message).is_equal_to('one or more args must be given')
 
+    def test_contains_duplicates(self):
+        assert_that(['a','b','c','a']).contains_duplicates()
+        assert_that(('a','b','c','a')).contains_duplicates()
+        assert_that([1,2,3,3]).contains_duplicates()
+        assert_that((1,2,3,3)).contains_duplicates()
+        assert_that('foobar').contains_duplicates()
+
+        fred = Person('fred')
+        joe = Person('joe')
+        assert_that([fred,joe,fred]).contains_duplicates()
+
+    def test_contains_duplicates_failure(self):
+        try:
+            assert_that([1,2,3]).contains_duplicates()
+            fail('should have raised error')
+        except AssertionError, ex:
+            assert_that(ex.message).is_equal_to('Expected <[1, 2, 3]> to contain duplicates, but did not.')
+
+    def test_contains_duplicates_bad_val_failure(self):
+        try:
+            assert_that(123).contains_duplicates()
+            fail('should have raised error')
+        except TypeError, ex:
+            assert_that(ex.message).is_equal_to('val is not iterable')
+
+    def test_does_not_contain_duplicates(self):
+        assert_that(['a','b','c']).does_not_contain_duplicates()
+        assert_that(('a','b','c')).does_not_contain_duplicates()
+        assert_that({'a','b','c'}).does_not_contain_duplicates()
+        assert_that([1,2,3]).does_not_contain_duplicates()
+        assert_that((1,2,3)).does_not_contain_duplicates()
+        assert_that({1,2,3}).does_not_contain_duplicates()
+        assert_that('fobar').does_not_contain_duplicates()
+
+        fred = Person('fred')
+        joe = Person('joe')
+        assert_that([fred,joe]).does_not_contain_duplicates()
+
+    def test_does_not_contain_duplicates_failure(self):
+        try:
+            assert_that([1,2,3,3]).does_not_contain_duplicates()
+            fail('should have raised error')
+        except AssertionError, ex:
+            assert_that(ex.message).is_equal_to('Expected <[1, 2, 3, 3]> to not contain duplicates, but did.')
+
+    def test_does_not_contain_duplicates_bad_val_failure(self):
+        try:
+            assert_that(123).does_not_contain_duplicates()
+            fail('should have raised error')
+        except TypeError, ex:
+            assert_that(ex.message).is_equal_to('val is not iterable')
+
     def test_is_empty(self):
         assert_that([]).is_empty()
         assert_that(()).is_empty()

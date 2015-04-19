@@ -185,6 +185,24 @@ class AssertionBuilder(object):
                 raise TypeError('val is not iterable')
         raise AssertionError('Expected <%s> to contain sequence %s, but did not.' % (self.val, items))
 
+    def contains_duplicates(self):
+        """Asserts that val is iterable and contains duplicate items."""
+        try:
+            if len(self.val) != len(set(self.val)):
+                return self
+        except TypeError:
+            raise TypeError('val is not iterable')
+        raise AssertionError('Expected <%s> to contain duplicates, but did not.' % self.val)
+
+    def does_not_contain_duplicates(self):
+        """Asserts that val is iterable and does not contain any duplicate items."""
+        try:
+            if len(self.val) == len(set(self.val)):
+                return self
+        except TypeError:
+            raise TypeError('val is not iterable')
+        raise AssertionError('Expected <%s> to not contain duplicates, but did.' % self.val)
+
     def is_empty(self):
         """Asserts that val is empty."""
         if len(self.val) != 0:
