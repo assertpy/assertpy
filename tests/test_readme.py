@@ -208,6 +208,8 @@ class TestNumbers(object):
 
         assert_that({'a':1,'b':2}).contains_entry({'a':1})
         assert_that({'a':1,'b':2}).contains_entry({'a':1},{'b':2})
+        assert_that({'a':1,'b':2}).does_not_contain_entry({'a':2})
+        assert_that({'a':1,'b':2}).does_not_contain_entry({'a':2},{'b':1})
 
     def test_sets(self):
         assert_that(set({})).is_not_none()

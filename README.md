@@ -236,6 +236,8 @@ assert_that({'a':1,'b':2}).does_not_contain_value(3,4)
 
 assert_that({'a':1,'b':2}).contains_entry({'a':1})
 assert_that({'a':1,'b':2}).contains_entry({'a':1},{'b':2})
+assert_that({'a':1,'b':2}).does_not_contain_entry({'a':2})
+assert_that({'a':1,'b':2}).does_not_contain_entry({'a':2},{'b':1})
 ```
 
 ### Sets
