@@ -527,6 +527,22 @@ class AssertionBuilder(object):
                 raise AssertionError('Expected <%s> to contain entry %s, but key <%s> did not contain value <%s>.' % (self.val, e, k, e[k]))
         return self
 
+    def does_not_contain_entry(self, *entries):
+        """Asserts that val is a dict and does not contain the given entry or entries."""
+        if type(self.val) is not dict:
+            raise TypeError('val is not a dict')
+        if len(entries) == 0:
+            raise ValueError('one or more entry args must be given')
+        for e in entries:
+            if type(e) is not dict:
+                raise TypeError('given entry arg must be a dict')
+            if len(e) != 1:
+                raise ValueError('given entry args must contain exactly one key-value pair')
+            k = e.keys()[0]
+            if k in self.val and e[k] == self.val[k]:
+                raise AssertionError('Expected <%s> to not contain entry %s, but did.' % (self.val, e))
+        return self
+
 ### datetime assertions ###
     def is_before(self, other):
         """Asserts that val is a date and is before other date."""
