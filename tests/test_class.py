@@ -60,28 +60,6 @@ class TestClass(object):
     def test_extract_zero_arg_method(self):
         assert_that(self.people).extract('say_hello').contains('Hello, Fred!', 'Joe writes code.')
 
-    def test_github_readme(self):
-        fred = Person('Fred','Smith')
-
-        assert_that(fred).is_not_none()
-        assert_that(fred).is_true()
-        assert_that(fred).is_type_of(Person)
-        assert_that(fred).is_instance_of(object)
-
-        assert_that(fred.first_name).is_equal_to('Fred')
-        assert_that(fred.name).is_equal_to('Fred Smith')
-        assert_that(fred.say_hello()).is_equal_to('Hello, Fred!')
-
-        joe = Developer('Joe','Coder')
-        people = [fred, joe]
-
-        assert_that(people).extract('first_name').is_equal_to(['Fred','Joe'])
-        assert_that(people).extract('first_name').contains('Fred','Joe')
-        assert_that(people).extract('first_name', 'name').contains(('Fred','Fred Smith'), ('Joe','Joe Coder'))
-        assert_that(people).extract('say_hello').contains('Hello, Fred!', 'Joe writes code.')
-
-        assert_that(people).is_type_of(list).is_length(2).extract('first_name').contains('Fred','Joe').does_not_contain('Charlie')
-
 class Person(object):
     def __init__(self, first_name, last_name):
         self.first_name = first_name
