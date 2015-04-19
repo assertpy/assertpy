@@ -33,6 +33,7 @@ __version__ = '0.6'
 import re
 import os
 import datetime
+import numbers
 
 def assert_that(val):
     """Factory method for the assertion builder."""
@@ -245,23 +246,23 @@ class AssertionBuilder(object):
     def _validate_numeric_or_datetime(self, other):
         if type(self.val) is complex or type(other) is complex:
             raise TypeError('ordering is not defined for complex numbers')
-        if type(self.val) not in (int, float, long, datetime.datetime):
+        if isinstance(self.val, numbers.Number) is False and type(self.val) is not datetime.datetime:
             raise TypeError('val is not numeric or datetime')
         if type(self.val) is datetime.datetime:
             if type(other) is not datetime.datetime:
                 raise TypeError('given arg must be datetime, but was <%s>' % type(other).__name__)
-        elif type(other) not in (int, float, long):
+        elif isinstance(other, numbers.Number) is False:
             raise TypeError('given arg must be numeric')
 
     def is_zero(self):
         """Asserts that val is numeric and equal to zero."""
-        if type(self.val) not in (int, float, long, complex):
+        if isinstance(self.val, numbers.Number) is False:
             raise TypeError('val is not numeric')
         return self.is_equal_to(0)
 
     def is_not_zero(self):
         """Asserts that val is numeric and not equal to zero."""
-        if type(self.val) not in (int, float, long, complex):
+        if isinstance(self.val, numbers.Number) is False:
             raise TypeError('val is not numeric')
         return self.is_not_equal_to(0)
 
@@ -317,7 +318,7 @@ class AssertionBuilder(object):
         """Asserts that val is numeric and is between low and high."""
         if type(self.val) is complex or type(low) is complex or type(high) is complex:
             raise TypeError('ordering is not defined for complex numbers')
-        if type(self.val) not in (int, float, long, datetime.datetime):
+        if isinstance(self.val, numbers.Number) is False and type(self.val) is not datetime.datetime:
             raise TypeError('val is not numeric or datetime')
         if type(self.val) is datetime.datetime:
             if type(low) is not datetime.datetime:
@@ -325,9 +326,9 @@ class AssertionBuilder(object):
             if type(high) is not datetime.datetime:
                 raise TypeError('given high arg must be datetime, but was <%s>' % type(high).__name__)
         else:
-            if type(low) not in (int, float, long):
+            if isinstance(low, numbers.Number) is False:
                 raise TypeError('given low arg must be numeric')
-            if type(high) not in (int, float, long):
+            if isinstance(high, numbers.Number) is False:
                 raise TypeError('given high arg must be numeric')
         if low > high:
             raise ValueError('given low arg must be less than given high arg')
@@ -342,7 +343,7 @@ class AssertionBuilder(object):
         """Asserts that val is numeric and is close to other within tolerance."""
         if type(self.val) is complex or type(other) is complex or type(tolerance) is complex:
             raise TypeError('ordering is not defined for complex numbers')
-        if type(self.val) not in (int, float, long, datetime.datetime):
+        if isinstance(self.val, numbers.Number) is False and type(self.val) is not datetime.datetime:
             raise TypeError('val is not numeric or datetime')
         if type(self.val) is datetime.datetime:
             if type(other) is not datetime.datetime:
@@ -350,9 +351,9 @@ class AssertionBuilder(object):
             if type(tolerance) is not datetime.timedelta:
                 raise TypeError('given tolerance arg must be timedelta, but was <%s>' % type(tolerance).__name__)
         else:
-            if type(other) not in (int, float, long):
+            if isinstance(other, numbers.Number) is False:
                 raise TypeError('given arg must be numeric')
-            if type(tolerance) not in (int, float, long):
+            if isinstance(tolerance, numbers.Number) is False:
                 raise TypeError('given tolerance arg must be numeric')
             if tolerance < 0:
                 raise ValueError('given tolerance arg must be positive')
