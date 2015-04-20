@@ -23,6 +23,9 @@ Of course, `assertpy` works best with a python test runner like [Nose](http://no
 
 ## Installation
 
+[![PyPI Badge](https://pypip.in/v/assertpy/badge.png)](https://pypi.python.org/pypi/assertpy)
+[![Binstar Badge](https://binstar.org/ActivisionGameScience/assertpy/badges/version.svg)](https://binstar.org/ActivisionGameScience/assertpy)
+
 The `assertpy` framework is available via [PyPI](https://pypi.python.org/pypi/assertpy).
 Just install with:
 
