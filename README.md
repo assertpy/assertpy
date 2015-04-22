@@ -531,7 +531,8 @@ If you'd like to help, check out the [open issues](https://github.com/Activision
 - fixed [#33](https://github.com/ActivisionGameScience/assertpy/issues/33) - added `does_not_contain_key()` and `does_not_contain_value()`
 - fixed [#32](https://github.com/ActivisionGameScience/assertpy/issues/32) - relaxed numeric type checking to work with things like `numpy.float64`
 - fixed [#31](https://github.com/ActivisionGameScience/assertpy/issues/31) - added `contains_duplicates()` and `does_not_contain_duplicates()`
-- fixed [#29](https://github.com/ActivisionGameScience/assertpy/issues/29) - added `is_in()` and `is_not_in()`
+- fixed [#29](https://github.com/ActivisionGameScience/assertpy/issues/29) - added `is_not_in()`
+- fixed [#28](https://github.com/ActivisionGameScience/assertpy/issues/28) - added `is_in()`
 - fixed [#27](https://github.com/ActivisionGameScience/assertpy/issues/27) - added `is_zero()` and `is_not_zero()`
 - fixed [#26](https://github.com/ActivisionGameScience/assertpy/issues/26) - added `is_greater_than_or_equal_to()` and `is_less_than_or_equal_to()`
 - fixed [#25](https://github.com/ActivisionGameScience/assertpy/issues/25) - added `contains_sequence()`
