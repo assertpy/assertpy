@@ -40,15 +40,15 @@ class TestIn(object):
         try:
             assert_that(4).is_in(1,2,3)
             fail('should have raised error')
-        except AssertionError, ex:
-            assert_that(ex.message).is_equal_to('Expected <4> to be in (1, 2, 3), but was not.')
+        except AssertionError as ex:
+            assert_that(ex.args[0]).is_equal_to('Expected <4> to be in (1, 2, 3), but was not.')
 
     def test_is_in_missing_arg_failure(self):
         try:
             assert_that(1).is_in()
             fail('should have raised error')
-        except ValueError, ex:
-            assert_that(ex.message).is_equal_to('one or more args must be given')
+        except ValueError as ex:
+            assert_that(ex.args[0]).is_equal_to('one or more args must be given')
 
     def test_is_not_in(self):
         assert_that(4).is_not_in(1)
@@ -60,13 +60,13 @@ class TestIn(object):
         try:
             assert_that(1).is_not_in(1,2,3)
             fail('should have raised error')
-        except AssertionError, ex:
-            assert_that(ex.message).is_equal_to('Expected <1> to not be in (1, 2, 3), but was.')
+        except AssertionError as ex:
+            assert_that(ex.args[0]).is_equal_to('Expected <1> to not be in (1, 2, 3), but was.')
 
     def test_is_not_in_missing_arg_failure(self):
         try:
             assert_that(1).is_not_in()
             fail('should have raised error')
-        except ValueError, ex:
-            assert_that(ex.message).is_equal_to('one or more args must be given')
+        except ValueError as ex:
+            assert_that(ex.args[0]).is_equal_to('one or more args must be given')
 

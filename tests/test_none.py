@@ -37,8 +37,8 @@ class TestNone(object):
         try:
             assert_that('foo').is_none()
             fail('should have raised error')
-        except AssertionError, ex:
-            assert_that(ex.message).is_equal_to('Expected <foo> to be <None>, but was not.')
+        except AssertionError as ex:
+            assert_that(ex.args[0]).is_equal_to('Expected <foo> to be <None>, but was not.')
 
     def test_is_not_none(self):
         assert_that('foo').is_not_none()
@@ -51,5 +51,5 @@ class TestNone(object):
         try:
             assert_that(None).is_not_none()
             fail('should have raised error')
-        except AssertionError, ex:
-            assert_that(ex.message).is_equal_to('Expected not <None>, but was.')
+        except AssertionError as ex:
+            assert_that(ex.args[0]).is_equal_to('Expected not <None>, but was.')

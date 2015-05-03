@@ -6,10 +6,15 @@
 *.log
 cover
 .coverage
+.tox
+.cache
+*.bak
+*.py-e
 
 # packaging
 MANIFEST
 dist
+**/*egg-info/*
 
 # mac
 .DS_Store

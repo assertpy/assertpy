@@ -24,7 +24,7 @@
 # LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
 # ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGex.
 
 from assertpy import assert_that,fail
 
@@ -39,8 +39,8 @@ class TestBool(object):
         try:
             assert_that(False).is_true()
             fail('should have raised error')
-        except AssertionError, ex:
-            assert_that(ex.message).is_equal_to('Expected <True>, but was not.')
+        except AssertionError as ex:
+            assert_that(ex.args[0]).is_equal_to('Expected <True>, but was not.')
 
     def test_is_false(self):
         assert_that(False).is_false()
@@ -54,5 +54,5 @@ class TestBool(object):
         try:
             assert_that(True).is_false()
             fail('should have raised error')
-        except AssertionError, ex:
-            assert_that(ex.message).is_equal_to('Expected <False>, but was not.')
+        except AssertionError as ex:
+            assert_that(ex.args[0]).is_equal_to('Expected <False>, but was not.')
