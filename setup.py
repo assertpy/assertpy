@@ -1,16 +1,9 @@
 from distutils.core import setup
-from pip.req import parse_requirements
-from pip.download import PipSession
 
 import assertpy
 
 readme = open('README.md').read()
 
-
-session = PipSession()
-requirements = [
-    str(req.req) for req in parse_requirements('requirements.txt', session=session)
-]
 
 setup(name = 'assertpy',
     packages = ['assertpy'],
@@ -22,7 +15,6 @@ setup(name = 'assertpy',
     url = 'https://github.com/ActivisionGameScience/assertpy',
     download_url = 'https://github.com/ActivisionGameScience/assertpy/archive/%s.tar.gz' % assertpy.__version__,
     keywords = ['testing', 'assert', 'assertion', 'assert_that'],
-    install_requires=requirements,
     license = 'BSD',
     classifiers = [
         'Development Status :: 5 - Production/Stable',
