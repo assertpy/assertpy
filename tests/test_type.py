@@ -27,7 +27,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import types
-import six
+from assertpy import six
 from assertpy import assert_that,fail
 
 class TestType(object):
