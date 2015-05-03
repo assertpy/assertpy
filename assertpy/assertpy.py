@@ -34,7 +34,8 @@ import re
 import os
 import datetime
 import numbers
-from assertpy import six
+
+from . import six
 
 def assert_that(val):
     """Factory method for the assertion builder."""
