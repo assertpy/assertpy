@@ -35,6 +35,8 @@ import os
 import datetime
 import numbers
 
+from . import six
+
 def assert_that(val):
     """Factory method for the assertion builder."""
     return AssertionBuilder(val)
@@ -44,7 +46,7 @@ def contents_of(f):
     if type(f) is str:
         with open(f, 'r') as fp:
             contents = fp.read()
-    elif type(f) is file:
+    elif hasattr(f, 'read'):
         contents = f.read()
     else:
         raise ValueError('val must be file or path, but was type <%s>' % type(f).__name__)
@@ -176,8 +178,8 @@ class AssertionBuilder(object):
             raise ValueError('one or more args must be given')
         else:
             try:
-                for i in xrange(len(self.val) - len(items) + 1):
-                    for j in xrange(len(items)):
+                for i in range(len(self.val) - len(items) + 1):
+                    for j in range(len(items)):
                         if self.val[i+j] != items[j]:
                             break
                     else:
@@ -379,9 +381,9 @@ class AssertionBuilder(object):
 
     def starts_with(self, prefix):
         """Asserts that val is string and starts with prefix."""
-        if type(self.val) is not str:
+        if not isinstance(self.val, six.string_types):
             raise TypeError('val is not a string')
-        if type(prefix) is not str:
+        if not isinstance(prefix, six.string_types):
             raise TypeError('given prefix arg must be a string')
         if len(prefix) == 0:
             raise ValueError('given prefix arg must not be empty')
@@ -467,7 +469,7 @@ class AssertionBuilder(object):
 
     def is_unicode(self):
         """Asserts that val is a unicode string."""
-        if type(self.val) is not unicode:
+        if type(self.val) is not six.text_type:
             raise AssertionError('Expected <%s> to be unicode, but was <%s>.' % (self.val, type(self.val).__name__))
         return self
 
@@ -521,7 +523,8 @@ class AssertionBuilder(object):
                 raise TypeError('given entry arg must be a dict')
             if len(e) != 1:
                 raise ValueError('given entry args must contain exactly one key-value pair')
-            k = e.keys()[0]
+            # Python 3 compat
+            k = list(e.keys())[0]
             if k not in self.val:
                 raise AssertionError('Expected <%s> to contain entry %s, but did not contain key <%s>.' % (self.val, e, k))
             elif self.val[k] != e[k]:
@@ -539,7 +542,7 @@ class AssertionBuilder(object):
                 raise TypeError('given entry arg must be a dict')
             if len(e) != 1:
                 raise ValueError('given entry args must contain exactly one key-value pair')
-            k = e.keys()[0]
+            k = list(e.keys())[0]
             if k in self.val and e[k] == self.val[k]:
                 raise AssertionError('Expected <%s> to not contain entry %s, but did.' % (self.val, e))
         return self

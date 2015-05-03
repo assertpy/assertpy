@@ -51,29 +51,29 @@ class TestExtract(object):
         try:
             assert_that('foo').extract('bar')
             fail('should have raised error')
-        except TypeError, ex:
-            assert_that(ex.message).is_equal_to('val is not a collection')
+        except TypeError as ex:
+            assert_that(ex.args[0]).is_equal_to('val is not a collection')
 
     def test_extract_empty_args_failure(self):
         try:
             assert_that(self.people).extract()
             fail('should have raised error')
-        except ValueError, ex:
-            assert_that(ex.message).is_equal_to('one or more name args must be given')
+        except ValueError as ex:
+            assert_that(ex.args[0]).is_equal_to('one or more name args must be given')
 
     def test_extract_bad_property_failure(self):
         try:
             assert_that(self.people).extract('foo')
             fail('should have raised error')
-        except ValueError, ex:
-            assert_that(ex.message).is_equal_to('val does not have property or zero-arg method <foo>')
+        except ValueError as ex:
+            assert_that(ex.args[0]).is_equal_to('val does not have property or zero-arg method <foo>')
 
     def test_extract_too_many_args_method_failure(self):
         try:
             assert_that(self.people).extract('say_hello')
             fail('should have raised error')
-        except ValueError, ex:
-            assert_that(ex.message).is_equal_to('val method <say_hello()> exists, but is not zero-arg method')
+        except ValueError as ex:
+            assert_that(ex.args[0]).is_equal_to('val method <say_hello()> exists, but is not zero-arg method')
 
 class Person(object):
     def __init__(self, first_name, last_name, shoe_size):
