@@ -15,3 +15,5 @@ script:
 after_success:
   - coveralls
 sudo: false
+after_script:
+  - cat .tox/$TOX_ENV/log/*.log
