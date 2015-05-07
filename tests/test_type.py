@@ -26,7 +26,6 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import types
 from assertpy import assert_that,fail
 
 class TestType(object):
@@ -40,7 +39,7 @@ class TestType(object):
         assert_that(('a','b')).is_type_of(tuple)
         assert_that({ 'a':1,'b':2 }).is_type_of(dict)
         assert_that({ 'a','b' }).is_type_of(set)
-        assert_that(None).is_type_of(types.NoneType)
+        assert_that(None).is_type_of(type(None))
         assert_that(Foo()).is_type_of(Foo)
         assert_that(Bar()).is_type_of(Bar)
 
@@ -75,7 +74,7 @@ class TestType(object):
         assert_that(('a','b')).is_instance_of(tuple)
         assert_that({ 'a':1,'b':2 }).is_instance_of(dict)
         assert_that({ 'a','b' }).is_instance_of(set)
-        assert_that(None).is_instance_of(types.NoneType)
+        assert_that(None).is_instance_of(type(None))
         assert_that(Foo()).is_instance_of(Foo)
         assert_that(Bar()).is_instance_of(Bar)
         assert_that(Bar()).is_instance_of(Foo)
