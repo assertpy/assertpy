@@ -353,3 +353,4 @@ class Person(object):
 class Developer(Person):
     def say_hello(self):
         return '%s writes code.' % self.first_name
+
