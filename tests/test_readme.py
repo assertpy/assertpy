@@ -30,7 +30,7 @@ import os
 import datetime
 from assertpy import assert_that,contents_of,fail
 
-class TestNumbers(object):
+class TestReadme(object):
 
     def setup(self):
         with open('foo.txt', 'w') as fp:
