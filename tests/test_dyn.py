@@ -58,42 +58,42 @@ class TestDyn(object):
             assert_that(self.fred).has_first_name('Joe')
             fail('should have raised error')
         except AssertionError as ex:
-            assert_that(ex.message).is_equal_to('Expected <Fred> to be equal to <Joe>, but was not.')
+            assert_that(str(ex)).is_equal_to('Expected <Fred> to be equal to <Joe>, but was not.')
 
     def test_dynamic_assertion_bad_name_failure(self):
         try:
             assert_that(self.fred).foo()
             fail('should have raised error')
         except AttributeError as ex:
-            assert_that(ex.message).is_equal_to("assertpy has no assertion <foo()>")
+            assert_that(str(ex)).is_equal_to("assertpy has no assertion <foo()>")
 
     def test_dynamic_assertion_unknown_attribute_failure(self):
         try:
             assert_that(self.fred).has_foo()
             fail('should have raised error')
         except AttributeError as ex:
-            assert_that(ex.message).is_equal_to('val has no attribute <foo>')
+            assert_that(str(ex)).is_equal_to('val has no attribute <foo>')
 
     def test_dynamic_assertion_no_args_failure(self):
         try:
             assert_that(self.fred).has_first_name()
             fail('should have raised error')
         except TypeError as ex:
-            assert_that(ex.message).is_equal_to('assertion <has_first_name()> takes exactly 1 argument (0 given)')
+            assert_that(str(ex)).is_equal_to('assertion <has_first_name()> takes exactly 1 argument (0 given)')
 
     def test_dynamic_assertion_too_many_args_failure(self):
         try:
             assert_that(self.fred).has_first_name('Fred','Joe')
             fail('should have raised error')
         except TypeError as ex:
-            assert_that(ex.message).is_equal_to('assertion <has_first_name()> takes exactly 1 argument (2 given)')
+            assert_that(str(ex)).is_equal_to('assertion <has_first_name()> takes exactly 1 argument (2 given)')
 
     def test_dynamic_assertion_on_method_failure(self):
         try:
             assert_that(self.fred).has_say_goodbye('Foo')
             fail('should have raised error')
         except TypeError as ex:
-            assert_that(ex.message).contains('val does not have zero-arg method <say_goodbye()>')
+            assert_that(str(ex)).contains('val does not have zero-arg method <say_goodbye()>')
 
     def test_chaining(self):
         assert_that(self.fred).has_first_name('Fred').has_last_name('Smith').has_shoe_size(12)

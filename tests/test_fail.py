@@ -35,11 +35,11 @@ class TestNone(object):
             fail()
             fail('should have raised error')
         except AssertionError as ex:
-            assert_that(ex.message).is_equal_to('Fail!')
+            assert_that(str(ex)).is_equal_to('Fail!')
 
     def test_fail_msg(self):
         try:
             fail('some msg')
             fail('should have raised error')
         except AssertionError as ex:
-            assert_that(ex.message).is_equal_to('Fail: some msg!')
+            assert_that(str(ex)).is_equal_to('Fail: some msg!')
