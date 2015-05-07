@@ -39,7 +39,7 @@ class TestBool(object):
         try:
             assert_that(False).is_true()
             fail('should have raised error')
-        except AssertionError, ex:
+        except AssertionError as ex:
             assert_that(ex.message).is_equal_to('Expected <True>, but was not.')
 
     def test_is_false(self):
@@ -54,5 +54,5 @@ class TestBool(object):
         try:
             assert_that(True).is_false()
             fail('should have raised error')
-        except AssertionError, ex:
+        except AssertionError as ex:
             assert_that(ex.message).is_equal_to('Expected <False>, but was not.')

@@ -53,7 +53,7 @@ class TestFile(object):
         try:
             contents_of(123)
             fail('should have raised error')
-        except ValueError, ex:
+        except ValueError as ex:
             assert_that(ex.message).is_equal_to('val must be file or path, but was type <int>')
 
     def test_exists(self):
@@ -64,14 +64,14 @@ class TestFile(object):
         try:
             assert_that('missing.txt').exists()
             fail('should have raised error')
-        except AssertionError, ex:
+        except AssertionError as ex:
             assert_that(ex.message).is_equal_to('Expected <missing.txt> to exist, but not found.')
 
     def test_exists_bad_val_failure(self):
         try:
             assert_that(123).exists()
             fail('should have raised error')
-        except TypeError, ex:
+        except TypeError as ex:
             assert_that(ex.message).is_equal_to('val is not a path')
 
     def test_is_file(self):
@@ -81,7 +81,7 @@ class TestFile(object):
         try:
             assert_that('missing.txt').is_file()
             fail('should have raised error')
-        except AssertionError, ex:
+        except AssertionError as ex:
             assert_that(ex.message).is_equal_to('Expected <missing.txt> to exist, but not found.')
 
     def test_is_file_directory_failure(self):
@@ -89,7 +89,7 @@ class TestFile(object):
             dirname = os.path.dirname(self.tmp.name)
             assert_that(dirname).is_file()
             fail('should have raised error')
-        except AssertionError, ex:
+        except AssertionError as ex:
             assert_that(ex.message).matches('Expected <.*> to be a file, but was not.')
 
     def test_is_directory(self):
@@ -100,14 +100,14 @@ class TestFile(object):
         try:
             assert_that('missing_dir').is_directory()
             fail('should have raised error')
-        except AssertionError, ex:
+        except AssertionError as ex:
             assert_that(ex.message).is_equal_to('Expected <missing_dir> to exist, but not found.')
 
     def test_is_directory_file_failure(self):
         try:
             assert_that(self.tmp.name).is_directory()
             fail('should have raised error')
-        except AssertionError, ex:
+        except AssertionError as ex:
             assert_that(ex.message).matches('Expected <.*> to be a directory, but was not.')
 
     def test_is_named(self):
@@ -118,14 +118,14 @@ class TestFile(object):
         try:
             assert_that(self.tmp.name).is_named('foo.txt')
             fail('should have raised error')
-        except AssertionError, ex:
+        except AssertionError as ex:
             assert_that(ex.message).matches('Expected filename <.*> to be equal to <foo.txt>, but was not.')
 
     def test_is_named_bad_arg_type_failure(self):
         try:
             assert_that(self.tmp.name).is_named(123)
             fail('should have raised error')
-        except TypeError, ex:
+        except TypeError as ex:
             assert_that(ex.message).matches('given filename arg must be a path')
 
     def test_is_child_of(self):
@@ -136,12 +136,12 @@ class TestFile(object):
         try:
             assert_that(self.tmp.name).is_child_of('foo_dir')
             fail('should have raised error')
-        except AssertionError, ex:
+        except AssertionError as ex:
             assert_that(ex.message).matches('Expected file <.*> to be a child of <.*/foo_dir>, but was not.')
 
     def test_is_child_of_bad_arg_type_failure(self):
         try:
             assert_that(self.tmp.name).is_child_of(123)
             fail('should have raised error')
-        except TypeError, ex:
+        except TypeError as ex:
             assert_that(ex.message).matches('given parent directory arg must be a path')

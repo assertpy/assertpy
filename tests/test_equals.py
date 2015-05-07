@@ -45,21 +45,21 @@ class TestEquals(object):
         try:
             assert_that('foo').is_equal_to('bar')
             fail('should have raised error')
-        except AssertionError, ex:
+        except AssertionError as ex:
             assert_that(ex.message).is_equal_to('Expected <foo> to be equal to <bar>, but was not.')
 
     def test_is_equal_int_failure(self):
         try:
             assert_that(123).is_equal_to(234)
             fail('should have raised error')
-        except AssertionError, ex:
+        except AssertionError as ex:
             assert_that(ex.message).is_equal_to('Expected <123> to be equal to <234>, but was not.')
 
     def test_is_equal_list_failure(self):
         try:
             assert_that(['a','b']).is_equal_to(['a','b','c'])
             fail('should have raised error')
-        except AssertionError, ex:
+        except AssertionError as ex:
             assert_that(ex.message).is_equal_to("Expected <['a', 'b']> to be equal to <['a', 'b', 'c']>, but was not.")
 
     def test_is_not_equal(self):
@@ -80,19 +80,19 @@ class TestEquals(object):
         try:
             assert_that('foo').is_not_equal_to('foo')
             fail('should have raised error')
-        except AssertionError, ex:
+        except AssertionError as ex:
             assert_that(ex.message).is_equal_to('Expected <foo> to be not equal to <foo>, but was.')
 
     def test_is_not_equal_int_failure(self):
         try:
             assert_that(123).is_not_equal_to(123)
             fail('should have raised error')
-        except AssertionError, ex:
+        except AssertionError as ex:
             assert_that(ex.message).is_equal_to('Expected <123> to be not equal to <123>, but was.')
 
     def test_is_not_equal_list_failure(self):
         try:
             assert_that(['a','b']).is_not_equal_to(['a','b'])
             fail('should have raised error')
-        except AssertionError, ex:
+        except AssertionError as ex:
             assert_that(ex.message).is_equal_to("Expected <['a', 'b']> to be not equal to <['a', 'b']>, but was.")

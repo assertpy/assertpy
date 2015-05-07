@@ -48,21 +48,21 @@ class TestType(object):
         try:
             assert_that('foo').is_type_of(int)
             fail('should have raised error')
-        except AssertionError, ex:
+        except AssertionError as ex:
             assert_that(ex.message).is_equal_to('Expected <foo:str> to be of type <int>, but was not.')
 
     def test_is_type_of_bad_arg_failure(self):
         try:
             assert_that('foo').is_type_of('bad')
             fail('should have raised error')
-        except TypeError, ex:
+        except TypeError as ex:
             assert_that(ex.message).is_equal_to('given arg must be a type')
 
     def test_is_type_of_subclass_failure(self):
         try:
             assert_that(Bar()).is_type_of(Foo)
             fail('should have raised error')
-        except AssertionError, ex:
+        except AssertionError as ex:
             assert_that(ex.message).starts_with('Expected <')
             assert_that(ex.message).ends_with(':Bar> to be of type <Foo>, but was not.')
 
@@ -84,14 +84,14 @@ class TestType(object):
         try:
             assert_that('foo').is_instance_of(int)
             fail('should have raised error')
-        except AssertionError, ex:
+        except AssertionError as ex:
             assert_that(ex.message).is_equal_to('Expected <foo:str> to be instance of class <int>, but was not.')
 
     def test_is_instance_of_bad_arg_failure(self):
         try:
             assert_that('foo').is_instance_of('bad')
             fail('should have raised error')
-        except TypeError, ex:
+        except TypeError as ex:
             assert_that(ex.message).is_equal_to('given arg must be a class')
 
 class Foo(object):
