@@ -38,7 +38,6 @@ class TestFile(object):
         self.tmp.seek(0)
 
     def teardown(self):
-        print 'TEARDOWN: closing %s' % self.tmp.name
         self.tmp.close()
 
     def test_contents_of_path(self):
@@ -58,7 +57,6 @@ class TestFile(object):
 
     def test_exists(self):
         assert_that(self.tmp.name).exists()
-        print dir(self.tmp)
 
     def test_exists_failure(self):
         try:
