@@ -75,6 +75,20 @@ class TestExtract(object):
         except ValueError as ex:
             assert_that(str(ex)).is_equal_to('val method <say_hello()> exists, but is not zero-arg method')
 
+    def test_described_as_with_extract(self):
+        try:
+            assert_that(self.people).described_as('extra msg').extract('first_name').contains('Fred','Bob')
+            fail('should have raised error')
+        except AssertionError as ex:
+            assert_that(str(ex)).is_equal_to("[extra msg] Expected <['Fred', 'John']> to contain items ('Fred', 'Bob'), but did not contain <Bob>.")
+
+    def test_described_as_with_double_extract(self):
+        try:
+            assert_that(self.people).described_as('extra msg').extract('first_name').described_as('other msg').contains('Fred','Bob')
+            fail('should have raised error')
+        except AssertionError as ex:
+            assert_that(str(ex)).is_equal_to("[other msg] Expected <['Fred', 'John']> to contain items ('Fred', 'Bob'), but did not contain <Bob>.")
+
 class Person(object):
     def __init__(self, first_name, last_name, shoe_size):
         self.first_name = first_name

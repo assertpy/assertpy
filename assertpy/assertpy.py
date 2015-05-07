@@ -35,9 +35,9 @@ import os
 import datetime
 import numbers
 
-def assert_that(val):
-    """Factory method for the assertion builder."""
-    return AssertionBuilder(val)
+def assert_that(val, description = ''):
+    """Factory method for the assertion builder with value to be tested and optional description."""
+    return AssertionBuilder(val, description)
 
 def contents_of(f):
     """Helper to read the contents of the given file or path into a string."""
@@ -62,44 +62,50 @@ def fail(msg = ''):
 class AssertionBuilder(object):
     """Assertion builder."""
 
-    def __init__(self, val):
+    def __init__(self, val, description):
         """Construct the assertion builder."""
         self.val = val
+        self.description = description
+
+    def described_as(self, description):
+        """Describes the assertion.  On failure, the description is included in the error message."""
+        self.description = str(description)
+        return self
 
     def is_equal_to(self, other):
         """Asserts that val is equal to other."""
         if self.val != other:
-            raise AssertionError('Expected <%s> to be equal to <%s>, but was not.' % (self.val, other))
+            self._err('Expected <%s> to be equal to <%s>, but was not.' % (self.val, other))
         return self
 
     def is_not_equal_to(self, other):
         """Asserts that val is not equal to other."""
         if self.val == other:
-            raise AssertionError('Expected <%s> to be not equal to <%s>, but was.' % (self.val, other))
+            self._err('Expected <%s> to be not equal to <%s>, but was.' % (self.val, other))
         return self
 
     def is_true(self):
         """Asserts that val is true."""
         if not self.val:
-            raise AssertionError('Expected <True>, but was not.')
+            self._err('Expected <True>, but was not.')
         return self
 
     def is_false(self):
         """Asserts that val is false."""
         if self.val:
-            raise AssertionError('Expected <False>, but was not.')
+            self._err('Expected <False>, but was not.')
         return self
 
     def is_none(self):
         """Asserts that val is none."""
         if self.val is not None:
-            raise AssertionError('Expected <%s> to be <None>, but was not.' % self.val)
+            self._err('Expected <%s> to be <None>, but was not.' % self.val)
         return self
 
     def is_not_none(self):
         """Asserts that val is not none."""
         if self.val is None:
-            raise AssertionError('Expected not <None>, but was.')
+            self._err('Expected not <None>, but was.')
         return self
 
     def is_type_of(self, some_type):
@@ -113,7 +119,7 @@ class AssertionBuilder(object):
                 t = self.val.__class__.__name__
             else:
                 t = 'unknown'
-            raise AssertionError('Expected <%s:%s> to be of type <%s>, but was not.' % (self.val, t, some_type.__name__))
+            self._err('Expected <%s:%s> to be of type <%s>, but was not.' % (self.val, t, some_type.__name__))
         return self
 
     def is_instance_of(self, some_class):
@@ -127,7 +133,7 @@ class AssertionBuilder(object):
                 t = self.val.__class__.__name__
             else:
                 t = 'unknown'
-            raise AssertionError('Expected <%s:%s> to be instance of class <%s>, but was not.' % (self.val, t, some_class.__name__))
+            self._err('Expected <%s:%s> to be instance of class <%s>, but was not.' % (self.val, t, some_class.__name__))
         return self
 
     def is_length(self, length):
@@ -137,7 +143,7 @@ class AssertionBuilder(object):
         if length < 0:
             raise ValueError('given arg must be a positive int')
         if len(self.val) != length:
-            raise AssertionError('Expected <%s> to be of length <%d>, but was <%d>.' % (self.val, length, len(self.val)))
+            self._err('Expected <%s> to be of length <%d>, but was <%d>.' % (self.val, length, len(self.val)))
         return self
 
     def contains(self, *items):
@@ -147,16 +153,16 @@ class AssertionBuilder(object):
         elif len(items) == 1:
             if items[0] not in self.val:
                 if type(self.val) is dict:
-                    raise AssertionError('Expected <%s> to contain key <%s>, but did not.' % (self.val, items[0]))
+                    self._err('Expected <%s> to contain key <%s>, but did not.' % (self.val, items[0]))
                 else:
-                    raise AssertionError('Expected <%s> to contain item <%s>, but did not.' % (self.val, items[0]))
+                    self._err('Expected <%s> to contain item <%s>, but did not.' % (self.val, items[0]))
         else:
             for i in items:
                 if i not in self.val:
                     if type(self.val) is dict:
-                        raise AssertionError('Expected <%s> to contain keys %s, but did not contain key <%s>.' % (self.val, items, i))
+                        self._err('Expected <%s> to contain keys %s, but did not contain key <%s>.' % (self.val, items, i))
                     else:
-                        raise AssertionError('Expected <%s> to contain items %s, but did not contain <%s>.' % (self.val, items, i))
+                        self._err('Expected <%s> to contain items %s, but did not contain <%s>.' % (self.val, items, i))
         return self
 
     def does_not_contain(self, *items):
@@ -165,11 +171,11 @@ class AssertionBuilder(object):
             raise ValueError('one or more args must be given')
         elif len(items) == 1:
             if items[0] in self.val:
-                raise AssertionError('Expected <%s> to not contain item <%s>, but did.' % (self.val, items[0]))
+                self._err('Expected <%s> to not contain item <%s>, but did.' % (self.val, items[0]))
         else:
             for i in items:
                 if i in self.val:
-                    raise AssertionError('Expected <%s> to not contain items %s, but did contain <%s>.' % (self.val, items, i))
+                    self._err('Expected <%s> to not contain items %s, but did contain <%s>.' % (self.val, items, i))
         return self
 
     def contains_sequence(self, *items):
@@ -186,7 +192,7 @@ class AssertionBuilder(object):
                         return self
             except TypeError:
                 raise TypeError('val is not iterable')
-        raise AssertionError('Expected <%s> to contain sequence %s, but did not.' % (self.val, items))
+        self._err('Expected <%s> to contain sequence %s, but did not.' % (self.val, items))
 
     def contains_duplicates(self):
         """Asserts that val is iterable and contains duplicate items."""
@@ -195,7 +201,7 @@ class AssertionBuilder(object):
                 return self
         except TypeError:
             raise TypeError('val is not iterable')
-        raise AssertionError('Expected <%s> to contain duplicates, but did not.' % self.val)
+        self._err('Expected <%s> to contain duplicates, but did not.' % self.val)
 
     def does_not_contain_duplicates(self):
         """Asserts that val is iterable and does not contain any duplicate items."""
@@ -204,24 +210,24 @@ class AssertionBuilder(object):
                 return self
         except TypeError:
             raise TypeError('val is not iterable')
-        raise AssertionError('Expected <%s> to not contain duplicates, but did.' % self.val)
+        self._err('Expected <%s> to not contain duplicates, but did.' % self.val)
 
     def is_empty(self):
         """Asserts that val is empty."""
         if len(self.val) != 0:
             if type(self.val) is str:
-                raise AssertionError('Expected <%s> to be empty string, but was not.' % self.val)
+                self._err('Expected <%s> to be empty string, but was not.' % self.val)
             else:
-                raise AssertionError('Expected <%s> to be empty, but was not.' % self.val)
+                self._err('Expected <%s> to be empty, but was not.' % self.val)
         return self
 
     def is_not_empty(self):
         """Asserts that val is not empty."""
         if len(self.val) == 0:
             if type(self.val) is str:
-                raise AssertionError('Expected not empty string, but was empty.')
+                self._err('Expected not empty string, but was empty.')
             else:
-                raise AssertionError('Expected not empty, but was empty.')
+                self._err('Expected not empty, but was empty.')
         return self
 
     def is_in(self, *items):
@@ -232,7 +238,7 @@ class AssertionBuilder(object):
             for i in items:
                 if self.val == i:
                     return self
-        raise AssertionError('Expected <%s> to be in %s, but was not.' % (self.val, items))
+        self._err('Expected <%s> to be in %s, but was not.' % (self.val, items))
 
     def is_not_in(self, *items):
         """Asserts that val is not equal to one of the given items."""
@@ -241,7 +247,7 @@ class AssertionBuilder(object):
         else:
             for i in items:
                 if self.val == i:
-                    raise AssertionError('Expected <%s> to not be in %s, but was.' % (self.val, items))
+                    self._err('Expected <%s> to not be in %s, but was.' % (self.val, items))
         return self
 
 ### numeric assertions ###
@@ -273,9 +279,9 @@ class AssertionBuilder(object):
         self._validate_numeric_or_datetime(other)
         if self.val <= other:
             if type(self.val) is datetime.datetime:
-                raise AssertionError('Expected <%s> to be greater than <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
+                self._err('Expected <%s> to be greater than <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
             else:
-                raise AssertionError('Expected <%s> to be greater than <%s>, but was not.' % (self.val, other))
+                self._err('Expected <%s> to be greater than <%s>, but was not.' % (self.val, other))
         return self
 
     def is_greater_than_or_equal_to(self, other):
@@ -283,9 +289,9 @@ class AssertionBuilder(object):
         self._validate_numeric_or_datetime(other)
         if self.val < other:
             if type(self.val) is datetime.datetime:
-                raise AssertionError('Expected <%s> to be greater than or equal to <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
+                self._err('Expected <%s> to be greater than or equal to <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
             else:
-                raise AssertionError('Expected <%s> to be greater than or equal to <%s>, but was not.' % (self.val, other))
+                self._err('Expected <%s> to be greater than or equal to <%s>, but was not.' % (self.val, other))
         return self
 
     def is_less_than(self, other):
@@ -293,9 +299,9 @@ class AssertionBuilder(object):
         self._validate_numeric_or_datetime(other)
         if self.val >= other:
             if type(self.val) is datetime.datetime:
-                raise AssertionError('Expected <%s> to be less than <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
+                self._err('Expected <%s> to be less than <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
             else:
-                raise AssertionError('Expected <%s> to be less than <%s>, but was not.' % (self.val, other))
+                self._err('Expected <%s> to be less than <%s>, but was not.' % (self.val, other))
         return self
 
     def is_less_than_or_equal_to(self, other):
@@ -303,9 +309,9 @@ class AssertionBuilder(object):
         self._validate_numeric_or_datetime(other)
         if self.val > other:
             if type(self.val) is datetime.datetime:
-                raise AssertionError('Expected <%s> to be less than or equal to <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
+                self._err('Expected <%s> to be less than or equal to <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
             else:
-                raise AssertionError('Expected <%s> to be less than or equal to <%s>, but was not.' % (self.val, other))
+                self._err('Expected <%s> to be less than or equal to <%s>, but was not.' % (self.val, other))
         return self
 
     def is_positive(self):
@@ -336,9 +342,9 @@ class AssertionBuilder(object):
             raise ValueError('given low arg must be less than given high arg')
         if self.val < low or self.val > high:
             if type(self.val) is datetime.datetime:
-                raise AssertionError('Expected <%s> to be between <%s> and <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), low.strftime('%Y-%m-%d %H:%M:%S'), high.strftime('%Y-%m-%d %H:%M:%S')))
+                self._err('Expected <%s> to be between <%s> and <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), low.strftime('%Y-%m-%d %H:%M:%S'), high.strftime('%Y-%m-%d %H:%M:%S')))
             else:
-                raise AssertionError('Expected <%s> to be between <%s> and <%s>, but was not.' % (self.val, low, high))
+                self._err('Expected <%s> to be between <%s> and <%s>, but was not.' % (self.val, low, high))
         return self
 
     def is_close_to(self, other, tolerance):
@@ -363,9 +369,9 @@ class AssertionBuilder(object):
             if type(self.val) is datetime.datetime:
                 h, rem = divmod(tolerance.total_seconds(), 3600)
                 m, s = divmod(rem, 60)
-                raise AssertionError('Expected <%s> to be close to <%s> within tolerance <%d:%02d:%02d>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S'), h, m, s))
+                self._err('Expected <%s> to be close to <%s> within tolerance <%d:%02d:%02d>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S'), h, m, s))
             else:
-                raise AssertionError('Expected <%s> to be close to <%s> within tolerance <%s>, but was not.' % (self.val, other, tolerance))
+                self._err('Expected <%s> to be close to <%s> within tolerance <%s>, but was not.' % (self.val, other, tolerance))
         return self
 
 ### string assertions ###
@@ -376,7 +382,7 @@ class AssertionBuilder(object):
         if type(other) is not str:
             raise TypeError('given arg must be a string')
         if self.val.lower() != other.lower():
-            raise AssertionError('Expected <%s> to be case-insensitive equal to <%s>, but was not.' % (self.val, other))
+            self._err('Expected <%s> to be case-insensitive equal to <%s>, but was not.' % (self.val, other))
         return self
 
     def contains_ignoring_case(self, *items):
@@ -389,13 +395,13 @@ class AssertionBuilder(object):
             if type(items[0]) is not str:
                 raise TypeError('given arg must be a string')
             if items[0].lower() not in self.val.lower():
-                raise AssertionError('Expected <%s> to case-insensitive contain item <%s>, but did not.' % (self.val, items[0]))
+                self._err('Expected <%s> to case-insensitive contain item <%s>, but did not.' % (self.val, items[0]))
         else:
             for i in items:
                 if type(i) is not str:
                     raise TypeError('given args must all be strings')
                 if i.lower() not in self.val.lower():
-                    raise AssertionError('Expected <%s> to case-insensitive contain items %s, but did not contain <%s>.' % (self.val, items, i))
+                    self._err('Expected <%s> to case-insensitive contain items %s, but did not contain <%s>.' % (self.val, items, i))
         return self
 
     def starts_with(self, prefix):
@@ -407,7 +413,7 @@ class AssertionBuilder(object):
         if len(prefix) == 0:
             raise ValueError('given prefix arg must not be empty')
         if not self.val.startswith(prefix):
-            raise AssertionError('Expected <%s> to start with <%s>, but did not.' % (self.val, prefix))
+            self._err('Expected <%s> to start with <%s>, but did not.' % (self.val, prefix))
         return self
 
     def ends_with(self, suffix):
@@ -419,7 +425,7 @@ class AssertionBuilder(object):
         if len(suffix) == 0:
             raise ValueError('given suffix arg must not be empty')
         if not self.val.endswith(suffix):
-            raise AssertionError('Expected <%s> to end with <%s>, but did not.' % (self.val, suffix))
+            self._err('Expected <%s> to end with <%s>, but did not.' % (self.val, suffix))
         return self
 
     def matches(self, pattern):
@@ -431,7 +437,7 @@ class AssertionBuilder(object):
         if len(pattern) == 0:
             raise ValueError('given pattern arg must not be empty')
         if re.search(pattern, self.val) is None:
-            raise AssertionError('Expected <%s> to match pattern <%s>, but did not.' % (self.val, pattern))
+            self._err('Expected <%s> to match pattern <%s>, but did not.' % (self.val, pattern))
         return self
 
     def does_not_match(self, pattern):
@@ -443,7 +449,7 @@ class AssertionBuilder(object):
         if len(pattern) == 0:
             raise ValueError('given pattern arg must not be empty')
         if re.search(pattern, self.val) is not None:
-            raise AssertionError('Expected <%s> to not match pattern <%s>, but did.' % (self.val, pattern))
+            self._err('Expected <%s> to not match pattern <%s>, but did.' % (self.val, pattern))
         return self
 
     def is_alpha(self):
@@ -453,7 +459,7 @@ class AssertionBuilder(object):
         if len(self.val) == 0:
             raise ValueError('val is empty')
         if not self.val.isalpha():
-            raise AssertionError('Expected <%s> to contain only alphabetic chars, but did not.' % self.val)
+            self._err('Expected <%s> to contain only alphabetic chars, but did not.' % self.val)
         return self
 
     def is_digit(self):
@@ -463,7 +469,7 @@ class AssertionBuilder(object):
         if len(self.val) == 0:
             raise ValueError('val is empty')
         if not self.val.isdigit():
-            raise AssertionError('Expected <%s> to contain only digits, but did not.' % self.val)
+            self._err('Expected <%s> to contain only digits, but did not.' % self.val)
         return self
 
     def is_lower(self):
@@ -473,7 +479,7 @@ class AssertionBuilder(object):
         if len(self.val) == 0:
             raise ValueError('val is empty')
         if self.val != self.val.lower():
-            raise AssertionError('Expected <%s> to contain only lowercase chars, but did not.' % self.val)
+            self._err('Expected <%s> to contain only lowercase chars, but did not.' % self.val)
         return self
 
     def is_upper(self):
@@ -483,13 +489,13 @@ class AssertionBuilder(object):
         if len(self.val) == 0:
             raise ValueError('val is empty')
         if self.val != self.val.upper():
-            raise AssertionError('Expected <%s> to contain only uppercase chars, but did not.' % self.val)
+            self._err('Expected <%s> to contain only uppercase chars, but did not.' % self.val)
         return self
 
     def is_unicode(self):
         """Asserts that val is a unicode string."""
         if type(self.val) is not unicode:
-            raise AssertionError('Expected <%s> to be unicode, but was <%s>.' % (self.val, type(self.val).__name__))
+            self._err('Expected <%s> to be unicode, but was <%s>.' % (self.val, type(self.val).__name__))
         return self
 
 ### dict assertions ###
@@ -513,7 +519,7 @@ class AssertionBuilder(object):
             raise ValueError('one or more value args must be given')
         for v in values:
             if v not in self.val.values():
-                raise AssertionError('Expected <%s> to contain value <%s>, but did not.' % (self.val, v))
+                self._err('Expected <%s> to contain value <%s>, but did not.' % (self.val, v))
         return self
 
     def does_not_contain_value(self, *values):
@@ -524,11 +530,11 @@ class AssertionBuilder(object):
             raise ValueError('one or more value args must be given')
         elif len(values) == 1:
             if values[0] in self.val.values():
-                raise AssertionError('Expected <%s> to not contain value <%s>, but did.' % (self.val, values[0]))
+                self._err('Expected <%s> to not contain value <%s>, but did.' % (self.val, values[0]))
         else:
             for v in values:
                 if v in self.val.values():
-                    raise AssertionError('Expected <%s> to not contain values %s, but did contain <%s>.' % (self.val, values, v))
+                    self._err('Expected <%s> to not contain values %s, but did contain <%s>.' % (self.val, values, v))
         return self
 
     def contains_entry(self, *entries):
@@ -544,9 +550,9 @@ class AssertionBuilder(object):
                 raise ValueError('given entry args must contain exactly one key-value pair')
             k = e.keys()[0]
             if k not in self.val:
-                raise AssertionError('Expected <%s> to contain entry %s, but did not contain key <%s>.' % (self.val, e, k))
+                self._err('Expected <%s> to contain entry %s, but did not contain key <%s>.' % (self.val, e, k))
             elif self.val[k] != e[k]:
-                raise AssertionError('Expected <%s> to contain entry %s, but key <%s> did not contain value <%s>.' % (self.val, e, k, e[k]))
+                self._err('Expected <%s> to contain entry %s, but key <%s> did not contain value <%s>.' % (self.val, e, k, e[k]))
         return self
 
     def does_not_contain_entry(self, *entries):
@@ -562,7 +568,7 @@ class AssertionBuilder(object):
                 raise ValueError('given entry args must contain exactly one key-value pair')
             k = e.keys()[0]
             if k in self.val and e[k] == self.val[k]:
-                raise AssertionError('Expected <%s> to not contain entry %s, but did.' % (self.val, e))
+                self._err('Expected <%s> to not contain entry %s, but did.' % (self.val, e))
         return self
 
 ### datetime assertions ###
@@ -573,7 +579,7 @@ class AssertionBuilder(object):
         if type(other) is not datetime.datetime:
             raise TypeError('given arg must be datetime, but was type <%s>' % type(other).__name__)
         if self.val >= other:
-            raise AssertionError('Expected <%s> to be before <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
+            self._err('Expected <%s> to be before <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
         return self
 
     def is_after(self, other):
@@ -583,7 +589,7 @@ class AssertionBuilder(object):
         if type(other) is not datetime.datetime:
             raise TypeError('given arg must be datetime, but was type <%s>' % type(other).__name__)
         if self.val <= other:
-            raise AssertionError('Expected <%s> to be after <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
+            self._err('Expected <%s> to be after <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
         return self
 
     def is_equal_to_ignoring_milliseconds(self, other):
@@ -592,7 +598,7 @@ class AssertionBuilder(object):
         if type(other) is not datetime.datetime:
             raise TypeError('given arg must be datetime, but was type <%s>' % type(other).__name__)
         if self.val.date() != other.date() or self.val.hour != other.hour or self.val.minute != other.minute or self.val.second != other.second:
-            raise AssertionError('Expected <%s> to be equal to <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
+            self._err('Expected <%s> to be equal to <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
         return self
 
     def is_equal_to_ignoring_seconds(self, other):
@@ -601,7 +607,7 @@ class AssertionBuilder(object):
         if type(other) is not datetime.datetime:
             raise TypeError('given arg must be datetime, but was type <%s>' % type(other).__name__)
         if self.val.date() != other.date() or self.val.hour != other.hour or self.val.minute != other.minute:
-            raise AssertionError('Expected <%s> to be equal to <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M'), other.strftime('%Y-%m-%d %H:%M')))
+            self._err('Expected <%s> to be equal to <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M'), other.strftime('%Y-%m-%d %H:%M')))
         return self
 
     def is_equal_to_ignoring_time(self, other):
@@ -610,7 +616,7 @@ class AssertionBuilder(object):
         if type(other) is not datetime.datetime:
             raise TypeError('given arg must be datetime, but was type <%s>' % type(other).__name__)
         if self.val.date() != other.date():
-            raise AssertionError('Expected <%s> to be equal to <%s>, but was not.' % (self.val.strftime('%Y-%m-%d'), other.strftime('%Y-%m-%d')))
+            self._err('Expected <%s> to be equal to <%s>, but was not.' % (self.val.strftime('%Y-%m-%d'), other.strftime('%Y-%m-%d')))
         return self
 
 ### file assertions ###
@@ -619,21 +625,21 @@ class AssertionBuilder(object):
         if type(self.val) is not str:
             raise TypeError('val is not a path')
         if not os.path.exists(self.val):
-            raise AssertionError('Expected <%s> to exist, but not found.' % self.val)
+            self._err('Expected <%s> to exist, but not found.' % self.val)
         return self
 
     def is_file(self):
         """Asserts that val is an existing path to a file."""
         self.exists()
         if not os.path.isfile(self.val):
-            raise AssertionError('Expected <%s> to be a file, but was not.' % self.val)
+            self._err('Expected <%s> to be a file, but was not.' % self.val)
         return self
 
     def is_directory(self):
         """Asserts that val is an existing path to a directory."""
         self.exists()
         if not os.path.isdir(self.val):
-            raise AssertionError('Expected <%s> to be a directory, but was not.' % self.val)
+            self._err('Expected <%s> to be a directory, but was not.' % self.val)
         return self
 
     def is_named(self, filename):
@@ -643,7 +649,7 @@ class AssertionBuilder(object):
             raise TypeError('given filename arg must be a path')
         val_filename = os.path.basename(os.path.abspath(self.val))
         if val_filename != filename:
-            raise AssertionError('Expected filename <%s> to be equal to <%s>, but was not.' % (val_filename, filename))
+            self._err('Expected filename <%s> to be equal to <%s>, but was not.' % (val_filename, filename))
         return self
 
     def is_child_of(self, parent):
@@ -654,7 +660,7 @@ class AssertionBuilder(object):
         val_abspath = os.path.abspath(self.val)
         parent_abspath = os.path.abspath(parent)
         if not val_abspath.startswith(parent_abspath):
-            raise AssertionError('Expected file <%s> to be a child of <%s>, but was not.' % (val_abspath, parent_abspath))
+            self._err('Expected file <%s> to be a child of <%s>, but was not.' % (val_abspath, parent_abspath))
         return self
 
 ### collection of objects assertions ###
@@ -680,7 +686,7 @@ class AssertionBuilder(object):
                 else:
                     raise ValueError('val does not have property or zero-arg method <%s>' % name)
             extracted.append(tuple(items) if len(items) > 1 else items[0])
-        return AssertionBuilder(extracted)
+        return AssertionBuilder(extracted, self.description)
 
 ### dynamic assertions ###
     def __getattr__(self, attr):
@@ -707,6 +713,15 @@ class AssertionBuilder(object):
                 val = val_attr
 
             if val != other:
-                raise AssertionError('Expected <%s> to be equal to <%s>, but was not.' % (val, other))
+                self._err('Expected <%s> to be equal to <%s>, but was not.' % (val, other))
             return self
         return _wrapper
+
+### helpers ###
+    def _err(self, msg):
+        """Helper to raise an AssertionError with optional description prefix."""
+        if len(self.description) > 0:
+            raise AssertionError('[%s] %s' % (self.description, msg))
+        else:
+            raise AssertionError('%s' % msg)
+
