@@ -379,6 +379,25 @@ class AssertionBuilder(object):
             raise AssertionError('Expected <%s> to be case-insensitive equal to <%s>, but was not.' % (self.val, other))
         return self
 
+    def contains_ignoring_case(self, *items):
+        """Asserts that val is string and contains the given item or items."""
+        if type(self.val) is not str:
+            raise TypeError('val is not a string')
+        if len(items) == 0:
+            raise ValueError('one or more args must be given')
+        elif len(items) == 1:
+            if type(items[0]) is not str:
+                raise TypeError('given arg must be a string')
+            if items[0].lower() not in self.val.lower():
+                raise AssertionError('Expected <%s> to case-insensitive contain item <%s>, but did not.' % (self.val, items[0]))
+        else:
+            for i in items:
+                if type(i) is not str:
+                    raise TypeError('given args must all be strings')
+                if i.lower() not in self.val.lower():
+                    raise AssertionError('Expected <%s> to case-insensitive contain items %s, but did not contain <%s>.' % (self.val, items, i))
+        return self
+
     def starts_with(self, prefix):
         """Asserts that val is string and starts with prefix."""
         if type(self.val) is not str:

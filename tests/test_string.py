@@ -61,6 +61,54 @@ class TestString(object):
         except AssertionError as ex:
             assert_that(str(ex)).is_equal_to("Expected <foo> to contain items ('f', 'x', 'z'), but did not contain <x>.")
 
+    def test_contains_ignoring_case(self):
+        assert_that('foo').contains_ignoring_case('f')
+        assert_that('foo').contains_ignoring_case('F')
+        assert_that('foo').contains_ignoring_case('Oo')
+        assert_that('foo').contains_ignoring_case('f', 'o', 'F', 'O', 'Fo', 'Oo', 'FoO')
+
+    def test_contains_ignoring_case_type_failure(self):
+        try:
+            assert_that(123).contains_ignoring_case('f')
+            fail('should have raised error')
+        except TypeError as ex:
+            assert_that(str(ex)).is_equal_to('val is not a string')
+
+    def test_contains_ignoring_case_missinge_item_failure(self):
+        try:
+            assert_that('foo').contains_ignoring_case()
+            fail('should have raised error')
+        except ValueError as ex:
+            assert_that(str(ex)).is_equal_to('one or more args must be given')
+
+    def test_contains_ignoring_case_single_item_failure(self):
+        try:
+            assert_that('foo').contains_ignoring_case('X')
+            fail('should have raised error')
+        except AssertionError as ex:
+            assert_that(str(ex)).is_equal_to('Expected <foo> to case-insensitive contain item <X>, but did not.')
+
+    def test_contains_ignoring_case_single_item_type_failure(self):
+        try:
+            assert_that('foo').contains_ignoring_case(12)
+            fail('should have raised error')
+        except TypeError as ex:
+            assert_that(str(ex)).is_equal_to('given arg must be a string')
+
+    def test_contains_ignoring_case_multi_item_failure(self):
+        try:
+            assert_that('foo').contains_ignoring_case('F','X','Z')
+            fail('should have raised error')
+        except AssertionError as ex:
+            assert_that(str(ex)).is_equal_to("Expected <foo> to case-insensitive contain items ('F', 'X', 'Z'), but did not contain <X>.")
+
+    def test_contains_ignoring_case_multi_item_type_failure(self):
+        try:
+            assert_that('foo').contains_ignoring_case('F', 12)
+            fail('should have raised error')
+        except TypeError as ex:
+            assert_that(str(ex)).is_equal_to('given args must all be strings')
+
     def test_does_not_contain(self):
         assert_that('foo').does_not_contain('x')
         assert_that('foo').does_not_contain('x','y')
