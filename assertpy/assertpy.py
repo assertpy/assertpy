@@ -41,14 +41,16 @@ def assert_that(val):
 
 def contents_of(f):
     """Helper to read the contents of the given file or path into a string."""
-    if type(f) is str:
+    try:
+        return f.read()
+    except AttributeError:
+        pass
+
+    try:
         with open(f, 'r') as fp:
-            contents = fp.read()
-    elif type(f) is file:
-        contents = f.read()
-    else:
+            return fp.read()
+    except TypeError:
         raise ValueError('val must be file or path, but was type <%s>' % type(f).__name__)
-    return contents
 
 def fail(msg = ''):
     """Force test failure with the given message."""
