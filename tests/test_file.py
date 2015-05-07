@@ -55,6 +55,13 @@ class TestFile(object):
         except ValueError as ex:
             assert_that(str(ex)).is_equal_to('val must be file or path, but was type <int>')
 
+    def test_contains_of_missing_file_failure(self):
+        try:
+            contents_of('missing.txt')
+            fail('should have raised error')
+        except IOError as ex:
+            assert_that(str(ex)).contains_ignoring_case('no such file')
+
     def test_exists(self):
         assert_that(self.tmp.name).exists()
 
