@@ -138,7 +138,7 @@ class TestDict(object):
 
     def test_is_not_empty(self):
         assert_that({'a':1,'b':2}).is_not_empty()
-        assert_that({'a','b'}).is_not_empty()
+        assert_that(set(['a','b'])).is_not_empty()
 
     def test_is_not_empty_failure(self):
         try:

@@ -28,13 +28,14 @@
 
 """Fluent assertion framework for better, more readable tests."""
 
-__version__ = '0.7'
-
+from __future__ import division
 import re
 import os
 import sys
 import datetime
 import numbers
+
+__version__ = '0.7'
 
 if sys.version_info[0] == 3:
     str_types = (str,)
@@ -396,7 +397,8 @@ class AssertionBuilder(object):
                 raise ValueError('given tolerance arg must be positive')
         if self.val < (other-tolerance) or self.val > (other+tolerance):
             if type(self.val) is datetime.datetime:
-                h, rem = divmod(tolerance.total_seconds(), 3600)
+                tolerance_seconds = tolerance.days * 86400 + tolerance.seconds + tolerance.microseconds / 1000000
+                h, rem = divmod(tolerance_seconds, 3600)
                 m, s = divmod(rem, 60)
                 self._err('Expected <%s> to be close to <%s> within tolerance <%d:%02d:%02d>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S'), h, m, s))
             else:

@@ -218,15 +218,15 @@ class TestReadme(object):
         assert_that(set({})).is_type_of(set)
         assert_that(set({})).is_instance_of(set)
 
-        assert_that({'a','b'}).is_length(2)
-        assert_that({'a','b'}).is_not_empty()
-        assert_that({'a','b'}).is_equal_to({'a','b'})
-        assert_that({'a','b'}).is_equal_to({'b','a'})
-        assert_that({'a','b'}).is_not_equal_to({'a','x'})
+        assert_that(set(['a','b'])).is_length(2)
+        assert_that(set(['a','b'])).is_not_empty()
+        assert_that(set(['a','b'])).is_equal_to(set(['a','b']))
+        assert_that(set(['a','b'])).is_equal_to(set(['b','a']))
+        assert_that(set(['a','b'])).is_not_equal_to(set(['a','x']))
 
-        assert_that({'a','b'}).contains('a')
-        assert_that({'a','b'}).contains('b','a')
-        assert_that({'a','b'}).does_not_contain('x','y')
+        assert_that(set(['a','b'])).contains('a')
+        assert_that(set(['a','b'])).contains('b','a')
+        assert_that(set(['a','b'])).does_not_contain('x','y')
 
     def test_booleans(self):
         assert_that(True).is_true()

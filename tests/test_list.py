@@ -34,7 +34,7 @@ class TestList(object):
         assert_that(['a','b','c']).is_length(3)
         assert_that((1,2,3,4)).is_length(4)
         assert_that({ 'a':1,'b':2 }).is_length(2)
-        assert_that({ 'a','b' }).is_length(2)
+        assert_that(set(['a','b'])).is_length(2)
 
     def test_is_length_failure(self):
         try:
@@ -64,8 +64,8 @@ class TestList(object):
         assert_that((1,2,3,4)).contains(4)
         assert_that({ 'a':1,'b':2,'c':3 }).contains('a')
         assert_that({ 'a':1,'b':2,'c':3 }).contains('a','b')
-        assert_that({ 'a','b','c' }).contains('a')
-        assert_that({ 'a','b','c' }).contains('c','b')
+        assert_that(set(['a','b','c'])).contains('a')
+        assert_that(set(['a','b','c'])).contains('c','b')
 
         fred = Person('fred')
         joe = Person('joe')
@@ -93,8 +93,8 @@ class TestList(object):
         assert_that((1,2,3,4)).does_not_contain(5,6)
         assert_that({ 'a':1,'b':2,'c':3 }).does_not_contain('x')
         assert_that({ 'a':1,'b':2,'c':3 }).does_not_contain('x','y')
-        assert_that({ 'a','b','c' }).does_not_contain('x')
-        assert_that({ 'a','b','c' }).does_not_contain('x','y')
+        assert_that(set(['a','b','c'])).does_not_contain('x')
+        assert_that(set(['a','b','c'])).does_not_contain('x','y')
 
         fred = Person('fred')
         joe = Person('joe')
@@ -188,10 +188,10 @@ class TestList(object):
     def test_does_not_contain_duplicates(self):
         assert_that(['a','b','c']).does_not_contain_duplicates()
         assert_that(('a','b','c')).does_not_contain_duplicates()
-        assert_that({'a','b','c'}).does_not_contain_duplicates()
+        assert_that(set(['a','b','c'])).does_not_contain_duplicates()
         assert_that([1,2,3]).does_not_contain_duplicates()
         assert_that((1,2,3)).does_not_contain_duplicates()
-        assert_that({1,2,3}).does_not_contain_duplicates()
+        assert_that(set([1,2,3])).does_not_contain_duplicates()
         assert_that('fobar').does_not_contain_duplicates()
 
         fred = Person('fred')
@@ -228,7 +228,7 @@ class TestList(object):
         assert_that(['a','b']).is_not_empty()
         assert_that((1,2)).is_not_empty()
         assert_that({'a':1,'b':2}).is_not_empty()
-        assert_that({'a','b'}).is_not_empty()
+        assert_that(set(['a','b'])).is_not_empty()
 
     def test_is_not_empty_failure(self):
         try:
