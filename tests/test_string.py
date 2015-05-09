@@ -28,6 +28,13 @@
 
 from assertpy import assert_that,fail
 
+import sys
+
+if sys.version_info[0] == 3:
+    unicode = str
+else:
+    unicode = unicode
+
 class TestString(object):
 
     def test_is_length(self):
@@ -437,16 +444,16 @@ class TestString(object):
             assert_that(str(ex)).is_equal_to('val is empty')
 
     def test_is_unicode(self):
-        assert_that(u'unicorn').is_unicode()
-        assert_that(u'unicorn 123').is_unicode()
+        assert_that(unicode('unicorn')).is_unicode()
+        assert_that(unicode('unicorn 123')).is_unicode()
         assert_that(unicode('unicorn')).is_unicode()
 
     def test_is_unicode_failure(self):
         try:
-            assert_that('foo').is_unicode()
+            assert_that(123).is_unicode()
             fail('should have raised error')
         except AssertionError as ex:
-            assert_that(str(ex)).is_equal_to('Expected <foo> to be unicode, but was <str>.')
+            assert_that(str(ex)).is_equal_to('Expected <123> to be unicode, but was <int>.')
 
     def test_chaining(self):
         assert_that('foo').is_type_of(str).is_length(3).contains('f').does_not_contain('x')
