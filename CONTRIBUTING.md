@@ -7,8 +7,8 @@ Here's how:
 1. Fork it
 1. Create a branch (`git checkout -b my_branch`)
 1. Commit your changes (`git commit -am "added some cool feature"`)
-1. Push to the branch (`git push origin my_markup`)
-1. Open a [Pull Request](http://github.com/activisiongamescience/assertpy/pulls)
+1. Push to the branch (`git push origin my_branch`)
+1. Open a [Pull Request](http://github.com/ActivisionGameScience/assertpy/pulls)
 1. Respond to any questions during our review process
 
 Read more about how pulls work on GitHub's [Using Pull Requests](https://help.github.com/articles/using-pull-requests/) page.
