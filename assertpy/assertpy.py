@@ -69,8 +69,8 @@ def contents_of(f, encoding = 'utf-8'):
     if sys.version_info[0] == 3 and type(contents) is bytes:
         # in PY3 force decoding of bytes to target encoding
         return contents.decode(encoding, 'replace')
-    elif sys.version_info[0] == 2 and type(contents) is unicode and encoding == 'ascii':
-        # in PY2 force encoding of unicode back to ascii
+    elif sys.version_info[0] == 2 and encoding == 'ascii':
+        # in PY2 force encoding back to ascii
         return contents.encode('ascii', 'replace')
     else:
         # in all other cases, try to decode to target encoding
