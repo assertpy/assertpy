@@ -32,25 +32,54 @@ __version__ = '0.7'
 
 import re
 import os
+import sys
 import datetime
 import numbers
+
+if sys.version_info[0] == 3:
+    str_types = (str,)
+    xrange = range
+    unicode = str
+else:
+    str_types = (basestring,)
+    xrange = xrange
+    unicode = unicode
 
 def assert_that(val, description = ''):
     """Factory method for the assertion builder with value to be tested and optional description."""
     return AssertionBuilder(val, description)
 
-def contents_of(f):
-    """Helper to read the contents of the given file or path into a string."""
-    try:
-        return f.read()
-    except AttributeError:
-        pass
+def contents_of(f, encoding = 'utf-8'):
+    """Helper to read the contents of the given file or path into a string with the given encoding.
+    Encoding defaults to 'utf-8', other useful encodings are 'ascii' and 'latin-1'."""
 
     try:
-        with open(f, 'r') as fp:
-            return fp.read()
-    except TypeError:
-        raise ValueError('val must be file or path, but was type <%s>' % type(f).__name__)
+        contents = f.read()
+    except AttributeError:
+        try:
+            with open(f, 'r') as fp:
+                contents = fp.read()
+        except TypeError:
+            raise ValueError('val must be file or path, but was type <%s>' % type(f).__name__)
+        except OSError:
+            if not isinstance(f, str_types):
+                raise ValueError('val must be file or path, but was type <%s>' % type(f).__name__)
+            raise
+
+    if sys.version_info[0] == 3 and type(contents) is bytes:
+        # in PY3 force decoding of bytes to target encoding
+        return contents.decode(encoding, 'replace')
+    elif sys.version_info[0] == 2 and type(contents) is unicode and encoding == 'ascii':
+        # in PY2 force encoding of unicode back to ascii
+        return contents.encode('ascii', 'replace')
+    else:
+        # in all other cases, try to decode to target encoding
+        try:
+            return contents.decode(encoding, 'replace')
+        except AttributeError:
+            pass
+    # if all else fails, just return the contents "as is"
+    return contents
 
 def fail(msg = ''):
     """Force test failure with the given message."""
@@ -215,7 +244,7 @@ class AssertionBuilder(object):
     def is_empty(self):
         """Asserts that val is empty."""
         if len(self.val) != 0:
-            if type(self.val) is str:
+            if isinstance(self.val, str_types):
                 self._err('Expected <%s> to be empty string, but was not.' % self.val)
             else:
                 self._err('Expected <%s> to be empty, but was not.' % self.val)
@@ -224,7 +253,7 @@ class AssertionBuilder(object):
     def is_not_empty(self):
         """Asserts that val is not empty."""
         if len(self.val) == 0:
-            if type(self.val) is str:
+            if isinstance(self.val, str_types):
                 self._err('Expected not empty string, but was empty.')
             else:
                 self._err('Expected not empty, but was empty.')
@@ -377,9 +406,9 @@ class AssertionBuilder(object):
 ### string assertions ###
     def is_equal_to_ignoring_case(self, other):
         """Asserts that val is case-insensitive equal to other."""
-        if type(self.val) is not str:
+        if not isinstance(self.val, str_types):
             raise TypeError('val is not a string')
-        if type(other) is not str:
+        if not isinstance(other, str_types):
             raise TypeError('given arg must be a string')
         if self.val.lower() != other.lower():
             self._err('Expected <%s> to be case-insensitive equal to <%s>, but was not.' % (self.val, other))
@@ -387,18 +416,18 @@ class AssertionBuilder(object):
 
     def contains_ignoring_case(self, *items):
         """Asserts that val is string and contains the given item or items."""
-        if type(self.val) is not str:
+        if not isinstance(self.val, str_types):
             raise TypeError('val is not a string')
         if len(items) == 0:
             raise ValueError('one or more args must be given')
         elif len(items) == 1:
-            if type(items[0]) is not str:
+            if not isinstance(items[0], str_types):
                 raise TypeError('given arg must be a string')
             if items[0].lower() not in self.val.lower():
                 self._err('Expected <%s> to case-insensitive contain item <%s>, but did not.' % (self.val, items[0]))
         else:
             for i in items:
-                if type(i) is not str:
+                if not isinstance(i, str_types):
                     raise TypeError('given args must all be strings')
                 if i.lower() not in self.val.lower():
                     self._err('Expected <%s> to case-insensitive contain items %s, but did not contain <%s>.' % (self.val, items, i))
@@ -406,9 +435,9 @@ class AssertionBuilder(object):
 
     def starts_with(self, prefix):
         """Asserts that val is string and starts with prefix."""
-        if type(self.val) is not str:
+        if not isinstance(self.val, str_types):
             raise TypeError('val is not a string')
-        if type(prefix) is not str:
+        if not isinstance(prefix, str_types):
             raise TypeError('given prefix arg must be a string')
         if len(prefix) == 0:
             raise ValueError('given prefix arg must not be empty')
@@ -418,9 +447,9 @@ class AssertionBuilder(object):
 
     def ends_with(self, suffix):
         """Asserts that val is string and ends with suffix."""
-        if type(self.val) is not str:
+        if not isinstance(self.val, str_types):
             raise TypeError('val is not a string')
-        if type(suffix) is not str:
+        if not isinstance(suffix, str_types):
             raise TypeError('given suffix arg must be a string')
         if len(suffix) == 0:
             raise ValueError('given suffix arg must not be empty')
@@ -430,9 +459,9 @@ class AssertionBuilder(object):
 
     def matches(self, pattern):
         """Asserts that val is string and matches regex pattern."""
-        if type(self.val) is not str:
+        if not isinstance(self.val, str_types):
             raise TypeError('val is not a string')
-        if type(pattern) is not str:
+        if not isinstance(pattern, str_types):
             raise TypeError('given pattern arg must be a string')
         if len(pattern) == 0:
             raise ValueError('given pattern arg must not be empty')
@@ -442,9 +471,9 @@ class AssertionBuilder(object):
 
     def does_not_match(self, pattern):
         """Asserts that val is string and does not match regex pattern."""
-        if type(self.val) is not str:
+        if not isinstance(self.val, str_types):
             raise TypeError('val is not a string')
-        if type(pattern) is not str:
+        if not isinstance(pattern, str_types):
             raise TypeError('given pattern arg must be a string')
         if len(pattern) == 0:
             raise ValueError('given pattern arg must not be empty')
@@ -454,7 +483,7 @@ class AssertionBuilder(object):
 
     def is_alpha(self):
         """Asserts that val is non-empty string and all characters are alphabetic."""
-        if type(self.val) is not str:
+        if not isinstance(self.val, str_types):
             raise TypeError('val is not a string')
         if len(self.val) == 0:
             raise ValueError('val is empty')
@@ -464,7 +493,7 @@ class AssertionBuilder(object):
 
     def is_digit(self):
         """Asserts that val is non-empty string and all characters are digits."""
-        if type(self.val) is not str:
+        if not isinstance(self.val, str_types):
             raise TypeError('val is not a string')
         if len(self.val) == 0:
             raise ValueError('val is empty')
@@ -474,7 +503,7 @@ class AssertionBuilder(object):
 
     def is_lower(self):
         """Asserts that val is non-empty string and all characters are lowercase."""
-        if type(self.val) is not str:
+        if not isinstance(self.val, str_types):
             raise TypeError('val is not a string')
         if len(self.val) == 0:
             raise ValueError('val is empty')
@@ -484,7 +513,7 @@ class AssertionBuilder(object):
 
     def is_upper(self):
         """Asserts that val is non-empty string and all characters are uppercase."""
-        if type(self.val) is not str:
+        if not isinstance(self.val, str_types):
             raise TypeError('val is not a string')
         if len(self.val) == 0:
             raise ValueError('val is empty')
@@ -548,7 +577,7 @@ class AssertionBuilder(object):
                 raise TypeError('given entry arg must be a dict')
             if len(e) != 1:
                 raise ValueError('given entry args must contain exactly one key-value pair')
-            k = e.keys()[0]
+            k = list(e.keys())[0]
             if k not in self.val:
                 self._err('Expected <%s> to contain entry %s, but did not contain key <%s>.' % (self.val, e, k))
             elif self.val[k] != e[k]:
@@ -566,7 +595,7 @@ class AssertionBuilder(object):
                 raise TypeError('given entry arg must be a dict')
             if len(e) != 1:
                 raise ValueError('given entry args must contain exactly one key-value pair')
-            k = e.keys()[0]
+            k = list(e.keys())[0]
             if k in self.val and e[k] == self.val[k]:
                 self._err('Expected <%s> to not contain entry %s, but did.' % (self.val, e))
         return self
@@ -622,7 +651,7 @@ class AssertionBuilder(object):
 ### file assertions ###
     def exists(self):
         """Asserts that val is a path and that it exists."""
-        if type(self.val) is not str:
+        if not isinstance(self.val, str_types):
             raise TypeError('val is not a path')
         if not os.path.exists(self.val):
             self._err('Expected <%s> to exist, but not found.' % self.val)
@@ -645,7 +674,7 @@ class AssertionBuilder(object):
     def is_named(self, filename):
         """Asserts that val is an existing path to a file and that file is named filename."""
         self.is_file()
-        if type(filename) is not str:
+        if not isinstance(filename, str_types):
             raise TypeError('given filename arg must be a path')
         val_filename = os.path.basename(os.path.abspath(self.val))
         if val_filename != filename:
@@ -655,7 +684,7 @@ class AssertionBuilder(object):
     def is_child_of(self, parent):
         """Asserts that val is an existing path to a file and that file is a child of parent."""
         self.is_file()
-        if type(parent) is not str:
+        if not isinstance(parent, str_types):
             raise TypeError('given parent directory arg must be a path')
         val_abspath = os.path.abspath(self.val)
         parent_abspath = os.path.abspath(parent)
@@ -719,7 +748,7 @@ class AssertionBuilder(object):
 
 ### helpers ###
     def _err(self, msg):
-        """Helper to raise an AssertionError with optional description prefix."""
+        """Helper to raise an AssertionError, and optionally prepend custom description."""
         if len(self.description) > 0:
             raise AssertionError('[%s] %s' % (self.description, msg))
         else:
