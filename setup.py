@@ -4,13 +4,15 @@ import assertpy
 desc = """assertpy
 ========
 
-Dead simple assertions framework for unit testing in Python with a nice fluent API.
+Dead simple assertions framework for unit testing in Python with a nice fluent
+API that supports Python 2 and 3.
 
 Usage
 '''''
 
-Just import the ``assert_that`` function, and away you go::
+Just import the ``assert_that`` function, and away you go:
 
+.. code-block:: python
     from assertpy import assert_that
 
     class TestSomething(object):
@@ -40,7 +42,12 @@ setup(name = 'assertpy',
         'Natural Language :: English',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
         'Topic :: Software Development',
         'Topic :: Software Development :: Testing']
 )
