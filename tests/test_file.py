@@ -26,6 +26,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import sys
 import os
 import tempfile
 from assertpy import assert_that,contents_of,fail
@@ -34,7 +35,7 @@ class TestFile(object):
 
     def setup(self):
         self.tmp = tempfile.NamedTemporaryFile()
-        self.tmp.write('foobar')
+        self.tmp.write('foobar'.encode('utf-8'))
         self.tmp.seek(0)
 
     def teardown(self):
@@ -44,8 +45,32 @@ class TestFile(object):
         contents = contents_of(self.tmp.name)
         assert_that(contents).is_equal_to('foobar').starts_with('foo').ends_with('bar')
 
+    def test_contents_of_path_ascii(self):
+        contents = contents_of(self.tmp.name, 'ascii')
+        assert_that(contents).is_equal_to('foobar').starts_with('foo').ends_with('bar')
+
+    def test_contents_of_return_type(self):
+        if sys.version_info[0] == 3:
+            contents = contents_of(self.tmp.name)
+            assert_that(contents).is_type_of(str)
+        else:
+            contents = contents_of(self.tmp.name)
+            assert_that(contents).is_type_of(unicode)
+
+    def test_contents_of_return_type_ascii(self):
+        if sys.version_info[0] == 3:
+            contents = contents_of(self.tmp.name, 'ascii')
+            assert_that(contents).is_type_of(str)
+        else:
+            contents = contents_of(self.tmp.name, 'ascii')
+            assert_that(contents).is_type_of(str)
+
     def test_contents_of_file(self):
         contents = contents_of(self.tmp.file)
+        assert_that(contents).is_equal_to('foobar').starts_with('foo').ends_with('bar')
+
+    def test_contents_of_file_ascii(self):
+        contents = contents_of(self.tmp.file, 'ascii')
         assert_that(contents).is_equal_to('foobar').starts_with('foo').ends_with('bar')
 
     def test_contains_of_bad_type_failure(self):
