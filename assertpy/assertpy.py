@@ -35,7 +35,7 @@ import sys
 import datetime
 import numbers
 
-__version__ = '0.7'
+__version__ = '0.8'
 
 if sys.version_info[0] == 3:
     str_types = (str,)
