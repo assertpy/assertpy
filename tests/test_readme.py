@@ -26,11 +26,16 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import sys
 import os
 import datetime
 from assertpy import assert_that,contents_of,fail
 
 class TestReadme(object):
+
+    @classmethod
+    def setupClass(cls):
+        print('\nTEST test_readme.py : v%d.%d.%d' % (sys.version_info[0], sys.version_info[1], sys.version_info[2]))
 
     def setup(self):
         with open('foo.txt', 'w') as fp:
@@ -60,6 +65,11 @@ class TestReadme(object):
         assert_that('foo').is_equal_to('foo')
         assert_that('foo').is_not_equal_to('bar')
         assert_that('foo').is_equal_to_ignoring_case('FOO')
+
+        if sys.version_info[0] == 3:
+            assert_that('foo').is_unicode()
+        else:
+            assert_that(u'foo').is_unicode()
 
         assert_that('foo').contains('f')
         assert_that('foo').contains('f','oo')
@@ -212,11 +222,11 @@ class TestReadme(object):
         assert_that({'a':1,'b':2}).does_not_contain_entry({'a':2},{'b':1})
 
     def test_sets(self):
-        assert_that(set({})).is_not_none()
-        assert_that(set({})).is_empty()
-        assert_that(set({})).is_false()
-        assert_that(set({})).is_type_of(set)
-        assert_that(set({})).is_instance_of(set)
+        assert_that(set([])).is_not_none()
+        assert_that(set([])).is_empty()
+        assert_that(set([])).is_false()
+        assert_that(set([])).is_type_of(set)
+        assert_that(set([])).is_instance_of(set)
 
         assert_that(set(['a','b'])).is_length(2)
         assert_that(set(['a','b'])).is_not_empty()
@@ -280,7 +290,8 @@ class TestReadme(object):
         assert_that('foo.txt').is_named('foo.txt')
         #assert_that('foo.txt').is_child_of('mydir')
 
-        assert_that(contents_of('foo.txt')).starts_with('foo').ends_with('bar').contains('oob')
+        contents = contents_of('foo.txt', 'ascii')
+        assert_that(contents).starts_with('foo').ends_with('bar').contains('oob')
 
     def test_objects(self):
         fred = Person('Fred','Smith')
