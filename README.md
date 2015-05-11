@@ -1,6 +1,6 @@
 # assertpy
 
-Dead simple assertions framework for unit testing in Python with a nice fluent API.
+Dead simple assertions framework for unit testing in Python with a nice fluent API.  Supports both Python 2 and 3.
 
 [![Build Status](https://travis-ci.org/ActivisionGameScience/assertpy.svg?branch=master)](https://travis-ci.org/ActivisionGameScience/assertpy)
 [![Coverage Status](https://coveralls.io/repos/ActivisionGameScience/assertpy/badge.png)](https://coveralls.io/r/ActivisionGameScience/assertpy)
@@ -67,6 +67,9 @@ assert_that('FOO').is_upper()
 assert_that('foo').is_equal_to('foo')
 assert_that('foo').is_not_equal_to('bar')
 assert_that('foo').is_equal_to_ignoring_case('FOO')
+
+assert_that(u'foo').is_unicode() # on python 2
+assert_that('foo').is_unicode()  # on python 3
 
 assert_that('foo').contains('f')
 assert_that('foo').contains('f','oo')
@@ -249,21 +252,21 @@ assert_that({'a':1,'b':2}).does_not_contain_entry({'a':2},{'b':1})
 Matching sets:
 
 ```py
-assert_that(set({})).is_not_none()
-assert_that(set({})).is_empty()
-assert_that(set({})).is_false()
-assert_that(set({})).is_type_of(set)
-assert_that(set({})).is_instance_of(set)
+assert_that(set([])).is_not_none()
+assert_that(set([])).is_empty()
+assert_that(set([])).is_false()
+assert_that(set([])).is_type_of(set)
+assert_that(set([])).is_instance_of(set)
 
-assert_that({'a','b'}).is_length(2)
-assert_that({'a','b'}).is_not_empty()
-assert_that({'a','b'}).is_equal_to({'a','b'})
-assert_that({'a','b'}).is_equal_to({'b','a'})
-assert_that({'a','b'}).is_not_equal_to({'a','x'})
+assert_that(set(['a','b'])).is_length(2)
+assert_that(set(['a','b'])).is_not_empty()
+assert_that(set(['a','b'])).is_equal_to(set(['a','b']))
+assert_that(set(['a','b'])).is_equal_to(set(['b','a']))
+assert_that(set(['a','b'])).is_not_equal_to(set(['a','x']))
 
-assert_that({'a','b'}).contains('a')
-assert_that({'a','b'}).contains('b','a')
-assert_that({'a','b'}).does_not_contain('x','y')
+assert_that(set(['a','b'])).contains('a')
+assert_that(set(['a','b'])).contains('b','a')
+assert_that(set(['a','b'])).does_not_contain('x','y')
 ```
 
 ### Booleans
@@ -349,13 +352,15 @@ assert_that('foo.txt').is_named('foo.txt')
 assert_that('foo.txt').is_child_of('mydir')
 ```
 
-Matching file contents is done using the `contents_of()` helper to read the file into a string.  Then you can make quick work of it using the `assertpy` string assertions like this:
+Matching file contents is done using the `contents_of()` helper to read the file into a string with the given encoding (if no encoding is given it defaults to `utf-8`).  Once the file is read into a string, you can make quick work of it using the `assertpy` string assertions like this:
 
 ```py
 from assertpy import assert_that, contents_of
 
-assert_that(contents_of('foo.txt')).starts_with('foo').ends_with('bar').contains('oob')
+contents = contents_of('foo.txt', 'ascii')
+assert_that(contents).starts_with('foo').ends_with('bar').contains('oob')
 ```
+
 
 ### Objects
 
@@ -491,7 +496,7 @@ class TestFailure(object):
             assert_that(ex.message).contains('some msg')
 ```
 
-In the above code, we invoke `some_func()` with a bad argument which raises an exception.  The exception is then handled by the `try..except` block and the exact contents of the error message are verified.  Lastly, if an exception is not thrown by `some_func()` as expected, we fail the test via `fail()`.
+In the above code, we invoke `some_func()` with a bad argument which raises an exception.  The exception is then handled by the `try..except` block and the exact contents of the error message are verified.  Lastly, if an exception is *not* thrown by `some_func()` as expected, we fail the test via `fail()`.
 
 This pattern is only used when you need to verify the contents of the error message.  If you only wish to check for an expected exception (and don't need to verify the error message itself), you're much better off using a test runner that supports expected exceptions.  [Nose](http://nose.readthedocs.org/) provides a [@raises](http://nose.readthedocs.org/en/latest/testing_tools.html#nose.tools.raises) decorator. [Pytest](http://pytest.org/latest/contents.html) has a [pytest.raises](http://pytest.org/latest/assert.html#assertions-about-expected-exceptions) method.
 
@@ -542,6 +547,12 @@ The `assertpy` framework is already super useful, but there are always a few new
 If you'd like to help, check out the [open issues](https://github.com/ActivisionGameScience/assertpy/issues?q=is%3Aopen+is%3Aissue) and see our [Contributing](CONTRIBUTING.md) doc.
 
 ## History
+
+#### v0.8 - May 11, 2015
+
+- single codebase with support for Python 2.6, 2.7, 3.3, 3.4 (see [pull request #36](https://github.com/ActivisionGameScience/assertpy/pull/36))
+- fixed [#37](https://github.com/ActivisionGameScience/assertpy/issues/37) - added `contains_ignoring_case()`
+- fixed [#35](https://github.com/ActivisionGameScience/assertpy/issues/35) - added custom error messages via `described_as()`
 
 #### v0.7 - Apr 20, 2015
 
