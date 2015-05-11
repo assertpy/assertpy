@@ -10,9 +10,8 @@ API that supports Python 2 and 3.
 Usage
 '''''
 
-Just import the ``assert_that`` function, and away you go:
+Just import the ``assert_that`` function, and away you go::
 
-.. code-block:: python
     from assertpy import assert_that
 
     class TestSomething(object):
