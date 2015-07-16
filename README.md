@@ -3,7 +3,7 @@
 Dead simple assertions framework for unit testing in Python with a nice fluent API.  Supports both Python 2 and 3.
 
 [![Build Status](https://travis-ci.org/ActivisionGameScience/assertpy.svg?branch=master)](https://travis-ci.org/ActivisionGameScience/assertpy)
-[![Coverage Status](https://coveralls.io/repos/ActivisionGameScience/assertpy/badge.png)](https://coveralls.io/r/ActivisionGameScience/assertpy)
+[![Coverage Status](https://coveralls.io/repos/ActivisionGameScience/assertpy/badge.svg?branch=master)](https://coveralls.io/github/ActivisionGameScience/assertpy)
 
 ## Usage
 
