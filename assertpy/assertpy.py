@@ -694,6 +694,18 @@ class AssertionBuilder(object):
             self._err('Expected file <%s> to be a child of <%s>, but was not.' % (val_abspath, parent_abspath))
         return self
 
+    def is_same_as(self, other):
+        """Asserts that the val is the same as the 'other' object being compared to."""
+        if self.val is not other:
+            self._err('Expected <%s> to be identical to <%s>, but was not.' % (self.val, other))
+        return self
+
+    def is_not_same_as(self, other):
+        """Asserts that the val is the same as the 'other' object being compared to."""
+        if self.val is other:
+            self._err('Expected <%s> to be not identical to <%s>, but was not.' % (self.val, other))
+        return self
+
 ### collection of objects assertions ###
     def extract(self, *names):
         """Asserts that val is collection, then extracts the named properties or named zero-arg methods into a list (or list of tuples if multiple names are given)."""
