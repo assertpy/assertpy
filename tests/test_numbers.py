@@ -88,21 +88,21 @@ class TestNumbers(object):
             assert_that(1 + 2j).is_greater_than(0)
             fail('should have raised error')
         except TypeError as ex:
-            assert_that(str(ex)).is_equal_to('ordering is not defined for complex numbers')
+            assert_that(str(ex)).is_equal_to('ordering is not defined for type <complex>')
 
     def test_is_greater_than_bad_value_type_failure(self):
         try:
             assert_that('foo').is_greater_than(0)
             fail('should have raised error')
         except TypeError as ex:
-            assert_that(str(ex)).is_equal_to('val is not numeric or datetime')
+            assert_that(str(ex)).is_equal_to('ordering is not defined for type <str>')
 
     def test_is_greater_than_bad_arg_type_failure(self):
         try:
             assert_that(123).is_greater_than('foo')
             fail('should have raised error')
         except TypeError as ex:
-            assert_that(str(ex)).is_equal_to('given arg must be numeric')
+            assert_that(str(ex)).is_equal_to('given arg must be a number, but was <str>')
 
     def test_is_greater_than_or_equal_to(self):
         assert_that(123).is_greater_than_or_equal_to(100)
@@ -123,21 +123,21 @@ class TestNumbers(object):
             assert_that(1 + 2j).is_greater_than_or_equal_to(0)
             fail('should have raised error')
         except TypeError as ex:
-            assert_that(str(ex)).is_equal_to('ordering is not defined for complex numbers')
+            assert_that(str(ex)).is_equal_to('ordering is not defined for type <complex>')
 
     def test_is_greater_than_or_equal_to_bad_value_type_failure(self):
         try:
             assert_that('foo').is_greater_than_or_equal_to(0)
             fail('should have raised error')
         except TypeError as ex:
-            assert_that(str(ex)).is_equal_to('val is not numeric or datetime')
+            assert_that(str(ex)).is_equal_to('ordering is not defined for type <str>')
 
     def test_is_greater_than_or_equal_to_bad_arg_type_failure(self):
         try:
             assert_that(123).is_greater_than_or_equal_to('foo')
             fail('should have raised error')
         except TypeError as ex:
-            assert_that(str(ex)).is_equal_to('given arg must be numeric')
+            assert_that(str(ex)).is_equal_to('given arg must be a number, but was <str>')
 
     def test_is_less_than(self):
         assert_that(123).is_less_than(1000)
@@ -157,21 +157,21 @@ class TestNumbers(object):
             assert_that(1 + 2j).is_less_than(0)
             fail('should have raised error')
         except TypeError as ex:
-            assert_that(str(ex)).is_equal_to('ordering is not defined for complex numbers')
+            assert_that(str(ex)).is_equal_to('ordering is not defined for type <complex>')
 
     def test_is_less_than_bad_value_type_failure(self):
         try:
             assert_that('foo').is_less_than(0)
             fail('should have raised error')
         except TypeError as ex:
-            assert_that(str(ex)).is_equal_to('val is not numeric or datetime')
+            assert_that(str(ex)).is_equal_to('ordering is not defined for type <str>')
 
     def test_is_less_than_bad_arg_type_failure(self):
         try:
             assert_that(123).is_less_than('foo')
             fail('should have raised error')
         except TypeError as ex:
-            assert_that(str(ex)).is_equal_to('given arg must be numeric')
+            assert_that(str(ex)).is_equal_to('given arg must be a number, but was <str>')
 
     def test_is_less_than_or_equal_to(self):
         assert_that(123).is_less_than_or_equal_to(1000)
@@ -192,21 +192,21 @@ class TestNumbers(object):
             assert_that(1 + 2j).is_less_than_or_equal_to(0)
             fail('should have raised error')
         except TypeError as ex:
-            assert_that(str(ex)).is_equal_to('ordering is not defined for complex numbers')
+            assert_that(str(ex)).is_equal_to('ordering is not defined for type <complex>')
 
     def test_is_less_than_or_equal_to_bad_value_type_failure(self):
         try:
             assert_that('foo').is_less_than_or_equal_to(0)
             fail('should have raised error')
         except TypeError as ex:
-            assert_that(str(ex)).is_equal_to('val is not numeric or datetime')
+            assert_that(str(ex)).is_equal_to('ordering is not defined for type <str>')
 
     def test_is_less_than_or_equal_to_bad_arg_type_failure(self):
         try:
             assert_that(123).is_less_than_or_equal_to('foo')
             fail('should have raised error')
         except TypeError as ex:
-            assert_that(str(ex)).is_equal_to('given arg must be numeric')
+            assert_that(str(ex)).is_equal_to('given arg must be a number, but was <str>')
 
     def test_is_positive(self):
         assert_that(1).is_positive()
@@ -246,28 +246,28 @@ class TestNumbers(object):
             assert_that(1 + 2j).is_between(0,1)
             fail('should have raised error')
         except TypeError as ex:
-            assert_that(str(ex)).is_equal_to('ordering is not defined for complex numbers')
+            assert_that(str(ex)).is_equal_to('ordering is not defined for type <complex>')
 
     def test_is_between_bad_value_type_failure(self):
         try:
             assert_that('foo').is_between(0,1)
             fail('should have raised error')
         except TypeError as ex:
-            assert_that(str(ex)).is_equal_to('val is not numeric or datetime')
+            assert_that(str(ex)).is_equal_to('ordering is not defined for type <str>')
 
     def test_is_between_low_arg_type_failure(self):
         try:
             assert_that(123).is_between('foo',1)
             fail('should have raised error')
         except TypeError as ex:
-            assert_that(str(ex)).is_equal_to('given low arg must be numeric')
+            assert_that(str(ex)).is_equal_to('given low arg must be numeric, but was <str>')
 
     def test_is_between_high_arg_type_failure(self):
         try:
             assert_that(123).is_between(0,'foo')
             fail('should have raised error')
         except TypeError as ex:
-            assert_that(str(ex)).is_equal_to('given high arg must be numeric')
+            assert_that(str(ex)).is_equal_to('given high arg must be numeric, but was <str>')
 
     def test_is_between_bad_arg_delta_failure(self):
         try:

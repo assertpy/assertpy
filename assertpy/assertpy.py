@@ -281,16 +281,25 @@ class AssertionBuilder(object):
         return self
 
 ### numeric assertions ###
-    def _validate_numeric_or_datetime(self, other):
-        if type(self.val) is complex or type(other) is complex:
-            raise TypeError('ordering is not defined for complex numbers')
-        if isinstance(self.val, numbers.Number) is False and type(self.val) is not datetime.datetime:
-            raise TypeError('val is not numeric or datetime')
-        if type(self.val) is datetime.datetime:
-            if type(other) is not datetime.datetime:
-                raise TypeError('given arg must be datetime, but was <%s>' % type(other).__name__)
-        elif isinstance(other, numbers.Number) is False:
-            raise TypeError('given arg must be numeric')
+
+    COMPAREABLE_TYPES = set([datetime.datetime, datetime.timedelta, datetime.date, datetime.time])
+    NON_COMPAREABLE_TYPES = set([complex])
+
+    def _validate_compareable(self, other):
+        self_type = type(self.val)
+        other_type = type(other)
+
+        if self_type in self.NON_COMPAREABLE_TYPES:
+            raise TypeError('ordering is not defined for type <%s>' % self_type.__name__)
+        if self_type in self.COMPAREABLE_TYPES:
+            if other_type is not self_type:
+                raise TypeError('given arg must be <%s>, but was <%s>' % (self_type.__name__, other_type.__name__))
+            return
+        if isinstance(self.val, numbers.Number):
+            if not isinstance(other, numbers.Number):
+                raise TypeError('given arg must be a number, but was <%s>' % other_type.__name__)
+            return
+        raise TypeError('ordering is not defined for type <%s>' % self_type.__name__)
 
     def is_zero(self):
         """Asserts that val is numeric and equal to zero."""
@@ -306,7 +315,7 @@ class AssertionBuilder(object):
 
     def is_greater_than(self, other):
         """Asserts that val is numeric and is greater than other."""
-        self._validate_numeric_or_datetime(other)
+        self._validate_compareable(other)
         if self.val <= other:
             if type(self.val) is datetime.datetime:
                 self._err('Expected <%s> to be greater than <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
@@ -316,7 +325,7 @@ class AssertionBuilder(object):
 
     def is_greater_than_or_equal_to(self, other):
         """Asserts that val is numeric and is greater than or equal to other."""
-        self._validate_numeric_or_datetime(other)
+        self._validate_compareable(other)
         if self.val < other:
             if type(self.val) is datetime.datetime:
                 self._err('Expected <%s> to be greater than or equal to <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
@@ -326,7 +335,7 @@ class AssertionBuilder(object):
 
     def is_less_than(self, other):
         """Asserts that val is numeric and is less than other."""
-        self._validate_numeric_or_datetime(other)
+        self._validate_compareable(other)
         if self.val >= other:
             if type(self.val) is datetime.datetime:
                 self._err('Expected <%s> to be less than <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
@@ -336,7 +345,7 @@ class AssertionBuilder(object):
 
     def is_less_than_or_equal_to(self, other):
         """Asserts that val is numeric and is less than or equal to other."""
-        self._validate_numeric_or_datetime(other)
+        self._validate_compareable(other)
         if self.val > other:
             if type(self.val) is datetime.datetime:
                 self._err('Expected <%s> to be less than or equal to <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
@@ -354,24 +363,29 @@ class AssertionBuilder(object):
 
     def is_between(self, low, high):
         """Asserts that val is numeric and is between low and high."""
-        if type(self.val) is complex or type(low) is complex or type(high) is complex:
-            raise TypeError('ordering is not defined for complex numbers')
-        if isinstance(self.val, numbers.Number) is False and type(self.val) is not datetime.datetime:
-            raise TypeError('val is not numeric or datetime')
-        if type(self.val) is datetime.datetime:
-            if type(low) is not datetime.datetime:
-                raise TypeError('given low arg must be datetime, but was <%s>' % type(low).__name__)
-            if type(high) is not datetime.datetime:
-                raise TypeError('given high arg must be datetime, but was <%s>' % type(high).__name__)
-        else:
+        self_type = type(self.val)
+        low_type = type(low)
+        high_type = type(high)
+
+        if self_type in self.NON_COMPAREABLE_TYPES:
+            raise TypeError('ordering is not defined for type <%s>' % self_type.__name__)
+        if self_type in self.COMPAREABLE_TYPES:
+            if low_type is not self_type:
+                raise TypeError('given low arg must be <%s>, but was <%s>' % (self_type.__name__, low_type.__name__))
+            if high_type is not self_type:
+                raise TypeError('given high arg must be <%s>, but was <%s>' % (self_type.__name__, low_type.__name__))
+        elif isinstance(self.val, numbers.Number):
             if isinstance(low, numbers.Number) is False:
-                raise TypeError('given low arg must be numeric')
+                raise TypeError('given low arg must be numeric, but was <%s>' % low_type.__name__)
             if isinstance(high, numbers.Number) is False:
-                raise TypeError('given high arg must be numeric')
+                raise TypeError('given high arg must be numeric, but was <%s>' % high_type.__name__)
+        else:
+            raise TypeError('ordering is not defined for type <%s>' % self_type.__name__)
+
         if low > high:
             raise ValueError('given low arg must be less than given high arg')
         if self.val < low or self.val > high:
-            if type(self.val) is datetime.datetime:
+            if self_type is datetime.datetime:
                 self._err('Expected <%s> to be between <%s> and <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), low.strftime('%Y-%m-%d %H:%M:%S'), high.strftime('%Y-%m-%d %H:%M:%S')))
             else:
                 self._err('Expected <%s> to be between <%s> and <%s>, but was not.' % (self.val, low, high))
