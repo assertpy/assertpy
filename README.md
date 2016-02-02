@@ -43,7 +43,7 @@ conda install --channel ActivisionGameScience assertpy
 ## The API
 
 The fluent API of `assertpy` is designed to create compact, yet readable tests.
-The API has been modeled after other fluent testing APIs, especially the awesome 
+The API has been modeled after other fluent testing APIs, especially the awesome
 [AssertJ](http://joel-costigliola.github.io/assertj/) assertion framework for Java.  Of course, in the `assertpy` framework everything is fully pythonic and designed to take full advantage of the dynamism in the Python runtime.
 
 ### Strings
@@ -95,7 +95,7 @@ Regular expressions can be tricky.  Be sure to use raw strings (prefix the patte
 
 ```py
 # partial matches, these all pass
-assert_that('foo').matches(r'\w') 
+assert_that('foo').matches(r'\w')
 assert_that('foo').matches(r'oo')
 assert_that('foo').matches(r'\w{2}')
 
@@ -446,7 +446,7 @@ assert_that(people).extract('say_hello').contains('Hello, Fred!', 'Joe writes co
 
 #### Dynamic Assertions on Objects
 
-When testing attribute of an object, the basic `assertpy` assertions can get a little verbose like this:
+When testing attributes of an object, the basic `assertpy` assertions can get a little verbose like this:
 
 ```py
 fred = Person('Fred','Smith')
@@ -466,7 +466,9 @@ assert_that(fred).has_name('Fred Smith')
 assert_that(fred).has_say_hello('Hello, Fred!')
 ```
 
-Since `fred` has the attribute `first_name`, the dynamic assertion method `has_first_name()` is available.  Similarly for the property `name` and the zero-argument method `say_hello()`.
+Since `fred` has the attribute `first_name`, the dynamic assertion method `has_first_name()` is available.
+Similarly, the property `name` can be tested via `has_name()` and the zero-argument method `say_hello()` via
+the `has_say_hello()` assertion.
 
 ### Failure
 
@@ -481,7 +483,7 @@ class TestFailure(object):
         fail('forced failure')
 ```
 
-A useful test pattern that requires the `fail()` method is to specifically verify the contents of an error message. For example:
+A very useful test pattern that requires the `fail()` method is to specifically verify the exact contents of an error message. For example:
 
 ```py
 from assertpy import assert_that,fail
@@ -498,7 +500,7 @@ class TestFailure(object):
 
 In the above code, we invoke `some_func()` with a bad argument which raises an exception.  The exception is then handled by the `try..except` block and the exact contents of the error message are verified.  Lastly, if an exception is *not* thrown by `some_func()` as expected, we fail the test via `fail()`.
 
-This pattern is only used when you need to verify the contents of the error message.  If you only wish to check for an expected exception (and don't need to verify the error message itself), you're much better off using a test runner that supports expected exceptions.  [Nose](http://nose.readthedocs.org/) provides a [@raises](http://nose.readthedocs.org/en/latest/testing_tools.html#nose.tools.raises) decorator. [Pytest](http://pytest.org/latest/contents.html) has a [pytest.raises](http://pytest.org/latest/assert.html#assertions-about-expected-exceptions) method.
+This pattern is only used when you need to verify the contents of the error message.  If you only wish to check for an expected exception (and don't need to verify the contents of the error message itself), you're much better off using a test runner that supports expected exceptions.  [Nose](http://nose.readthedocs.org/) provides a [@raises](http://nose.readthedocs.org/en/latest/testing_tools.html#nose.tools.raises) decorator. [Pytest](http://pytest.org/latest/contents.html) has a [pytest.raises](http://pytest.org/latest/assert.html#assertions-about-expected-exceptions) method.
 
 #### Custom Error Messages
 
@@ -516,7 +518,7 @@ Expected <3> to be equal to <2>, but was not.
 [adding stuff] Expected <3> to be equal to <2>, but was not.
 ```
 
-As expected, we see the custom message prepended to the front of the second error.
+The `described_as()` helper causes the custom message `adding stuff` to be prepended to the front of the second error.
 
 ### Chaining
 
@@ -580,16 +582,16 @@ If you'd like to help, check out the [open issues](https://github.com/Activision
 ## License
 
 All files are licensed under the BSD 3-Clause License as follows:
- 
-> Copyright (c) 2015, Activision Publishing, Inc.  
+
+> Copyright (c) 2015, Activision Publishing, Inc.
 > All rights reserved.
-> 
+>
 > Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-> 
+>
 > 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
->  
+>
 > 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
->  
+>
 > 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
->  
+>
 > THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
