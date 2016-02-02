@@ -26,7 +26,8 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from collections import OrderedDict
+import sys
+import collections
 
 from assertpy import assert_that,fail
 
@@ -243,10 +244,11 @@ class TestList(object):
         assert_that(['a','b','c']).starts_with('a')
         assert_that((1,2,3)).starts_with(1)
 
-        ordered = OrderedDict([('z',9),('x',7),('y',8)])
-        assert_that(ordered.keys()).starts_with('z')
-        assert_that(ordered.values()).starts_with(9)
-        assert_that(ordered.items()).starts_with(('z',9))
+        if sys.version_info[0] == 3:
+            ordered = collections.OrderedDict([('z',9),('x',7),('y',8)])
+            assert_that(ordered.keys()).starts_with('z')
+            assert_that(ordered.values()).starts_with(9)
+            assert_that(ordered.items()).starts_with(('z',9))
 
     def test_starts_with_failure(self):
         try:
@@ -267,16 +269,21 @@ class TestList(object):
             assert_that(['a','b','c']).starts_with('a', 'b')
             fail('should have raised error')
         except TypeError as ex:
-            assert_that(str(ex)).contains('starts_with() takes 2 positional arguments but 3 were given')
+            if sys.version_info[0] == 3:
+                assert_that(str(ex)).contains('starts_with() takes 2 positional arguments but 3 were given')
+            else:
+                assert_that(str(ex)).contains('starts_with() takes exactly 2 arguments (3 given)')
+
 
     def test_ends_with(self):
         assert_that(['a','b','c']).ends_with('c')
         assert_that((1,2,3)).ends_with(3)
 
-        ordered = OrderedDict([('z',9),('x',7),('y',8)])
-        assert_that(ordered.keys()).ends_with('y')
-        assert_that(ordered.values()).ends_with(8)
-        assert_that(ordered.items()).ends_with(('y',8))
+        if sys.version_info[0] == 3:
+            ordered = collections.OrderedDict([('z',9),('x',7),('y',8)])
+            assert_that(ordered.keys()).ends_with('y')
+            assert_that(ordered.values()).ends_with(8)
+            assert_that(ordered.items()).ends_with(('y',8))
 
     def test_ends_with_failure(self):
         try:
@@ -297,7 +304,10 @@ class TestList(object):
             assert_that(['a','b','c']).ends_with('b', 'c')
             fail('should have raised error')
         except TypeError as ex:
-            assert_that(str(ex)).contains('ends_with() takes 2 positional arguments but 3 were given')
+            if sys.version_info[0] == 3:
+                assert_that(str(ex)).contains('ends_with() takes 2 positional arguments but 3 were given')
+            else:
+                assert_that(str(ex)).contains('ends_with() takes exactly 2 arguments (3 given)')
 
     def test_chaining(self):
         assert_that(['a','b','c']).is_type_of(list).is_length(3).contains('a').does_not_contain('x')
