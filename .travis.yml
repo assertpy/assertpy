@@ -10,7 +10,7 @@ before_install:
 install:
   - pip install .
 script:
-  - py.test -v --cov=assertpy --cov-report term-missing tests
+  - PYTHONPATH=. py.test -v --cov=assertpy --cov-report term-missing tests
 after_success:
   - coveralls
 sudo: false
