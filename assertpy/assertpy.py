@@ -741,8 +741,10 @@ class AssertionBuilder(object):
 ### collection of objects assertions ###
     def extracting(self, *names):
         """Asserts that val is collection, then extracts the named properties or named zero-arg methods into a list (or list of tuples if multiple names are given)."""
-        if type(self.val) not in [list, tuple, set]:
-            raise TypeError('val is not a collection')
+        if not isinstance(self.val, collections.Iterable):
+            raise TypeError('val is not iterable')
+        if isinstance(self.val, str_types):
+            raise TypeError('val must not be string')
         if len(names) == 0:
             raise ValueError('one or more name args must be given')
         extracted = []

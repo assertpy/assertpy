@@ -54,10 +54,17 @@ class TestExtracting(object):
 
     def test_extracting_bad_val_failure(self):
         try:
+            assert_that(123).extracting('bar')
+            fail('should have raised error')
+        except TypeError as ex:
+            assert_that(str(ex)).is_equal_to('val is not iterable')
+
+    def test_extracting_bad_val_str_failure(self):
+        try:
             assert_that('foo').extracting('bar')
             fail('should have raised error')
         except TypeError as ex:
-            assert_that(str(ex)).is_equal_to('val is not a collection')
+            assert_that(str(ex)).is_equal_to('val must not be string')
 
     def test_extracting_empty_args_failure(self):
         try:
