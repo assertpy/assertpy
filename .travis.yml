@@ -4,9 +4,11 @@ python:
   - 2.7
   - 3.4
   - 3.5
-install:
+before_install:
   - pip install pytest-cov
   - pip install coveralls
+install:
+  - pip install .
 script:
   - py.test --cov=assertpy
 after_success:
