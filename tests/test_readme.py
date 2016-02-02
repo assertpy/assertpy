@@ -309,20 +309,20 @@ class TestReadme(object):
         bob = Person('Bob','Barr')
         people = [fred, bob]
 
-        assert_that(people).extract('first_name').is_equal_to(['Fred','Bob'])
-        assert_that(people).extract('first_name').contains('Fred','Bob')
-        assert_that(people).extract('first_name').does_not_contain('Charlie')
+        assert_that(people).extracting('first_name').is_equal_to(['Fred','Bob'])
+        assert_that(people).extracting('first_name').contains('Fred','Bob')
+        assert_that(people).extracting('first_name').does_not_contain('Charlie')
 
         fred = Person('Fred','Smith')
         joe = Developer('Joe','Coder')
         people = [fred, joe]
 
-        assert_that(people).extract('first_name').contains('Fred','Joe')
+        assert_that(people).extracting('first_name').contains('Fred','Joe')
 
-        assert_that(people).extract('first_name', 'last_name').contains(('Fred','Smith'), ('Joe','Coder'))
+        assert_that(people).extracting('first_name', 'last_name').contains(('Fred','Smith'), ('Joe','Coder'))
 
-        assert_that(people).extract('name').contains('Fred Smith', 'Joe Coder')
-        assert_that(people).extract('say_hello').contains('Hello, Fred!', 'Joe writes code.')
+        assert_that(people).extracting('name').contains('Fred Smith', 'Joe Coder')
+        assert_that(people).extracting('say_hello').contains('Hello, Fred!', 'Joe writes code.')
 
     def test_dyn(self):
         fred = Person('Fred','Smith')
@@ -346,7 +346,7 @@ class TestReadme(object):
 
         assert_that(fred).has_first_name('Fred').has_last_name('Smith').has_shoe_size(12)
 
-        assert_that(people).is_length(2).extract('first_name').contains('Fred','Joe')
+        assert_that(people).is_length(2).extracting('first_name').contains('Fred','Joe')
 
 class Person(object):
     def __init__(self, first_name, last_name, shoe_size = 12):

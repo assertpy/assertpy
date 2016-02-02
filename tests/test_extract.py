@@ -28,63 +28,63 @@
 
 from assertpy import assert_that,fail
 
-class TestExtract(object):
+class TestExtracting(object):
 
     def setup(self):
         fred = Person('Fred', 'Smith', 12)
         john = Person('John', 'Jones', 9.5)
         self.people = [fred, john]
 
-    def test_extract_property(self):
-        assert_that(self.people).extract('first_name').contains('Fred','John')
+    def test_extracting_property(self):
+        assert_that(self.people).extracting('first_name').contains('Fred','John')
 
-    def test_extract_multiple_properties(self):
-        assert_that(self.people).extract('first_name', 'last_name', 'shoe_size').contains(('Fred','Smith',12), ('John','Jones',9.5))
+    def test_extracting_multiple_properties(self):
+        assert_that(self.people).extracting('first_name', 'last_name', 'shoe_size').contains(('Fred','Smith',12), ('John','Jones',9.5))
 
-    def test_extract_zero_arg_method(self):
-        assert_that(self.people).extract('full_name').contains('Fred Smith', 'John Jones')
+    def test_extracting_zero_arg_method(self):
+        assert_that(self.people).extracting('full_name').contains('Fred Smith', 'John Jones')
 
-    def test_extract_property_and_method(self):
-        assert_that(self.people).extract('first_name', 'full_name').contains(('Fred','Fred Smith'), ('John', 'John Jones'))
+    def test_extracting_property_and_method(self):
+        assert_that(self.people).extracting('first_name', 'full_name').contains(('Fred','Fred Smith'), ('John', 'John Jones'))
 
-    def test_extract_bad_val_failure(self):
+    def test_extracting_bad_val_failure(self):
         try:
-            assert_that('foo').extract('bar')
+            assert_that('foo').extracting('bar')
             fail('should have raised error')
         except TypeError as ex:
             assert_that(str(ex)).is_equal_to('val is not a collection')
 
-    def test_extract_empty_args_failure(self):
+    def test_extracting_empty_args_failure(self):
         try:
-            assert_that(self.people).extract()
+            assert_that(self.people).extracting()
             fail('should have raised error')
         except ValueError as ex:
             assert_that(str(ex)).is_equal_to('one or more name args must be given')
 
-    def test_extract_bad_property_failure(self):
+    def test_extracting_bad_property_failure(self):
         try:
-            assert_that(self.people).extract('foo')
+            assert_that(self.people).extracting('foo')
             fail('should have raised error')
         except ValueError as ex:
             assert_that(str(ex)).is_equal_to('val does not have property or zero-arg method <foo>')
 
-    def test_extract_too_many_args_method_failure(self):
+    def test_extracting_too_many_args_method_failure(self):
         try:
-            assert_that(self.people).extract('say_hello')
+            assert_that(self.people).extracting('say_hello')
             fail('should have raised error')
         except ValueError as ex:
             assert_that(str(ex)).is_equal_to('val method <say_hello()> exists, but is not zero-arg method')
 
-    def test_described_as_with_extract(self):
+    def test_described_as_with_extracting(self):
         try:
-            assert_that(self.people).described_as('extra msg').extract('first_name').contains('Fred','Bob')
+            assert_that(self.people).described_as('extra msg').extracting('first_name').contains('Fred','Bob')
             fail('should have raised error')
         except AssertionError as ex:
             assert_that(str(ex)).is_equal_to("[extra msg] Expected <['Fred', 'John']> to contain items ('Fred', 'Bob'), but did not contain <Bob>.")
 
-    def test_described_as_with_double_extract(self):
+    def test_described_as_with_double_extracting(self):
         try:
-            assert_that(self.people).described_as('extra msg').extract('first_name').described_as('other msg').contains('Fred','Bob')
+            assert_that(self.people).described_as('extra msg').extracting('first_name').described_as('other msg').contains('Fred','Bob')
             fail('should have raised error')
         except AssertionError as ex:
             assert_that(str(ex)).is_equal_to("[other msg] Expected <['Fred', 'John']> to contain items ('Fred', 'Bob'), but did not contain <Bob>.")

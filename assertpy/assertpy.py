@@ -721,7 +721,7 @@ class AssertionBuilder(object):
         return self
 
 ### collection of objects assertions ###
-    def extract(self, *names):
+    def extracting(self, *names):
         """Asserts that val is collection, then extracts the named properties or named zero-arg methods into a list (or list of tuples if multiple names are given)."""
         if type(self.val) not in [list, tuple, set]:
             raise TypeError('val is not a collection')

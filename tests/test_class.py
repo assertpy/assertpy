@@ -48,17 +48,17 @@ class TestClass(object):
         assert_that(self.joe).is_instance_of(object)
 
     def test_extract_attribute(self):
-        assert_that(self.people).extract('first_name').is_equal_to(['Fred','Joe'])
-        assert_that(self.people).extract('first_name').contains('Fred','Joe')
+        assert_that(self.people).extracting('first_name').is_equal_to(['Fred','Joe'])
+        assert_that(self.people).extracting('first_name').contains('Fred','Joe')
 
     def test_extract_property(self):
-        assert_that(self.people).extract('name').contains('Fred Smith','Joe Coder')
+        assert_that(self.people).extracting('name').contains('Fred Smith','Joe Coder')
 
     def test_extract_multiple(self):
-        assert_that(self.people).extract('first_name', 'name').contains(('Fred','Fred Smith'), ('Joe','Joe Coder'))
+        assert_that(self.people).extracting('first_name', 'name').contains(('Fred','Fred Smith'), ('Joe','Joe Coder'))
 
     def test_extract_zero_arg_method(self):
-        assert_that(self.people).extract('say_hello').contains('Hello, Fred!', 'Joe writes code.')
+        assert_that(self.people).extracting('say_hello').contains('Hello, Fred!', 'Joe writes code.')
 
 class Person(object):
     def __init__(self, first_name, last_name):

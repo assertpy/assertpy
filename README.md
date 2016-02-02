@@ -401,19 +401,19 @@ class Person(object):
 
 #### Extracting Attributes from Objects
 
-It is frequently necessary to test collections of objects.  The `assertpy` framework includes an `extract` method to flatten the collection on a given attribute, like this:
+It is frequently necessary to test collections of objects.  The `assertpy` framework includes an `extracting` method to flatten the collection on a given attribute, like this:
 
 ```py
 fred = Person('Fred','Smith')
 bob = Person('Bob','Barr')
 people = [fred, bob]
 
-assert_that(people).extract('first_name').is_equal_to(['Fred','Bob'])
-assert_that(people).extract('first_name').contains('Fred','Bob')
-assert_that(people).extract('first_name').does_not_contain('Charlie')
+assert_that(people).extracting('first_name').is_equal_to(['Fred','Bob'])
+assert_that(people).extracting('first_name').contains('Fred','Bob')
+assert_that(people).extracting('first_name').does_not_contain('Charlie')
 ```
 
-Of couse `extract` works with subclasses too...suppose we create a simple class hierarchy by creating a `Developer` subclass of `Person`, like this:
+Of couse `extracting` works with subclasses too...suppose we create a simple class hierarchy by creating a `Developer` subclass of `Person`, like this:
 
 ```py
 class Developer(Person):
@@ -428,21 +428,22 @@ fred = Person('Fred','Smith')
 joe = Developer('Joe','Coder')
 people = [fred, joe]
 
-assert_that(people).extract('first_name').contains('Fred','Joe')
+assert_that(people).extracting('first_name').contains('Fred','Joe')
 ```
 
-Additionally, the `extract` method can accept a list of attributes to be extracted, in this case it returns a list of tuples:
+Additionally, the `extracting` method can accept a list of attributes to be extracted, in this case it returns a list of tuples:
 
 ```py
-assert_that(people).extract('first_name', 'last_name').contains(('Fred','Smith'), ('Joe','Coder'))
+assert_that(people).extracting('first_name', 'last_name').contains(('Fred','Smith'), ('Joe','Coder'))
 ```
 
-Lastly, `extract` works on not just attributes, but also properties, and even zero-argument methods:
+Lastly, `extracting` works on not just attributes, but also properties, and even zero-argument methods:
 
 ```py
-assert_that(people).extract('name').contains('Fred Smith', 'Joe Coder')
-assert_that(people).extract('say_hello').contains('Hello, Fred!', 'Joe writes code.')
+assert_that(people).extracting('name').contains('Fred Smith', 'Joe Coder')
+assert_that(people).extracting('say_hello').contains('Hello, Fred!', 'Joe writes code.')
 ```
+
 
 #### Dynamic Assertions on Objects
 
@@ -539,7 +540,7 @@ assert_that(fred).has_first_name('Fred').has_last_name('Smith').has_shoe_size(12
 ```
 
 ```py
-assert_that(people).is_length(2).extract('first_name').contains('Fred','Joe')
+assert_that(people).is_length(2).extracting('first_name').contains('Fred','Joe')
 ```
 
 ## Future
