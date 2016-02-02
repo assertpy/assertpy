@@ -47,6 +47,11 @@ class TestExtracting(object):
     def test_extracting_property_and_method(self):
         assert_that(self.people).extracting('first_name', 'full_name').contains(('Fred','Fred Smith'), ('John', 'John Jones'))
 
+    def test_extracting_dict(self):
+        people_as_dicts = [{'first_name': p.first_name, 'last_name': p.last_name} for p in self.people]
+        assert_that(people_as_dicts).extracting('first_name').contains('Fred','John')
+        assert_that(people_as_dicts).extracting('last_name').contains('Smith','Jones')
+
     def test_extracting_bad_val_failure(self):
         try:
             assert_that('foo').extracting('bar')
@@ -74,6 +79,14 @@ class TestExtracting(object):
             fail('should have raised error')
         except ValueError as ex:
             assert_that(str(ex)).is_equal_to('val method <say_hello()> exists, but is not zero-arg method')
+
+    def test_extracting_dict_missing_key_failure(self):
+        people_as_dicts = [{'first_name': p.first_name, 'last_name': p.last_name} for p in self.people]
+        try:
+            assert_that(people_as_dicts).extracting('foo')
+            fail('should have raised error')
+        except ValueError as ex:
+            assert_that(str(ex)).matches(r'item keys \[.*\] did not contain key <foo>')
 
     def test_described_as_with_extracting(self):
         try:

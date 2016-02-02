@@ -731,7 +731,12 @@ class AssertionBuilder(object):
         for i in self.val:
             items = []
             for name in names:
-                if hasattr(i, name):
+                if type(i) is dict:
+                    if name in i:
+                        items.append(i[name])
+                    else:
+                        raise ValueError('item keys %s did not contain key <%s>' % (list(i.keys()), name))
+                elif hasattr(i, name):
                     attr = getattr(i, name)
                     if callable(attr):
                         try:
