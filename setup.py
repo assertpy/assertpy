@@ -32,7 +32,7 @@ setup(name = 'assertpy',
     author_email = 'justin@saturnboy.com',
     url = 'https://github.com/ActivisionGameScience/assertpy',
     download_url = 'https://codeload.github.com/ActivisionGameScience/assertpy/tar.gz/%s' % assertpy.__version__,
-    keywords = ['test', 'testing', 'assert', 'assertion', 'assert_that', 'nose', 'nosetests', 'pytest'],
+    keywords = ['test', 'testing', 'assert', 'assertion', 'asserthat', 'assert_that', 'nose', 'nosetests', 'pytest'],
     license = 'BSD',
     classifiers = [
         'Development Status :: 5 - Production/Stable',
@@ -45,8 +45,8 @@ setup(name = 'assertpy',
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
         'Topic :: Software Development',
         'Topic :: Software Development :: Testing']
 )
