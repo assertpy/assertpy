@@ -114,6 +114,18 @@ class AssertionBuilder(object):
             self._err('Expected <%s> to be not equal to <%s>, but was.' % (self.val, other))
         return self
 
+    def is_same_as(self, other):
+        """Asserts that the val is the same as the 'other' object being compared to."""
+        if self.val is not other:
+            self._err('Expected <%s> to be identical to <%s>, but was not.' % (self.val, other))
+        return self
+
+    def is_not_same_as(self, other):
+        """Asserts that the val is the same as the 'other' object being compared to."""
+        if self.val is other:
+            self._err('Expected <%s> to be not identical to <%s>, but was not.' % (self.val, other))
+        return self
+
     def is_true(self):
         """Asserts that val is true."""
         if not self.val:
@@ -706,18 +718,6 @@ class AssertionBuilder(object):
         parent_abspath = os.path.abspath(parent)
         if not val_abspath.startswith(parent_abspath):
             self._err('Expected file <%s> to be a child of <%s>, but was not.' % (val_abspath, parent_abspath))
-        return self
-
-    def is_same_as(self, other):
-        """Asserts that the val is the same as the 'other' object being compared to."""
-        if self.val is not other:
-            self._err('Expected <%s> to be identical to <%s>, but was not.' % (self.val, other))
-        return self
-
-    def is_not_same_as(self, other):
-        """Asserts that the val is the same as the 'other' object being compared to."""
-        if self.val is other:
-            self._err('Expected <%s> to be not identical to <%s>, but was not.' % (self.val, other))
         return self
 
 ### collection of objects assertions ###
