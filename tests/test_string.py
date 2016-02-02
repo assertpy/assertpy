@@ -197,7 +197,7 @@ class TestString(object):
             assert_that(123).starts_with(12)
             fail('should have raised error')
         except TypeError as ex:
-            assert_that(str(ex)).is_equal_to('val is not a string')
+            assert_that(str(ex)).is_equal_to('val is not a string or iterable')
 
     def test_starts_with_bad_arg_type_failure(self):
         try:
@@ -230,7 +230,7 @@ class TestString(object):
             assert_that(123).ends_with(12)
             fail('should have raised error')
         except TypeError as ex:
-            assert_that(str(ex)).is_equal_to('val is not a string')
+            assert_that(str(ex)).is_equal_to('val is not a string or iterable')
 
     def test_ends_with_bad_arg_type_failure(self):
         try:

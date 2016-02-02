@@ -26,6 +26,8 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+from collections import OrderedDict
+
 from assertpy import assert_that,fail
 
 class TestList(object):
@@ -236,6 +238,66 @@ class TestList(object):
             fail('should have raised error')
         except AssertionError as ex:
             assert_that(str(ex)).is_equal_to('Expected not empty, but was empty.')
+
+    def test_starts_with(self):
+        assert_that(['a','b','c']).starts_with('a')
+        assert_that((1,2,3)).starts_with(1)
+
+        ordered = OrderedDict([('z',9),('x',7),('y',8)])
+        assert_that(ordered.keys()).starts_with('z')
+        assert_that(ordered.values()).starts_with(9)
+        assert_that(ordered.items()).starts_with(('z',9))
+
+    def test_starts_with_failure(self):
+        try:
+            assert_that(['a','b','c']).starts_with('d')
+            fail('should have raised error')
+        except AssertionError as ex:
+            assert_that(str(ex)).is_equal_to("Expected ['a', 'b', 'c'] to start with <d>, but did not.")
+
+    def test_starts_with_bad_val_failure(self):
+        try:
+            assert_that([]).starts_with('a')
+            fail('should have raised error')
+        except ValueError as ex:
+            assert_that(str(ex)).is_equal_to('val must not be empty')
+
+    def test_starts_with_bad_prefix_failure(self):
+        try:
+            assert_that(['a','b','c']).starts_with('a', 'b')
+            fail('should have raised error')
+        except TypeError as ex:
+            assert_that(str(ex)).contains('starts_with() takes 2 positional arguments but 3 were given')
+
+    def test_ends_with(self):
+        assert_that(['a','b','c']).ends_with('c')
+        assert_that((1,2,3)).ends_with(3)
+
+        ordered = OrderedDict([('z',9),('x',7),('y',8)])
+        assert_that(ordered.keys()).ends_with('y')
+        assert_that(ordered.values()).ends_with(8)
+        assert_that(ordered.items()).ends_with(('y',8))
+
+    def test_ends_with_failure(self):
+        try:
+            assert_that(['a','b','c']).ends_with('d')
+            fail('should have raised error')
+        except AssertionError as ex:
+            assert_that(str(ex)).is_equal_to("Expected ['a', 'b', 'c'] to end with <d>, but did not.")
+
+    def test_ends_with_bad_val_failure(self):
+        try:
+            assert_that([]).ends_with('a')
+            fail('should have raised error')
+        except ValueError as ex:
+            assert_that(str(ex)).is_equal_to('val must not be empty')
+
+    def test_ends_with_bad_prefix_failure(self):
+        try:
+            assert_that(['a','b','c']).ends_with('b', 'c')
+            fail('should have raised error')
+        except TypeError as ex:
+            assert_that(str(ex)).contains('ends_with() takes 2 positional arguments but 3 were given')
 
     def test_chaining(self):
         assert_that(['a','b','c']).is_type_of(list).is_length(3).contains('a').does_not_contain('x')
