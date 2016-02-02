@@ -15,13 +15,14 @@ Just import the ``assert_that`` function, and away you go::
     from assertpy import assert_that
 
     class TestSomething(object):
+
         def test_something(self):
             assert_that(1 + 2).is_equal_to(3)
             assert_that('foobar').is_length(6).starts_with('foo').ends_with('bar')
 
 Of course, ``assertpy`` works best with a python test runner
-like `Nose <http://nose.readthedocs.org/>`_
-or `pytest <http://pytest.org/latest/contents.html>`_."""
+like `pytest <http://pytest.org/latest/contents.html>`_ (our favorite)
+or `Nose <http://nose.readthedocs.org/>`_."""
 
 setup(name = 'assertpy',
     packages = ['assertpy'],
