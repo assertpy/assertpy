@@ -1,5 +1,6 @@
 # .gitignore
 *.py[cod]
+.cache
 
 # testing output
 *.xml
