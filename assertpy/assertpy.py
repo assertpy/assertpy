@@ -28,7 +28,7 @@
 
 """Fluent assertion framework for better, more readable tests."""
 
-from __future__ import division
+from __future__ import division, print_function
 import re
 import os
 import sys
@@ -47,11 +47,16 @@ else:
     xrange = xrange
     unicode = unicode
 
-def assert_that(val, description = ''):
+def assert_that(val, description=''):
     """Factory method for the assertion builder with value to be tested and optional description."""
     return AssertionBuilder(val, description)
 
-def contents_of(f, encoding = 'utf-8'):
+def assert_soft(val, description=''):
+    """Factory method for the assertion builder with value to be tested, optional description, and
+       just print assertion failures, don't raise exceptions."""
+    return AssertionBuilder(val, description, True)
+
+def contents_of(f, encoding='utf-8'):
     """Helper to read the contents of the given file or path into a string with the given encoding.
     Encoding defaults to 'utf-8', other useful encodings are 'ascii' and 'latin-1'."""
 
@@ -83,7 +88,7 @@ def contents_of(f, encoding = 'utf-8'):
     # if all else fails, just return the contents "as is"
     return contents
 
-def fail(msg = ''):
+def fail(msg=''):
     """Force test failure with the given message."""
     if len(msg) == 0:
         raise AssertionError('Fail!')
@@ -93,10 +98,11 @@ def fail(msg = ''):
 class AssertionBuilder(object):
     """Assertion builder."""
 
-    def __init__(self, val, description):
+    def __init__(self, val, description, soft=False):
         """Construct the assertion builder."""
         self.val = val
         self.description = description
+        self.soft = soft
 
     def described_as(self, description):
         """Describes the assertion.  On failure, the description is included in the error message."""
@@ -802,8 +808,9 @@ class AssertionBuilder(object):
 ### helpers ###
     def _err(self, msg):
         """Helper to raise an AssertionError, and optionally prepend custom description."""
-        if len(self.description) > 0:
-            raise AssertionError('[%s] %s' % (self.description, msg))
+        out = '%s%s' % ('[%s] ' % self.description if len(self.description) > 0 else '', msg)
+        if self.soft:
+            print(out)
         else:
-            raise AssertionError('%s' % msg)
+            raise AssertionError(out)
 
