@@ -35,6 +35,7 @@ import sys
 import datetime
 import numbers
 import collections
+import inspect
 
 __version__ = '0.8'
 
@@ -98,11 +99,12 @@ def fail(msg=''):
 class AssertionBuilder(object):
     """Assertion builder."""
 
-    def __init__(self, val, description, soft=False):
+    def __init__(self, val, description, soft=False, expected=None):
         """Construct the assertion builder."""
         self.val = val
         self.description = description
         self.soft = soft
+        self.expected = expected
 
     def described_as(self, description):
         """Describes the assertion.  On failure, the description is included in the error message."""
@@ -805,12 +807,63 @@ class AssertionBuilder(object):
             return self
         return _wrapper
 
+### expected exceptions ###
+    def raises(self, ex):
+        """Asserts that val is a function that when invoked raises the given error."""
+        if not inspect.isfunction(self.val):
+            raise TypeError('val must be function')
+        if not issubclass(ex, BaseException):
+            raise TypeError('given arg must be exception')
+        return AssertionBuilder(self.val, self.description, expected=ex)
+
+    def when_called_with(self, *some_args, **some_kwargs):
+        """Asserts the val function when invoked with the given args and kwargs raises the expected exception."""
+        if not self.expected:
+            raise TypeError('expected exception not set, raises() must be called first')
+        try:
+            self.val(*some_args, **some_kwargs)
+        except BaseException as e:
+            if issubclass(type(e), self.expected):
+                # chain on with exception message as val
+                return AssertionBuilder(str(e), self.description)
+            else:
+                # got exception, but wrong type, so raise
+                self._err('Expected <%s> to raise <%s> when called with (%s), but raised <%s>.' % (
+                    self.val.__name__,
+                    self.expected.__name__,
+                    self._fmt_args_kwargs(*some_args, **some_kwargs),
+                    type(e).__name__))
+
+        # didn't fail as expected, so raise
+        self._err('Expected <%s> to raise <%s> when called with (%s).' % (
+            self.val.__name__,
+            self.expected.__name__,
+            self._fmt_args_kwargs(*some_args, **some_kwargs)))
+
 ### helpers ###
     def _err(self, msg):
         """Helper to raise an AssertionError, and optionally prepend custom description."""
         out = '%s%s' % ('[%s] ' % self.description if len(self.description) > 0 else '', msg)
         if self.soft:
             print(out)
+            return self
         else:
             raise AssertionError(out)
+
+    def _fmt_args_kwargs(self, *some_args, **some_kwargs):
+        """Helper to convert the given args and kwargs into a string."""
+        if some_args:
+            out_args = str(some_args).lstrip('(').rstrip(',)')
+        if some_kwargs:
+            out_kwargs = ', '.join([str(i).lstrip('(').rstrip(')').replace(', ',': ') for i in [
+                    (k,some_kwargs[k]) for k in sorted(some_kwargs.keys())]])
+
+        if some_args and some_kwargs:
+            return out_args + ', ' + out_kwargs
+        elif some_args:
+            return out_args
+        elif some_kwargs:
+            return out_kwargs
+        else:
+            return ''
 
