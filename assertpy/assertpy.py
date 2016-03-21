@@ -581,6 +581,19 @@ class AssertionBuilder(object):
             self._err('Expected <%s> to be unicode, but was <%s>.' % (self.val, type(self.val).__name__))
         return self
 
+### collection assertions ###
+    def is_iterable(self):
+        """Asserts that val is iterable collection."""
+        if not isinstance(self.val, collections.Iterable):
+            self._err('Expected iterable, but was not.')
+        return self
+
+    def is_not_iterable(self):
+        """Asserts that val is not iterable collection."""
+        if isinstance(self.val, collections.Iterable):
+            self._err('Expected not iterable, but was.')
+        return self
+
 ### dict assertions ###
     def contains_key(self, *keys):
         """Asserts the val is a dict and contains the given key or keys.  Alias for contains()."""
