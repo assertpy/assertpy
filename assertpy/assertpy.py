@@ -597,20 +597,28 @@ class AssertionBuilder(object):
 ### dict assertions ###
     def contains_key(self, *keys):
         """Asserts the val is a dict and contains the given key or keys.  Alias for contains()."""
-        if type(self.val) is not dict:
-            raise TypeError('val is not a dict')
+        if not isinstance(self.val, collections.Iterable) or \
+                not hasattr(self.val, 'keys') or \
+                not callable(getattr(self.val, 'keys')):
+            raise TypeError('val is not dict-like')
         return self.contains(*keys)
 
     def does_not_contain_key(self, *keys):
         """Asserts the val is a dict and does not contain the given key or keys.  Alias for does_not_contain()."""
-        if type(self.val) is not dict:
-            raise TypeError('val is not a dict')
+        if not isinstance(self.val, collections.Iterable) or \
+                not hasattr(self.val, 'keys') or \
+                not callable(getattr(self.val, 'keys')):
+            raise TypeError('val is not dict-like')
         return self.does_not_contain(*keys)
 
     def contains_value(self, *values):
         """Asserts that val is a dict and contains the given value or values."""
-        if type(self.val) is not dict:
-            raise TypeError('val is not a dict')
+        if not isinstance(self.val, collections.Iterable) or \
+                not hasattr(self.val, 'keys') or \
+                not callable(getattr(self.val, 'keys')) or \
+                not hasattr(self.val, 'values') or \
+                not callable(getattr(self.val, 'values')):
+            raise TypeError('val is not dict-like')
         if len(values) == 0:
             raise ValueError('one or more value args must be given')
         for v in values:
@@ -620,8 +628,12 @@ class AssertionBuilder(object):
 
     def does_not_contain_value(self, *values):
         """Asserts that val is a dict and does not contain the given value or values."""
-        if type(self.val) is not dict:
-            raise TypeError('val is not a dict')
+        if not isinstance(self.val, collections.Iterable) or \
+                not hasattr(self.val, 'keys') or \
+                not callable(getattr(self.val, 'keys')) or \
+                not hasattr(self.val, 'values') or \
+                not callable(getattr(self.val, 'values')):
+            raise TypeError('val is not dict-like')
         if len(values) == 0:
             raise ValueError('one or more value args must be given')
         elif len(values) == 1:
@@ -635,8 +647,11 @@ class AssertionBuilder(object):
 
     def contains_entry(self, *entries):
         """Asserts that val is a dict and contains the given entry or entries."""
-        if type(self.val) is not dict:
-            raise TypeError('val is not a dict')
+        if not isinstance(self.val, collections.Iterable) or \
+                not hasattr(self.val, 'keys') or \
+                not callable(getattr(self.val, 'keys')) or \
+                not hasattr(self.val, '__getitem__'):
+            raise TypeError('val is not dict-like')
         if len(entries) == 0:
             raise ValueError('one or more entry args must be given')
         for e in entries:
@@ -653,8 +668,11 @@ class AssertionBuilder(object):
 
     def does_not_contain_entry(self, *entries):
         """Asserts that val is a dict and does not contain the given entry or entries."""
-        if type(self.val) is not dict:
-            raise TypeError('val is not a dict')
+        if not isinstance(self.val, collections.Iterable) or \
+                not hasattr(self.val, 'keys') or \
+                not callable(getattr(self.val, 'keys')) or \
+                not hasattr(self.val, '__getitem__'):
+            raise TypeError('val is not dict-like')
         if len(entries) == 0:
             raise ValueError('one or more entry args must be given')
         for e in entries:
