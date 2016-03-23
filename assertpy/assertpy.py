@@ -37,7 +37,7 @@ import numbers
 import collections
 import inspect
 
-__version__ = '0.8'
+__version__ = '0.9'
 
 if sys.version_info[0] == 3:
     str_types = (str,)
