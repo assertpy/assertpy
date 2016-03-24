@@ -14,11 +14,10 @@ Just import the ``assert_that`` function, and away you go::
 
     from assertpy import assert_that
 
-    class TestSomething(object):
-
-        def test_something(self):
-            assert_that(1 + 2).is_equal_to(3)
-            assert_that('foobar').is_length(6).starts_with('foo').ends_with('bar')
+    def test_something():
+        assert_that(1 + 2).is_equal_to(3)
+        assert_that('foobar').is_length(6).starts_with('foo').ends_with('bar')
+        assert_that(['a', 'b', 'c']).contains('a').does_not_contain('x')
 
 Of course, ``assertpy`` works best with a python test runner
 like `pytest <http://pytest.org/latest/contents.html>`_ (our favorite)
@@ -49,5 +48,4 @@ setup(name = 'assertpy',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Topic :: Software Development',
-        'Topic :: Software Development :: Testing']
-)
+        'Topic :: Software Development :: Testing'])
