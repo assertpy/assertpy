@@ -29,7 +29,7 @@
 import sys
 import os
 import datetime
-from assertpy import assert_that,contents_of,fail
+from assertpy import assert_that, assert_soft, contents_of, fail
 
 class TestReadme(object):
 
@@ -47,6 +47,7 @@ class TestReadme(object):
     def test_something(self):
         assert_that(1 + 2).is_equal_to(3)
         assert_that('foobar').is_length(6).starts_with('foo').ends_with('bar')
+        assert_that(['a', 'b', 'c']).contains('a').does_not_contain('x')
 
     def test_strings(self):
         assert_that('').is_not_none()
@@ -62,6 +63,7 @@ class TestReadme(object):
         assert_that('123').is_digit()
         assert_that('foo').is_lower()
         assert_that('FOO').is_upper()
+        assert_that('foo').is_iterable()
         assert_that('foo').is_equal_to('foo')
         assert_that('foo').is_not_equal_to('bar')
         assert_that('foo').is_equal_to_ignoring_case('FOO')
@@ -73,6 +75,7 @@ class TestReadme(object):
 
         assert_that('foo').contains('f')
         assert_that('foo').contains('f','oo')
+        assert_that('foo').contains_ignoring_case('F','oO')
         assert_that('foo').does_not_contain('x')
         assert_that('foo').contains_sequence('o','o')
 
@@ -151,6 +154,7 @@ class TestReadme(object):
         assert_that([]).is_false()
         assert_that([]).is_type_of(list)
         assert_that([]).is_instance_of(list)
+        assert_that([]).is_iterable()
 
         assert_that(['a','b']).is_length(2)
         assert_that(['a','b']).is_not_empty()
@@ -165,12 +169,16 @@ class TestReadme(object):
         assert_that(['a','x','x']).contains_duplicates()
         assert_that(['a','b','c']).does_not_contain_duplicates()
 
+        assert_that(['a','b','c']).starts_with('a')
+        assert_that(['a','b','c']).ends_with('c')
+
     def test_tuples(self):
         assert_that(()).is_not_none()
         assert_that(()).is_empty()
         assert_that(()).is_false()
         assert_that(()).is_type_of(tuple)
         assert_that(()).is_instance_of(tuple)
+        assert_that(()).is_iterable()
 
         assert_that((1,2,3)).is_length(3)
         assert_that((1,2,3)).is_not_empty()
@@ -184,6 +192,9 @@ class TestReadme(object):
 
         assert_that((1,2,2)).contains_duplicates()
         assert_that((1,2,3)).does_not_contain_duplicates()
+
+        assert_that((1,2,3)).starts_with(1)
+        assert_that((1,2,3)).ends_with(3)
 
     def test_dicts(self):
         assert_that({}).is_not_none()
@@ -220,6 +231,14 @@ class TestReadme(object):
         assert_that({'a':1,'b':2}).contains_entry({'a':1},{'b':2})
         assert_that({'a':1,'b':2}).does_not_contain_entry({'a':2})
         assert_that({'a':1,'b':2}).does_not_contain_entry({'a':2},{'b':1})
+
+        # lists of dicts can be flattened on key
+        fred = {'first_name': 'Fred', 'last_name': 'Smith'}
+        bob = {'first_name': 'Bob', 'last_name': 'Barr'}
+        people = [fred, bob]
+
+        assert_that(people).extracting('first_name').is_equal_to(['Fred','Bob'])
+        assert_that(people).extracting('first_name').contains('Fred','Bob')
 
     def test_sets(self):
         assert_that(set([])).is_not_none()
@@ -300,6 +319,7 @@ class TestReadme(object):
         assert_that(fred).is_true()
         assert_that(fred).is_type_of(Person)
         assert_that(fred).is_instance_of(object)
+        assert_that(fred).is_same_as(fred)
 
         assert_that(fred.first_name).is_equal_to('Fred')
         assert_that(fred.name).is_equal_to('Fred Smith')
@@ -335,6 +355,39 @@ class TestReadme(object):
         assert_that(fred).has_name('Fred Smith')
         assert_that(fred).has_say_hello('Hello, Fred!')
 
+    def test_expected_exceptions(self):
+        def some_func(arg):
+            raise RuntimeError('some err')
+
+        assert_that(some_func).raises(RuntimeError).when_called_with('foo')
+        assert_that(some_func).raises(RuntimeError).when_called_with('foo')\
+            .is_length(8).starts_with('some').is_equal_to('some err')
+
+    def test_custom_error_message(self):
+        try:
+            assert_that(1+2).is_equal_to(2)
+            fail('should have raised error')
+        except AssertionError as e:
+            assert_that(str(e)).is_equal_to('Expected <3> to be equal to <2>, but was not.')
+
+        try:
+            assert_that(1+2).described_as('adding stuff').is_equal_to(2)
+            fail('should have raised error')
+        except AssertionError as e:
+            assert_that(str(e)).is_equal_to('[adding stuff] Expected <3> to be equal to <2>, but was not.')
+
+    def test_soft_assertions(self):
+        assert_soft('foo').is_length(4)
+        assert_soft('foo').is_empty()
+        assert_soft('foo').is_false()
+        assert_soft('foo').is_digit()
+        assert_soft('123').is_alpha()
+        assert_soft('foo').is_upper()
+        assert_soft('FOO').is_lower()
+        assert_soft('foo').is_equal_to('bar')
+        assert_soft('foo').is_not_equal_to('foo')
+        assert_soft('foo').is_equal_to_ignoring_case('BAR')
+
     def test_chaining(self):
         fred = Person('Fred','Smith')
         joe = Person('Joe','Jones')
@@ -347,6 +400,7 @@ class TestReadme(object):
         assert_that(fred).has_first_name('Fred').has_last_name('Smith').has_shoe_size(12)
 
         assert_that(people).is_length(2).extracting('first_name').contains('Fred','Joe')
+
 
 class Person(object):
     def __init__(self, first_name, last_name, shoe_size = 12):
