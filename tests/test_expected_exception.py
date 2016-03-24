@@ -37,6 +37,18 @@ class TestExpectedException(object):
         assert_that(func_kwargs).raises(RuntimeError).when_called_with(foo=1, bar=2, baz=3)
         assert_that(func_all).raises(RuntimeError).when_called_with('a', 'b', 3, 4, foo=1, bar=2, baz='dog')
 
+    def test_expected_exception_chaining(self):
+        assert_that(func_no_arg).raises(RuntimeError).when_called_with()\
+            .is_equal_to('no arg err')
+        assert_that(func_one_arg).raises(RuntimeError).when_called_with('foo')\
+            .is_equal_to('one arg err')
+        assert_that(func_multi_args).raises(RuntimeError).when_called_with('foo', 'bar', 'baz')\
+            .is_equal_to('multi args err')
+        assert_that(func_kwargs).raises(RuntimeError).when_called_with(foo=1, bar=2, baz=3)\
+            .is_equal_to('kwargs err')
+        assert_that(func_all).raises(RuntimeError).when_called_with('a', 'b', 3, 4, foo=1, bar=2, baz='dog')\
+            .starts_with('all err: arg1=a, arg2=b, args=(3, 4), kwargs=[')
+
     def test_expected_exception_no_arg_failure(self):
         try:
             assert_that(func_noop).raises(RuntimeError).when_called_with()
