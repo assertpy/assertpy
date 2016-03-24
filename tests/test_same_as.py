@@ -29,38 +29,39 @@
 from assertpy import assert_that, fail
 
 
-class TestSameAs(object):
+def test_is_same_as():
+    for obj in [object(), 1, 'foo', True, None, 123.456]:
+        assert_that(obj).is_same_as(obj)
 
-    def test_is_same_as(self):
-        test_obj = object()
-        assert_that(test_obj).is_same_as(test_obj)
 
-    def test_is_same_as_failure(self):
+def test_is_same_as_failure():
+    try:
+        obj = object()
+        other = object()
+        assert_that(obj).is_same_as(other)
+        fail('should have raised error')
+    except AssertionError as ex:
+        assert_that(str(ex)).matches('Expected <.+> to be identical to <.+>, but was not.')
+
+
+def test_is_not_same_as():
+    obj = object()
+    other = object()
+    assert_that(obj).is_not_same_as(other)
+    assert_that(obj).is_not_same_as(1)
+    assert_that(obj).is_not_same_as(True)
+    assert_that(1).is_not_same_as(2)
+
+    assert_that({'a':1}).is_not_same_as({'a':1})
+    assert_that([1,2,3]).is_not_same_as([1,2,3])
+    assert_that((1,2,3)).is_not_same_as((1,2,3))
+
+
+def test_is_not_same_as_failure():
+    for obj in [object(), 1, 'foo', True, None, 123.456]:
         try:
-            test_obj = object()
-            other_obj = object()
-            assert_that(test_obj).is_same_as(other_obj)
+            assert_that(obj).is_not_same_as(obj)
             fail('should have raised error')
         except AssertionError as ex:
-            assert_that(str(ex))\
-                .matches('Expected <<object [^>]+>> to be identical to <<object [^>]+>>, but was not.')
+            assert_that(str(ex)).matches('Expected <.+> to be not identical to <.+>, but was.')
 
-    def test_is_not_same_as(self):
-        test_obj = object()
-        other_obj = object()
-        assert_that(test_obj).is_not_same_as(other_obj)
-        assert_that(test_obj).is_not_same_as(1)
-        assert_that(test_obj).is_not_same_as(True)
-        assert_that(1).is_not_same_as(2)
-        assert_that({}).is_not_same_as([])
-        assert_that({}).is_not_same_as({})
-        assert_that([]).is_not_same_as([])
-
-    def test_is_not_none_failure(self):
-        for test_obj in [object(), None, 1, 2, True]:
-            try:
-                assert_that(test_obj).is_not_same_as(test_obj)
-                fail('should have raised error')
-            except AssertionError as ex:
-                assert_that(str(ex))\
-                    .matches('Expected <.+> to be not identical to <.+>, but was not.')

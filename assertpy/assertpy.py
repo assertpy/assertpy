@@ -124,15 +124,15 @@ class AssertionBuilder(object):
         return self
 
     def is_same_as(self, other):
-        """Asserts that the val is the same as the 'other' object being compared to."""
+        """Asserts that the val is identical to other, via 'is' compare."""
         if self.val is not other:
             self._err('Expected <%s> to be identical to <%s>, but was not.' % (self.val, other))
         return self
 
     def is_not_same_as(self, other):
-        """Asserts that the val is the same as the 'other' object being compared to."""
+        """Asserts that the val is not identical to other, via 'is' compare."""
         if self.val is other:
-            self._err('Expected <%s> to be not identical to <%s>, but was not.' % (self.val, other))
+            self._err('Expected <%s> to be not identical to <%s>, but was.' % (self.val, other))
         return self
 
     def is_true(self):
