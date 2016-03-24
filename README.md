@@ -1,6 +1,6 @@
 # assertpy
 
-Dead simple assertions framework for unit testing in Python with a nice fluent API.  Supports both Python 2 and 3.
+Dead simple assertions library for unit testing in Python with a nice fluent API.  Supports both Python 2 and 3.
 
 [![Build Status](https://travis-ci.org/ActivisionGameScience/assertpy.svg?branch=master)](https://travis-ci.org/ActivisionGameScience/assertpy)
 [![Coverage Status](https://coveralls.io/repos/ActivisionGameScience/assertpy/badge.svg?branch=master)](https://coveralls.io/github/ActivisionGameScience/assertpy)
@@ -12,28 +12,27 @@ Just import the `assert_that` function, and away you go...
 ```py
 from assertpy import assert_that
 
-class TestSomething(object):
-
-    def test_something(self):
-        assert_that(1 + 2).is_equal_to(3)
-        assert_that('foobar').is_length(6).starts_with('foo').ends_with('bar')
+def test_something():
+    assert_that(1 + 2).is_equal_to(3)
+    assert_that('foobar').is_length(6).starts_with('foo').ends_with('bar')
+    assert_that(['a', 'b', 'c']).contains('a').does_not_contain('x')
 ```
 
-Of course, `assertpy` works best with a python test runner like [Nose](http://nose.readthedocs.org/) or [pytest](http://pytest.org/latest/contents.html).
+Of course, `assertpy` works best with a python test runner like [pytest](http://pytest.org/latest/contents.html) (our favorite) or [Nose](http://nose.readthedocs.org/).
 
 ## Installation
 
 [![PyPI Badge](https://badge.fury.io/py/assertpy.svg)](https://pypi.python.org/pypi/assertpy)
 [![Binstar Badge](https://anaconda.org/activisiongamescience/assertpy/badges/version.svg)](https://anaconda.org/ActivisionGameScience/assertpy)
 
-The `assertpy` framework is available via [PyPI](https://pypi.python.org/pypi/assertpy).
+The `assertpy` library is available via [PyPI](https://pypi.python.org/pypi/assertpy).
 Just install with:
 
 ```
 pip install assertpy
 ```
 
-Or, if you are a big fan of [conda](http://conda.pydata.org/) like we are, `assertpy` is also on [binstar](https://binstar.org/ActivisionGameScience/assertpy).
+Or, if you are a big fan of [conda](http://conda.pydata.org/) like we are, `assertpy` is also on [anaconda cloud](https://anaconda.org/ActivisionGameScience/assertpy) (formerly known as binstar).
 Just install from our channel:
 
 ```
@@ -44,7 +43,7 @@ conda install --channel ActivisionGameScience assertpy
 
 The fluent API of `assertpy` is designed to create compact, yet readable tests.
 The API has been modeled after other fluent testing APIs, especially the awesome
-[AssertJ](http://joel-costigliola.github.io/assertj/) assertion framework for Java.  Of course, in the `assertpy` framework everything is fully pythonic and designed to take full advantage of the dynamism in the Python runtime.
+[AssertJ](http://joel-costigliola.github.io/assertj/) assertion library for Java.  Of course, in the `assertpy` library everything is fully pythonic and designed to take full advantage of the dynamism in the Python runtime.
 
 ### Strings
 
@@ -64,6 +63,7 @@ assert_that('foo').is_alpha()
 assert_that('123').is_digit()
 assert_that('foo').is_lower()
 assert_that('FOO').is_upper()
+assert_that('foo').is_iterable()
 assert_that('foo').is_equal_to('foo')
 assert_that('foo').is_not_equal_to('bar')
 assert_that('foo').is_equal_to_ignoring_case('FOO')
@@ -166,6 +166,7 @@ assert_that([]).is_empty()
 assert_that([]).is_false()
 assert_that([]).is_type_of(list)
 assert_that([]).is_instance_of(list)
+assert_that([]).is_iterable()
 
 assert_that(['a','b']).is_length(2)
 assert_that(['a','b']).is_not_empty()
@@ -179,6 +180,9 @@ assert_that(['a','b','c']).contains_sequence('b','c')
 
 assert_that(['a','x','x']).contains_duplicates()
 assert_that(['a','b','c']).does_not_contain_duplicates()
+
+assert_that(['a','b','c']).starts_with('a')
+assert_that(['a','b','c']).ends_with('c')
 ```
 
 ### Tuples
@@ -191,6 +195,7 @@ assert_that(()).is_empty()
 assert_that(()).is_false()
 assert_that(()).is_type_of(tuple)
 assert_that(()).is_instance_of(tuple)
+assert_that(()).is_iterable()
 
 assert_that((1,2,3)).is_length(3)
 assert_that((1,2,3)).is_not_empty()
@@ -204,6 +209,9 @@ assert_that((1,2,3)).contains_sequence(2,3)
 
 assert_that((1,2,2)).contains_duplicates()
 assert_that((1,2,3)).does_not_contain_duplicates()
+
+assert_that((1,2,3)).starts_with(1)
+assert_that((1,2,3)).ends_with(3)
 ```
 
 ### Dicts
@@ -246,6 +254,18 @@ assert_that({'a':1,'b':2}).contains_entry({'a':1},{'b':2})
 assert_that({'a':1,'b':2}).does_not_contain_entry({'a':2})
 assert_that({'a':1,'b':2}).does_not_contain_entry({'a':2},{'b':1})
 ```
+
+Lists of dicts can be flattened on key:
+
+```py
+fred = {'first_name': 'Fred', 'last_name': 'Smith'}
+bob = {'first_name': 'Bob', 'last_name': 'Barr'}
+people = [fred, bob]
+
+assert_that(people).extracting('first_name').is_equal_to(['Fred','Bob'])
+assert_that(people).extracting('first_name').contains('Fred','Bob')
+```
+
 
 ### Sets
 
@@ -373,6 +393,7 @@ assert_that(fred).is_not_none()
 assert_that(fred).is_true()
 assert_that(fred).is_type_of(Person)
 assert_that(fred).is_instance_of(object)
+assert_that(fred).is_same_as(fred)
 ```
 
 Matching an attribute, a property, and a method:
@@ -401,7 +422,7 @@ class Person(object):
 
 #### Extracting Attributes from Objects
 
-It is frequently necessary to test collections of objects.  The `assertpy` framework includes an `extracting` method to flatten the collection on a given attribute, like this:
+It is frequently necessary to test collections of objects.  The `assertpy` library includes an `extracting` method to flatten the collection on a given attribute, like this:
 
 ```py
 fred = Person('Fred','Smith')
@@ -473,35 +494,57 @@ the `has_say_hello()` assertion.
 
 ### Failure
 
-The `assertpy` framework includes a `fail()` method to explicitly force a test failure.  It can be used like this:
+The `assertpy` library includes a `fail()` method to explicitly force a test failure.  It can be used like this:
 
 ```py
 from assertpy import assert_that,fail
 
-class TestFailure(object):
-
-    def test_fail(self):
-        fail('forced failure')
+def test_fail():
+    fail('forced failure')
 ```
 
-A very useful test pattern that requires the `fail()` method is to specifically verify the exact contents of an error message. For example:
+A very useful test pattern that requires the `fail()` method is to verify the exact contents of an error message. For example:
 
 ```py
 from assertpy import assert_that,fail
 
-class TestFailure(object):
-
-    def test_error_msg(self):
-        try:
-            some_func('bad arg')
-            fail('should have raised error')
-        except ValueError, ex:
-            assert_that(ex.message).contains('some msg')
+def test_error_msg():
+    try:
+        some_func('bad arg')
+        fail('should have raised error')
+    except ValueError, ex:
+        assert_that(ex.message).contains('some msg')
 ```
 
 In the above code, we invoke `some_func()` with a bad argument which raises an exception.  The exception is then handled by the `try..except` block and the exact contents of the error message are verified.  Lastly, if an exception is *not* thrown by `some_func()` as expected, we fail the test via `fail()`.
 
 This pattern is only used when you need to verify the contents of the error message.  If you only wish to check for an expected exception (and don't need to verify the contents of the error message itself), you're much better off using a test runner that supports expected exceptions.  [Nose](http://nose.readthedocs.org/) provides a [@raises](http://nose.readthedocs.org/en/latest/testing_tools.html#nose.tools.raises) decorator. [Pytest](http://pytest.org/latest/contents.html) has a [pytest.raises](http://pytest.org/latest/assert.html#assertions-about-expected-exceptions) method.
+
+#### Expected Exceptions
+
+We recommend you use your test runner to check for expected exceptions (Pytest's [pytest.raises](http://pytest.org/latest/assert.html#assertions-about-expected-exceptions) context or Nose's [@raises](http://nose.readthedocs.org/en/latest/testing_tools.html#nose.tools.raises) decorator).  In the special case of invoking a function, `assertpy` provides its own expected exception handling via a simple fluent API.
+
+Given a function `some_func()`:
+
+```py
+def some_func(arg):
+    raise RuntimeError('some err')
+```
+
+We can expect a `RuntimeError` with:
+
+```py
+assert_that(some_func).raises(RuntimeError).when_called_with('foo')
+```
+
+Additionally, the error message contents are chained, and can be further verified:
+
+```py      
+assert_that(some_func).raises(RuntimeError).when_called_with('foo')\
+	.is_length(8).starts_with('some').is_equal_to('some err')
+
+```
+
 
 #### Custom Error Messages
 
@@ -520,6 +563,39 @@ Expected <3> to be equal to <2>, but was not.
 ```
 
 The `described_as()` helper causes the custom message `adding stuff` to be prepended to the front of the second error.
+
+#### Soft Assertions
+
+There are times when you don't want to a test to fail at all, instead you only want a warning message. In this case, just replace `assert_that` with `assert_soft`.
+
+```py
+assert_soft('foo').is_length(4)
+assert_soft('foo').is_empty()
+assert_soft('foo').is_false()
+assert_soft('foo').is_digit()
+assert_soft('123').is_alpha()
+assert_soft('foo').is_upper()
+assert_soft('FOO').is_lower()
+assert_soft('foo').is_equal_to('bar')
+assert_soft('foo').is_not_equal_to('foo')
+assert_soft('foo').is_equal_to_ignoring_case('BAR')
+```
+
+The above soft assertions print the following warning messages (but an `AssertionError` is never raised):
+
+```
+Expected <foo> to be of length <4>, but was <3>.
+Expected <foo> to be empty string, but was not.
+Expected <False>, but was not.
+Expected <foo> to contain only digits, but did not.
+Expected <123> to contain only alphabetic chars, but did not.
+Expected <foo> to contain only uppercase chars, but did not.
+Expected <FOO> to contain only lowercase chars, but did not.
+Expected <foo> to be equal to <bar>, but was not.
+Expected <foo> to be not equal to <foo>, but was.
+Expected <foo> to be case-insensitive equal to <BAR>, but was not.
+```
+
 
 ### Chaining
 
@@ -543,42 +619,11 @@ assert_that(fred).has_first_name('Fred').has_last_name('Smith').has_shoe_size(12
 assert_that(people).is_length(2).extracting('first_name').contains('Fred','Joe')
 ```
 
+
 ## Future
 
-The `assertpy` framework is already super useful, but there are always a few new features in the works...
+There are always a few new features in the works...if you'd like to help, check out the [open issues](https://github.com/ActivisionGameScience/assertpy/issues?q=is%3Aopen+is%3Aissue) and see our [Contributing](CONTRIBUTING.md) doc.
 
-If you'd like to help, check out the [open issues](https://github.com/ActivisionGameScience/assertpy/issues?q=is%3Aopen+is%3Aissue) and see our [Contributing](CONTRIBUTING.md) doc.
-
-## History
-
-#### v0.8 - May 11, 2015
-
-- single codebase with support for Python 2.6, 2.7, 3.3, 3.4 (see [pull request #36](https://github.com/ActivisionGameScience/assertpy/pull/36))
-- fixed [#37](https://github.com/ActivisionGameScience/assertpy/issues/37) - added `contains_ignoring_case()`
-- fixed [#35](https://github.com/ActivisionGameScience/assertpy/issues/35) - added custom error messages via `described_as()`
-
-#### v0.7 - Apr 20, 2015
-
-- updated docs with all the new assertions
-- fixed [#34](https://github.com/ActivisionGameScience/assertpy/issues/34) - added `does_not_contain_entry()`
-- fixed [#33](https://github.com/ActivisionGameScience/assertpy/issues/33) - added `does_not_contain_key()` and `does_not_contain_value()`
-- fixed [#32](https://github.com/ActivisionGameScience/assertpy/issues/32) - relaxed numeric type checking to work with things like `numpy.float64`
-- fixed [#31](https://github.com/ActivisionGameScience/assertpy/issues/31) - added `contains_duplicates()` and `does_not_contain_duplicates()`
-- fixed [#29](https://github.com/ActivisionGameScience/assertpy/issues/29) - added `is_not_in()`
-- fixed [#28](https://github.com/ActivisionGameScience/assertpy/issues/28) - added `is_in()`
-- fixed [#27](https://github.com/ActivisionGameScience/assertpy/issues/27) - added `is_zero()` and `is_not_zero()`
-- fixed [#26](https://github.com/ActivisionGameScience/assertpy/issues/26) - added `is_greater_than_or_equal_to()` and `is_less_than_or_equal_to()`
-- fixed [#25](https://github.com/ActivisionGameScience/assertpy/issues/25) - added `contains_sequence()`
-- fixed [#23](https://github.com/ActivisionGameScience/assertpy/issues/23) - added `is_positive()` and `is_negative()`
-
-#### v0.6 - Feb 2, 2015
-
-- minor error message cleanups
-- initial release on binstar
-
-#### v0.5 - Jan 31, 2015
-
-- initial release on PyPI
 
 ## License
 
