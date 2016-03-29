@@ -4,8 +4,8 @@ import assertpy
 desc = """assertpy
 ========
 
-Dead simple assertions framework for unit testing in Python with a nice fluent
-API that supports Python 2 and 3.
+Dead simple assertion library for python unit testing with a fluent API
+that supports Python 2 and 3.
 
 Usage
 '''''
@@ -26,13 +26,13 @@ or `Nose <http://nose.readthedocs.org/>`_."""
 setup(name = 'assertpy',
     packages = ['assertpy'],
     version = assertpy.__version__,
-    description = 'Assertion framework for python unit testing with a fluent API',
+    description = 'Assertion library for python unit testing with a fluent API',
     long_description = desc,
     author = 'Justin Shacklette',
     author_email = 'justin@saturnboy.com',
     url = 'https://github.com/ActivisionGameScience/assertpy',
     download_url = 'https://codeload.github.com/ActivisionGameScience/assertpy/tar.gz/%s' % assertpy.__version__,
-    keywords = ['test', 'testing', 'assert', 'assertion', 'asserthat', 'assert_that', 'nose', 'nosetests', 'pytest'],
+    keywords = ['test', 'testing', 'assert', 'assertion', 'assertthat', 'assert_that', 'nose', 'nosetests', 'pytest', 'unittest'],
     license = 'BSD',
     classifiers = [
         'Development Status :: 5 - Production/Stable',
