@@ -685,6 +685,17 @@ class AssertionBuilder(object):
                 self._err('Expected <%s> to not contain entry %s, but did.' % (self.val, e))
         return self
 
+### set assertions ###
+    def is_subset_of(self, superset):
+        """Asserts that val is a set and its items are contained within the set, 'superset'"""
+        if not isinstance(self.val, (set, frozenset)):
+            raise TypeError('val is not a set/frozenset')
+        if not isinstance(superset, (set, frozenset)):
+            raise TypeError('argument is not a set/frozenset')
+        if not self.val.issubset(superset):
+            self._err('Expected <%s> to be a subset of <%s>, but was not.' % (self.val, superset))
+        return self
+
 ### datetime assertions ###
     def is_before(self, other):
         """Asserts that val is a date and is before other date."""
