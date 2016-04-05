@@ -598,6 +598,30 @@ class AssertionBuilder(object):
             self._err('Expected not iterable, but was.')
         return self
 
+    def is_subset_of(self, *supersets):
+        """Asserts that val is iterable and a subset of the given superset or flattened superset if multiple supersets are given."""
+        if not isinstance(self.val, collections.Iterable):
+            raise TypeError('val is not iterable')
+        if len(supersets) == 0:
+            raise ValueError('one or more superset args must be given')
+
+        # flatten supersets
+        superset = []
+        for j in supersets:
+            try:
+                for k in j:
+                    if k not in superset:
+                        superset.append(k)
+            except Exception:
+                if j not in superset:
+                    superset.append(j)
+
+        for i in self.val:
+            if i not in superset:
+                self._err('Expected <%s> to be subset of %s, but <%s> was missing.' % (self.val, superset, i))
+
+        return self
+
 ### dict assertions ###
     def contains_key(self, *keys):
         """Asserts the val is a dict and contains the given key or keys.  Alias for contains()."""

@@ -59,6 +59,48 @@ class TestCollection(object):
         except AssertionError as ex:
             assert_that(str(ex)).is_equal_to('Expected not iterable, but was.')
 
+    def test_is_subset_of(self):
+        assert_that(['a','b','c']).is_subset_of(['a','b','c'])
+        assert_that(['a','b','c']).is_subset_of(['a','b','c','d'])
+        assert_that(['a','b','c']).is_subset_of(['a'], ['b'], ['c'])
+        assert_that(['a','b','c']).is_subset_of('a','b','c')
+        assert_that(['a','b','a']).is_subset_of(['a','a','b'])
+        assert_that((1,2,3)).is_subset_of((1,2,3))
+        assert_that((1,2,3)).is_subset_of((1,2,3,4))
+        assert_that((1,2,3)).is_subset_of((1,), (2,), (3,))
+        assert_that((1,2,3)).is_subset_of(1,2,3)
+        assert_that((1,2,1)).is_subset_of(1,1,2)
+        assert_that('foo').is_subset_of('abcdefghijklmnopqrstuvwxyz')
+        assert_that(set([1,2,3])).is_subset_of(set([1,2,3,4]))
+
+    def test_is_subset_of_failure(self):
+        try:
+            assert_that(['a','b','c']).is_subset_of(['a','b'])
+            fail('should have raised error')
+        except AssertionError as ex:
+            assert_that(str(ex)).is_equal_to("Expected <['a', 'b', 'c']> to be subset of ['a', 'b'], but <c> was missing.")
+
+    def test_is_subset_of_failure(self):
+        try:
+            assert_that(set([1,2,3])).is_subset_of(set([1,2]))
+            fail('should have raised error')
+        except AssertionError as ex:
+            assert_that(str(ex)).is_equal_to('Expected <%s> to be subset of [1, 2], but <3> was missing.' % set([1,2,3]))
+
+    def test_is_subset_of_bad_val_failure(self):
+        try:
+            assert_that(123).is_subset_of(1234)
+            fail('should have raised error')
+        except TypeError as ex:
+            assert_that(str(ex)).is_equal_to('val is not iterable')
+
+    def test_is_subset_of_bad_arg_failure(self):
+        try:
+            assert_that(['a','b','c']).is_subset_of()
+            fail('should have raised error')
+        except ValueError as ex:
+            assert_that(str(ex)).is_equal_to('one or more superset args must be given')
+
     def test_chaining(self):
         assert_that(['a','b','c']).is_iterable().is_type_of(list).is_length(3)
 
