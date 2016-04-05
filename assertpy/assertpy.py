@@ -472,6 +472,8 @@ class AssertionBuilder(object):
 
     def starts_with(self, prefix):
         """Asserts that val is string or iterable and starts with prefix."""
+        if prefix is None:
+            raise TypeError('given prefix arg must not be none')
         if isinstance(self.val, str_types):
             if not isinstance(prefix, str_types):
                 raise TypeError('given prefix arg must be a string')
@@ -492,6 +494,8 @@ class AssertionBuilder(object):
 
     def ends_with(self, suffix):
         """Asserts that val is string or iterable and ends with suffix."""
+        if suffix is None:
+            raise TypeError('given suffix arg must not be none')
         if isinstance(self.val, str_types):
             if not isinstance(suffix, str_types):
                 raise TypeError('given suffix arg must be a string')

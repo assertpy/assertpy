@@ -199,6 +199,13 @@ class TestString(object):
         except TypeError as ex:
             assert_that(str(ex)).is_equal_to('val is not a string or iterable')
 
+    def test_starts_with_bad_arg_none_failure(self):
+        try:
+            assert_that('fred').starts_with(None)
+            fail('should have raised error')
+        except TypeError as ex:
+            assert_that(str(ex)).is_equal_to('given prefix arg must not be none')
+
     def test_starts_with_bad_arg_type_failure(self):
         try:
             assert_that('fred').starts_with(123)
@@ -231,6 +238,13 @@ class TestString(object):
             fail('should have raised error')
         except TypeError as ex:
             assert_that(str(ex)).is_equal_to('val is not a string or iterable')
+
+    def test_ends_with_bad_arg_none_failure(self):
+        try:
+            assert_that('fred').ends_with(None)
+            fail('should have raised error')
+        except TypeError as ex:
+            assert_that(str(ex)).is_equal_to('given suffix arg must not be none')
 
     def test_ends_with_bad_arg_type_failure(self):
         try:
