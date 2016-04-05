@@ -84,6 +84,7 @@ class TestReadme(object):
 
         assert_that('foo').is_in('foo','bar','baz')
         assert_that('foo').is_not_in('boo','bar','baz')
+        assert_that('foo').is_subset_of('abcdefghijklmnopqrstuvwxyz')
 
         assert_that('foo').starts_with('f')
         assert_that('foo').ends_with('oo')
@@ -165,6 +166,7 @@ class TestReadme(object):
         assert_that(['a','b']).contains('b','a')
         assert_that(['a','b']).does_not_contain('x','y')
         assert_that(['a','b','c']).contains_sequence('b','c')
+        assert_that(['a','b']).is_subset_of(['a','b','c'])
 
         assert_that(['a','x','x']).contains_duplicates()
         assert_that(['a','b','c']).does_not_contain_duplicates()
@@ -189,6 +191,7 @@ class TestReadme(object):
         assert_that((1,2,3)).contains(3,2,1)
         assert_that((1,2,3)).does_not_contain(4,5,6)
         assert_that((1,2,3)).contains_sequence(2,3)
+        assert_that((1,2,3)).is_subset_of((1,2,3,4))
 
         assert_that((1,2,2)).contains_duplicates()
         assert_that((1,2,3)).does_not_contain_duplicates()
@@ -256,6 +259,8 @@ class TestReadme(object):
         assert_that(set(['a','b'])).contains('a')
         assert_that(set(['a','b'])).contains('b','a')
         assert_that(set(['a','b'])).does_not_contain('x','y')
+        assert_that(set(['a','b'])).is_subset_of(set(['a','b','c']))
+        assert_that(set(['a','b'])).is_subset_of(set(['a']), set(['b']))
 
     def test_booleans(self):
         assert_that(True).is_true()

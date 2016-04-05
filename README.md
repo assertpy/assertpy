@@ -5,6 +5,7 @@ Dead simple assertions library for unit testing in Python with a nice fluent API
 [![Build Status](https://travis-ci.org/ActivisionGameScience/assertpy.svg?branch=master)](https://travis-ci.org/ActivisionGameScience/assertpy)
 [![Coverage Status](https://coveralls.io/repos/ActivisionGameScience/assertpy/badge.svg?branch=master)](https://coveralls.io/github/ActivisionGameScience/assertpy)
 
+
 ## Usage
 
 Just import the `assert_that` function, and away you go...
@@ -19,6 +20,7 @@ def test_something():
 ```
 
 Of course, `assertpy` works best with a python test runner like [pytest](http://pytest.org/latest/contents.html) (our favorite) or [Nose](http://nose.readthedocs.org/).
+
 
 ## Installation
 
@@ -39,11 +41,13 @@ Just install from our channel:
 conda install --channel ActivisionGameScience assertpy
 ```
 
+
 ## The API
 
 The fluent API of `assertpy` is designed to create compact, yet readable tests.
 The API has been modeled after other fluent testing APIs, especially the awesome
 [AssertJ](http://joel-costigliola.github.io/assertj/) assertion library for Java.  Of course, in the `assertpy` library everything is fully pythonic and designed to take full advantage of the dynamism in the Python runtime.
+
 
 ### Strings
 
@@ -82,6 +86,7 @@ assert_that('fox').does_not_contain_duplicates()
 
 assert_that('foo').is_in('foo','bar','baz')
 assert_that('foo').is_not_in('boo','bar','baz')
+assert_that('foo').is_subset_of('abcdefghijklmnopqrstuvwxyz')
 
 assert_that('foo').starts_with('f')
 assert_that('foo').ends_with('oo')
@@ -105,6 +110,7 @@ assert_that('foo').matches(r'^\w{3}$')
 # fails
 assert_that('foo').matches(r'^\w{2}$')
 ```
+
 
 ### Numbers
 
@@ -156,6 +162,7 @@ assert_that(123.4).is_close_to(123, 0.5)
 
 Of course, using `is_equal_to()` with a `float` value is just asking for trouble. You'll always want to use the assertions methods like `is_close_to()` and `is_between()`.
 
+
 ### Lists
 
 Matching lists:
@@ -177,6 +184,7 @@ assert_that(['a','b']).contains('a')
 assert_that(['a','b']).contains('b','a')
 assert_that(['a','b']).does_not_contain('x','y')
 assert_that(['a','b','c']).contains_sequence('b','c')
+assert_that(['a','b']).is_subset_of(['a','b','c'])
 
 assert_that(['a','x','x']).contains_duplicates()
 assert_that(['a','b','c']).does_not_contain_duplicates()
@@ -184,6 +192,7 @@ assert_that(['a','b','c']).does_not_contain_duplicates()
 assert_that(['a','b','c']).starts_with('a')
 assert_that(['a','b','c']).ends_with('c')
 ```
+
 
 ### Tuples
 
@@ -206,6 +215,7 @@ assert_that((1,2,3)).contains(1)
 assert_that((1,2,3)).contains(3,2,1)
 assert_that((1,2,3)).does_not_contain(4,5,6)
 assert_that((1,2,3)).contains_sequence(2,3)
+assert_that((1,2,3)).is_subset_of((1,2,3,4))
 
 assert_that((1,2,2)).contains_duplicates()
 assert_that((1,2,3)).does_not_contain_duplicates()
@@ -213,6 +223,7 @@ assert_that((1,2,3)).does_not_contain_duplicates()
 assert_that((1,2,3)).starts_with(1)
 assert_that((1,2,3)).ends_with(3)
 ```
+
 
 ### Dicts
 
@@ -287,7 +298,10 @@ assert_that(set(['a','b'])).is_not_equal_to(set(['a','x']))
 assert_that(set(['a','b'])).contains('a')
 assert_that(set(['a','b'])).contains('b','a')
 assert_that(set(['a','b'])).does_not_contain('x','y')
+assert_that(set(['a','b'])).is_subset_of(set(['a','b','c']))
+assert_that(set(['a','b'])).is_subset_of(set(['a']), set(['b']))
 ```
+
 
 ### Booleans
 
@@ -298,6 +312,7 @@ assert_that(True).is_true()
 assert_that(False).is_false()
 assert_that(True).is_type_of(bool)
 ```
+
 
 ### Dates
 
@@ -356,6 +371,7 @@ assert_that(x).has_microsecond(6)
 ```
 
 Currently, `assertpy` only supports dates via the `datetime` type.
+
 
 ### Files
 
@@ -419,6 +435,7 @@ class Person(object):
     def say_hello(self):
         return 'Hello, %s!' % self.first_name
 ```
+
 
 #### Extracting Attributes from Objects
 
@@ -492,6 +509,7 @@ Since `fred` has the attribute `first_name`, the dynamic assertion method `has_f
 Similarly, the property `name` can be tested via `has_name()` and the zero-argument method `say_hello()` via
 the `has_say_hello()` assertion.
 
+
 ### Failure
 
 The `assertpy` library includes a `fail()` method to explicitly force a test failure.  It can be used like this:
@@ -520,6 +538,7 @@ In the above code, we invoke `some_func()` with a bad argument which raises an e
 
 This pattern is only used when you need to verify the contents of the error message.  If you only wish to check for an expected exception (and don't need to verify the contents of the error message itself), you're much better off using a test runner that supports expected exceptions.  [Nose](http://nose.readthedocs.org/) provides a [@raises](http://nose.readthedocs.org/en/latest/testing_tools.html#nose.tools.raises) decorator. [Pytest](http://pytest.org/latest/contents.html) has a [pytest.raises](http://pytest.org/latest/assert.html#assertions-about-expected-exceptions) method.
 
+
 #### Expected Exceptions
 
 We recommend you use your test runner to check for expected exceptions (Pytest's [pytest.raises](http://pytest.org/latest/assert.html#assertions-about-expected-exceptions) context or Nose's [@raises](http://nose.readthedocs.org/en/latest/testing_tools.html#nose.tools.raises) decorator).  In the special case of invoking a function, `assertpy` provides its own expected exception handling via a simple fluent API.
@@ -539,7 +558,7 @@ assert_that(some_func).raises(RuntimeError).when_called_with('foo')
 
 Additionally, the error message contents are chained, and can be further verified:
 
-```py      
+```py
 assert_that(some_func).raises(RuntimeError).when_called_with('foo')\
 	.is_length(8).starts_with('some').is_equal_to('some err')
 
@@ -563,6 +582,7 @@ Expected <3> to be equal to <2>, but was not.
 ```
 
 The `described_as()` helper causes the custom message `adding stuff` to be prepended to the front of the second error.
+
 
 #### Soft Assertions
 
