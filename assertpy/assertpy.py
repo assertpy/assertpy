@@ -28,7 +28,7 @@
 
 """Assertion library for python unit testing with a fluent API"""
 
-from __future__ import division, print_function
+from __future__ import division, print_function, absolute_import
 import re
 import os
 import sys
@@ -36,6 +36,7 @@ import datetime
 import numbers
 import collections
 import inspect
+from assertpy.common import assert_is_dict_like
 
 __version__ = '0.9'
 
@@ -712,6 +713,33 @@ class AssertionBuilder(object):
             if k in self.val and e[k] == self.val[k]:
                 self._err('Expected <%s> to not contain entry %s, but did.' % (self.val, e))
         return self
+
+    def _contains_sub_dict(self, sub_dict):
+        assert_is_dict_like(self.val)
+        assert_is_dict_like(sub_dict, identifier='sub dict')
+        for k in sub_dict.keys():
+            v = sub_dict[k]
+            if not (k in self.val and self.val[k] == v):
+                return False
+
+        return True
+
+    def contains_sub_dict(self, sub_dict):
+        result = self._contains_sub_dict(sub_dict)
+        if not result:
+            msg = ('Expected {} to contain {} '
+                   'but did not contain all keys and/or key/value pairs').format(str(self.val),
+                                                                                 str(sub_dict))
+            self._err(msg)
+
+    def does_not_contain_sub_dict(self, sub_dict):
+        result = self._contains_sub_dict(sub_dict)
+        if result:
+            msg = ('Expected {} to not contain sub dict {}, '
+                   'but found one or more key and value matches.').format(str(self.val),
+                                                                          str(sub_dict))
+            self._err(msg)
+
 
 ### datetime assertions ###
     def is_before(self, other):

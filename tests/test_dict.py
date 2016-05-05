@@ -316,3 +316,79 @@ class TestDict(object):
             fail('should have raised error')
         except AssertionError as ex:
             assert_that(str(ex)).contains("to not contain entry {'b': 2}, but did.")
+
+    def test_contains_sub_dict_bad_val_failure(self):
+        try:
+            assert_that('foo').contains_sub_dict({'a': 1})
+            fail('should have raised error')
+        except TypeError as ex:
+            assert_that(str(ex)).is_equal_to('val is not dict-like')
+
+    def test_contains_sub_dict_bad_sub_dict_value_failure(self):
+        try:
+            assert_that({'a': 1}).contains_sub_dict('foo')
+            fail('should have raised error')
+        except TypeError as ex:
+            assert_that(str(ex)).is_equal_to('sub dict is not dict-like')
+
+    def test_contains_sub_dict(self):
+        assert_that({'a': '2', 'b': '3', 'c': '4'}).contains_sub_dict({'b': '3', 'a': '2'})
+
+    def test_contains_sub_dict_key_mismatch(self):
+        dict_val = {'a': 1, 'b': 2, 'c': 3}
+        sub_dict_val = {'d': 1}
+        try:
+            assert_that(dict_val).contains_sub_dict(sub_dict_val)
+            fail('should have raised error')
+        except AssertionError as ex:
+            dict_str = str(dict_val)
+            sub_dict_str = str(sub_dict_val)
+            msg = ('Expected {} to contain {} '
+                   'but did not contain all keys and/or key/value pairs').format(dict_val,
+                                                                                 sub_dict_str)
+            assert_that(str(ex)).is_equal_to(msg)
+
+    def test_contains_sub_dict_value_mismatch(self):
+        dict_val = {'a': 1, 'b': 2, 'c': 3}
+        sub_dict_val = {'a': 0}
+        try:
+            assert_that(dict_val).contains_sub_dict(sub_dict_val)
+            fail('should have raised error')
+        except AssertionError as ex:
+            dict_str = str(dict_val)
+            sub_dict_str = str(sub_dict_val)
+            msg = ('Expected {} to contain {} '
+                   'but did not contain all keys and/or key/value pairs').format(dict_val,
+                                                                                 sub_dict_str)
+            assert_that(str(ex)).is_equal_to(msg)
+
+    def test_does_not_contain_sub_dict_bad_val_failure(self):
+        try:
+            assert_that('foo').does_not_contain_sub_dict({'a': 1})
+            fail('should have raised error')
+        except TypeError as ex:
+            assert_that(str(ex)).is_equal_to('val is not dict-like')
+
+    def test_does_not_contain_sub_dict_bad_sub_dict_value_failure(self):
+        try:
+            assert_that({'a': 1}).contains_sub_dict('foo')
+            fail('should have raised error')
+        except TypeError as ex:
+            assert_that(str(ex)).is_equal_to('sub dict is not dict-like')
+
+    def test_does_not_contain_sub_dict_failure(self):
+        dict_val = {'a': 1, 'b': 2, 'c': 3}
+        sub_dict_val = {'a': 1}
+        try:
+            assert_that(dict_val).does_not_contain_sub_dict(sub_dict_val)
+            fail('should have raised error')
+        except AssertionError as ex:
+            dict_str = str(dict_val)
+            sub_dict_str = str(sub_dict_val)
+            msg = ('Expected {} to not contain sub dict {}, '
+                   'but found one or more key and value matches.').format(dict_str, sub_dict_str)
+            assert_that(str(ex)).contains(msg)
+
+    def test_does_not_contain_sub_dict(self):
+        dict_val = {'a': 1, 'b': 2, 'c': 3}
+        assert_that(dict_val).does_not_contain_sub_dict({'d': 1})
