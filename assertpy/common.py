@@ -20,4 +20,4 @@ def is_dict_like(value):
 
 def assert_is_dict_like(value, identifier='val'):
     if not is_dict_like(value):
-        raise TypeError('{} is not dict-like'.format(identifier))
+        raise TypeError('{0} is not dict-like'.format(identifier))

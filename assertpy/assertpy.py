@@ -727,7 +727,7 @@ class AssertionBuilder(object):
     def contains_sub_dict(self, sub_dict):
         result = self._contains_sub_dict(sub_dict)
         if not result:
-            msg = ('Expected {} to contain {} '
+            msg = ('Expected {0} to contain {1} '
                    'but did not contain all keys and/or key/value pairs').format(str(self.val),
                                                                                  str(sub_dict))
             self._err(msg)
@@ -735,7 +735,7 @@ class AssertionBuilder(object):
     def does_not_contain_sub_dict(self, sub_dict):
         result = self._contains_sub_dict(sub_dict)
         if result:
-            msg = ('Expected {} to not contain sub dict {}, '
+            msg = ('Expected {0} to not contain sub dict {1}, '
                    'but found one or more key and value matches.').format(str(self.val),
                                                                           str(sub_dict))
             self._err(msg)
