@@ -343,7 +343,7 @@ class TestDict(object):
         except AssertionError as ex:
             dict_str = str(dict_val)
             sub_dict_str = str(sub_dict_val)
-            msg = ('Expected {} to contain {} '
+            msg = ('Expected {0} to contain {1} '
                    'but did not contain all keys and/or key/value pairs').format(dict_val,
                                                                                  sub_dict_str)
             assert_that(str(ex)).is_equal_to(msg)
@@ -357,7 +357,7 @@ class TestDict(object):
         except AssertionError as ex:
             dict_str = str(dict_val)
             sub_dict_str = str(sub_dict_val)
-            msg = ('Expected {} to contain {} '
+            msg = ('Expected {0} to contain {1} '
                    'but did not contain all keys and/or key/value pairs').format(dict_val,
                                                                                  sub_dict_str)
             assert_that(str(ex)).is_equal_to(msg)
@@ -385,7 +385,7 @@ class TestDict(object):
         except AssertionError as ex:
             dict_str = str(dict_val)
             sub_dict_str = str(sub_dict_val)
-            msg = ('Expected {} to not contain sub dict {}, '
+            msg = ('Expected {0} to not contain sub dict {1}, '
                    'but found one or more key and value matches.').format(dict_str, sub_dict_str)
             assert_that(str(ex)).contains(msg)
 
