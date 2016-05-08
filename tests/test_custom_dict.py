@@ -26,7 +26,8 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from assertpy import assert_that
+import assertpy
+from assertpy import assert_that, fail
 
 
 def test_custom_dict():
@@ -71,7 +72,7 @@ def test_requests():
         pass
 
 
-class CustomDict():
+class CustomDict(object):
 
     def __init__(self, d):
          self._dict = d
@@ -99,4 +100,127 @@ class CustomDict():
 
     def __getitem__(self, key):
         return self._dict.get(key)
+
+
+def test_check_dict_like():
+    d = CustomDict({'a': 1})
+    ab = assertpy.assertpy.AssertionBuilder(None, '')
+    ab._check_dict_like(d)
+    ab._check_dict_like(d, True, True, True)
+    ab._check_dict_like(d, True, True, False)
+    ab._check_dict_like(d, True, False, True)
+    ab._check_dict_like(d, False, True, True)
+    ab._check_dict_like(d, True, False, False)
+    ab._check_dict_like(d, False, False, True)
+    ab._check_dict_like(d, False, True, False)
+    ab._check_dict_like(d, False, False, False)
+
+    ab._check_dict_like(CustomDictNoKeys(), check_keys=False, check_values=False, check_getitem=False)
+    ab._check_dict_like(CustomDictNoKeysCallable(), check_keys=False, check_values=False, check_getitem=False)
+    ab._check_dict_like(CustomDictNoValues(), check_values=False, check_getitem=False)
+    ab._check_dict_like(CustomDictNoValuesCallable(), check_values=False, check_getitem=False)
+    ab._check_dict_like(CustomDictNoGetitem(), check_getitem=False)
+
+
+def test_check_dict_like_no_keys():
+    try:
+        ab = assertpy.assertpy.AssertionBuilder(None, '')
+        ab._check_dict_like(CustomDictNoKeys())
+        fail('should have raised error')
+    except TypeError as e:
+        assert_that(str(e)).contains('is not dict-like: missing keys()')
+
+
+def test_check_dict_like_no_keys_callable():
+    try:
+        ab = assertpy.assertpy.AssertionBuilder(None, '')
+        ab._check_dict_like(CustomDictNoKeysCallable())
+        fail('should have raised error')
+    except TypeError as e:
+        assert_that(str(e)).contains('is not dict-like: missing keys()')
+
+
+def test_check_dict_like_no_values():
+    try:
+        ab = assertpy.assertpy.AssertionBuilder(None, '')
+        ab._check_dict_like(CustomDictNoValues())
+        fail('should have raised error')
+    except TypeError as e:
+        assert_that(str(e)).contains('is not dict-like: missing values()')
+
+
+def test_check_dict_like_no_values_callable():
+    try:
+        ab = assertpy.assertpy.AssertionBuilder(None, '')
+        ab._check_dict_like(CustomDictNoValuesCallable())
+        fail('should have raised error')
+    except TypeError as e:
+        assert_that(str(e)).contains('is not dict-like: missing values()')
+
+
+def test_check_dict_like_no_getitem():
+    try:
+        ab = assertpy.assertpy.AssertionBuilder(None, '')
+        ab._check_dict_like(CustomDictNoGetitem())
+        fail('should have raised error')
+    except TypeError as e:
+        assert_that(str(e)).contains('is not dict-like: missing [] accessor')
+
+
+class CustomDictNoKeys(object):
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+         return 1
+
+
+class CustomDictNoKeysCallable(object):
+    def __init__(self):
+         self.keys = 'foo'
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+         return 1
+
+
+class CustomDictNoValues(object):
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+         return 1
+
+    def keys(self):
+        return 'foo'
+
+
+class CustomDictNoValuesCallable(object):
+    def __init__(self):
+         self.values = 'foo'
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+         return 1
+
+    def keys(self):
+        return 'foo'
+
+
+class CustomDictNoGetitem(object):
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+         return 1
+
+    def keys(self):
+        return 'foo'
+
+    def values(self):
+        return 'bar'
 
