@@ -74,7 +74,7 @@ class TestDict(object):
             assert_that(123).contains_key(1)
             fail('should have raised error')
         except TypeError as ex:
-            assert_that(str(ex)).is_equal_to('val is not dict-like')
+            assert_that(str(ex)).contains('is not dict-like')
 
     def test_does_not_contain_key(self):
         assert_that({ 'a':1,'b':2,'c':3 }).does_not_contain_key('x')
@@ -85,7 +85,7 @@ class TestDict(object):
             assert_that(123).does_not_contain_key(1)
             fail('should have raised error')
         except TypeError as ex:
-            assert_that(str(ex)).is_equal_to('val is not dict-like')
+            assert_that(str(ex)).contains('is not dict-like')
 
     def test_contains_key_single_item_failure(self):
         try:
@@ -163,7 +163,7 @@ class TestDict(object):
             assert_that('foo').contains_value('x')
             fail('should have raised error')
         except TypeError as ex:
-            assert_that(str(ex)).is_equal_to('val is not dict-like')
+            assert_that(str(ex)).contains('is not dict-like')
 
     def test_contains_value_single_item_failure(self):
         try:
@@ -188,7 +188,7 @@ class TestDict(object):
             assert_that(123).does_not_contain_value(1)
             fail('should have raised error')
         except TypeError as ex:
-            assert_that(str(ex)).is_equal_to('val is not dict-like')
+            assert_that(str(ex)).contains('is not dict-like')
 
     def test_does_not_contain_value_empty_arg_failure(self):
         try:
@@ -220,7 +220,7 @@ class TestDict(object):
             assert_that('foo').contains_entry({ 'a':1 })
             fail('should have raised error')
         except TypeError as ex:
-            assert_that(str(ex)).is_equal_to('val is not dict-like')
+            assert_that(str(ex)).contains('is not dict-like')
 
     def test_contains_entry_empty_arg_failure(self):
         try:
@@ -280,7 +280,7 @@ class TestDict(object):
             assert_that('foo').does_not_contain_entry({ 'a':1 })
             fail('should have raised error')
         except TypeError as ex:
-            assert_that(str(ex)).is_equal_to('val is not dict-like')
+            assert_that(str(ex)).contains('is not dict-like')
 
     def test_does_not_contain_entry_empty_arg_failure(self):
         try:
