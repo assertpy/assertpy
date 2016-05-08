@@ -605,48 +605,49 @@ class AssertionBuilder(object):
         if len(supersets) == 0:
             raise ValueError('one or more superset args must be given')
 
-        # flatten supersets
-        superset = []
-        for j in supersets:
-            try:
-                for k in j:
-                    if k not in superset:
-                        superset.append(k)
-            except Exception:
-                if j not in superset:
-                    superset.append(j)
+        if hasattr(self.val, 'keys') and callable(getattr(self.val, 'keys')) and hasattr(self.val, '__getitem__'):
+            # flatten superset dicts
+            superdict = {}
+            for l,j in enumerate(supersets):
+                self._check_dict_like(j, check_values=False, name='arg #%d' % (l+1))
+                for k in j.keys():
+                    superdict.update({k: j[k]})
 
-        for i in self.val:
-            if i not in superset:
-                self._err('Expected <%s> to be subset of %s, but <%s> was missing.' % (self.val, superset, i))
+            for i in self.val.keys():
+                if i not in superdict:
+                    self._err('Expected <%s> to be subset of %s, but key <%s> was missing.' % (self.val, superdict, i))
+                if self.val[i] != superdict[i]:
+                    self._err('Expected <%s> to be subset of %s, but key <%s> value <%s> was not equal to <%s>.' % (self.val, superdict, i, self.val[i], superdict[i]))
+        else:
+            # flatten supersets
+            superset = set()
+            for j in supersets:
+                try:
+                    for k in j:
+                        superset.add(k)
+                except Exception:
+                    superset.add(j)
+
+            for i in self.val:
+                if i not in superset:
+                    self._err('Expected <%s> to be subset of %s, but <%s> was missing.' % (self.val, superset, i))
 
         return self
 
 ### dict assertions ###
     def contains_key(self, *keys):
         """Asserts the val is a dict and contains the given key or keys.  Alias for contains()."""
-        if not isinstance(self.val, collections.Iterable) or \
-                not hasattr(self.val, 'keys') or \
-                not callable(getattr(self.val, 'keys')):
-            raise TypeError('val is not dict-like')
+        self._check_dict_like(self.val, check_values=False, check_getitem=False)
         return self.contains(*keys)
 
     def does_not_contain_key(self, *keys):
         """Asserts the val is a dict and does not contain the given key or keys.  Alias for does_not_contain()."""
-        if not isinstance(self.val, collections.Iterable) or \
-                not hasattr(self.val, 'keys') or \
-                not callable(getattr(self.val, 'keys')):
-            raise TypeError('val is not dict-like')
+        self._check_dict_like(self.val, check_values=False, check_getitem=False)
         return self.does_not_contain(*keys)
 
     def contains_value(self, *values):
         """Asserts that val is a dict and contains the given value or values."""
-        if not isinstance(self.val, collections.Iterable) or \
-                not hasattr(self.val, 'keys') or \
-                not callable(getattr(self.val, 'keys')) or \
-                not hasattr(self.val, 'values') or \
-                not callable(getattr(self.val, 'values')):
-            raise TypeError('val is not dict-like')
+        self._check_dict_like(self.val, check_getitem=False)
         if len(values) == 0:
             raise ValueError('one or more value args must be given')
         for v in values:
@@ -656,12 +657,7 @@ class AssertionBuilder(object):
 
     def does_not_contain_value(self, *values):
         """Asserts that val is a dict and does not contain the given value or values."""
-        if not isinstance(self.val, collections.Iterable) or \
-                not hasattr(self.val, 'keys') or \
-                not callable(getattr(self.val, 'keys')) or \
-                not hasattr(self.val, 'values') or \
-                not callable(getattr(self.val, 'values')):
-            raise TypeError('val is not dict-like')
+        self._check_dict_like(self.val, check_getitem=False)
         if len(values) == 0:
             raise ValueError('one or more value args must be given')
         elif len(values) == 1:
@@ -675,11 +671,7 @@ class AssertionBuilder(object):
 
     def contains_entry(self, *entries):
         """Asserts that val is a dict and contains the given entry or entries."""
-        if not isinstance(self.val, collections.Iterable) or \
-                not hasattr(self.val, 'keys') or \
-                not callable(getattr(self.val, 'keys')) or \
-                not hasattr(self.val, '__getitem__'):
-            raise TypeError('val is not dict-like')
+        self._check_dict_like(self.val, check_values=False)
         if len(entries) == 0:
             raise ValueError('one or more entry args must be given')
         for e in entries:
@@ -696,11 +688,7 @@ class AssertionBuilder(object):
 
     def does_not_contain_entry(self, *entries):
         """Asserts that val is a dict and does not contain the given entry or entries."""
-        if not isinstance(self.val, collections.Iterable) or \
-                not hasattr(self.val, 'keys') or \
-                not callable(getattr(self.val, 'keys')) or \
-                not hasattr(self.val, '__getitem__'):
-            raise TypeError('val is not dict-like')
+        self._check_dict_like(self.val, check_values=False)
         if len(entries) == 0:
             raise ValueError('one or more entry args must be given')
         for e in entries:
@@ -925,4 +913,17 @@ class AssertionBuilder(object):
             return out_kwargs
         else:
             return ''
+
+    def _check_dict_like(self, d, check_keys=True, check_values=True, check_getitem=True, name='val'):
+        if not isinstance(d, collections.Iterable):
+            raise TypeError('%s <%s> is not dict-like: not iterable' % (name, type(d).__name__))
+        if check_keys:
+            if not hasattr(d, 'keys') or not callable(getattr(d, 'keys')):
+                raise TypeError('%s <%s> is not dict-like: missing keys()' % (name, type(d).__name__))
+        if check_values:
+            if not hasattr(d, 'values') or not callable(getattr(d, 'values')):
+                raise TypeError('%s <%s> is not dict-like: missing values()' % (name, type(d).__name__))
+        if check_getitem:
+            if not hasattr(d, '__getitem__'):
+                raise TypeError('%s <%s> is not dict-like: missing [] accessor' % (name, type(d).__name__))
 
