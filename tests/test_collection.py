@@ -71,21 +71,59 @@ class TestCollection(object):
         assert_that((1,2,3)).is_subset_of(1,2,3)
         assert_that((1,2,1)).is_subset_of(1,1,2)
         assert_that('foo').is_subset_of('abcdefghijklmnopqrstuvwxyz')
+        assert_that('foo').is_subset_of('abcdef', set(['m','n','o']), ['x','y'])
         assert_that(set([1,2,3])).is_subset_of(set([1,2,3,4]))
+        assert_that({'a':1,'b':2}).is_subset_of({'a':1,'b':2,'c':3})
+        assert_that({'a':1,'b':2}).is_subset_of({'a':3}, {'b':2}, {'a':1})
 
-    def test_is_subset_of_failure(self):
+    def test_is_subset_of_failure_array(self):
         try:
             assert_that(['a','b','c']).is_subset_of(['a','b'])
             fail('should have raised error')
         except AssertionError as ex:
-            assert_that(str(ex)).is_equal_to("Expected <['a', 'b', 'c']> to be subset of ['a', 'b'], but <c> was missing.")
+            assert_that(str(ex)).contains('but <c> was missing.')
 
-    def test_is_subset_of_failure(self):
+    def test_is_subset_of_failure_set(self):
         try:
             assert_that(set([1,2,3])).is_subset_of(set([1,2]))
             fail('should have raised error')
         except AssertionError as ex:
-            assert_that(str(ex)).is_equal_to('Expected <%s> to be subset of [1, 2], but <3> was missing.' % set([1,2,3]))
+            assert_that(str(ex)).contains('but <3> was missing.')
+
+    def test_is_subset_of_failure_string(self):
+        try:
+            assert_that('abc').is_subset_of('abx')
+            fail('should have raised error')
+        except AssertionError as ex:
+            assert_that(str(ex)).contains('but <c> was missing.')
+
+    def test_is_subset_of_failure_dict_key(self):
+        try:
+            assert_that({'a':1,'b':2}).is_subset_of({'a':1,'c':3})
+            fail('should have raised error')
+        except AssertionError as ex:
+            assert_that(str(ex)).contains('but key <b> was missing.')
+
+    def test_is_subset_of_failure_dict_value(self):
+        try:
+            assert_that({'a':1,'b':2}).is_subset_of({'a':1,'b':22})
+            fail('should have raised error')
+        except AssertionError as ex:
+            assert_that(str(ex)).contains('but key <b> value <2> was not equal to <22>.')
+
+    def test_is_subset_of_failure_bad_dict_arg1(self):
+        try:
+            assert_that({'a':1,'b':2}).is_subset_of('foo')
+            fail('should have raised error')
+        except TypeError as ex:
+            assert_that(str(ex)).contains('arg #1').contains('is not dict-like')
+
+    def test_is_subset_of_failure_bad_dict_arg2(self):
+        try:
+            assert_that({'a':1,'b':2}).is_subset_of({'a':1}, 'foo')
+            fail('should have raised error')
+        except TypeError as ex:
+            assert_that(str(ex)).contains('arg #2').contains('is not dict-like')
 
     def test_is_subset_of_bad_val_failure(self):
         try:
