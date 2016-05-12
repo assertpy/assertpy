@@ -834,24 +834,31 @@ class AssertionBuilder(object):
 
         attr_name = attr[4:]
         if not hasattr(self.val, attr_name):
-            raise AttributeError('val has no attribute <%s>' % attr_name)
+            if isinstance(self.val, collections.Iterable) and hasattr(self.val, '__getitem__'):
+                if attr_name not in self.val:
+                    raise KeyError('val has no key <%s>' % attr_name)
+            else:
+                raise AttributeError('val has no attribute <%s>' % attr_name)
 
         def _wrapper(*args, **kwargs):
             if len(args) != 1:
                 raise TypeError('assertion <%s()> takes exactly 1 argument (%d given)' % (attr, len(args)))
-            other = args[0]
-            val_attr = getattr(self.val, attr_name)
+            expected = args[0]
+            try:
+                val_attr = getattr(self.val, attr_name)
+            except AttributeError:
+                val_attr = self.val[attr_name]
 
             if callable(val_attr):
                 try:
-                    val = val_attr()
+                    actual = val_attr()
                 except TypeError:
                     raise TypeError('val does not have zero-arg method <%s()>' % attr_name)
             else:
-                val = val_attr
+                actual = val_attr
 
-            if val != other:
-                self._err('Expected <%s> to be equal to <%s>, but was not.' % (val, other))
+            if actual != expected:
+                self._err('Expected <%s> to be equal to <%s>, but was not.' % (actual, expected))
             return self
         return _wrapper
 
