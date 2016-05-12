@@ -485,10 +485,9 @@ class AssertionBuilder(object):
         elif isinstance(self.val, collections.Iterable):
             if len(self.val) == 0:
                 raise ValueError('val must not be empty')
-            for i in self.val:
-                if i != prefix:
-                    self._err('Expected %s to start with <%s>, but did not.' % (self.val, prefix))
-                break
+            first = next(i for i in self.val)
+            if first != prefix:
+                self._err('Expected %s to start with <%s>, but did not.' % (self.val, prefix))
         else:
             raise TypeError('val is not a string or iterable')
         return self
