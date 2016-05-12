@@ -316,3 +316,44 @@ class TestDict(object):
             fail('should have raised error')
         except AssertionError as ex:
             assert_that(str(ex)).contains("to not contain entry {'b': 2}, but did.")
+
+    def test_dynamic_assertion(self):
+        fred = {'first_name': 'Fred', 'last_name': 'Smith', 'shoe_size': 12}
+        assert_that(fred).is_type_of(dict)
+
+        assert_that(fred['first_name']).is_equal_to('Fred')
+        assert_that(fred['last_name']).is_equal_to('Smith')
+        assert_that(fred['shoe_size']).is_equal_to(12)
+
+        assert_that(fred).has_first_name('Fred')
+        assert_that(fred).has_last_name('Smith')
+        assert_that(fred).has_shoe_size(12)
+
+    def test_dynamic_assertion_failure_str(self):
+        fred = {'first_name': 'Fred', 'last_name': 'Smith', 'shoe_size': 12}
+
+        try:
+            assert_that(fred).has_first_name('Foo')
+            fail('should have raised error')
+        except AssertionError as ex:
+            assert_that(str(ex)).contains('Expected <Fred> to be equal to <Foo>, but was not.')
+
+    def test_dynamic_assertion_failure_int(self):
+        fred = {'first_name': 'Fred', 'last_name': 'Smith', 'shoe_size': 12}
+
+        try:
+            assert_that(fred).has_shoe_size(34)
+            fail('should have raised error')
+        except AssertionError as ex:
+            assert_that(str(ex)).contains('Expected <12> to be equal to <34>, but was not.')
+
+    def test_dynamic_assertion_bad_key_failure(self):
+        fred = {'first_name': 'Fred', 'last_name': 'Smith', 'shoe_size': 12}
+
+        try:
+            assert_that(fred).has_foo('Fred')
+            fail('should have raised error')
+        except KeyError as ex:
+            assert_that(str(ex)).contains('val has no key <foo>')
+
+
