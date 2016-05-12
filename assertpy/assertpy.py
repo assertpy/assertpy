@@ -161,7 +161,7 @@ class AssertionBuilder(object):
 
     def is_type_of(self, some_type):
         """Asserts that val is of the given type."""
-        if type(some_type) is not type:
+        if type(some_type) is not type and not hasattr(some_type, '__metaclass__'):
             raise TypeError('given arg must be a type')
         if type(self.val) is not some_type:
             if hasattr(self.val, '__name__'):
@@ -175,16 +175,17 @@ class AssertionBuilder(object):
 
     def is_instance_of(self, some_class):
         """Asserts that val is an instance of the given class."""
-        if type(some_class) is not type:
+        try:
+            if not isinstance(self.val, some_class):
+                if hasattr(self.val, '__name__'):
+                    t = self.val.__name__
+                elif hasattr(self.val, '__class__'):
+                    t = self.val.__class__.__name__
+                else:
+                    t = 'unknown'
+                self._err('Expected <%s:%s> to be instance of class <%s>, but was not.' % (self.val, t, some_class.__name__))
+        except TypeError:
             raise TypeError('given arg must be a class')
-        if not isinstance(self.val, some_class):
-            if hasattr(self.val, '__name__'):
-                t = self.val.__name__
-            elif hasattr(self.val, '__class__'):
-                t = self.val.__class__.__name__
-            else:
-                t = 'unknown'
-            self._err('Expected <%s:%s> to be instance of class <%s>, but was not.' % (self.val, t, some_class.__name__))
         return self
 
     def is_length(self, length):
@@ -926,4 +927,3 @@ class AssertionBuilder(object):
         if check_getitem:
             if not hasattr(d, '__getitem__'):
                 raise TypeError('%s <%s> is not dict-like: missing [] accessor' % (name, type(d).__name__))
-

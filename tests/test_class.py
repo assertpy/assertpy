@@ -26,6 +26,8 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import abc
+
 from assertpy import assert_that
 
 class TestClass(object):
@@ -34,10 +36,14 @@ class TestClass(object):
         self.fred = Person('Fred','Smith')
         self.joe = Developer('Joe','Coder')
         self.people = [self.fred, self.joe]
+        self.car = Car()
+        self.truck = Truck()
 
     def test_is_type_of(self):
         assert_that(self.fred).is_type_of(Person)
         assert_that(self.joe).is_type_of(Developer)
+        assert_that(self.car).is_type_of(Car)
+        assert_that(self.truck).is_type_of(Truck)
 
     def test_is_instance_of(self):
         assert_that(self.fred).is_instance_of(Person)
@@ -46,6 +52,14 @@ class TestClass(object):
         assert_that(self.joe).is_instance_of(Developer)
         assert_that(self.joe).is_instance_of(Person)
         assert_that(self.joe).is_instance_of(object)
+
+        assert_that(self.car).is_instance_of(Car)
+        assert_that(self.car).is_instance_of(AbstractAutomobile)
+        assert_that(self.car).is_instance_of(object)
+
+        assert_that(self.truck).is_instance_of(Truck)
+        assert_that(self.truck).is_instance_of(AbstractAutomobile)
+        assert_that(self.truck).is_instance_of(object)
 
     def test_extract_attribute(self):
         assert_that(self.people).extracting('first_name').is_equal_to(['Fred','Joe'])
@@ -75,3 +89,22 @@ class Person(object):
 class Developer(Person):
     def say_hello(self):
         return '%s writes code.' % self.first_name
+
+class AbstractAutomobile(object):
+    __metaclass__ = abc.ABCMeta
+    def __init__(self):
+        pass
+
+    @abc.abstractproperty
+    def classification(self):
+        raise NotImplementedError('This method must be overridden')
+
+class Car(AbstractAutomobile):
+    @property
+    def classification(self):
+        return 'car'
+
+class Truck(AbstractAutomobile):
+    @property
+    def classification(self):
+        return 'truck'
