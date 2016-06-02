@@ -246,6 +246,7 @@ assert_that({'a':1,'b':2}).contains('a')
 assert_that({'a':1,'b':2}).contains('b','a')
 assert_that({'a':1,'b':2}).does_not_contain('x')
 assert_that({'a':1,'b':2}).does_not_contain('x','y')
+assert_that({'a':1,'b':2}).is_subset_of({'a':1,'b':2,'c':3})
 
 # contains_key() is just an alias for contains()
 assert_that({'a':1,'b':2}).contains_key('a')
@@ -266,7 +267,7 @@ assert_that({'a':1,'b':2}).does_not_contain_entry({'a':2})
 assert_that({'a':1,'b':2}).does_not_contain_entry({'a':2},{'b':1})
 ```
 
-Lists of dicts can be flattened on key:
+Lists of dicts can be flattened on key using the `extracting` helper (see [extracting attributes](#extracting-attributes-from-objects)):
 
 ```py
 fred = {'first_name': 'Fred', 'last_name': 'Smith'}
@@ -275,6 +276,16 @@ people = [fred, bob]
 
 assert_that(people).extracting('first_name').is_equal_to(['Fred','Bob'])
 assert_that(people).extracting('first_name').contains('Fred','Bob')
+```
+
+Fluent assertions against the value of a given key can be done by prepending `has_` to the key name (see [dynamic assertions](#dynamic-assertions-on-objects)):
+
+```py
+fred = {'first_name': 'Fred', 'last_name': 'Smith', 'shoe_size': 12}
+ 
+assert_that(fred).has_first_name('Fred')
+assert_that(fred).has_last_name('Smith')
+assert_that(fred).has_shoe_size(12)
 ```
 
 
@@ -355,7 +366,7 @@ assert_that(middle).is_between(yesterday, today)
 assert_that(yesterday).is_close_to(today, hours_24)
 ```
 
-Lastly, because of the dynamic assertions (see [Dynamic Assertions on Objects](#dynamic-assertions-on-objects) below) we can easily test the properties of a given date:
+Lastly, because datetime is an object we can easily test the properties of a given date by prepending `has_` to the property name (see [dynamic assertions](#dynamic-assertions-on-objects)):
 
 ```py
 # 1980-01-02 03:04:05.000006
@@ -482,6 +493,16 @@ assert_that(people).extracting('name').contains('Fred Smith', 'Joe Coder')
 assert_that(people).extracting('say_hello').contains('Hello, Fred!', 'Joe writes code.')
 ```
 
+As noted above, `extracting` also works on a collection of dicts:
+
+```py
+fred = {'first_name': 'Fred', 'last_name': 'Smith'}
+bob = {'first_name': 'Bob', 'last_name': 'Barr'}
+people = [fred, bob]
+
+assert_that(people).extracting('first_name').contains('Fred','Bob')
+```
+
 
 #### Dynamic Assertions on Objects
 
@@ -509,6 +530,14 @@ Since `fred` has the attribute `first_name`, the dynamic assertion method `has_f
 Similarly, the property `name` can be tested via `has_name()` and the zero-argument method `say_hello()` via
 the `has_say_hello()` assertion.
 
+As noted above, dynamic assertions also work on dicts:
+
+```py
+fred = {'first_name': 'Fred', 'last_name': 'Smith'}
+ 
+assert_that(fred).has_first_name('Fred')
+assert_that(fred).has_last_name('Smith')
+```
 
 ### Failure
 
