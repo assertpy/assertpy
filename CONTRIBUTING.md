@@ -8,7 +8,7 @@ Here's how:
 1. Clone your fork (`git clone https://my_fork`)
 1. Create a branch (`git checkout -b my_branch`)
 1. Commit your changes (`git commit -am "added some cool feature"`)
-1. Push to the branch to your fork (`git push origin my_branch`)
+1. Push your branch to your fork (`git push origin my_branch`)
 1. Open a [Pull Request](http://github.com/ActivisionGameScience/assertpy/pulls)
 1. Respond to any questions during our review process
 
