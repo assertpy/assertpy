@@ -1,0 +1,116 @@
+# Copyright (c) 2015-2016, Activision Publishing, Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without modification,
+# are permitted provided that the following conditions are met:
+#
+# 1. Redistributions of source code must retain the above copyright notice, this
+# list of conditions and the following disclaimer.
+#
+# 2. Redistributions in binary form must reproduce the above copyright notice,
+# this list of conditions and the following disclaimer in the documentation
+# and/or other materials provided with the distribution.
+#
+# 3. Neither the name of the copyright holder nor the names of its contributors
+# may be used to endorse or promote products derived from this software without
+# specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+# ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+# ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+import sys
+
+from assertpy import assert_that, soft_assertions, fail
+
+def test_success():
+    with soft_assertions():
+        assert_that('foo').is_length(3)
+        assert_that('foo').is_not_empty()
+        assert_that('foo').is_true()
+        assert_that('foo').is_alpha()
+        assert_that('123').is_digit()
+        assert_that('foo').is_lower()
+        assert_that('FOO').is_upper()
+        assert_that('foo').is_equal_to('foo')
+        assert_that('foo').is_not_equal_to('bar')
+        assert_that('foo').is_equal_to_ignoring_case('FOO')
+
+def test_failure():
+    try:
+        with soft_assertions():
+            assert_that('foo').is_length(4)
+            assert_that('foo').is_empty()
+            assert_that('foo').is_false()
+            assert_that('foo').is_digit()
+            assert_that('123').is_alpha()
+            assert_that('foo').is_upper()
+            assert_that('FOO').is_lower()
+            assert_that('foo').is_equal_to('bar')
+            assert_that('foo').is_not_equal_to('foo')
+            assert_that('foo').is_equal_to_ignoring_case('BAR')
+        fail('should have raised error')
+    except AssertionError as e:
+        out = str(e)
+        assert_that(out).contains('Expected <foo> to be of length <4>, but was <3>.')
+        assert_that(out).contains('Expected <foo> to be empty string, but was not.')
+        assert_that(out).contains('Expected <False>, but was not.')
+        assert_that(out).contains('Expected <foo> to contain only digits, but did not.')
+        assert_that(out).contains('Expected <123> to contain only alphabetic chars, but did not.')
+        assert_that(out).contains('Expected <foo> to contain only uppercase chars, but did not.')
+        assert_that(out).contains('Expected <FOO> to contain only lowercase chars, but did not.')
+        assert_that(out).contains('Expected <foo> to be equal to <bar>, but was not.')
+        assert_that(out).contains('Expected <foo> to be not equal to <foo>, but was.')
+        assert_that(out).contains('Expected <foo> to be case-insensitive equal to <BAR>, but was not.')
+
+def test_failure_chain():
+    try:
+        with soft_assertions():
+            assert_that('foo').is_length(4).is_empty().is_false().is_digit().is_upper()\
+                .is_equal_to('bar').is_not_equal_to('foo').is_equal_to_ignoring_case('BAR')
+        fail('should have raised error')
+    except AssertionError as e:
+        out = str(e)
+        assert_that(out).contains('Expected <foo> to be of length <4>, but was <3>.')
+        assert_that(out).contains('Expected <foo> to be empty string, but was not.')
+        assert_that(out).contains('Expected <False>, but was not.')
+        assert_that(out).contains('Expected <foo> to contain only digits, but did not.')
+        assert_that(out).contains('Expected <foo> to contain only uppercase chars, but did not.')
+        assert_that(out).contains('Expected <foo> to be equal to <bar>, but was not.')
+        assert_that(out).contains('Expected <foo> to be not equal to <foo>, but was.')
+        assert_that(out).contains('Expected <foo> to be case-insensitive equal to <BAR>, but was not.')
+
+def test_expected_exception_success():
+    with soft_assertions():
+        assert_that(func_err).raises(RuntimeError).when_called_with('foo').is_equal_to('err')
+
+def test_expected_exception_failure():
+    try:
+        with soft_assertions():
+            assert_that(func_err).raises(RuntimeError).when_called_with('foo').is_equal_to('bar')
+            assert_that(func_ok).raises(RuntimeError).when_called_with('baz')
+        fail('should have raised error')
+    except AssertionError as e:
+        out = str(e)
+        assert_that(out).contains('Expected <err> to be equal to <bar>, but was not.')
+        assert_that(out).contains("Expected <func_ok> to raise <RuntimeError> when called with ('baz').")
+
+def test_tmp():
+    with soft_assertions():
+        assert_that('foo').is_length(4)
+        assert_that('foo').is_equal_to('bar')
+        assert_that(123).is_between(100, 200)
+
+def func_ok(arg):
+    pass
+
+def func_err(arg):
+    raise RuntimeError('err')
+
