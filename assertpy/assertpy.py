@@ -36,6 +36,7 @@ import datetime
 import numbers
 import collections
 import inspect
+from contextlib import contextmanager
 
 __version__ = '0.9'
 
@@ -48,14 +49,43 @@ else:
     xrange = xrange
     unicode = unicode
 
+
+### soft assertions ###
+_soft_ctx = False
+_soft_err = []
+
+@contextmanager
+def soft_assertions():
+    global _soft_ctx
+    global _soft_err
+
+    _soft_ctx = True
+    _soft_err = []
+
+    yield
+
+    if _soft_err:
+        out = 'soft assertion failures:'
+        for i,msg in enumerate(_soft_err):
+            out += '\n%d. %s' % (i+1, msg)
+        raise AssertionError(out)
+
+    _soft_err = []
+    _soft_ctx = False
+
+
+### factory methods ###
 def assert_that(val, description=''):
     """Factory method for the assertion builder with value to be tested and optional description."""
+    global _soft_ctx
+    if _soft_ctx:
+        return AssertionBuilder(val, description, 'soft')
     return AssertionBuilder(val, description)
 
 def assert_warn(val, description=''):
     """Factory method for the assertion builder with value to be tested, optional description, and
        just warn on assertion failures instead of raisings exceptions."""
-    return AssertionBuilder(val, description, True)
+    return AssertionBuilder(val, description, 'warn')
 
 def contents_of(f, encoding='utf-8'):
     """Helper to read the contents of the given file or path into a string with the given encoding.
@@ -96,14 +126,15 @@ def fail(msg=''):
     else:
         raise AssertionError('Fail: %s!' % msg)
 
+
 class AssertionBuilder(object):
     """Assertion builder."""
 
-    def __init__(self, val, description, warn=False, expected=None):
+    def __init__(self, val, description='', kind=None, expected=None):
         """Construct the assertion builder."""
         self.val = val
         self.description = description
-        self.warn = warn
+        self.kind = kind
         self.expected = expected
 
     def described_as(self, description):
@@ -833,7 +864,7 @@ class AssertionBuilder(object):
                 else:
                     raise ValueError('val does not have property or zero-arg method <%s>' % name)
             extracted.append(tuple(items) if len(items) > 1 else items[0])
-        return AssertionBuilder(extracted, self.description)
+        return AssertionBuilder(extracted, self.description, self.kind)
 
 ### dynamic assertions ###
     def __getattr__(self, attr):
@@ -878,7 +909,7 @@ class AssertionBuilder(object):
             raise TypeError('val must be function')
         if not issubclass(ex, BaseException):
             raise TypeError('given arg must be exception')
-        return AssertionBuilder(self.val, self.description, expected=ex)
+        return AssertionBuilder(self.val, self.description, self.kind, ex)
 
     def when_called_with(self, *some_args, **some_kwargs):
         """Asserts the val function when invoked with the given args and kwargs raises the expected exception."""
@@ -889,7 +920,7 @@ class AssertionBuilder(object):
         except BaseException as e:
             if issubclass(type(e), self.expected):
                 # chain on with exception message as val
-                return AssertionBuilder(str(e), self.description)
+                return AssertionBuilder(str(e), self.description, self.kind)
             else:
                 # got exception, but wrong type, so raise
                 self._err('Expected <%s> to raise <%s> when called with (%s), but raised <%s>.' % (
@@ -908,8 +939,12 @@ class AssertionBuilder(object):
     def _err(self, msg):
         """Helper to raise an AssertionError, and optionally prepend custom description."""
         out = '%s%s' % ('[%s] ' % self.description if len(self.description) > 0 else '', msg)
-        if self.warn:
+        if self.kind == 'warn':
             print(out)
+            return self
+        elif self.kind == 'soft':
+            global _soft_err
+            _soft_err.append(out)
             return self
         else:
             raise AssertionError(out)
