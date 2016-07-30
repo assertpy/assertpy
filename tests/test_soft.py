@@ -102,12 +102,6 @@ def test_expected_exception_failure():
         assert_that(out).contains('Expected <err> to be equal to <bar>, but was not.')
         assert_that(out).contains("Expected <func_ok> to raise <RuntimeError> when called with ('baz').")
 
-def test_tmp():
-    with soft_assertions():
-        assert_that('foo').is_length(4)
-        assert_that('foo').is_equal_to('bar')
-        assert_that(123).is_between(100, 200)
-
 def func_ok(arg):
     pass
 
