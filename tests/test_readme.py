@@ -29,7 +29,7 @@
 import sys
 import os
 import datetime
-from assertpy import assert_that, assert_soft, contents_of, fail
+from assertpy import assert_that, assert_warn, contents_of, fail
 
 class TestReadme(object):
 
@@ -382,16 +382,16 @@ class TestReadme(object):
             assert_that(str(e)).is_equal_to('[adding stuff] Expected <3> to be equal to <2>, but was not.')
 
     def test_soft_assertions(self):
-        assert_soft('foo').is_length(4)
-        assert_soft('foo').is_empty()
-        assert_soft('foo').is_false()
-        assert_soft('foo').is_digit()
-        assert_soft('123').is_alpha()
-        assert_soft('foo').is_upper()
-        assert_soft('FOO').is_lower()
-        assert_soft('foo').is_equal_to('bar')
-        assert_soft('foo').is_not_equal_to('foo')
-        assert_soft('foo').is_equal_to_ignoring_case('BAR')
+        assert_warn('foo').is_length(4)
+        assert_warn('foo').is_empty()
+        assert_warn('foo').is_false()
+        assert_warn('foo').is_digit()
+        assert_warn('123').is_alpha()
+        assert_warn('foo').is_upper()
+        assert_warn('FOO').is_lower()
+        assert_warn('foo').is_equal_to('bar')
+        assert_warn('foo').is_not_equal_to('foo')
+        assert_warn('foo').is_equal_to_ignoring_case('BAR')
 
     def test_chaining(self):
         fred = Person('Fred','Smith')
