@@ -28,21 +28,21 @@
 
 import sys
 
-from assertpy import assert_that, assert_soft, fail
+from assertpy import assert_that, assert_warn, fail
 
 class TestSoft(object):
 
     def test_success(self):
-        assert_soft('foo').is_length(3)
-        assert_soft('foo').is_not_empty()
-        assert_soft('foo').is_true()
-        assert_soft('foo').is_alpha()
-        assert_soft('123').is_digit()
-        assert_soft('foo').is_lower()
-        assert_soft('FOO').is_upper()
-        assert_soft('foo').is_equal_to('foo')
-        assert_soft('foo').is_not_equal_to('bar')
-        assert_soft('foo').is_equal_to_ignoring_case('FOO')
+        assert_warn('foo').is_length(3)
+        assert_warn('foo').is_not_empty()
+        assert_warn('foo').is_true()
+        assert_warn('foo').is_alpha()
+        assert_warn('123').is_digit()
+        assert_warn('foo').is_lower()
+        assert_warn('FOO').is_upper()
+        assert_warn('foo').is_equal_to('foo')
+        assert_warn('foo').is_not_equal_to('bar')
+        assert_warn('foo').is_equal_to_ignoring_case('FOO')
 
     def test_failures(self):
         if sys.version_info[0] == 3:
@@ -54,16 +54,16 @@ class TestSoft(object):
         old = sys.stdout
         sys.stdout = StringIO()
 
-        assert_soft('foo').is_length(4)
-        assert_soft('foo').is_empty()
-        assert_soft('foo').is_false()
-        assert_soft('foo').is_digit()
-        assert_soft('123').is_alpha()
-        assert_soft('foo').is_upper()
-        assert_soft('FOO').is_lower()
-        assert_soft('foo').is_equal_to('bar')
-        assert_soft('foo').is_not_equal_to('foo')
-        assert_soft('foo').is_equal_to_ignoring_case('BAR')
+        assert_warn('foo').is_length(4)
+        assert_warn('foo').is_empty()
+        assert_warn('foo').is_false()
+        assert_warn('foo').is_digit()
+        assert_warn('123').is_alpha()
+        assert_warn('foo').is_upper()
+        assert_warn('FOO').is_lower()
+        assert_warn('foo').is_equal_to('bar')
+        assert_warn('foo').is_not_equal_to('foo')
+        assert_warn('foo').is_equal_to_ignoring_case('BAR')
 
         # stop capturing stdout
         out = sys.stdout.getvalue()

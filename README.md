@@ -282,7 +282,7 @@ Fluent assertions against the value of a given key can be done by prepending `ha
 
 ```py
 fred = {'first_name': 'Fred', 'last_name': 'Smith', 'shoe_size': 12}
- 
+
 assert_that(fred).has_first_name('Fred')
 assert_that(fred).has_last_name('Smith')
 assert_that(fred).has_shoe_size(12)
@@ -534,7 +534,7 @@ As noted above, dynamic assertions also work on dicts:
 
 ```py
 fred = {'first_name': 'Fred', 'last_name': 'Smith'}
- 
+
 assert_that(fred).has_first_name('Fred')
 assert_that(fred).has_last_name('Smith')
 ```
@@ -613,24 +613,24 @@ Expected <3> to be equal to <2>, but was not.
 The `described_as()` helper causes the custom message `adding stuff` to be prepended to the front of the second error.
 
 
-#### Soft Assertions
+#### Just A Warning
 
-There are times when you don't want to a test to fail at all, instead you only want a warning message. In this case, just replace `assert_that` with `assert_soft`.
+There are times when you only want a warning message instead of an failing test. In this case, just replace `assert_that` with `assert_warn`.
 
 ```py
-assert_soft('foo').is_length(4)
-assert_soft('foo').is_empty()
-assert_soft('foo').is_false()
-assert_soft('foo').is_digit()
-assert_soft('123').is_alpha()
-assert_soft('foo').is_upper()
-assert_soft('FOO').is_lower()
-assert_soft('foo').is_equal_to('bar')
-assert_soft('foo').is_not_equal_to('foo')
-assert_soft('foo').is_equal_to_ignoring_case('BAR')
+assert_warn('foo').is_length(4)
+assert_warn('foo').is_empty()
+assert_warn('foo').is_false()
+assert_warn('foo').is_digit()
+assert_warn('123').is_alpha()
+assert_warn('foo').is_upper()
+assert_warn('FOO').is_lower()
+assert_warn('foo').is_equal_to('bar')
+assert_warn('foo').is_not_equal_to('foo')
+assert_warn('foo').is_equal_to_ignoring_case('BAR')
 ```
 
-The above soft assertions print the following warning messages (but an `AssertionError` is never raised):
+The above assertions just print the following warning messages, and an `AssertionError` is never raised:
 
 ```
 Expected <foo> to be of length <4>, but was <3>.

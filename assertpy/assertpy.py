@@ -52,9 +52,9 @@ def assert_that(val, description=''):
     """Factory method for the assertion builder with value to be tested and optional description."""
     return AssertionBuilder(val, description)
 
-def assert_soft(val, description=''):
+def assert_warn(val, description=''):
     """Factory method for the assertion builder with value to be tested, optional description, and
-       just print assertion failures, don't raise exceptions."""
+       just warn on assertion failures instead of raisings exceptions."""
     return AssertionBuilder(val, description, True)
 
 def contents_of(f, encoding='utf-8'):
@@ -99,11 +99,11 @@ def fail(msg=''):
 class AssertionBuilder(object):
     """Assertion builder."""
 
-    def __init__(self, val, description, soft=False, expected=None):
+    def __init__(self, val, description, warn=False, expected=None):
         """Construct the assertion builder."""
         self.val = val
         self.description = description
-        self.soft = soft
+        self.warn = warn
         self.expected = expected
 
     def described_as(self, description):
@@ -908,7 +908,7 @@ class AssertionBuilder(object):
     def _err(self, msg):
         """Helper to raise an AssertionError, and optionally prepend custom description."""
         out = '%s%s' % ('[%s] ' % self.description if len(self.description) > 0 else '', msg)
-        if self.soft:
+        if self.warn:
             print(out)
             return self
         else:
