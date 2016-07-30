@@ -65,6 +65,17 @@ class TestDict(object):
         except AssertionError as ex:
             assert_that(str(ex)).contains("to contain keys ('a', 'x', 'z'), but did not contain key <x>.")
 
+    def test_contains_only(self):
+        assert_that({'a':1,'b':2,'c':3}).contains_only('a','b','c')
+        assert_that(set(['a','b','c'])).contains_only('a','b','c')
+
+    def test_contains_only_failure(self):
+        try:
+            assert_that({'a':1,'b':2}).contains_only('a','x')
+            fail('should have raised error')
+        except AssertionError as ex:
+            assert_that(str(ex)).contains("to contain only ('a', 'x'), but did contain <b>.")
+
     def test_contains_key(self):
         assert_that({ 'a':1,'b':2,'c':3 }).contains_key('a')
         assert_that({ 'a':1,'b':2,'c':3 }).contains_key('a','b')

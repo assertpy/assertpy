@@ -118,6 +118,31 @@ class TestList(object):
         except AssertionError as ex:
             assert_that(str(ex)).is_equal_to("Expected <['a', 'b', 'c']> to not contain items ('x', 'y', 'a'), but did contain <a>.")
 
+    def test_contains_only(self):
+        assert_that(['a','b','c']).contains_only('a','b','c')
+        assert_that(['a','b','c']).contains_only('c','b','a')
+        assert_that(['a','a','b']).contains_only('a','b')
+        assert_that(['a','a','a']).contains_only('a')
+        assert_that((1,2,3,4)).contains_only(1,2,3,4)
+        assert_that((1,2,3,1)).contains_only(1,2,3)
+        assert_that((1,2,2,1)).contains_only(1,2)
+        assert_that((1,1,1,1)).contains_only(1)
+        assert_that('foobar').contains_only('f','o','b','a','r')
+
+    def test_contains_only_no_args_failure(self):
+        try:
+            assert_that([1,2,3]).contains_only()
+            fail('should have raised error')
+        except ValueError as ex:
+            assert_that(str(ex)).is_equal_to('one or more args must be given')
+
+    def test_contains_only_failure(self):
+        try:
+            assert_that([1,2,3]).contains_only(1,2)
+            fail('should have raised error')
+        except AssertionError as ex:
+            assert_that(str(ex)).is_equal_to('Expected <[1, 2, 3]> to contain only (1, 2), but did contain <3>.')
+
     def test_contains_sequence(self):
         assert_that(['a','b','c']).contains_sequence('a')
         assert_that(['a','b','c']).contains_sequence('b')
