@@ -38,7 +38,7 @@ import collections
 import inspect
 from contextlib import contextmanager
 
-__version__ = '0.9'
+__version__ = '0.10'
 
 if sys.version_info[0] == 3:
     str_types = (str,)
