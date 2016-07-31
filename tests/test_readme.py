@@ -368,10 +368,14 @@ class TestReadme(object):
         assert_that(fred).has_name('Fred Smith')
         assert_that(fred).has_say_hello('Hello, Fred!')
 
-    def test_expected_exceptions(self):
-        def some_func(arg):
-            raise RuntimeError('some err')
+    def test_failure(self):
+        try:
+            some_func('foo')
+            fail('should have raised error')
+        except RuntimeError as e:
+            assert_that(str(e)).is_equal_to('some err')
 
+    def test_expected_exceptions(self):
         assert_that(some_func).raises(RuntimeError).when_called_with('foo')
         assert_that(some_func).raises(RuntimeError).when_called_with('foo')\
             .is_length(8).starts_with('some').is_equal_to('some err')
@@ -441,6 +445,10 @@ class TestReadme(object):
         assert_that(people).is_length(2).extracting('first_name').contains('Fred','Joe')
 
 
+def some_func(arg):
+            raise RuntimeError('some err')
+
+
 class Person(object):
     def __init__(self, first_name, last_name, shoe_size = 12):
         self.first_name = first_name
@@ -453,6 +461,7 @@ class Person(object):
 
     def say_hello(self):
         return 'Hello, %s!' % self.first_name
+
 
 class Developer(Person):
     def say_hello(self):

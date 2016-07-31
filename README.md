@@ -564,10 +564,10 @@ from assertpy import assert_that,fail
 
 def test_error_msg():
     try:
-        some_func('bad arg')
+        some_func('foo')
         fail('should have raised error')
-    except ValueError, ex:
-        assert_that(ex.message).contains('some msg')
+    except RuntimeError as e:
+        assert_that(str(e)).is_equal_to('some err')
 ```
 
 In the above code, we invoke `some_func()` with a bad argument which raises an exception.  The exception is then handled by the `try..except` block and the exact contents of the error message are verified.  Lastly, if an exception is *not* thrown by `some_func()` as expected, we fail the test via `fail()`.
