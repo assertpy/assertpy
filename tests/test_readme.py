@@ -29,7 +29,7 @@
 import sys
 import os
 import datetime
-from assertpy import assert_that, assert_warn, contents_of, fail
+from assertpy import assert_that, assert_warn, soft_assertions, contents_of, fail
 
 class TestReadme(object):
 
@@ -77,6 +77,7 @@ class TestReadme(object):
         assert_that('foo').contains('f','oo')
         assert_that('foo').contains_ignoring_case('F','oO')
         assert_that('foo').does_not_contain('x')
+        assert_that('foo').contains_only('f','o')
         assert_that('foo').contains_sequence('o','o')
 
         assert_that('foo').contains_duplicates()
@@ -165,6 +166,8 @@ class TestReadme(object):
         assert_that(['a','b']).contains('a')
         assert_that(['a','b']).contains('b','a')
         assert_that(['a','b']).does_not_contain('x','y')
+        assert_that(['a','b']).contains_only('a','b')
+        assert_that(['a','a']).contains_only('a')
         assert_that(['a','b','c']).contains_sequence('b','c')
         assert_that(['a','b']).is_subset_of(['a','b','c'])
 
@@ -190,6 +193,8 @@ class TestReadme(object):
         assert_that((1,2,3)).contains(1)
         assert_that((1,2,3)).contains(3,2,1)
         assert_that((1,2,3)).does_not_contain(4,5,6)
+        assert_that((1,2,3)).contains_only(1,2,3)
+        assert_that((1,1,1)).contains_only(1)
         assert_that((1,2,3)).contains_sequence(2,3)
         assert_that((1,2,3)).is_subset_of((1,2,3,4))
 
@@ -216,6 +221,8 @@ class TestReadme(object):
         assert_that({'a':1,'b':2}).contains('b','a')
         assert_that({'a':1,'b':2}).does_not_contain('x')
         assert_that({'a':1,'b':2}).does_not_contain('x','y')
+        assert_that({'a':1,'b':2}).contains_only('a','b')
+        assert_that({'a':1,'b':2}).is_subset_of({'a':1,'b':2,'c':3})
 
         # contains_key() is just an alias for contains()
         assert_that({'a':1,'b':2}).contains_key('a')
@@ -259,6 +266,7 @@ class TestReadme(object):
         assert_that(set(['a','b'])).contains('a')
         assert_that(set(['a','b'])).contains('b','a')
         assert_that(set(['a','b'])).does_not_contain('x','y')
+        assert_that(set(['a','b'])).contains_only('a','b')
         assert_that(set(['a','b'])).is_subset_of(set(['a','b','c']))
         assert_that(set(['a','b'])).is_subset_of(set(['a']), set(['b']))
 
@@ -381,7 +389,7 @@ class TestReadme(object):
         except AssertionError as e:
             assert_that(str(e)).is_equal_to('[adding stuff] Expected <3> to be equal to <2>, but was not.')
 
-    def test_soft_assertions(self):
+    def test_assert_warn(self):
         assert_warn('foo').is_length(4)
         assert_warn('foo').is_empty()
         assert_warn('foo').is_false()
@@ -392,6 +400,32 @@ class TestReadme(object):
         assert_warn('foo').is_equal_to('bar')
         assert_warn('foo').is_not_equal_to('foo')
         assert_warn('foo').is_equal_to_ignoring_case('BAR')
+
+    def test_soft_assertions(self):
+        try:
+            with soft_assertions():
+                assert_that('foo').is_length(4)
+                assert_that('foo').is_empty()
+                assert_that('foo').is_false()
+                assert_that('foo').is_digit()
+                assert_that('123').is_alpha()
+                assert_that('foo').is_upper()
+                assert_that('FOO').is_lower()
+                assert_that('foo').is_equal_to('bar')
+                assert_that('foo').is_not_equal_to('foo')
+                assert_that('foo').is_equal_to_ignoring_case('BAR')
+            fail('should have raised error')
+        except AssertionError as e:
+            assert_that(str(e)).contains('1. Expected <foo> to be of length <4>, but was <3>.')
+            assert_that(str(e)).contains('2. Expected <foo> to be empty string, but was not.')
+            assert_that(str(e)).contains('3. Expected <False>, but was not.')
+            assert_that(str(e)).contains('4. Expected <foo> to contain only digits, but did not.')
+            assert_that(str(e)).contains('5. Expected <123> to contain only alphabetic chars, but did not.')
+            assert_that(str(e)).contains('6. Expected <foo> to contain only uppercase chars, but did not.')
+            assert_that(str(e)).contains('7. Expected <FOO> to contain only lowercase chars, but did not.')
+            assert_that(str(e)).contains('8. Expected <foo> to be equal to <bar>, but was not.')
+            assert_that(str(e)).contains('9. Expected <foo> to be not equal to <foo>, but was.')
+            assert_that(str(e)).contains('10. Expected <foo> to be case-insensitive equal to <BAR>, but was not.')
 
     def test_chaining(self):
         fred = Person('Fred','Smith')
