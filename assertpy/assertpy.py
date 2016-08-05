@@ -192,7 +192,8 @@ class AssertionBuilder(object):
 
     def is_type_of(self, some_type):
         """Asserts that val is of the given type."""
-        if type(some_type) is not type and not hasattr(some_type, '__metaclass__'):
+        if type(some_type) is not type and\
+                not issubclass(type(some_type), type):
             raise TypeError('given arg must be a type')
         if type(self.val) is not some_type:
             if hasattr(self.val, '__name__'):
