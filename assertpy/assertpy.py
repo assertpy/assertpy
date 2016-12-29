@@ -121,10 +121,14 @@ def contents_of(f, encoding='utf-8'):
 
 def fail(msg=''):
     """Force test failure with the given message."""
-    if len(msg) == 0:
-        raise AssertionError('Fail!')
+    out = 'Fail: %s!' % msg if msg else 'Fail!'
+    global _soft_ctx
+    if _soft_ctx:
+        global _soft_err
+        _soft_err.append(out)
+        return
     else:
-        raise AssertionError('Fail: %s!' % msg)
+        raise AssertionError(out)
 
 
 class AssertionBuilder(object):
