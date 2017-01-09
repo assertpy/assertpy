@@ -59,19 +59,23 @@ def soft_assertions():
     global _soft_ctx
     global _soft_err
 
+    # init ctx
     _soft_ctx = True
     _soft_err = []
 
-    yield
+    try:
+        yield
+    finally:
+        # reset ctx
+        _soft_ctx = False
 
     if _soft_err:
         out = 'soft assertion failures:'
         for i,msg in enumerate(_soft_err):
             out += '\n%d. %s' % (i+1, msg)
+        # reset msg, then raise
+        _soft_err = []
         raise AssertionError(out)
-
-    _soft_err = []
-    _soft_ctx = False
 
 
 ### factory methods ###
@@ -121,14 +125,7 @@ def contents_of(f, encoding='utf-8'):
 
 def fail(msg=''):
     """Force test failure with the given message."""
-    out = 'Fail: %s!' % msg if msg else 'Fail!'
-    global _soft_ctx
-    if _soft_ctx:
-        global _soft_err
-        _soft_err.append(out)
-        return
-    else:
-        raise AssertionError(out)
+    raise AssertionError('Fail: %s!' % msg if msg else 'Fail!')
 
 
 class AssertionBuilder(object):

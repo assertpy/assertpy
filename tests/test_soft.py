@@ -108,3 +108,49 @@ def func_ok(arg):
 def func_err(arg):
     raise RuntimeError('err')
 
+
+def test_fail():
+    try:
+        with soft_assertions():
+            fail()
+        fail('should have raised error')
+    except AssertionError as e:
+        out = str(e)
+        assert_that(out).is_equal_to('Fail!')
+
+def test_fail_with_msg():
+    try:
+        with soft_assertions():
+            fail('foobar')
+        fail('should have raised error')
+    except AssertionError as e:
+        out = str(e)
+        assert_that(out).is_equal_to('Fail: foobar!')
+
+def test_fail_with_soft_failing_asserts():
+    try:
+        with soft_assertions():
+            assert_that('foo').is_length(4)
+            assert_that('foo').is_empty()
+            fail('foobar')
+            assert_that('foo').is_not_equal_to('foo')
+            assert_that('foo').is_equal_to_ignoring_case('BAR')
+        fail('should have raised error')
+    except AssertionError as e:
+        out = str(e)
+        assert_that(out).is_equal_to('Fail: foobar!')
+        assert_that(out).does_not_contain('Expected <foo> to be of length <4>, but was <3>.')
+        assert_that(out).does_not_contain('Expected <foo> to be empty string, but was not.')
+        assert_that(out).does_not_contain('Expected <foo> to be not equal to <foo>, but was.')
+        assert_that(out).does_not_contain('Expected <foo> to be case-insensitive equal to <BAR>, but was not.')
+
+def test_double_fail():
+    try:
+        with soft_assertions():
+            fail()
+            fail('foobar')
+        fail('should have raised error')
+    except AssertionError as e:
+        out = str(e)
+        assert_that(out).is_equal_to('Fail!')
+
