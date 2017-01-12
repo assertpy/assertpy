@@ -692,11 +692,13 @@ AssertionError: soft assertion failures:
 ```
 
 Also, note that *only* assertion failures are collected, errors such as `TypeError` or `ValueError` are raised immediately.
-Triggering an explicit test failure with `fail()` will similarly halt execution immediately.
+Triggering an explicit test failure with `fail()` will similarly halt execution immediately.  If you need more
+forgiving behavior, you can use `soft_fail()` which is collected like any other failing assertion within a soft assertions block.
 
 ### Chaining
 
-One of the nicest aspects of any fluent API is the ability to chain methods together.  In the case of `assertpy`, chaining allows you to write assertions as single statement -- that reads like a sentance, and is easy to understand.
+One of the nicest aspects of any fluent API is the ability to chain methods together.  In the case of `assertpy`, chaining
+allows you to write assertions as single statement -- that reads like a sentance, and is easy to understand.
 
 Here are just a few examples:
 
@@ -726,7 +728,7 @@ There are always a few new features in the works...if you'd like to help, check 
 
 All files are licensed under the BSD 3-Clause License as follows:
 
-> Copyright (c) 2015-2016, Activision Publishing, Inc.
+> Copyright (c) 2015-2017, Activision Publishing, Inc.
 > All rights reserved.
 >
 > Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
