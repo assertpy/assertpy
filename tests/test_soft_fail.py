@@ -26,29 +26,31 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from assertpy import assert_that, soft_fail, soft_assertions
+from assertpy import assert_that, fail, soft_fail, soft_assertions
 
 def test_soft_fail_without_context():
     try:
         soft_fail()
-        soft_fail('some msg')
+        fail('should have raised error')
     except AssertionError as e:
         out = str(e)
         assert_that(out).is_equal_to('Fail!')
+        assert_that(out).does_not_contain('should have raised error')
 
 def test_soft_fail_with_msg_without_context():
     try:
         soft_fail('some msg')
-        soft_fail()
+        fail('should have raised error')
     except AssertionError as e:
         out = str(e)
         assert_that(out).is_equal_to('Fail: some msg!')
+        assert_that(out).does_not_contain('should have raised error')
 
 def test_soft_fail():
     try:
         with soft_assertions():
             soft_fail()
-        soft_fail('should have raised error')
+        fail('should have raised error')
     except AssertionError as e:
         out = str(e)
         assert_that(out).contains('Fail!')
@@ -58,7 +60,7 @@ def test_soft_fail_with_msg():
     try:
         with soft_assertions():
             soft_fail('foobar')
-        soft_fail('should have raised error')
+        fail('should have raised error')
     except AssertionError as e:
         out = str(e)
         assert_that(out).contains('Fail: foobar!')
@@ -72,7 +74,7 @@ def test_soft_fail_with_soft_failing_asserts():
             soft_fail('foobar')
             assert_that('foo').is_not_equal_to('foo')
             assert_that('foo').is_equal_to_ignoring_case('BAR')
-        soft_fail('should have raised error')
+        fail('should have raised error')
     except AssertionError as e:
         out = str(e)
         assert_that(out).contains('Expected <foo> to be of length <4>, but was <3>.')
@@ -87,7 +89,7 @@ def test_double_soft_fail():
         with soft_assertions():
             soft_fail()
             soft_fail('foobar')
-        soft_fail('should have raised error')
+        fail('should have raised error')
     except AssertionError as e:
         out = str(e)
         assert_that(out).contains('Fail!')
