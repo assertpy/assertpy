@@ -332,6 +332,17 @@ assert_that(True).is_type_of(bool)
 ```
 
 
+### None
+
+Matching `None`:
+
+```py
+assert_that(None).is_none()
+assert_that('').is_not_none()
+assert_that(None).is_type_of(type(None))
+```
+
+
 ### Dates
 
 Matching dates:
