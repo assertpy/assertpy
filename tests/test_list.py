@@ -338,6 +338,42 @@ class TestList(object):
         assert_that(['a','b','c']).is_type_of(list).is_length(3).contains('a').does_not_contain('x')
         assert_that(['a','b','c']).is_type_of(list).is_length(3).contains('a','b').does_not_contain('x','y')
 
+    def test_list_of_lists(self):
+        l = [[1,2,3], ['a','b','c'], (4,5,6)]
+        assert_that(l).is_length(3)
+        assert_that(l).is_equal_to([[1,2,3], ['a','b','c'], (4,5,6)])
+
+        assert_that(l).contains([1,2,3])
+        assert_that(l).contains(['a','b','c'])
+        assert_that(l).contains((4,5,6))
+
+        assert_that(l).starts_with([1,2,3])
+        assert_that(l).ends_with((4,5,6))
+
+        assert_that(l[0]).is_equal_to([1,2,3])
+        assert_that(l[2]).is_equal_to((4,5,6))
+
+        assert_that(l[0][0]).is_equal_to(1)
+        assert_that(l[2][2]).is_equal_to(6)
+
+    def test_list_of_dicts(self):
+        l = [{'a': 1}, {'b': 2}, {'c': 3}]
+        assert_that(l).is_length(3)
+        assert_that(l).is_equal_to([{'a': 1}, {'b': 2}, {'c': 3}])
+
+        assert_that(l).contains({'a': 1})
+        assert_that(l).contains({'b': 2})
+        assert_that(l).contains({'c': 3})
+
+        assert_that(l).starts_with({'a': 1})
+        assert_that(l).ends_with({'c': 3})
+
+        assert_that(l[0]).is_equal_to({'a': 1})
+        assert_that(l[2]).is_equal_to({'c': 3})
+
+        assert_that(l[0]['a']).is_equal_to(1)
+        assert_that(l[2]['c']).is_equal_to(3)
+
 class Person(object):
     def __init__(self, name):
         self.name = name
