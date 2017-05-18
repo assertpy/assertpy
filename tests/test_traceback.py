@@ -40,18 +40,22 @@ def test_traceback():
 
         # extract all stack frames from the traceback
         _, _, tb = sys.exc_info()
-        frames = [(f.f_code.co_filename, f.f_code.co_name, lineno) for f,lineno in traceback.walk_tb(tb)]
+        assert_that(tb).is_not_none()
 
-        assert_that(frames).is_length(3)
-        
-        assert_that(frames[0][0]).ends_with('test_traceback.py')
-        assert_that(frames[0][1]).is_equal_to('test_traceback')
-        assert_that(frames[0][2]).is_equal_to(35)
+        # walk_tb added in 3.5
+        if sys.version_info[0] == 3 and sys.version_info[1] >= 5:
+            frames = [(f.f_code.co_filename, f.f_code.co_name, lineno) for f,lineno in traceback.walk_tb(tb)]
 
-        assert_that(frames[1][0]).ends_with('assertpy.py')
-        assert_that(frames[1][1]).is_equal_to('is_equal_to')
-        assert_that(frames[1][2]).is_equal_to(159)
+            assert_that(frames).is_length(3)
+            
+            assert_that(frames[0][0]).ends_with('test_traceback.py')
+            assert_that(frames[0][1]).is_equal_to('test_traceback')
+            assert_that(frames[0][2]).is_equal_to(35)
 
-        assert_that(frames[2][0]).ends_with('assertpy.py')
-        assert_that(frames[2][1]).is_equal_to('_err')
-        assert_that(frames[2][2]).is_equal_to(962)
+            assert_that(frames[1][0]).ends_with('assertpy.py')
+            assert_that(frames[1][1]).is_equal_to('is_equal_to')
+            assert_that(frames[1][2]).is_equal_to(159)
+
+            assert_that(frames[2][0]).ends_with('assertpy.py')
+            assert_that(frames[2][1]).is_equal_to('_err')
+            assert_that(frames[2][2]).is_equal_to(962)
