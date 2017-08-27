@@ -347,7 +347,7 @@ class TestDict(object):
             assert_that(fred).has_first_name('Foo')
             fail('should have raised error')
         except AssertionError as ex:
-            assert_that(str(ex)).contains('Expected <Fred> to be equal to <Foo>, but was not.')
+            assert_that(str(ex)).contains('Expected <Fred> to be equal to <Foo> on key <first_name>, but was not.')
 
     def test_dynamic_assertion_failure_int(self):
         fred = {'first_name': 'Fred', 'last_name': 'Smith', 'shoe_size': 12}
@@ -356,7 +356,7 @@ class TestDict(object):
             assert_that(fred).has_shoe_size(34)
             fail('should have raised error')
         except AssertionError as ex:
-            assert_that(str(ex)).contains('Expected <12> to be equal to <34>, but was not.')
+            assert_that(str(ex)).contains('Expected <12> to be equal to <34> on key <shoe_size>, but was not.')
 
     def test_dynamic_assertion_bad_key_failure(self):
         fred = {'first_name': 'Fred', 'last_name': 'Smith', 'shoe_size': 12}
@@ -364,7 +364,7 @@ class TestDict(object):
         try:
             assert_that(fred).has_foo('Fred')
             fail('should have raised error')
-        except KeyError as ex:
-            assert_that(str(ex)).contains('val has no key <foo>')
+        except AssertionError as ex:
+            assert_that(str(ex)).is_equal_to('Expected key <foo>, but val has no key <foo>.')
 
 

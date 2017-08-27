@@ -42,6 +42,7 @@ def test_success():
         assert_that('foo').is_equal_to('foo')
         assert_that('foo').is_not_equal_to('bar')
         assert_that('foo').is_equal_to_ignoring_case('FOO')
+        assert_that({'a': 1}).has_a(1)
 
 def test_failure():
     try:
@@ -56,6 +57,8 @@ def test_failure():
             assert_that('foo').is_equal_to('bar')
             assert_that('foo').is_not_equal_to('foo')
             assert_that('foo').is_equal_to_ignoring_case('BAR')
+            assert_that({'a': 1}).has_a(2)
+            assert_that({'a': 1}).has_foo(1)
         fail('should have raised error')
     except AssertionError as e:
         out = str(e)
@@ -69,6 +72,8 @@ def test_failure():
         assert_that(out).contains('Expected <foo> to be equal to <bar>, but was not.')
         assert_that(out).contains('Expected <foo> to be not equal to <foo>, but was.')
         assert_that(out).contains('Expected <foo> to be case-insensitive equal to <BAR>, but was not.')
+        assert_that(out).contains('Expected <1> to be equal to <2> on key <a>, but was not.')
+        assert_that(out).contains('Expected key <foo>, but val has no key <foo>.')
 
 def test_failure_chain():
     try:
