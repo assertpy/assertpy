@@ -885,33 +885,41 @@ class AssertionBuilder(object):
             raise AttributeError('assertpy has no assertion <%s()>' % attr)
 
         attr_name = attr[4:]
+        err_msg = False
+        is_dict = isinstance(self.val, collections.Iterable) and hasattr(self.val, '__getitem__')
+
         if not hasattr(self.val, attr_name):
-            if isinstance(self.val, collections.Iterable) and hasattr(self.val, '__getitem__'):
+            if is_dict:
                 if attr_name not in self.val:
-                    raise KeyError('val has no key <%s>' % attr_name)
+                    err_msg = 'Expected key <%s>, but val has no key <%s>.' % (attr_name, attr_name)
             else:
-                raise AttributeError('val has no attribute <%s>' % attr_name)
+                err_msg = 'Expected attribute <%s>, but val has no attribute <%s>.' % (attr_name, attr_name)
 
         def _wrapper(*args, **kwargs):
-            if len(args) != 1:
-                raise TypeError('assertion <%s()> takes exactly 1 argument (%d given)' % (attr, len(args)))
-            expected = args[0]
-            try:
-                val_attr = getattr(self.val, attr_name)
-            except AttributeError:
-                val_attr = self.val[attr_name]
-
-            if callable(val_attr):
-                try:
-                    actual = val_attr()
-                except TypeError:
-                    raise TypeError('val does not have zero-arg method <%s()>' % attr_name)
+            if err_msg:
+                self._err(err_msg) # ok to raise AssertionError now that we are inside wrapper
             else:
-                actual = val_attr
+                if len(args) != 1:
+                    raise TypeError('assertion <%s()> takes exactly 1 argument (%d given)' % (attr, len(args)))
 
-            if actual != expected:
-                self._err('Expected <%s> to be equal to <%s>, but was not.' % (actual, expected))
+                try:
+                    val_attr = getattr(self.val, attr_name)
+                except AttributeError:
+                    val_attr = self.val[attr_name]
+
+                if callable(val_attr):
+                    try:
+                        actual = val_attr()
+                    except TypeError:
+                        raise TypeError('val does not have zero-arg method <%s()>' % attr_name)
+                else:
+                    actual = val_attr
+
+                expected = args[0]
+                if actual != expected:
+                    self._err('Expected <%s> to be equal to <%s> on %s <%s>, but was not.' % (actual, expected, 'key' if is_dict else 'attribute', attr_name))
             return self
+
         return _wrapper
 
 ### expected exceptions ###
