@@ -23,7 +23,8 @@ Of course, ``assertpy`` works best with a python test runner
 like `pytest <http://pytest.org/latest/contents.html>`_ (our favorite)
 or `Nose <http://nose.readthedocs.org/>`_."""
 
-setup(name = 'assertpy',
+setup(
+    name = 'assertpy',
     packages = ['assertpy'],
     version = assertpy.__version__,
     description = 'Assertion library for python unit testing with a fluent API',
@@ -47,5 +48,6 @@ setup(name = 'assertpy',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Topic :: Software Development',
         'Topic :: Software Development :: Testing'])
