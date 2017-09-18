@@ -125,6 +125,8 @@ assert_that(0).is_instance_of(int)
 
 assert_that(0).is_zero()
 assert_that(1).is_not_zero()
+assert_that(math.nan).is_nan()
+assert_that(1).is_not_nan()
 assert_that(1).is_positive()
 assert_that(-1).is_negative()
 

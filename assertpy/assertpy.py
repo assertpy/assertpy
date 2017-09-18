@@ -36,6 +36,7 @@ import datetime
 import numbers
 import collections
 import inspect
+import math
 from contextlib import contextmanager
 
 __version__ = '0.11'
@@ -387,6 +388,22 @@ class AssertionBuilder(object):
         if isinstance(self.val, numbers.Number) is False:
             raise TypeError('val is not numeric')
         return self.is_not_equal_to(0)
+
+    def is_nan(self):
+        """Asserts that val is numeric and equal to math.nan value."""
+        if isinstance(self.val, numbers.Number) is False:
+            raise TypeError('val is not numeric')
+        if not isinstance(self.val, numbers.Real) or not math.isnan(self.val):
+            self._err('Expected <%s> to be math.nan, but was not' % self.val)
+        return self
+
+    def is_not_nan(self):
+        """Asserts that val is numeric and not equal to math.nan value."""
+        if isinstance(self.val, numbers.Number) is False:
+            raise TypeError('val is not numeric')
+        if isinstance(self.val, numbers.Real) and math.isnan(self.val):
+            self._err('Expected not math.nan, but was')
+        return self
 
     def is_greater_than(self, other):
         """Asserts that val is numeric and is greater than other."""
