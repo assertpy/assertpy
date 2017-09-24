@@ -72,22 +72,15 @@ class TestNumbers(object):
             assert_that(str(ex)).is_equal_to('val is not numeric')
 
     def test_is_nan(self):
-        assert_that(math.nan).is_nan()
-        assert_that(float('nan')).is_nan()
+        assert_that(float('NaN')).is_nan()
+        assert_that(float('Inf')-float('Inf')).is_nan()
 
     def test_is_nan_failure(self):
         try:
-            assert_that(1).is_nan()
+            assert_that(0).is_nan()
             fail('should have raised error')
         except AssertionError as ex:
-            assert_that(str(ex)).is_equal_to('Expected <1> to be math.nan, but was not')
-
-    def test_is_nan_failure_with_complex(self):
-        try:
-            assert_that(1 + 1j).is_nan()
-            fail('should have raised error')
-        except AssertionError as ex:
-            assert_that(str(ex)).is_equal_to('Expected <(1+1j)> to be math.nan, but was not')
+            assert_that(str(ex)).is_equal_to('Expected <0> to be <NaN>, but was not.')
 
     def test_is_nan_bad_type_failure(self):
         try:
@@ -96,17 +89,23 @@ class TestNumbers(object):
         except TypeError as ex:
             assert_that(str(ex)).is_equal_to('val is not numeric')
 
+    def test_is_nan_bad_type_failure_complex(self):
+        try:
+            assert_that(1 + 2j).is_nan()
+            fail('should have raised error')
+        except TypeError as ex:
+            assert_that(str(ex)).is_equal_to('val is not real number')
+
     def test_is_not_nan(self):
         assert_that(1).is_not_nan()
         assert_that(1.0).is_not_nan()
-        assert_that(1 + 1j).is_not_nan()
 
     def test_is_not_nan_failure(self):
         try:
-            assert_that(math.nan).is_not_nan()
+            assert_that(float('NaN')).is_not_nan()
             fail('should have raised error')
         except AssertionError as ex:
-            assert_that(str(ex)).is_equal_to('Expected not math.nan, but was')
+            assert_that(str(ex)).is_equal_to('Expected not <NaN>, but was.')
 
     def test_is_not_nan_bad_type_failure(self):
         try:
@@ -114,6 +113,63 @@ class TestNumbers(object):
             fail('should have raised error')
         except TypeError as ex:
             assert_that(str(ex)).is_equal_to('val is not numeric')
+
+    def test_is_not_nan_bad_type_failure_complex(self):
+        try:
+            assert_that(1 + 2j).is_not_nan()
+            fail('should have raised error')
+        except TypeError as ex:
+            assert_that(str(ex)).is_equal_to('val is not real number')
+
+    def test_is_inf(self):
+        assert_that(float('Inf')).is_inf()
+        assert_that(1e1000).is_inf()
+
+    def test_is_inf_failure(self):
+        try:
+            assert_that(0).is_inf()
+            fail('should have raised error')
+        except AssertionError as ex:
+            assert_that(str(ex)).is_equal_to('Expected <0> to be <Inf>, but was not.')
+
+    def test_is_inf_bad_type_failure(self):
+        try:
+            assert_that('foo').is_inf()
+            fail('should have raised error')
+        except TypeError as ex:
+            assert_that(str(ex)).is_equal_to('val is not numeric')
+
+    def test_is_inf_bad_type_failure_complex(self):
+        try:
+            assert_that(1 + 2j).is_inf()
+            fail('should have raised error')
+        except TypeError as ex:
+            assert_that(str(ex)).is_equal_to('val is not real number')
+
+    def test_is_not_inf(self):
+        assert_that(1).is_not_inf()
+        assert_that(123.456).is_not_inf()
+
+    def test_is_not_inf_failure(self):
+        try:
+            assert_that(float('Inf')).is_not_inf()
+            fail('should have raised error')
+        except AssertionError as ex:
+            assert_that(str(ex)).is_equal_to('Expected not <Inf>, but was.')
+
+    def test_is_not_inf_bad_type_failure(self):
+        try:
+            assert_that('foo').is_not_inf()
+            fail('should have raised error')
+        except TypeError as ex:
+            assert_that(str(ex)).is_equal_to('val is not numeric')
+
+    def test_is_not_inf_bad_type_failure_complex(self):
+        try:
+            assert_that(1 + 2j).is_not_inf()
+            fail('should have raised error')
+        except TypeError as ex:
+            assert_that(str(ex)).is_equal_to('val is not real number')
 
     def test_is_greater_than(self):
         assert_that(123).is_greater_than(100)
