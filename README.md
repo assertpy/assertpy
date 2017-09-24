@@ -125,8 +125,6 @@ assert_that(0).is_instance_of(int)
 
 assert_that(0).is_zero()
 assert_that(1).is_not_zero()
-assert_that(math.nan).is_nan()
-assert_that(1).is_not_nan()
 assert_that(1).is_positive()
 assert_that(-1).is_negative()
 
@@ -161,6 +159,11 @@ assert_that(123.4).is_less_than(200.2)
 assert_that(123.4).is_less_than_or_equal_to(123.4)
 assert_that(123.4).is_between(100.1, 200.2)
 assert_that(123.4).is_close_to(123, 0.5)
+
+assert_that(float('NaN')).is_nan()
+assert_that(123.4).is_not_nan()
+assert_that(float('Inf')).is_inf()
+assert_that(123.4).is_not_inf()
 ```
 
 Of course, using `is_equal_to()` with a `float` value is just asking for trouble. You'll always want to use the assertions methods like `is_close_to()` and `is_between()`.
