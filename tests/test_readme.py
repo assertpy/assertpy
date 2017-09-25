@@ -150,6 +150,11 @@ class TestReadme(object):
         assert_that(123.4).is_between(100.1, 200.2)
         assert_that(123.4).is_close_to(123, 0.5)
 
+        assert_that(float('NaN')).is_nan()
+        assert_that(123.4).is_not_nan()
+        assert_that(float('Inf')).is_inf()
+        assert_that(123.4).is_not_inf()
+
     def test_lists(self):
         assert_that([]).is_not_none()
         assert_that([]).is_empty()

@@ -36,6 +36,7 @@ import datetime
 import numbers
 import collections
 import inspect
+import math
 from contextlib import contextmanager
 
 __version__ = '0.11'
@@ -376,17 +377,57 @@ class AssertionBuilder(object):
             return
         raise TypeError('ordering is not defined for type <%s>' % self_type.__name__)
 
-    def is_zero(self):
-        """Asserts that val is numeric and equal to zero."""
+    def _validate_number(self):
+        """Raise TypeError if val is not numeric."""
         if isinstance(self.val, numbers.Number) is False:
             raise TypeError('val is not numeric')
+
+    def _validate_real(self):
+        """Raise TypeError if val is not real number."""
+        if isinstance(self.val, numbers.Real) is False:
+            raise TypeError('val is not real number')
+
+    def is_zero(self):
+        """Asserts that val is numeric and equal to zero."""
+        self._validate_number()
         return self.is_equal_to(0)
 
     def is_not_zero(self):
         """Asserts that val is numeric and not equal to zero."""
-        if isinstance(self.val, numbers.Number) is False:
-            raise TypeError('val is not numeric')
+        self._validate_number()
         return self.is_not_equal_to(0)
+
+    def is_nan(self):
+        """Asserts that val is real number and NaN (not a number)."""
+        self._validate_number()
+        self._validate_real()
+        if not math.isnan(self.val):
+            self._err('Expected <%s> to be <NaN>, but was not.' % self.val)
+        return self
+
+    def is_not_nan(self):
+        """Asserts that val is real number and not NaN (not a number)."""
+        self._validate_number()
+        self._validate_real()
+        if math.isnan(self.val):
+            self._err('Expected not <NaN>, but was.')
+        return self
+
+    def is_inf(self):
+        """Asserts that val is real number and Inf (infinity)."""
+        self._validate_number()
+        self._validate_real()
+        if not math.isinf(self.val):
+            self._err('Expected <%s> to be <Inf>, but was not.' % self.val)
+        return self
+
+    def is_not_inf(self):
+        """Asserts that val is real number and not Inf (infinity)."""
+        self._validate_number()
+        self._validate_real()
+        if math.isinf(self.val):
+            self._err('Expected not <Inf>, but was.')
+        return self
 
     def is_greater_than(self, other):
         """Asserts that val is numeric and is greater than other."""
