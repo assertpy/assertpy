@@ -41,6 +41,8 @@ from contextlib import contextmanager
 
 __version__ = '0.11'
 
+__tracebackhide__ = True # clean tracebacks via py.test integration
+
 if sys.version_info[0] == 3:
     str_types = (str,)
     xrange = range
