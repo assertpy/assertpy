@@ -253,12 +253,16 @@ class AssertionBuilder(object):
                 else:
                     self._err('Expected <%s> to contain item <%s>, but did not.' % (self.val, items[0]))
         else:
+            missing = []
             for i in items:
                 if i not in self.val:
-                    if type(self.val) is dict:
-                        self._err('Expected <%s> to contain keys %s, but did not contain key <%s>.' % (self.val, items, i))
-                    else:
-                        self._err('Expected <%s> to contain items %s, but did not contain <%s>.' % (self.val, items, i))
+                    missing.append(i)
+            
+            if missing:
+                if type(self.val) is dict:
+                    self._err('Expected <%s> to contain keys %s, but did not contain key%s %s.' % (self.val, self._fmt_items(items), '' if len(missing) == 0 else 's', self._fmt_items(missing)))
+                else:
+                    self._err('Expected <%s> to contain items %s, but did not contain %s.' % (self.val, self._fmt_items(items), self._fmt_items(missing)))
         return self
 
     def does_not_contain(self, *items):
@@ -1009,6 +1013,14 @@ class AssertionBuilder(object):
             return self
         else:
             raise AssertionError(out)
+
+    def _fmt_items(self, i):
+        if len(i) == 0:
+            return '<>'
+        elif len(i) == 1:
+            return '<%s>' % i[0]
+        else:
+            return '<%s>' % str(i).lstrip('([').rstrip(',])')
 
     def _fmt_args_kwargs(self, *some_args, **some_kwargs):
         """Helper to convert the given args and kwargs into a string."""
