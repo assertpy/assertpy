@@ -54,7 +54,7 @@ def test_traceback():
 
             assert_that(frames[1][0]).ends_with('assertpy.py')
             assert_that(frames[1][1]).is_equal_to('is_equal_to')
-            assert_that(frames[1][2]).is_equal_to(160)
+            assert_that(frames[1][2]).is_greater_than(160)
 
             assert_that(frames[2][0]).ends_with('assertpy.py')
             assert_that(frames[2][1]).is_equal_to('_err')
