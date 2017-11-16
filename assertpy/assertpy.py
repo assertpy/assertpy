@@ -971,9 +971,9 @@ class AssertionBuilder(object):
 
 ### expected exceptions ###
     def raises(self, ex):
-        """Asserts that val is a function that when invoked raises the given error."""
-        if not inspect.isfunction(self.val):
-            raise TypeError('val must be function')
+        """Asserts that val is callable that when called raises the given error."""
+        if not callable(self.val):
+            raise TypeError('val must be callable')
         if not issubclass(ex, BaseException):
             raise TypeError('given arg must be exception')
         return AssertionBuilder(self.val, self.description, self.kind, ex)
