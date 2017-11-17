@@ -113,7 +113,7 @@ def test_contains_ignoring_case_multi_item_failure():
         assert_that('foo').contains_ignoring_case('F','X','Z')
         fail('should have raised error')
     except AssertionError as ex:
-        assert_that(str(ex)).is_equal_to("Expected <foo> to case-insensitive contain items ('F', 'X', 'Z'), but did not contain <X>.")
+        assert_that(str(ex)).is_equal_to("Expected <foo> to case-insensitive contain items <'F', 'X', 'Z'>, but did not contain <'X', 'Z'>.")
 
 def test_contains_ignoring_case_multi_item_type_failure():
     try:
@@ -138,7 +138,14 @@ def test_does_not_contain_list_item_failure():
         assert_that('foo').does_not_contain('x','y','f')
         fail('should have raised error')
     except AssertionError as ex:
-        assert_that(str(ex)).is_equal_to("Expected <foo> to not contain items ('x', 'y', 'f'), but did contain <f>.")
+        assert_that(str(ex)).is_equal_to("Expected <foo> to not contain items <'x', 'y', 'f'>, but did contain <f>.")
+
+def test_does_not_contain_list_multi_item_failure():
+    try:
+        assert_that('foo').does_not_contain('x','f','o')
+        fail('should have raised error')
+    except AssertionError as ex:
+        assert_that(str(ex)).is_equal_to("Expected <foo> to not contain items <'x', 'f', 'o'>, but did contain <'f', 'o'>.")
 
 def test_is_empty():
     assert_that('').is_empty()

@@ -79,7 +79,14 @@ def test_contains_only_failure():
         assert_that({'a':1,'b':2}).contains_only('a','x')
         fail('should have raised error')
     except AssertionError as ex:
-        assert_that(str(ex)).contains("to contain only ('a', 'x'), but did contain <b>.")
+        assert_that(str(ex)).contains("to contain only <'a', 'x'>, but did contain <b>.")
+
+def test_contains_only_multi_failure():
+    try:
+        assert_that({'a':1,'b':2}).contains_only('x','y')
+        fail('should have raised error')
+    except AssertionError as ex:
+        assert_that(str(ex)).contains("to contain only <'x', 'y'>, but did contain <'")
 
 def test_contains_key():
     assert_that({ 'a':1,'b':2,'c':3 }).contains_key('a')
@@ -140,7 +147,7 @@ def test_does_not_contain_list_item_failure():
         assert_that({ 'a':1,'b':2,'c':3 }).does_not_contain('x','y','a')
         fail('should have raised error')
     except AssertionError as ex:
-        assert_that(str(ex)).contains("to not contain items ('x', 'y', 'a'), but did contain <a>.")
+        assert_that(str(ex)).contains("to not contain items <'x', 'y', 'a'>, but did contain <a>.")
 
 def test_is_empty():
     assert_that({}).is_empty()
@@ -186,14 +193,14 @@ def test_contains_value_single_item_failure():
         assert_that({ 'a':1,'b':2,'c':3 }).contains_value(4)
         fail('should have raised error')
     except AssertionError as ex:
-        assert_that(str(ex)).contains('to contain value <4>, but did not.')
+        assert_that(str(ex)).contains('to contain values <4>, but did not contain <4>.')
 
 def test_contains_value_multi_item_failure():
     try:
         assert_that({ 'a':1,'b':2,'c':3 }).contains_value(1,4,5)
         fail('should have raised error')
     except AssertionError as ex:
-        assert_that(str(ex)).contains('to contain value <4>, but did not.')
+        assert_that(str(ex)).contains('to contain values <1, 4, 5>, but did not contain <4, 5>.')
 
 def test_does_not_contain_value():
     assert_that({ 'a':1,'b':2,'c':3 }).does_not_contain_value(4)
@@ -218,14 +225,21 @@ def test_does_not_contain_value_single_item_failure():
         assert_that({ 'a':1,'b':2,'c':3 }).does_not_contain_value(1)
         fail('should have raised error')
     except AssertionError as ex:
-        assert_that(str(ex)).contains('to not contain value <1>, but did.')
+        assert_that(str(ex)).contains('to not contain values <1>, but did contain <1>.')
 
 def test_does_not_contain_value_list_item_failure():
     try:
         assert_that({ 'a':1,'b':2,'c':3 }).does_not_contain_value(4,5,1)
         fail('should have raised error')
     except AssertionError as ex:
-        assert_that(str(ex)).contains('to not contain values (4, 5, 1), but did contain <1>.')
+        assert_that(str(ex)).contains('to not contain values <4, 5, 1>, but did contain <1>.')
+
+def test_does_not_contain_value_list_multi_item_failure():
+    try:
+        assert_that({ 'a':1,'b':2,'c':3 }).does_not_contain_value(4,1,2)
+        fail('should have raised error')
+    except AssertionError as ex:
+        assert_that(str(ex)).contains('to not contain values <4, 1, 2>, but did contain <1, 2>.')
 
 def test_contains_entry():
     assert_that({ 'a':1,'b':2,'c':3 }).contains_entry({ 'a':1 })
@@ -264,28 +278,28 @@ def test_contains_entry_bad_key_failure():
         assert_that({ 'a':1,'b':2,'c':3 }).contains_entry({ 'x':1 })
         fail('should have raised error')
     except AssertionError as ex:
-        assert_that(str(ex)).contains("to contain entry {'x': 1}, but did not contain key <x>.")
+        assert_that(str(ex)).contains("to contain entries <{'x': 1}>, but did not contain <{'x': 1}>.")
 
 def test_contains_entry_bad_value_failure():
     try:
         assert_that({ 'a':1,'b':2,'c':3 }).contains_entry({ 'a':2 })
         fail('should have raised error')
     except AssertionError as ex:
-        assert_that(str(ex)).contains("to contain entry {'a': 2}, but key <a> did not contain value <2>.")
+        assert_that(str(ex)).contains("to contain entries <{'a': 2}>, but did not contain <{'a': 2}>.")
 
 def test_contains_entry_bad_keys_failure():
     try:
         assert_that({ 'a':1,'b':2,'c':3 }).contains_entry({ 'a':1 },{ 'x':2 })
         fail('should have raised error')
     except AssertionError as ex:
-        assert_that(str(ex)).contains("to contain entry {'x': 2}, but did not contain key <x>.")
+        assert_that(str(ex)).contains("to contain entries <{'a': 1}, {'x': 2}>, but did not contain <{'x': 2}>.")
 
 def test_contains_entry_bad_values_failure():
     try:
         assert_that({ 'a':1,'b':2,'c':3 }).contains_entry({ 'a':1 },{ 'b':4 })
         fail('should have raised error')
     except AssertionError as ex:
-        assert_that(str(ex)).contains("to contain entry {'b': 4}, but key <b> did not contain value <4>.")
+        assert_that(str(ex)).contains("to contain entries <{'a': 1}, {'b': 4}>, but did not contain <{'b': 4}>.")
 
 def test_does_not_contain_entry():
     assert_that({ 'a':1,'b':2,'c':3 }).does_not_contain_entry({ 'a':2 })
@@ -324,14 +338,14 @@ def test_does_not_contain_entry_failure():
         assert_that({ 'a':1,'b':2,'c':3 }).does_not_contain_entry({ 'a':1 })
         fail('should have raised error')
     except AssertionError as ex:
-        assert_that(str(ex)).contains("to not contain entry {'a': 1}, but did.")
+        assert_that(str(ex)).contains("to not contain entries <{'a': 1}>, but did contain <{'a': 1}>.")
 
 def test_does_not_contain_entry_multiple_failure():
     try:
         assert_that({ 'a':1,'b':2,'c':3 }).does_not_contain_entry({ 'a':2 },{ 'b':2 })
         fail('should have raised error')
     except AssertionError as ex:
-        assert_that(str(ex)).contains("to not contain entry {'b': 2}, but did.")
+        assert_that(str(ex)).contains("to not contain entries <{'a': 2}, {'b': 2}>, but did contain <{'b': 2}>.")
 
 def test_dynamic_assertion():
     fred = {'first_name': 'Fred', 'last_name': 'Smith', 'shoe_size': 12}

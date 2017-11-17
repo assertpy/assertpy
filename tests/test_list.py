@@ -121,7 +121,14 @@ def test_does_not_contain_list_item_failure():
         assert_that(['a','b','c']).does_not_contain('x','y','a')
         fail('should have raised error')
     except AssertionError as ex:
-        assert_that(str(ex)).is_equal_to("Expected <['a', 'b', 'c']> to not contain items ('x', 'y', 'a'), but did contain <a>.")
+        assert_that(str(ex)).is_equal_to("Expected <['a', 'b', 'c']> to not contain items <'x', 'y', 'a'>, but did contain <a>.")
+
+def test_does_not_contain_list_multi_item_failure():
+    try:
+        assert_that(['a','b','c']).does_not_contain('x','a','b')
+        fail('should have raised error')
+    except AssertionError as ex:
+        assert_that(str(ex)).is_equal_to("Expected <['a', 'b', 'c']> to not contain items <'x', 'a', 'b'>, but did contain <'a', 'b'>.")
 
 def test_contains_only():
     assert_that(['a','b','c']).contains_only('a','b','c')
@@ -146,7 +153,14 @@ def test_contains_only_failure():
         assert_that([1,2,3]).contains_only(1,2)
         fail('should have raised error')
     except AssertionError as ex:
-        assert_that(str(ex)).is_equal_to('Expected <[1, 2, 3]> to contain only (1, 2), but did contain <3>.')
+        assert_that(str(ex)).is_equal_to('Expected <[1, 2, 3]> to contain only <1, 2>, but did contain <3>.')
+
+def test_contains_only_multi_failure():
+    try:
+        assert_that([1,2,3]).contains_only(1,4)
+        fail('should have raised error')
+    except AssertionError as ex:
+        assert_that(str(ex)).is_equal_to('Expected <[1, 2, 3]> to contain only <1, 4>, but did contain <2, 3>.')
 
 def test_contains_sequence():
     assert_that(['a','b','c']).contains_sequence('a')
@@ -177,7 +191,7 @@ def test_contains_sequence_failure():
         assert_that([1,2,3]).contains_sequence(4,5)
         fail('should have raised error')
     except AssertionError as ex:
-        assert_that(str(ex)).is_equal_to('Expected <[1, 2, 3]> to contain sequence (4, 5), but did not.')
+        assert_that(str(ex)).is_equal_to('Expected <[1, 2, 3]> to contain sequence <4, 5>, but did not.')
 
 def test_contains_sequence_bad_val_failure():
     try:
