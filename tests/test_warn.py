@@ -30,54 +30,53 @@ import sys
 
 from assertpy import assert_that, assert_warn, fail
 
-class TestSoft(object):
 
-    def test_success(self):
-        assert_warn('foo').is_length(3)
-        assert_warn('foo').is_not_empty()
-        assert_warn('foo').is_true()
-        assert_warn('foo').is_alpha()
-        assert_warn('123').is_digit()
-        assert_warn('foo').is_lower()
-        assert_warn('FOO').is_upper()
-        assert_warn('foo').is_equal_to('foo')
-        assert_warn('foo').is_not_equal_to('bar')
-        assert_warn('foo').is_equal_to_ignoring_case('FOO')
+def test_success():
+    assert_warn('foo').is_length(3)
+    assert_warn('foo').is_not_empty()
+    assert_warn('foo').is_true()
+    assert_warn('foo').is_alpha()
+    assert_warn('123').is_digit()
+    assert_warn('foo').is_lower()
+    assert_warn('FOO').is_upper()
+    assert_warn('foo').is_equal_to('foo')
+    assert_warn('foo').is_not_equal_to('bar')
+    assert_warn('foo').is_equal_to_ignoring_case('FOO')
 
-    def test_failures(self):
-        if sys.version_info[0] == 3:
-            from io import StringIO
-        else:
-            from StringIO import StringIO
+def test_failures():
+    if sys.version_info[0] == 3:
+        from io import StringIO
+    else:
+        from StringIO import StringIO
 
-        # capture stdout
-        old = sys.stdout
-        sys.stdout = StringIO()
+    # capture stdout
+    old = sys.stdout
+    sys.stdout = StringIO()
 
-        assert_warn('foo').is_length(4)
-        assert_warn('foo').is_empty()
-        assert_warn('foo').is_false()
-        assert_warn('foo').is_digit()
-        assert_warn('123').is_alpha()
-        assert_warn('foo').is_upper()
-        assert_warn('FOO').is_lower()
-        assert_warn('foo').is_equal_to('bar')
-        assert_warn('foo').is_not_equal_to('foo')
-        assert_warn('foo').is_equal_to_ignoring_case('BAR')
+    assert_warn('foo').is_length(4)
+    assert_warn('foo').is_empty()
+    assert_warn('foo').is_false()
+    assert_warn('foo').is_digit()
+    assert_warn('123').is_alpha()
+    assert_warn('foo').is_upper()
+    assert_warn('FOO').is_lower()
+    assert_warn('foo').is_equal_to('bar')
+    assert_warn('foo').is_not_equal_to('foo')
+    assert_warn('foo').is_equal_to_ignoring_case('BAR')
 
-        # stop capturing stdout
-        out = sys.stdout.getvalue()
-        sys.stdout.close()
-        sys.stdout = old
+    # stop capturing stdout
+    out = sys.stdout.getvalue()
+    sys.stdout.close()
+    sys.stdout = old
 
-        assert_that(out).contains('Expected <foo> to be of length <4>, but was <3>.')
-        assert_that(out).contains('Expected <foo> to be empty string, but was not.')
-        assert_that(out).contains('Expected <False>, but was not.')
-        assert_that(out).contains('Expected <foo> to contain only digits, but did not.')
-        assert_that(out).contains('Expected <123> to contain only alphabetic chars, but did not.')
-        assert_that(out).contains('Expected <foo> to contain only uppercase chars, but did not.')
-        assert_that(out).contains('Expected <FOO> to contain only lowercase chars, but did not.')
-        assert_that(out).contains('Expected <foo> to be equal to <bar>, but was not.')
-        assert_that(out).contains('Expected <foo> to be not equal to <foo>, but was.')
-        assert_that(out).contains('Expected <foo> to be case-insensitive equal to <BAR>, but was not.')
+    assert_that(out).contains('Expected <foo> to be of length <4>, but was <3>.')
+    assert_that(out).contains('Expected <foo> to be empty string, but was not.')
+    assert_that(out).contains('Expected <False>, but was not.')
+    assert_that(out).contains('Expected <foo> to contain only digits, but did not.')
+    assert_that(out).contains('Expected <123> to contain only alphabetic chars, but did not.')
+    assert_that(out).contains('Expected <foo> to contain only uppercase chars, but did not.')
+    assert_that(out).contains('Expected <FOO> to contain only lowercase chars, but did not.')
+    assert_that(out).contains('Expected <foo> to be equal to <bar>, but was not.')
+    assert_that(out).contains('Expected <foo> to be not equal to <foo>, but was.')
+    assert_that(out).contains('Expected <foo> to be case-insensitive equal to <BAR>, but was not.')
 
