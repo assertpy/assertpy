@@ -85,7 +85,7 @@ def test_contains_ignoring_case_type_failure():
         assert_that(123).contains_ignoring_case('f')
         fail('should have raised error')
     except TypeError as ex:
-        assert_that(str(ex)).is_equal_to('val is not a string')
+        assert_that(str(ex)).is_equal_to('val is not a string or iterable')
 
 def test_contains_ignoring_case_missinge_item_failure():
     try:
@@ -118,6 +118,61 @@ def test_contains_ignoring_case_multi_item_failure():
 def test_contains_ignoring_case_multi_item_type_failure():
     try:
         assert_that('foo').contains_ignoring_case('F', 12)
+        fail('should have raised error')
+    except TypeError as ex:
+        assert_that(str(ex)).is_equal_to('given args must all be strings')
+
+def test_contains_ignoring_case_list():
+    assert_that(['foo']).contains_ignoring_case('Foo')
+    assert_that(['foo', 'bar', 'baz']).contains_ignoring_case('Foo')
+    assert_that(['foo', 'bar', 'baz']).contains_ignoring_case('Foo', 'bAr')
+    assert_that(['foo', 'bar', 'baz']).contains_ignoring_case('Foo', 'bAr', 'baZ')
+
+def test_contains_ignoring_case_list_elem_type_failure():
+    try:
+        assert_that([123]).contains_ignoring_case('f')
+        fail('should have raised error')
+    except TypeError as ex:
+        assert_that(str(ex)).is_equal_to('val items must all be strings')
+
+def test_contains_ignoring_case_list_multi_elem_type_failure():
+    try:
+        assert_that(['foo', 123]).contains_ignoring_case('f')
+        fail('should have raised error')
+    except TypeError as ex:
+        assert_that(str(ex)).is_equal_to('val items must all be strings')
+
+def test_contains_ignoring_case_list_missinge_item_failure():
+    try:
+        assert_that(['foo']).contains_ignoring_case()
+        fail('should have raised error')
+    except ValueError as ex:
+        assert_that(str(ex)).is_equal_to('one or more args must be given')
+
+def test_contains_ignoring_case_list_single_item_failure():
+    try:
+        assert_that(['foo']).contains_ignoring_case('X')
+        fail('should have raised error')
+    except AssertionError as ex:
+        assert_that(str(ex)).is_equal_to("Expected <['foo']> to case-insensitive contain items <X>, but did not contain <X>.")
+
+def test_contains_ignoring_case_list_single_item_type_failure():
+    try:
+        assert_that(['foo']).contains_ignoring_case(12)
+        fail('should have raised error')
+    except TypeError as ex:
+        assert_that(str(ex)).is_equal_to('given args must all be strings')
+
+def test_contains_ignoring_case_list_multi_item_failure():
+    try:
+        assert_that(['foo','bar']).contains_ignoring_case('Foo','X','Y')
+        fail('should have raised error')
+    except AssertionError as ex:
+        assert_that(str(ex)).is_equal_to("Expected <['foo', 'bar']> to case-insensitive contain items <'Foo', 'X', 'Y'>, but did not contain <'X', 'Y'>.")
+
+def test_contains_ignoring_case_list_multi_item_type_failure():
+    try:
+        assert_that(['foo','bar']).contains_ignoring_case('F', 12)
         fail('should have raised error')
     except TypeError as ex:
         assert_that(str(ex)).is_equal_to('given args must all be strings')
