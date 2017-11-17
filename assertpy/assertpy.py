@@ -37,11 +37,12 @@ import numbers
 import collections
 import inspect
 import math
-from contextlib import contextmanager
+import contextlib
 
 __version__ = '0.11'
 
 __tracebackhide__ = True # clean tracebacks via py.test integration
+contextlib.__tracebackhide__ = True # monkey patch contextlib with clean py.teest tracebacks
 
 if sys.version_info[0] == 3:
     str_types = (str,)
@@ -57,7 +58,7 @@ else:
 _soft_ctx = False
 _soft_err = []
 
-@contextmanager
+@contextlib.contextmanager
 def soft_assertions():
     global _soft_ctx
     global _soft_err
@@ -259,7 +260,6 @@ class AssertionBuilder(object):
             for i in items:
                 if i not in self.val:
                     missing.append(i)
-            
             if missing:
                 if type(self.val) is dict:
                     self._err('Expected <%s> to contain keys %s, but did not contain key%s %s.' % (self.val, self._fmt_items(items), '' if len(missing) == 0 else 's', self._fmt_items(missing)))
@@ -275,9 +275,12 @@ class AssertionBuilder(object):
             if items[0] in self.val:
                 self._err('Expected <%s> to not contain item <%s>, but did.' % (self.val, items[0]))
         else:
+            found = []
             for i in items:
                 if i in self.val:
-                    self._err('Expected <%s> to not contain items %s, but did contain <%s>.' % (self.val, items, i))
+                    found.append(i)
+            if found:
+                self._err('Expected <%s> to not contain items %s, but did contain %s.' % (self.val, self._fmt_items(items), self._fmt_items(found)))
         return self
 
     def contains_only(self, *items):
@@ -285,9 +288,12 @@ class AssertionBuilder(object):
         if len(items) == 0:
             raise ValueError('one or more args must be given')
         else:
+            extra = []
             for i in self.val:
                 if i not in items:
-                    self._err('Expected <%s> to contain only %s, but did contain <%s>.' % (self.val, items, i))
+                    extra.append(i)
+            if extra:
+                self._err('Expected <%s> to contain only %s, but did contain %s.' % (self.val, self._fmt_items(items), self._fmt_items(extra)))
         return self
 
     def contains_sequence(self, *items):
@@ -304,7 +310,7 @@ class AssertionBuilder(object):
                         return self
             except TypeError:
                 raise TypeError('val is not iterable')
-        self._err('Expected <%s> to contain sequence %s, but did not.' % (self.val, items))
+        self._err('Expected <%s> to contain sequence %s, but did not.' % (self.val, self._fmt_items(items)))
 
     def contains_duplicates(self):
         """Asserts that val is iterable and contains duplicate items."""
@@ -350,7 +356,7 @@ class AssertionBuilder(object):
             for i in items:
                 if self.val == i:
                     return self
-        self._err('Expected <%s> to be in %s, but was not.' % (self.val, items))
+        self._err('Expected <%s> to be in %s, but was not.' % (self.val, self._fmt_items(items)))
 
     def is_not_in(self, *items):
         """Asserts that val is not equal to one of the given items."""
@@ -359,7 +365,7 @@ class AssertionBuilder(object):
         else:
             for i in items:
                 if self.val == i:
-                    self._err('Expected <%s> to not be in %s, but was.' % (self.val, items))
+                    self._err('Expected <%s> to not be in %s, but was.' % (self.val, self._fmt_items(items)))
         return self
 
 ### numeric assertions ###
@@ -564,11 +570,14 @@ class AssertionBuilder(object):
             if items[0].lower() not in self.val.lower():
                 self._err('Expected <%s> to case-insensitive contain item <%s>, but did not.' % (self.val, items[0]))
         else:
+            missing = []
             for i in items:
                 if not isinstance(i, str_types):
                     raise TypeError('given args must all be strings')
                 if i.lower() not in self.val.lower():
-                    self._err('Expected <%s> to case-insensitive contain items %s, but did not contain <%s>.' % (self.val, items, i))
+                    missing.append(i)
+            if missing:
+                self._err('Expected <%s> to case-insensitive contain items %s, but did not contain %s.' % (self.val, self._fmt_items(items), self._fmt_items(missing)))
         return self
 
     def starts_with(self, prefix):
@@ -585,7 +594,7 @@ class AssertionBuilder(object):
         elif isinstance(self.val, collections.Iterable):
             if len(self.val) == 0:
                 raise ValueError('val must not be empty')
-            first = next(i for i in self.val)
+            first = next(iter(self.val))
             if first != prefix:
                 self._err('Expected %s to start with <%s>, but did not.' % (self.val, prefix))
         else:
@@ -705,6 +714,7 @@ class AssertionBuilder(object):
         if len(supersets) == 0:
             raise ValueError('one or more superset args must be given')
 
+        missing = []
         if hasattr(self.val, 'keys') and callable(getattr(self.val, 'keys')) and hasattr(self.val, '__getitem__'):
             # flatten superset dicts
             superdict = {}
@@ -715,9 +725,11 @@ class AssertionBuilder(object):
 
             for i in self.val.keys():
                 if i not in superdict:
-                    self._err('Expected <%s> to be subset of %s, but key <%s> was missing.' % (self.val, superdict, i))
-                if self.val[i] != superdict[i]:
-                    self._err('Expected <%s> to be subset of %s, but key <%s> value <%s> was not equal to <%s>.' % (self.val, superdict, i, self.val[i], superdict[i]))
+                    missing.append({i: self.val[i]}) # bad key
+                elif self.val[i] != superdict[i]:
+                    missing.append({i: self.val[i]}) # bad val
+            if missing:
+                self._err('Expected <%s> to be subset of %s, but %s %s missing.' % (self.val, self._fmt_items(superdict), self._fmt_items(missing), 'was' if len(missing) == 1 else 'were'))
         else:
             # flatten supersets
             superset = set()
@@ -730,7 +742,9 @@ class AssertionBuilder(object):
 
             for i in self.val:
                 if i not in superset:
-                    self._err('Expected <%s> to be subset of %s, but <%s> was missing.' % (self.val, superset, i))
+                    missing.append(i)
+            if missing:
+                self._err('Expected <%s> to be subset of %s, but %s %s missing.' % (self.val, self._fmt_items(superset), self._fmt_items(missing), 'was' if len(missing) == 1 else 'were'))
 
         return self
 
@@ -750,9 +764,12 @@ class AssertionBuilder(object):
         self._check_dict_like(self.val, check_getitem=False)
         if len(values) == 0:
             raise ValueError('one or more value args must be given')
+        missing = []
         for v in values:
             if v not in self.val.values():
-                self._err('Expected <%s> to contain value <%s>, but did not.' % (self.val, v))
+                missing.append(v)
+        if missing:
+            self._err('Expected <%s> to contain values %s, but did not contain %s.' % (self.val, self._fmt_items(values), self._fmt_items(missing)))
         return self
 
     def does_not_contain_value(self, *values):
@@ -760,13 +777,13 @@ class AssertionBuilder(object):
         self._check_dict_like(self.val, check_getitem=False)
         if len(values) == 0:
             raise ValueError('one or more value args must be given')
-        elif len(values) == 1:
-            if values[0] in self.val.values():
-                self._err('Expected <%s> to not contain value <%s>, but did.' % (self.val, values[0]))
         else:
+            found = []
             for v in values:
                 if v in self.val.values():
-                    self._err('Expected <%s> to not contain values %s, but did contain <%s>.' % (self.val, values, v))
+                    found.append(v)
+            if found:
+                self._err('Expected <%s> to not contain values %s, but did contain %s.' % (self.val, self._fmt_items(values), self._fmt_items(found)))
         return self
 
     def contains_entry(self, *entries):
@@ -774,16 +791,19 @@ class AssertionBuilder(object):
         self._check_dict_like(self.val, check_values=False)
         if len(entries) == 0:
             raise ValueError('one or more entry args must be given')
+        missing = []
         for e in entries:
             if type(e) is not dict:
                 raise TypeError('given entry arg must be a dict')
             if len(e) != 1:
                 raise ValueError('given entry args must contain exactly one key-value pair')
-            k = list(e.keys())[0]
+            k = next(iter(e))
             if k not in self.val:
-                self._err('Expected <%s> to contain entry %s, but did not contain key <%s>.' % (self.val, e, k))
+                missing.append(e) # bad key
             elif self.val[k] != e[k]:
-                self._err('Expected <%s> to contain entry %s, but key <%s> did not contain value <%s>.' % (self.val, e, k, e[k]))
+                missing.append(e) # bad val
+        if missing:
+            self._err('Expected <%s> to contain entries %s, but did not contain %s.' % (self.val, self._fmt_items(entries), self._fmt_items(missing)))
         return self
 
     def does_not_contain_entry(self, *entries):
@@ -791,14 +811,17 @@ class AssertionBuilder(object):
         self._check_dict_like(self.val, check_values=False)
         if len(entries) == 0:
             raise ValueError('one or more entry args must be given')
+        found = []
         for e in entries:
             if type(e) is not dict:
                 raise TypeError('given entry arg must be a dict')
             if len(e) != 1:
                 raise ValueError('given entry args must contain exactly one key-value pair')
-            k = list(e.keys())[0]
+            k = next(iter(e))
             if k in self.val and e[k] == self.val[k]:
-                self._err('Expected <%s> to not contain entry %s, but did.' % (self.val, e))
+                found.append(e)
+        if found:
+            self._err('Expected <%s> to not contain entries %s, but did contain %s.' % (self.val, self._fmt_items(entries), self._fmt_items(found)))
         return self
 
 ### datetime assertions ###
@@ -971,7 +994,7 @@ class AssertionBuilder(object):
 
 ### expected exceptions ###
     def raises(self, ex):
-        """Asserts that val is callable that when called raises the given error."""
+        """Asserts that val is callable and that when called raises the given error."""
         if not callable(self.val):
             raise TypeError('val must be callable')
         if not issubclass(ex, BaseException):
@@ -979,7 +1002,7 @@ class AssertionBuilder(object):
         return AssertionBuilder(self.val, self.description, self.kind, ex)
 
     def when_called_with(self, *some_args, **some_kwargs):
-        """Asserts the val function when invoked with the given args and kwargs raises the expected exception."""
+        """Asserts the val callable when invoked with the given args and kwargs raises the expected exception."""
         if not self.expected:
             raise TypeError('expected exception not set, raises() must be called first')
         try:
