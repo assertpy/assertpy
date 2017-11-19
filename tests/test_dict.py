@@ -26,6 +26,9 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import sys
+import collections
+
 from assertpy import assert_that,fail
 
 def test_is_length():
@@ -42,6 +45,10 @@ def test_contains():
     assert_that({ 'a':1,'b':2,'c':3 }).contains('a')
     assert_that({ 'a':1,'b':2,'c':3 }).contains('a','b')
 
+    if sys.version_info[0] == 3:
+        ordered = collections.OrderedDict([('z',9),('x',7),('y',8)])
+        assert_that(ordered).contains('x')
+
 def test_contains_empty_arg_failure():
     try:
         assert_that({ 'a':1,'b':2,'c':3 }).contains()
@@ -55,6 +62,15 @@ def test_contains_single_item_failure():
         fail('should have raised error')
     except AssertionError as ex:
         assert_that(str(ex)).contains('to contain key <x>, but did not.')
+
+def test_contains_single_item_dict_like_failure():
+    if sys.version_info[0] == 3:
+        ordered = collections.OrderedDict([('z',9),('x',7),('y',8)])
+        try:
+            assert_that(ordered).contains('a')
+            fail('should have raised error')
+        except AssertionError as ex:
+            assert_that(str(ex)).ends_with('to contain key <a>, but did not.')
 
 def test_contains_multi_item_failure():
     try:
@@ -91,6 +107,10 @@ def test_contains_only_multi_failure():
 def test_contains_key():
     assert_that({ 'a':1,'b':2,'c':3 }).contains_key('a')
     assert_that({ 'a':1,'b':2,'c':3 }).contains_key('a','b')
+
+    if sys.version_info[0] == 3:
+        ordered = collections.OrderedDict([('z',9),('x',7),('y',8)])
+        assert_that(ordered).contains_key('x')
 
 def test_contains_key_bad_val_failure():
     try:
