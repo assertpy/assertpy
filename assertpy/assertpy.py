@@ -39,7 +39,7 @@ import inspect
 import math
 import contextlib
 
-__version__ = '0.11'
+__version__ = '0.12'
 
 __tracebackhide__ = True # clean tracebacks via py.test integration
 contextlib.__tracebackhide__ = True # monkey patch contextlib with clean py.teest tracebacks
