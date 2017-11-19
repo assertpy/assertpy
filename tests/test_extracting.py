@@ -119,3 +119,123 @@ def test_described_as_with_double_extracting():
         fail('should have raised error')
     except AssertionError as ex:
         assert_that(str(ex)).is_equal_to("[other msg] Expected <['Fred', 'John']> to contain items <'Fred', 'Bob'>, but did not contain <Bob>.")
+
+users = [
+    {'user': 'Fred', 'age': 36, 'active': True},
+    {'user': 'Bob', 'age': 40, 'active': False},
+    {'user': 'Johnny', 'age': 13, 'active': True}
+]
+
+def test_extracting_filter():
+    assert_that(users).extracting('user', filter='active').is_equal_to(['Fred','Johnny'])
+    assert_that(users).extracting('user', filter={'active': False}).is_equal_to(['Bob'])
+    assert_that(users).extracting('user', filter={'age': 36, 'active': True}).is_equal_to(['Fred'])
+    assert_that(users).extracting('user', filter=lambda x: x['age'] > 20).is_equal_to(['Fred', 'Bob'])
+    assert_that(users).extracting('user', filter=lambda x: x['age'] < 10).is_empty()
+
+def test_extracting_filter_bad_type():
+    assert_that(users).extracting('user', filter=123).is_equal_to([])
+
+def test_extracting_filter_ignore_bad_key_types():
+    assert_that(users).extracting('user', filter={'active': True, 123: 'foo'}).is_equal_to(['Fred','Johnny'])
+
+def test_extracting_filter_custom_func():
+    def _f(x):
+        return x['user'] == 'Bob' or x['age'] == 13
+
+    assert_that(users).extracting('user', filter=_f).is_equal_to(['Bob', 'Johnny'])
+
+def test_extracting_filter_failure():
+    try:
+        assert_that(users).extracting('user', filter='foo')
+        fail('should have raised error')
+    except ValueError as ex:
+        assert_that(str(ex)).ends_with("'] did not contain key <foo>")
+
+def test_extracting_filter_dict_failure():
+    try:
+        assert_that(users).extracting('user', filter={'foo': 'bar'})
+        fail('should have raised error')
+    except ValueError as ex:
+        assert_that(str(ex)).ends_with("'] did not contain key <foo>")
+
+def test_extracting_filter_multi_item_dict_failure():
+    try:
+        assert_that(users).extracting('user', filter={'age': 36, 'active': True, 'foo': 'bar'})
+        fail('should have raised error')
+    except ValueError as ex:
+        assert_that(str(ex)).ends_with("'] did not contain key <foo>")
+
+def test_extracting_filter_lambda_failure():
+    try:
+        assert_that(users).extracting('user', filter=lambda x: x['foo'] > 0)
+        fail('should have raised error')
+    except KeyError as ex:
+        assert_that(str(ex)).is_equal_to("'foo'")
+
+def test_extracting_filter_custom_func_failure():
+    def _f(x):
+        raise RuntimeError('foobar!')
+    try:
+        assert_that(users).extracting('user', filter=_f)
+        fail('should have raised error')
+    except RuntimeError as ex:
+        assert_that(str(ex)).is_equal_to("foobar!")
+
+def test_extracting_sort():
+    assert_that(users).extracting('user', sort='age').is_equal_to(['Johnny','Fred','Bob'])
+    assert_that(users).extracting('user', sort=['active','age']).is_equal_to(['Bob','Johnny','Fred'])
+    assert_that(users).extracting('user', sort=lambda x: -x['age']).is_equal_to(['Bob','Fred','Johnny'])
+
+def test_extracting_sort_ignore_bad_type():
+    assert_that(users).extracting('user', sort=123).is_equal_to(['Fred','Bob','Johnny'])
+
+def test_extracting_sort_ignore_bad_key_types():
+    assert_that(users).extracting('user', sort=['active','age',123]).is_equal_to(['Bob','Johnny','Fred'])
+
+def test_extracting_sort_custom_func():
+    def _f(x):
+        if x['user'] == 'Johnny':
+            return 0
+        elif x['age'] == 40:
+            return 1
+        return 10
+
+    assert_that(users).extracting('user', sort=_f).is_equal_to(['Johnny', 'Bob', 'Fred'])
+
+def test_extracting_sort_failure():
+    try:
+        assert_that(users).extracting('user', sort='foo')
+        fail('should have raised error')
+    except ValueError as ex:
+        assert_that(str(ex)).ends_with("'] did not contain key <foo>")
+
+def test_extracting_sort_list_failure():
+    try:
+        assert_that(users).extracting('user', sort=['foo'])
+        fail('should have raised error')
+    except ValueError as ex:
+        assert_that(str(ex)).ends_with("'] did not contain key <foo>")
+
+def test_extracting_sort_multi_item_dict_failure():
+    try:
+        assert_that(users).extracting('user', sort=['active','age','foo'])
+        fail('should have raised error')
+    except ValueError as ex:
+        assert_that(str(ex)).ends_with("'] did not contain key <foo>")
+
+def test_extracting_sort_lambda_failure():
+    try:
+        assert_that(users).extracting('user', sort=lambda x: x['foo'] > 0)
+        fail('should have raised error')
+    except KeyError as ex:
+        assert_that(str(ex)).is_equal_to("'foo'")
+
+def test_extracting_sort_custom_func_failure():
+    def _f(x):
+        raise RuntimeError('foobar!')
+    try:
+        assert_that(users).extracting('user', sort=_f)
+        fail('should have raised error')
+    except RuntimeError as ex:
+        assert_that(str(ex)).is_equal_to("foobar!")
