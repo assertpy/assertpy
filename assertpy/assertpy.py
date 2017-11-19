@@ -934,7 +934,7 @@ class AssertionBuilder(object):
         return self
 
 ### collection of objects assertions ###
-    def extracting(self, *names):
+    def extracting(self, *names, **kwargs):
         """Asserts that val is collection, then extracts the named properties or named zero-arg methods into a list (or list of tuples if multiple names are given)."""
         if not isinstance(self.val, collections.Iterable):
             raise TypeError('val is not iterable')
@@ -942,27 +942,59 @@ class AssertionBuilder(object):
             raise TypeError('val must not be string')
         if len(names) == 0:
             raise ValueError('one or more name args must be given')
-        extracted = []
-        for i in self.val:
-            items = []
-            for name in names:
-                if type(i) is dict:
-                    if name in i:
-                        items.append(i[name])
-                    else:
-                        raise ValueError('item keys %s did not contain key <%s>' % (list(i.keys()), name))
-                elif hasattr(i, name):
-                    attr = getattr(i, name)
-                    if callable(attr):
-                        try:
-                            items.append(attr())
-                        except TypeError:
-                            raise ValueError('val method <%s()> exists, but is not zero-arg method' % name)
-                    else:
-                        items.append(attr)
+
+        def _extract(x, name):
+            if self._check_dict_like(x, check_values=False, return_as_bool=True):
+                if name in x:
+                    return x[name]
                 else:
-                    raise ValueError('val does not have property or zero-arg method <%s>' % name)
-            extracted.append(tuple(items) if len(items) > 1 else items[0])
+                    raise ValueError('item keys %s did not contain key <%s>' % (list(x.keys()), name))
+            elif hasattr(x, name):
+                attr = getattr(x, name)
+                if callable(attr):
+                    try:
+                        return attr()
+                    except TypeError:
+                        raise ValueError('val method <%s()> exists, but is not zero-arg method' % name)
+                else:
+                    return attr
+            else:
+                raise ValueError('val does not have property or zero-arg method <%s>' % name)
+
+        def _filter(x):
+            if 'filter' in kwargs:
+                if isinstance(kwargs['filter'], str_types):
+                    return bool(_extract(x, kwargs['filter']))
+                elif self._check_dict_like(kwargs['filter'], check_values=False, return_as_bool=True):
+                    for k in kwargs['filter']:
+                        if isinstance(k, str_types):
+                            if _extract(x, k) != kwargs['filter'][k]:
+                                return False
+                    return True
+                elif callable(kwargs['filter']):
+                    return kwargs['filter'](x)
+                return False
+            return True
+
+        def _sort(x):
+            if 'sort' in kwargs:
+                if isinstance(kwargs['sort'], str_types):
+                    return _extract(x, kwargs['sort'])
+                elif isinstance(kwargs['sort'], collections.Iterable):
+                    items = []
+                    for k in kwargs['sort']:
+                        if isinstance(k, str_types):
+                            items.append(_extract(x, k))
+                    return tuple(items)
+                elif callable(kwargs['sort']):
+                    return kwargs['sort'](x)
+            return 0
+
+        extracted = []
+        for i in sorted(self.val, key=lambda x: _sort(x)):
+            if _filter(i):
+                items = [_extract(i, name) for name in names]
+                extracted.append(tuple(items) if len(items) > 1 else items[0])
         return AssertionBuilder(extracted, self.description, self.kind)
 
 ### dynamic assertions ###
@@ -1081,15 +1113,29 @@ class AssertionBuilder(object):
         else:
             return ''
 
-    def _check_dict_like(self, d, check_keys=True, check_values=True, check_getitem=True, name='val'):
+    def _check_dict_like(self, d, check_keys=True, check_values=True, check_getitem=True, name='val', return_as_bool=False):
         if not isinstance(d, collections.Iterable):
-            raise TypeError('%s <%s> is not dict-like: not iterable' % (name, type(d).__name__))
+            if return_as_bool:
+                return False
+            else:
+                raise TypeError('%s <%s> is not dict-like: not iterable' % (name, type(d).__name__))
         if check_keys:
             if not hasattr(d, 'keys') or not callable(getattr(d, 'keys')):
-                raise TypeError('%s <%s> is not dict-like: missing keys()' % (name, type(d).__name__))
+                if return_as_bool:
+                    return False
+                else:
+                    raise TypeError('%s <%s> is not dict-like: missing keys()' % (name, type(d).__name__))
         if check_values:
             if not hasattr(d, 'values') or not callable(getattr(d, 'values')):
-                raise TypeError('%s <%s> is not dict-like: missing values()' % (name, type(d).__name__))
+                if return_as_bool:
+                    return False
+                else:
+                    raise TypeError('%s <%s> is not dict-like: missing values()' % (name, type(d).__name__))
         if check_getitem:
             if not hasattr(d, '__getitem__'):
-                raise TypeError('%s <%s> is not dict-like: missing [] accessor' % (name, type(d).__name__))
+                if return_as_bool:
+                    return False
+                else:
+                    raise TypeError('%s <%s> is not dict-like: missing [] accessor' % (name, type(d).__name__))
+        if return_as_bool:
+            return True
