@@ -473,7 +473,7 @@ class Person(object):
 
 #### Extracting Attributes from Objects
 
-It is frequently necessary to test collections of objects.  The `assertpy` library includes an `extracting` method to flatten the collection on a given attribute, like this:
+It is frequently necessary to test collections of objects.  The `assertpy` library includes an `extracting` helper to flatten the collection on a given attribute, like this:
 
 ```py
 fred = Person('Fred','Smith')
@@ -503,20 +503,20 @@ people = [fred, joe]
 assert_that(people).extracting('first_name').contains('Fred','Joe')
 ```
 
-Additionally, the `extracting` method can accept a list of attributes to be extracted, in this case it returns a list of tuples:
+Additionally, the `extracting` helper can accept a list of attributes to be extracted, and will flatten them into a list of tuples:
 
 ```py
 assert_that(people).extracting('first_name', 'last_name').contains(('Fred','Smith'), ('Joe','Coder'))
 ```
 
-Lastly, `extracting` works on not just attributes, but also properties, and even zero-argument methods:
+Lastly, `extracting` works on not just class attributes, but also properties, and even zero-argument methods:
 
 ```py
 assert_that(people).extracting('name').contains('Fred Smith', 'Joe Coder')
 assert_that(people).extracting('say_hello').contains('Hello, Fred!', 'Joe writes code.')
 ```
 
-As noted above, `extracting` also works on a collection of dicts:
+As noted above, the `extracting` helper also works on a collection of dicts:
 
 ```py
 fred = {'first_name': 'Fred', 'last_name': 'Smith'}
@@ -526,6 +526,63 @@ people = [fred, bob]
 assert_that(people).extracting('first_name').contains('Fred','Bob')
 ```
 
+##### Extracting and Filtering
+
+The `extracting` helper can include a `filter` to keep only those items for which the given `filter` is truthy.  For example, suppose we have the following list of dicts we wish to test:
+
+```py
+users = [
+    {'user': 'Fred', 'age': 36, 'active': True},
+    {'user': 'Bob', 'age': 40, 'active': False},
+    {'user': 'Johnny', 'age': 13, 'active': True}
+]
+```
+
+The `filter` can be the name of a key (or attribute, or property, or zero-argument method) and the extracted items are kept if the corresponding value is truthy:
+
+```py
+assert_that(users).extracting('user', filter='active')\
+    .is_equal_to(['Fred','Johnny'])
+```
+
+The `filter` can be a `dict`-like object and the extracted items are kept if *all* corresponding key-value pairs are equal:
+
+```py
+assert_that(users).extracting('user', filter={'active': False})\
+    .is_equal_to(['Bob'])
+assert_that(users).extracting('user', filter={'age': 36, 'active': True})\
+    .is_equal_to(['Fred'])
+```
+
+The `filter` can be any function (including an in-line `lambda`) that accepts as its single argument each item in the collection and the extracted items are kept if the function evaluates to `True`:
+
+```py
+assert_that(users).extracting('user', filter=lambda x: x['age'] > 20)\
+    .is_equal_to(['Fred', 'Bob'])
+```
+
+##### Extracting and Sorting
+
+The `extracting` helper can include a `sort` to enforce order on the extracted items.
+
+The `sort` can be the name of a key (or attribute, or property, or zero-argument method) and the extracted items are ordered by the corresponding values:
+
+```py
+assert_that(users).extracting('user', sort='age').is_equal_to(['Johnny','Fred','Bob'])
+```
+
+The `sort` can be an `iterable` of names and the extracted items are ordered by corresponding value of the first name, ties are broken by the corresponding values of the second name, and so on:
+
+```py
+assert_that(users).extracting('user', sort=['active','age']).is_equal_to(['Bob','Johnny','Fred'])
+```
+
+The `sort` can be any function (including an in-line `lambda`) that accepts as its single argument each item in the collection and the extracted items are ordered by the corresponding function return values:
+
+```py
+assert_that(users).extracting('user', sort=lambda x: -x['age'])\
+    .is_equal_to(['Bob','Fred','Johnny'])
+```
 
 #### Dynamic Assertions on Objects
 
@@ -539,7 +596,7 @@ assert_that(fred.name).is_equal_to('Fred Smith')
 assert_that(fred.say_hello()).is_equal_to('Hello, Fred!')
 ```
 
-So, `assertpy` takes advantage of the awesome dyanmism in the Python runtime to provide dynamic assertions in the form of `has_blah()` where `blah` is the name of any attribute, property, or zero-argument method on the given object.
+So, `assertpy` takes advantage of the awesome dyanmism in the Python runtime to provide dynamic assertions in the form of `has_<name>()` where `<name>` is the name of any attribute, property, or zero-argument method on the given object.
 
 Using dynamic assertions, we can rewrite the above assertions in a more compact and readable way like this:
 
@@ -612,8 +669,7 @@ Additionally, the error message contents are chained, and can be further verifie
 
 ```py
 assert_that(some_func).raises(RuntimeError).when_called_with('foo')\
-	.is_length(8).starts_with('some').is_equal_to('some err')
-
+    .is_length(8).starts_with('some').is_equal_to('some err')
 ```
 
 
