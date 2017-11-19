@@ -182,9 +182,22 @@ def test_extracting_filter_custom_func_failure():
     except RuntimeError as ex:
         assert_that(str(ex)).is_equal_to("foobar!")
 
+def test_extracting_filter_bad_values():
+    bad = [
+        {'user': 'Fred', 'age': 36},
+        {'user': 'Bob', 'age': 'bad'},
+        {'user': 'Johnny', 'age': 13}
+    ]
+    try:
+        assert_that(bad).extracting('user', filter=lambda x: x['age'] > 20)
+        fail('should have raised error')
+    except TypeError as ex:
+        assert_that(str(ex)).contains('unorderable types')
+
 def test_extracting_sort():
     assert_that(users).extracting('user', sort='age').is_equal_to(['Johnny','Fred','Bob'])
     assert_that(users).extracting('user', sort=['active','age']).is_equal_to(['Bob','Johnny','Fred'])
+    assert_that(users).extracting('user', sort=('active','age')).is_equal_to(['Bob','Johnny','Fred'])
     assert_that(users).extracting('user', sort=lambda x: -x['age']).is_equal_to(['Bob','Fred','Johnny'])
 
 def test_extracting_sort_ignore_bad_type():
@@ -239,3 +252,15 @@ def test_extracting_sort_custom_func_failure():
         fail('should have raised error')
     except RuntimeError as ex:
         assert_that(str(ex)).is_equal_to("foobar!")
+
+def test_extracting_sort_bad_values():
+    bad = [
+        {'user': 'Fred', 'age': 36},
+        {'user': 'Bob', 'age': 'bad'},
+        {'user': 'Johnny', 'age': 13}
+    ]
+    try:
+        assert_that(bad).extracting('user', sort='age')
+        fail('should have raised error')
+    except TypeError as ex:
+        assert_that(str(ex)).contains('unorderable types')
