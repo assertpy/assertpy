@@ -85,3 +85,9 @@ def test_check_dict_like_missing_keys():
     ab = assert_that(None)
     assert_that(ab._check_dict_like).raises(TypeError).when_called_with('foo')\
         .is_equal_to('val <str> is not dict-like: missing keys()')
+
+def test_check_dict_like_bool():
+    ab = assert_that(None)
+    assert_that(ab._check_dict_like({}, return_as_bool=True)).is_true()
+    assert_that(ab._check_dict_like(123, return_as_bool=True)).is_false()
+    assert_that(ab._check_dict_like('foo', return_as_bool=True)).is_false()

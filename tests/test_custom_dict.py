@@ -26,7 +26,6 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import assertpy
 from assertpy import assert_that, fail
 
 
@@ -104,7 +103,7 @@ class CustomDict(object):
 
 def test_check_dict_like():
     d = CustomDict({'a': 1})
-    ab = assertpy.assertpy.AssertionBuilder(None, '')
+    ab = assert_that(None)
     ab._check_dict_like(d)
     ab._check_dict_like(d, True, True, True)
     ab._check_dict_like(d, True, True, False)
@@ -122,9 +121,18 @@ def test_check_dict_like():
     ab._check_dict_like(CustomDictNoGetitem(), check_getitem=False)
 
 
+def test_check_dict_like_bool():
+    ab = assert_that(None)
+    assert_that(ab._check_dict_like(CustomDictNoKeys(), return_as_bool=True)).is_false()
+    assert_that(ab._check_dict_like(CustomDictNoKeysCallable(), return_as_bool=True)).is_false()
+    assert_that(ab._check_dict_like(CustomDictNoValues(), return_as_bool=True)).is_false()
+    assert_that(ab._check_dict_like(CustomDictNoValuesCallable(), return_as_bool=True)).is_false()
+    assert_that(ab._check_dict_like(CustomDictNoGetitem(), return_as_bool=True)).is_false()
+
+
 def test_check_dict_like_no_keys():
     try:
-        ab = assertpy.assertpy.AssertionBuilder(None, '')
+        ab = assert_that(None)
         ab._check_dict_like(CustomDictNoKeys())
         fail('should have raised error')
     except TypeError as e:
@@ -133,7 +141,7 @@ def test_check_dict_like_no_keys():
 
 def test_check_dict_like_no_keys_callable():
     try:
-        ab = assertpy.assertpy.AssertionBuilder(None, '')
+        ab = assert_that(None)
         ab._check_dict_like(CustomDictNoKeysCallable())
         fail('should have raised error')
     except TypeError as e:
@@ -142,7 +150,7 @@ def test_check_dict_like_no_keys_callable():
 
 def test_check_dict_like_no_values():
     try:
-        ab = assertpy.assertpy.AssertionBuilder(None, '')
+        ab = assert_that(None)
         ab._check_dict_like(CustomDictNoValues())
         fail('should have raised error')
     except TypeError as e:
@@ -151,7 +159,7 @@ def test_check_dict_like_no_values():
 
 def test_check_dict_like_no_values_callable():
     try:
-        ab = assertpy.assertpy.AssertionBuilder(None, '')
+        ab = assert_that(None)
         ab._check_dict_like(CustomDictNoValuesCallable())
         fail('should have raised error')
     except TypeError as e:
@@ -160,7 +168,7 @@ def test_check_dict_like_no_values_callable():
 
 def test_check_dict_like_no_getitem():
     try:
-        ab = assertpy.assertpy.AssertionBuilder(None, '')
+        ab = assert_that(None)
         ab._check_dict_like(CustomDictNoGetitem())
         fail('should have raised error')
     except TypeError as e:
