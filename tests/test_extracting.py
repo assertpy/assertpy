@@ -26,6 +26,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import sys
 from assertpy import assert_that,fail
 
 class Person(object):
@@ -188,11 +189,15 @@ def test_extracting_filter_bad_values():
         {'user': 'Bob', 'age': 'bad'},
         {'user': 'Johnny', 'age': 13}
     ]
-    try:
-        assert_that(bad).extracting('user', filter=lambda x: x['age'] > 20)
-        fail('should have raised error')
-    except TypeError as ex:
-        assert_that(str(ex)).contains('unorderable types')
+    if sys.version_info[0] == 3:
+        try:
+            assert_that(bad).extracting('user', filter=lambda x: x['age'] > 20)
+            fail('should have raised error')
+        except TypeError as ex:
+            if sys.version_info[1] <= 5:
+                assert_that(str(ex)).contains('unorderable types')
+            else:
+                assert_that(str(ex)).contains("not supported between instances of 'str' and 'int'")
 
 def test_extracting_sort():
     assert_that(users).extracting('user', sort='age').is_equal_to(['Johnny','Fred','Bob'])
@@ -259,8 +264,12 @@ def test_extracting_sort_bad_values():
         {'user': 'Bob', 'age': 'bad'},
         {'user': 'Johnny', 'age': 13}
     ]
-    try:
-        assert_that(bad).extracting('user', sort='age')
-        fail('should have raised error')
-    except TypeError as ex:
-        assert_that(str(ex)).contains('unorderable types')
+    if sys.version_info[0] == 3:
+        try:
+            assert_that(bad).extracting('user', sort='age')
+            fail('should have raised error')
+        except TypeError as ex:
+            if sys.version_info[1] <= 5:
+                assert_that(str(ex)).contains('unorderable types')
+            else:
+                assert_that(str(ex)).contains("not supported between instances of 'str' and 'int'")
