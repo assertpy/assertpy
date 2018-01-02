@@ -158,10 +158,14 @@ class AssertionBuilder(object):
         self.description = str(description)
         return self
 
-    def is_equal_to(self, other):
+    def is_equal_to(self, other, **kwargs):
         """Asserts that val is equal to other."""
-        if self.val != other:
-            self._err('Expected <%s> to be equal to <%s>, but was not.' % (self.val, other))
+        if self._check_dict_like(self.val, check_values=False, return_as_bool=True) and self._check_dict_like(other, check_values=False, return_as_bool=True):
+            if self._dict_not_equal(self.val, other, ignore=kwargs.get('ignore')):
+                self._dict_err(self.val, other, ignore=kwargs.get('ignore'))
+        else:
+            if self.val != other:
+                self._err('Expected <%s> to be equal to <%s>, but was not.' % (self.val, other))
         return self
 
     def is_not_equal_to(self, other):
@@ -1140,6 +1144,53 @@ class AssertionBuilder(object):
                     raise TypeError('%s <%s> is not dict-like: missing [] accessor' % (name, type(d).__name__))
         if return_as_bool:
             return True
+
+    def _dict_not_equal(self, val, other, ignore=None):
+        if ignore:
+            ignores = self._dict_ignore(ignore)
+            k1 = set([k for k in val if k not in ignores])
+            k2 = set([k for k in other if k not in ignores])
+            if k1 != k2:
+                return True
+            else:
+                for k in k1:
+                    if self._check_dict_like(val[k], check_values=False, return_as_bool=True) and self._check_dict_like(other[k], check_values=False, return_as_bool=True):
+                        return self._dict_not_equal(val[k], other[k], ignore=[i[1:] for i in ignores if type(i) is tuple and i[0] == k])
+                    elif val[k] != other[k]:
+                        return True
+            return False
+            #return k1 != k2 or any(val[k] != other[k] for k in k1)
+        else:
+            return val != other
+
+    def _dict_ignore(self, ignore):
+        return [i[0] if type(i) is tuple and len(i) == 1 else i \
+            for i in (ignore if type(ignore) is list else [ignore])]
+
+    def _dict_err(self, val, other, ignore=None):
+        def _dict_repr(d, other):
+            out = ''
+            ellip = False
+            for k,v in d.items():
+                if k not in other:
+                    out += '%s%s: %s' % (', ' if len(out) > 0 else '', repr(k), repr(v))
+                elif v != other[k]:
+                    out += '%s%s: %s' % (', ' if len(out) > 0 else '', repr(k),
+                        _dict_repr(v, other[k]) if self._check_dict_like(v, check_values=False, return_as_bool=True) and self._check_dict_like(other[k], check_values=False, return_as_bool=True) else repr(v)
+                    )
+                else:
+                    ellip = True
+            return '{%s%s}' % ('..' if ellip and len(out) == 0 else '.., ' if ellip else '', out)
+
+        if ignore:
+            ignores = self._dict_ignore(ignore)
+            ignore_err = ' ignoring keys %s' % self._fmt_items(['.'.join([str(s) for s in i]) if type(i) is tuple else i for i in ignores])
+
+        self._err('Expected <%s> to be equal to <%s>%s, but was not.' % (
+            _dict_repr(val, other),
+            _dict_repr(other, val),
+            ignore_err if ignore else ''
+        ))
 
 ### snapshot testing ###
     def snapshot(self, id=None, path='__snapshots'):

@@ -278,6 +278,28 @@ assert_that({'a':1,'b':2}).does_not_contain_entry({'a':2})
 assert_that({'a':1,'b':2}).does_not_contain_entry({'a':2},{'b':1})
 ```
 
+#### Dict Comparison
+
+Dict keys can optionally be ignored when using the `is_equal_to()` assertion.  Ignore a single key by passing the key with the `ignore` keyword argument:
+
+```py
+assert_that({'a':1,'b':2}).is_equal_to({'a':1}, ignore='b')
+```
+
+Ignore a multiple keys by passing a list of keys:
+
+```py
+assert_that({'a':1,'b':2,'c':3}).is_equal_to({'a':1}, ignore=['b','c'])
+```
+
+Ignore nested keys by passing a tuple:
+
+```py
+assert_that({'a':1,'b':{'c':2,'d':3}}).is_equal_to({'a':1,'b':{'c':2}}, ignore=('b','d'))
+```
+
+#### Dict Flattening
+
 Lists of dicts can be flattened on key using the `extracting` helper (see [extracting attributes](#extracting-attributes-from-objects)):
 
 ```py
@@ -288,6 +310,8 @@ people = [fred, bob]
 assert_that(people).extracting('first_name').is_equal_to(['Fred','Bob'])
 assert_that(people).extracting('first_name').contains('Fred','Bob')
 ```
+
+#### Dict Key Assertions
 
 Fluent assertions against the value of a given key can be done by prepending `has_` to the key name (see [dynamic assertions](#dynamic-assertions-on-objects)):
 
