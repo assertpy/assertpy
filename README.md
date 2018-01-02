@@ -791,6 +791,67 @@ Also, note that *only* assertion failures are collected, errors such as `TypeErr
 Triggering an explicit test failure with `fail()` will similarly halt execution immediately.  If you need more
 forgiving behavior, you can use `soft_fail()` which is collected like any other failing assertion within a soft assertions block.
 
+### Snapshot Testing
+
+Take a snapshot of a python data structure, store it on disk in JSON format, and automatically compare the latest data to the stored data on every test run.  The snapshot testing features of `assertpy` are borrowed from [Jest](https://facebook.github.io/jest/), a well-kwown and powerful Javascript testing framework.
+
+For example, snapshot the following dict:
+
+```py
+assert_that({'a':1,'b':2,'c':3}).snapshot()
+```
+
+Stored on disk as the following JSON:
+
+```
+{
+  "a": 1,
+  "b": 2,
+  "c": 3
+}
+```
+
+Additionally, the on-disk snapshot format supports most python data structures (dict, list, object, etc).  For example:
+
+```py
+assert_that(None).snapshot()
+assert_that(True).snapshot()
+assert_that(123).snapshot()
+assert_that(-987.654).snapshot()
+assert_that('foo').snapshot()
+assert_that([1,2,3]).snapshot()
+assert_that(set(['a','b','c'])).snapshot()
+assert_that({'a':1,'b':2,'c':3}).snapshot()
+assert_that(1 + 2j).snapshot()
+assert_that(someobj).snapshot()
+```
+
+Snapshot artifacts (typically found in the `__snapshots` folder), should be committed to source control alongside any code changes.
+
+On the first run (when the snapshot file doesn't yet exist), the snapshot is created, stored to disk, and the test is passed.  On all subsequent runs, the given data is compared to the on-disk snapshot, and the test fails if they don't match.  Failure means that some change occured, so either a bug or a known implementation changed.
+
+#### Updating Snapshots
+
+It's easy to update your snapshots...just delete them all and re-run the test suite to regenerate all snapshots.
+
+#### Snapshot Parameters
+
+By default, snapshots are identified by test filename plus line number.  Alternately, you can specify a custom identifier using the `id` keyword:
+
+```py
+assert_that({'a':1,'b':2,'c':3}).snapshot(id='my-custom-id')
+```
+
+By default, all snapshots (including those with custom identifiers) are stored in the `__snapshots` folder.  Alternately, you can specify a custom path using the `path` keyword:
+
+```py
+assert_that({'a':1,'b':2,'c':3}).snapshot(path='my-custom-folder')
+```
+
+#### Snapshot Blackbox
+
+Functional testing (which snapshot testing falls under) is very much blackbox testing.  When something goes wrong, it's hard to pinpoint the issue, because they provide little *isolation*.  On the plus side, snapshots can provide enormous *leverage* as a few well-place snapshots can strongly verify applicaiton state that would require dozens if not hundreds of unit tests.
+
 ### Chaining
 
 One of the nicest aspects of any fluent API is the ability to chain methods together.  In the case of `assertpy`, chaining
@@ -824,7 +885,7 @@ There are always a few new features in the works...if you'd like to help, check 
 
 All files are licensed under the BSD 3-Clause License as follows:
 
-> Copyright (c) 2015-2017, Activision Publishing, Inc.
+> Copyright (c) 2015-2018, Activision Publishing, Inc.
 > All rights reserved.
 >
 > Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
