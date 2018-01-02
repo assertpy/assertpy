@@ -8,6 +8,8 @@
 cover
 .coverage
 htmlcov
+__snapshots
+mycustompath
 
 # packaging
 MANIFEST
