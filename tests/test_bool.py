@@ -1,4 +1,4 @@
-# Copyright (c) 2015-2017, Activision Publishing, Inc.
+# Copyright (c) 2015-2018, Activision Publishing, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -28,31 +28,33 @@
 
 from assertpy import assert_that,fail
 
-class TestBool(object):
 
-    def test_is_true(self):
-        assert_that(True).is_true()
-        assert_that(1 == 1).is_true()
-        assert_that(1).is_true()
+def test_is_true():
+    assert_that(True).is_true()
+    assert_that(1 == 1).is_true()
+    assert_that(1).is_true()
+    assert_that('a').is_true()
+    assert_that([1]).is_true()
+    assert_that({'a':1}).is_true()
 
-    def test_is_true_failure(self):
-        try:
-            assert_that(False).is_true()
-            fail('should have raised error')
-        except AssertionError as ex:
-            assert_that(str(ex)).is_equal_to('Expected <True>, but was not.')
+def test_is_true_failure():
+    try:
+        assert_that(False).is_true()
+        fail('should have raised error')
+    except AssertionError as ex:
+        assert_that(str(ex)).is_equal_to('Expected <True>, but was not.')
 
-    def test_is_false(self):
-        assert_that(False).is_false()
-        assert_that(1 == 2).is_false()
-        assert_that(0).is_false()
-        assert_that([]).is_false()
-        assert_that({}).is_false()
-        assert_that(()).is_false()
+def test_is_false():
+    assert_that(False).is_false()
+    assert_that(1 == 2).is_false()
+    assert_that(0).is_false()
+    assert_that([]).is_false()
+    assert_that({}).is_false()
+    assert_that(()).is_false()
 
-    def test_is_false_failure(self):
-        try:
-            assert_that(True).is_false()
-            fail('should have raised error')
-        except AssertionError as ex:
-            assert_that(str(ex)).is_equal_to('Expected <False>, but was not.')
+def test_is_false_failure():
+    try:
+        assert_that(True).is_false()
+        fail('should have raised error')
+    except AssertionError as ex:
+        assert_that(str(ex)).is_equal_to('Expected <False>, but was not.')

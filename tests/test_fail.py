@@ -1,4 +1,4 @@
-# Copyright (c) 2015-2017, Activision Publishing, Inc.
+# Copyright (c) 2015-2018, Activision Publishing, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -28,18 +28,17 @@
 
 from assertpy import assert_that,fail
 
-class TestNone(object):
 
-    def test_fail(self):
-        try:
-            fail()
-            fail('should have raised error')
-        except AssertionError as ex:
-            assert_that(str(ex)).is_equal_to('Fail!')
+def test_fail():
+    try:
+        fail()
+        fail('should have raised error')
+    except AssertionError as ex:
+        assert_that(str(ex)).is_equal_to('Fail!')
 
-    def test_fail_msg(self):
-        try:
-            fail('some msg')
-            fail('should have raised error')
-        except AssertionError as ex:
-            assert_that(str(ex)).is_equal_to('Fail: some msg!')
+def test_fail_msg():
+    try:
+        fail('some msg')
+        fail('should have raised error')
+    except AssertionError as ex:
+        assert_that(str(ex)).is_equal_to('Fail: some msg!')
