@@ -40,7 +40,7 @@ import math
 import contextlib
 import json
 
-__version__ = '0.12'
+__version__ = '0.13'
 
 __tracebackhide__ = True # clean tracebacks via py.test integration
 contextlib.__tracebackhide__ = True # monkey patch contextlib with clean py.test tracebacks
