@@ -162,6 +162,13 @@ def test_contains_only_multi_failure():
     except AssertionError as ex:
         assert_that(str(ex)).is_equal_to('Expected <[1, 2, 3]> to contain only <1, 4>, but did contain <2, 3>.')
 
+def test_contains_only_superlist_failure():
+    try:
+        assert_that([1,2,3]).contains_only(1,2,3,4)
+        fail('should have raised error')
+    except AssertionError as ex:
+        assert_that(str(ex)).is_equal_to('Expected <[1, 2, 3]> to contain only <1, 2, 3, 4>, but did not contain <4>.')
+
 def test_contains_sequence():
     assert_that(['a','b','c']).contains_sequence('a')
     assert_that(['a','b','c']).contains_sequence('b')

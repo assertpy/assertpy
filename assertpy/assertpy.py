@@ -299,6 +299,13 @@ class AssertionBuilder(object):
                     extra.append(i)
             if extra:
                 self._err('Expected <%s> to contain only %s, but did contain %s.' % (self.val, self._fmt_items(items), self._fmt_items(extra)))
+
+            missing = []
+            for i in items:
+                if i not in self.val:
+                    missing.append(i)
+            if missing:
+                self._err('Expected <%s> to contain only %s, but did not contain %s.' % (self.val, self._fmt_items(items), self._fmt_items(missing)))
         return self
 
     def contains_sequence(self, *items):
