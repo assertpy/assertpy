@@ -34,11 +34,17 @@ Just install with:
 pip install assertpy
 ```
 
-Or, if you are a big fan of [conda](http://conda.pydata.org/) like we are, `assertpy` is also on [anaconda cloud](https://anaconda.org/ActivisionGameScience/assertpy) (formerly known as binstar).
+Or, if you are a big fan of [conda](https://conda.io/) like we are, `assertpy` is in [Anaconda Cloud](https://anaconda.org/ActivisionGameScience/assertpy).
 Just install from our channel:
 
 ```
-conda install --channel ActivisionGameScience assertpy
+conda install assertpy --channel ActivisionGameScience
+```
+
+There is also an [assertpy-feedstock](https://github.com/conda-forge/assertpy-feedstock) for [Conda-Forge](https://conda-forge.org/) that you can use:
+
+```
+conda install assertpy --channel conda-forge
 ```
 
 
