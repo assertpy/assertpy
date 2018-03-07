@@ -112,7 +112,7 @@ class TestFile(object):
             assert_that(self.tmp.name).not_exists()
             fail('should have raised error')
         except AssertionError as ex:
-            assert_that(str(ex)).is_equal_to('Expected <self.tmp.name> to not exist, but found.')
+            assert_that(str(ex)).is_equal_to('Expected <{}> to not exist, but found.'.format(self.tmp.name))
 
     def test_not_exists_bad_val_failure(self):
         try:
