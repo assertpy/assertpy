@@ -104,6 +104,23 @@ class TestFile(object):
         except TypeError as ex:
             assert_that(str(ex)).is_equal_to('val is not a path')
 
+    def test_not_exists(self):
+        assert_that('missing.txt').not_exists()
+
+    def test_not_exists_failure(self):
+        try:
+            assert_that(self.tmp.name).not_exists()
+            fail('should have raised error')
+        except AssertionError as ex:
+            assert_that(str(ex)).is_equal_to('Expected <self.tmp.name> to not exist, but found.')
+
+    def test_not_exists_bad_val_failure(self):
+        try:
+            assert_that(123).exists()
+            fail('should have raised error')
+        except TypeError as ex:
+            assert_that(str(ex)).is_equal_to('val is not a path')
+
     def test_is_file(self):
         assert_that(self.tmp.name).is_file()
 

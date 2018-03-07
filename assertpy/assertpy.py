@@ -910,6 +910,14 @@ class AssertionBuilder(object):
             self._err('Expected <%s> to exist, but not found.' % self.val)
         return self
 
+    def not_exists(self):
+        """Asserts that val is a path and that it does not exists."""
+        if not isinstance(self.val, str_types):
+            raise TypeError('val is not a path')
+        if os.path.exists(self.val):
+            self._err('Expected <%s> to not exist, but found.' % self.val)
+        return self
+
     def is_file(self):
         """Asserts that val is an existing path to a file."""
         self.exists()
