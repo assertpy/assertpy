@@ -95,11 +95,28 @@ class TestFile(object):
             assert_that('missing.txt').exists()
             fail('should have raised error')
         except AssertionError as ex:
-            assert_that(str(ex)).is_equal_to('Expected <missing.txt> to exist, but not found.')
+            assert_that(str(ex)).is_equal_to('Expected <missing.txt> to exist, but was not found.')
 
     def test_exists_bad_val_failure(self):
         try:
             assert_that(123).exists()
+            fail('should have raised error')
+        except TypeError as ex:
+            assert_that(str(ex)).is_equal_to('val is not a path')
+
+    def test_does_not_exist(self):
+        assert_that('missing.txt').does_not_exist()
+
+    def test_does_not_exist_failure(self):
+        try:
+            assert_that(self.tmp.name).does_not_exist()
+            fail('should have raised error')
+        except AssertionError as ex:
+            assert_that(str(ex)).is_equal_to('Expected <{}> to not exist, but was found.'.format(self.tmp.name))
+
+    def test_does_not_exist_bad_val_failure(self):
+        try:
+            assert_that(123).does_not_exist()
             fail('should have raised error')
         except TypeError as ex:
             assert_that(str(ex)).is_equal_to('val is not a path')
@@ -112,7 +129,7 @@ class TestFile(object):
             assert_that('missing.txt').is_file()
             fail('should have raised error')
         except AssertionError as ex:
-            assert_that(str(ex)).is_equal_to('Expected <missing.txt> to exist, but not found.')
+            assert_that(str(ex)).is_equal_to('Expected <missing.txt> to exist, but was not found.')
 
     def test_is_file_directory_failure(self):
         try:
@@ -131,7 +148,7 @@ class TestFile(object):
             assert_that('missing_dir').is_directory()
             fail('should have raised error')
         except AssertionError as ex:
-            assert_that(str(ex)).is_equal_to('Expected <missing_dir> to exist, but not found.')
+            assert_that(str(ex)).is_equal_to('Expected <missing_dir> to exist, but was not found.')
 
     def test_is_directory_file_failure(self):
         try:
