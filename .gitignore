@@ -1,6 +1,7 @@
 # .gitignore
 *.py[cod]
 .cache
+.pytest_cache
 
 # testing output
 *.xml
