@@ -286,7 +286,9 @@ assert_that({'a':1,'b':2}).does_not_contain_entry({'a':2},{'b':1})
 
 #### Dict Comparison
 
-Dict keys can optionally be ignored when using the `is_equal_to()` assertion.  Ignore a single key by passing the key with the `ignore` keyword argument:
+Dict keys can optionally be ignored or included when using the `is_equal_to()` assertion.
+
+Ignore dict keys with the `ignore` keyword argument:
 
 ```py
 # ignore a single key
@@ -299,7 +301,7 @@ assert_that({'a':1,'b':2,'c':3}).is_equal_to({'a':1}, ignore=['b','c'])
 assert_that({'a':1,'b':{'c':2,'d':3}}).is_equal_to({'a':1,'b':{'c':2}}, ignore=('b','d'))
 ```
 
-Similarly, dict keys can optionally be included when using the `is_equal_to()` assertion via the `include` keyword argument:
+Or include dict keys with the `include` keyword argument:
 
 ```py
 # include a single key
@@ -312,7 +314,7 @@ assert_that({'a':1,'b':2,'c':3}).is_equal_to({'a':1,'b':2}, include=['a','b'])
 assert_that({'a':1,'b':{'c':2,'d':3}}).is_equal_to({'b':{'d':3}}, include=('b','d'))
 ```
 
-Or combine them:
+Or do both:
 
 ```py
 assert_that({'a':1,'b':{'c':2,'d':3,'e':4,'f':5}}).is_equal_to(
