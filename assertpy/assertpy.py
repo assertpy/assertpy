@@ -161,8 +161,8 @@ class AssertionBuilder(object):
     def is_equal_to(self, other, **kwargs):
         """Asserts that val is equal to other."""
         if self._check_dict_like(self.val, check_values=False, return_as_bool=True) and self._check_dict_like(other, check_values=False, return_as_bool=True):
-            if self._dict_not_equal(self.val, other, ignore=kwargs.get('ignore')):
-                self._dict_err(self.val, other, ignore=kwargs.get('ignore'))
+            if self._dict_not_equal(self.val, other, ignore=kwargs.get('ignore'), include=kwargs.get('include')):
+                self._dict_err(self.val, other, ignore=kwargs.get('ignore'), include=kwargs.get('include'))
         else:
             if self.val != other:
                 self._err('Expected <%s> to be equal to <%s>, but was not.' % (self.val, other))
@@ -1160,21 +1160,50 @@ class AssertionBuilder(object):
         if return_as_bool:
             return True
 
-    def _dict_not_equal(self, val, other, ignore=None):
-        if ignore:
+    def _dict_not_equal(self, val, other, ignore=None, include=None):
+        if ignore or include:
             ignores = self._dict_ignore(ignore)
-            k1 = set([k for k in val if k not in ignores])
-            k2 = set([k for k in other if k not in ignores])
+            includes = self._dict_include(include)
+
+            # guarantee include keys are in val
+            if include:
+                missing = []
+                for i in includes:
+                    if i not in val:
+                        missing.append(i)
+                if missing:
+                    self._err('Expected <%s> to include key%s %s, but did not include key%s %s.' % (
+                        val,
+                        '' if len(includes) == 1 else 's',
+                        self._fmt_items(['.'.join([str(s) for s in i]) if type(i) is tuple else i for i in includes]),
+                        '' if len(missing) == 1 else 's',
+                        self._fmt_items(missing)))
+
+            if ignore and include:
+                k1 = set([k for k in val if k not in ignores and k in includes])
+            elif ignore:
+                k1 = set([k for k in val if k not in ignores])
+            else: # include
+                k1 = set([k for k in val if k in includes])
+
+            if ignore and include:
+                k2 = set([k for k in other if k not in ignores and k in includes])
+            elif ignore:
+                k2 = set([k for k in other if k not in ignores])
+            else: # include
+                k2 = set([k for k in other if k in includes])
+
             if k1 != k2:
                 return True
             else:
                 for k in k1:
                     if self._check_dict_like(val[k], check_values=False, return_as_bool=True) and self._check_dict_like(other[k], check_values=False, return_as_bool=True):
-                        return self._dict_not_equal(val[k], other[k], ignore=[i[1:] for i in ignores if type(i) is tuple and i[0] == k])
+                        return self._dict_not_equal(val[k], other[k],
+                            ignore=[i[1:] for i in ignores if type(i) is tuple and i[0] == k] if ignore else None,
+                            include=[i[1:] for i in self._dict_ignore(include) if type(i) is tuple and i[0] == k] if include else None)
                     elif val[k] != other[k]:
                         return True
             return False
-            #return k1 != k2 or any(val[k] != other[k] for k in k1)
         else:
             return val != other
 
@@ -1182,7 +1211,11 @@ class AssertionBuilder(object):
         return [i[0] if type(i) is tuple and len(i) == 1 else i \
             for i in (ignore if type(ignore) is list else [ignore])]
 
-    def _dict_err(self, val, other, ignore=None):
+    def _dict_include(self, include):
+        return [i[0] if type(i) is tuple else i \
+            for i in (include if type(include) is list else [include])]
+
+    def _dict_err(self, val, other, ignore=None, include=None):
         def _dict_repr(d, other):
             out = ''
             ellip = False
@@ -1200,11 +1233,15 @@ class AssertionBuilder(object):
         if ignore:
             ignores = self._dict_ignore(ignore)
             ignore_err = ' ignoring keys %s' % self._fmt_items(['.'.join([str(s) for s in i]) if type(i) is tuple else i for i in ignores])
+        if include:
+            includes = self._dict_ignore(include)
+            include_err = ' including keys %s' % self._fmt_items(['.'.join([str(s) for s in i]) if type(i) is tuple else i for i in includes])
 
-        self._err('Expected <%s> to be equal to <%s>%s, but was not.' % (
+        self._err('Expected <%s> to be equal to <%s>%s%s, but was not.' % (
             _dict_repr(val, other),
             _dict_repr(other, val),
-            ignore_err if ignore else ''
+            ignore_err if ignore else '',
+            include_err if include else ''
         ))
 
 ### snapshot testing ###

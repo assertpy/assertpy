@@ -199,3 +199,86 @@ def test_failure_single_item_tuple_keys_ignore_error_msg():
         fail('should have raised error')
     except AssertionError as ex:
         assert_that(str(ex)).is_equal_to("Expected <{(1,): 'a'}> to be equal to <{(1,): 'b'}> ignoring keys <2>, but was not.")
+
+def test_include_key():
+    assert_that({'a':1,'b':2}).is_equal_to({'a':1}, include='a')
+    assert_that({'a':1,'b':{'x':2,'y':3}}).is_equal_to({'a':1}, include='a')
+    assert_that({'a':1,'b':{'x':2,'y':3}}).is_equal_to({'b':{'x':2,'y':3}}, include='b')
+
+def test_include_list_of_keys():
+    assert_that({'a':1,'b':2,'c':3}).is_equal_to({'a':1,'b':2,'c':3}, include=['a','b','c'])
+    assert_that({'a':1,'b':2,'c':3}).is_equal_to({'a':1,'b':2}, include=['a','b'])
+    assert_that({'a':1,'b':2,'c':3}).is_equal_to({'a':1}, include=['a'])
+    assert_that({'a':1,'b':2,'c':3}).is_equal_to({'b':2}, include=['b'])
+    assert_that({'a':1,'b':2,'c':3}).is_equal_to({'c':3}, include=['c'])
+
+def test_include_deep_key():
+    assert_that({'a':1,'b':{'x':2,'y':3}}).is_equal_to({'b':{'x':2,'y':3}}, include=('b'))
+    assert_that({'a':1,'b':{'x':2,'y':3}}).is_equal_to({'b':{'x':2}}, include=('b','x'))
+    assert_that({'a':1,'b':{'c':2,'d':{'e':3,'f':{'x':4,'y':5}}}}).is_equal_to({'b':{'c':2,'d':{'e':3,'f':{'x':4,'y':5}}}}, include=('b'))
+    assert_that({'a':1,'b':{'c':2,'d':{'e':3,'f':{'x':4,'y':5}}}}).is_equal_to({'b':{'c':2}}, include=('b','c'))
+    assert_that({'a':1,'b':{'c':2,'d':{'e':3,'f':{'x':4,'y':5}}}}).is_equal_to({'b':{'d':{'e':3,'f':{'x':4,'y':5}}}}, include=('b','d'))
+    assert_that({'a':1,'b':{'c':2,'d':{'e':3,'f':{'x':4,'y':5}}}}).is_equal_to({'b':{'d':{'e':3,}}}, include=('b','d','e'))
+    assert_that({'a':1,'b':{'c':2,'d':{'e':3,'f':{'x':4,'y':5}}}}).is_equal_to({'b':{'d':{'f':{'x':4,'y':5}}}}, include=('b','d','f'))
+    assert_that({'a':1,'b':{'c':2,'d':{'e':3,'f':{'x':4,'y':5}}}}).is_equal_to({'b':{'d':{'f':{'x':4}}}}, include=('b','d','f','x'))
+    assert_that({'a':1,'b':{'c':2,'d':{'e':3,'f':{'x':4,'y':5}}}}).is_equal_to({'b':{'d':{'f':{'y':5}}}}, include=('b','d','f','y'))
+
+def test_failure_include():
+    try:
+        assert_that({'a':1}).is_equal_to({'a':2}, include='a')
+        fail('should have raised error')
+    except AssertionError as ex:
+        assert_that(str(ex)).is_equal_to("Expected <{'a': 1}> to be equal to <{'a': 2}> including keys <a>, but was not.")
+
+def test_failure_include_missing():
+    try:
+        assert_that({'a':1}).is_equal_to({'a':1}, include='b')
+        fail('should have raised error')
+    except AssertionError as ex:
+        assert_that(str(ex)).is_equal_to("Expected <{'a': 1}> to include key <b>, but did not include key <b>.")
+
+def test_failure_include_multiple_missing():
+    try:
+        assert_that({'a':1}).is_equal_to({'a':1}, include=['b','c'])
+        fail('should have raised error')
+    except AssertionError as ex:
+        assert_that(str(ex)).is_equal_to("Expected <{'a': 1}> to include keys <'b', 'c'>, but did not include keys <'b', 'c'>.")
+
+def test_failure_include_deep_missing():
+    try:
+        assert_that({'a':{'b':2}}).is_equal_to({'a':{'c':3}}, include=('a','c'))
+        fail('should have raised error')
+    except AssertionError as ex:
+        assert_that(str(ex)).is_equal_to("Expected <{'b': 2}> to include key <c>, but did not include key <c>.")
+
+def test_failure_include_multi_keys():
+    try:
+        assert_that({'a':1,'b':2}).is_equal_to({'a':1,'b':3}, include=['a','b'])
+        fail('should have raised error')
+    except AssertionError as ex:
+        assert_that(str(ex)).is_equal_to("Expected <{.., 'b': 2}> to be equal to <{.., 'b': 3}> including keys <'a', 'b'>, but was not.")
+
+def test_failure_include_deep_keys():
+    try:
+        assert_that({'a':{'b':1}}).is_equal_to({'a':{'b':2}}, include=('a','b'))
+        fail('should have raised error')
+    except AssertionError as ex:
+        assert_that(str(ex)).is_equal_to("Expected <{'a': {'b': 1}}> to be equal to <{'a': {'b': 2}}> including keys <a.b>, but was not.")
+
+def test_ignore_and_include_key():
+    assert_that({'a':1}).is_equal_to({}, ignore='a', include='a')
+    assert_that({'a':1,'b':2}).is_equal_to({'a':1}, ignore='b', include='a')
+    assert_that({'a':1,'b':{'x':2,'y':3}}).is_equal_to({'b':{'y':3}}, ignore=('b','x'), include='b')
+
+def test_ignore_and_include_list_of_keys():
+    assert_that({'a':1,'b':2,'c':3}).is_equal_to({'a':1,'c':3}, ignore=['b'], include=['a','b','c'])
+    assert_that({'a':1,'b':2,'c':3}).is_equal_to({'a':1,'b':2}, ignore=['c'], include=['a','b'])
+    assert_that({'a':1,'b':2,'c':3}).is_equal_to({'a':1}, ignore=['b','c'], include=['a','b'])
+    assert_that({'a':1,'b':2,'c':3}).is_equal_to({'a':1}, ignore=['c'], include=['a'])
+    assert_that({'a':1,'b':2,'c':3}).is_equal_to({'b':2}, ignore=['a'], include=['b'])
+    assert_that({'a':1,'b':2,'c':3}).is_equal_to({'c':3}, ignore=['b'], include=['c'])
+
+def test_ignore_and_include_deep_key():
+    assert_that({'a':1,'b':{'x':2,'y':3}}).is_equal_to({'b':{'x':2,'y':3}}, ignore=('a'), include=('b'))
+    assert_that({'a':1,'b':{'x':2,'y':3}}).is_equal_to({'b':{'x':2}}, ignore=('b','y'), include=('b','x'))
+    assert_that({'a':1,'b':{'c':2,'d':{'e':3,'f':{'x':4,'y':5}}}}).is_equal_to({'b':{'c':2,'d':{'e':3}}}, ignore=('b','d','f'), include=('b'))
