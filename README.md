@@ -289,19 +289,37 @@ assert_that({'a':1,'b':2}).does_not_contain_entry({'a':2},{'b':1})
 Dict keys can optionally be ignored when using the `is_equal_to()` assertion.  Ignore a single key by passing the key with the `ignore` keyword argument:
 
 ```py
+# ignore a single key
 assert_that({'a':1,'b':2}).is_equal_to({'a':1}, ignore='b')
-```
 
-Ignore a multiple keys by passing a list of keys:
-
-```py
+# ignore multiple keys using a list
 assert_that({'a':1,'b':2,'c':3}).is_equal_to({'a':1}, ignore=['b','c'])
+
+# ignore nested keys using a tuple
+assert_that({'a':1,'b':{'c':2,'d':3}}).is_equal_to({'a':1,'b':{'c':2}}, ignore=('b','d'))
 ```
 
-Ignore nested keys by passing a tuple:
+Similarly, dict keys can optionally be included when using the `is_equal_to()` assertion via the `include` keyword argument:
 
 ```py
-assert_that({'a':1,'b':{'c':2,'d':3}}).is_equal_to({'a':1,'b':{'c':2}}, ignore=('b','d'))
+# include a single key
+assert_that({'a':1,'b':2}).is_equal_to({'a':1}, include='a')
+
+# include multiple keys using a list
+assert_that({'a':1,'b':2,'c':3}).is_equal_to({'a':1,'b':2}, include=['a','b'])
+
+# include nested keys using a tuple
+assert_that({'a':1,'b':{'c':2,'d':3}}).is_equal_to({'b':{'d':3}}, include=('b','d'))
+```
+
+Or combine them:
+
+```py
+assert_that({'a':1,'b':{'c':2,'d':3,'e':4,'f':5}}).is_equal_to(
+    {'b':{'d':3,'f':5}},
+    ignore=[('b','c'),('b','e')],
+    include='b'
+)
 ```
 
 #### Dict Flattening

@@ -255,6 +255,24 @@ class TestReadme(object):
         assert_that(people).extracting('first_name').is_equal_to(['Fred','Bob'])
         assert_that(people).extracting('first_name').contains('Fred','Bob')
 
+    def test_dict_compare(self):
+        # ignore
+        assert_that({'a':1,'b':2}).is_equal_to({'a':1}, ignore='b')
+        assert_that({'a':1,'b':2,'c':3}).is_equal_to({'a':1}, ignore=['b','c'])
+        assert_that({'a':1,'b':{'c':2,'d':3}}).is_equal_to({'a':1,'b':{'c':2}}, ignore=('b','d'))
+
+        # include
+        assert_that({'a':1,'b':2}).is_equal_to({'a':1}, include='a')
+        assert_that({'a':1,'b':2,'c':3}).is_equal_to({'a':1,'b':2}, include=['a','b'])
+        assert_that({'a':1,'b':{'c':2,'d':3}}).is_equal_to({'b':{'d':3}}, include=('b','d'))
+
+        # both
+        assert_that({'a':1,'b':{'c':2,'d':3,'e':4,'f':5}}).is_equal_to(
+            {'b':{'d':3,'f':5}},
+            ignore=[('b','c'),('b','e')],
+            include='b'
+        )
+
     def test_sets(self):
         assert_that(set([])).is_not_none()
         assert_that(set([])).is_empty()
