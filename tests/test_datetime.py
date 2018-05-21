@@ -291,11 +291,11 @@ def test_is_close_to_bad_tolerance_arg_type_failure():
 
 t1 = datetime.timedelta(seconds=60)
 
-def test_is_greater_than():
+def test_is_greater_than_timedelta():
     d2 = datetime.timedelta(seconds=120)
     assert_that(d2).is_greater_than(t1)
 
-def test_is_greater_than_failure():
+def test_is_greater_than_timedelta_failure():
     try:
         t2 = datetime.timedelta(seconds=90)
         assert_that(t1).is_greater_than(t2)
@@ -303,17 +303,17 @@ def test_is_greater_than_failure():
     except AssertionError as ex:
         assert_that(str(ex)).matches('Expected <\d{1,2}:\d{2}:\d{2}> to be greater than <\d{1,2}:\d{2}:\d{2}>, but was not.')
 
-def test_is_greater_than_bad_arg_type_failure():
+def test_is_greater_than_timedelta_bad_arg_type_failure():
     try:
         assert_that(t1).is_greater_than(123)
         fail('should have raised error')
     except TypeError as ex:
         assert_that(str(ex)).is_equal_to('given arg must be <timedelta>, but was <int>')
 
-def test_is_greater_than_or_equal_to():
+def test_is_greater_than_or_equal_to_timedelta():
     assert_that(t1).is_greater_than_or_equal_to(t1)
 
-def test_is_greater_than_or_equal_to_failure():
+def test_is_greater_than_or_equal_to_timedelta_failure():
     try:
         t2 = datetime.timedelta(seconds=90)
         assert_that(t1).is_greater_than_or_equal_to(t2)
@@ -321,18 +321,18 @@ def test_is_greater_than_or_equal_to_failure():
     except AssertionError as ex:
         assert_that(str(ex)).matches('Expected <\d{1,2}:\d{2}:\d{2}> to be greater than or equal to <\d{1,2}:\d{2}:\d{2}>, but was not.')
 
-def test_is_greater_than_or_equal_to_bad_arg_type_failure():
+def test_is_greater_than_or_equal_to_timedelta_bad_arg_type_failure():
     try:
         assert_that(t1).is_greater_than_or_equal_to(123)
         fail('should have raised error')
     except TypeError as ex:
         assert_that(str(ex)).is_equal_to('given arg must be <timedelta>, but was <int>')
 
-def test_is_less_than():
+def test_is_less_than_timedelta():
     t2 = datetime.timedelta(seconds=90)
     assert_that(t1).is_less_than(t2)
 
-def test_is_less_than_failure():
+def test_is_less_than_timedelta_failure():
     try:
         t2 = datetime.timedelta(seconds=90)
         assert_that(t2).is_less_than(t1)
@@ -340,17 +340,17 @@ def test_is_less_than_failure():
     except AssertionError as ex:
         assert_that(str(ex)).matches('Expected <\d{1,2}:\d{2}:\d{2}> to be less than <\d{1,2}:\d{2}:\d{2}>, but was not.')
 
-def test_is_less_than_bad_arg_type_failure():
+def test_is_less_than_timedelta_bad_arg_type_failure():
     try:
         assert_that(t1).is_less_than(123)
         fail('should have raised error')
     except TypeError as ex:
         assert_that(str(ex)).is_equal_to('given arg must be <timedelta>, but was <int>')
 
-def test_is_less_than_or_equal_to():
+def test_is_less_than_or_equal_to_timedelta():
     assert_that(t1).is_less_than_or_equal_to(t1)
 
-def test_is_less_than_or_equal_to_failure():
+def test_is_less_than_or_equal_to_timedelta_failure():
     try:
         t2 = datetime.timedelta(seconds=90)
         assert_that(t2).is_less_than_or_equal_to(t1)
@@ -358,19 +358,19 @@ def test_is_less_than_or_equal_to_failure():
     except AssertionError as ex:
         assert_that(str(ex)).matches('Expected <\d{1,2}:\d{2}:\d{2}> to be less than or equal to <\d{1,2}:\d{2}:\d{2}>, but was not.')
 
-def test_is_less_than_or_equal_to_bad_arg_type_failure():
+def test_is_less_than_or_equal_to_timedelta_bad_arg_type_failure():
     try:
         assert_that(t1).is_less_than_or_equal_to(123)
         fail('should have raised error')
     except TypeError as ex:
         assert_that(str(ex)).is_equal_to('given arg must be <timedelta>, but was <int>')
 
-def test_is_between():
+def test_is_between_timedelta():
     d2 = datetime.timedelta(seconds=90)
     d3 = datetime.timedelta(seconds=120)
     assert_that(d2).is_between(t1, d3)
 
-def test_is_between_failure():
+def test_is_between_timedelta_failure():
     try:
         d2 = datetime.timedelta(seconds=30)
         d3 = datetime.timedelta(seconds=40)
