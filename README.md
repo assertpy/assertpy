@@ -103,7 +103,7 @@ assert_that('123-456-7890').matches(r'\d{3}-\d{3}-\d{4}')
 assert_that('foo').does_not_match(r'\d+')
 ```
 
-Regular expressions can be tricky.  Be sure to use raw strings (prefix the pattern string with `r`) for the regex pattern to be match.  Also, note that the `matches()` function passes for partial matches (as does the [re.match](https://docs.python.org/2/library/re.html#re.match) function that underlies it). If you want to match the entire string, just include anchors in the regex pattern.
+Regular expressions can be tricky.  Be sure to use raw strings (prefix the pattern string with `r`) for the regex pattern to be matched.  Also, note that the `matches()` function passes for partial matches (as does the [re.match](https://docs.python.org/3/library/re.html#re.match) function that underlies it). If you want to match the entire string, just include anchors in the regex pattern.
 
 ```py
 # partial matches, these all pass
@@ -118,6 +118,19 @@ assert_that('foo').matches(r'^\w{3}$')
 assert_that('foo').matches(r'^\w{2}$')
 ```
 
+Additionally, while `assertpy` `matches()` assertion does not have support for [re.match](https://docs.python.org/3/library/re.html#re.match) flags such as `re.MULTILINE` or `re.DOTALL`, it works as expected with _inline flags_ in the pattern.
+
+```py
+s = """bar
+foo
+baz"""
+
+# use multiline inline flag (?m)
+assert_that(s).matches(r'(?m)^foo$')
+
+# use dotall inline flag (?s)
+assert_that(s).matches(r'(?s)b(.*)z')
+```
 
 ### Numbers
 
