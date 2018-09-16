@@ -261,6 +261,35 @@ def test_is_between_bad_arg2_type_failure():
     except TypeError as ex:
         assert_that(str(ex)).is_equal_to('given high arg must be <datetime>, but was <datetime>')
 
+def test_is_not_between():
+    d2 = d1 + datetime.timedelta(minutes=5)
+    d3 = d1 + datetime.timedelta(minutes=10)
+    assert_that(d1).is_not_between(d2, d3)
+
+def test_is_not_between_failure():
+    try:
+        d2 = d1 + datetime.timedelta(minutes=5)
+        d3 = d1 + datetime.timedelta(minutes=10)
+        assert_that(d2).is_not_between(d1, d3)
+        fail('should have raised error')
+    except AssertionError as ex:
+        assert_that(str(ex)).matches('Expected <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> to not be between <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> and <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}>, but was.')
+
+def test_is_not_between_bad_arg1_type_failure():
+    try:
+        assert_that(d1).is_not_between(123, 456)
+        fail('should have raised error')
+    except TypeError as ex:
+        assert_that(str(ex)).is_equal_to('given low arg must be <datetime>, but was <int>')
+
+def test_is_not_between_bad_arg2_type_failure():
+    try:
+        d2 = datetime.datetime.today()
+        assert_that(d1).is_not_between(d2, 123)
+        fail('should have raised error')
+    except TypeError as ex:
+        assert_that(str(ex)).is_equal_to('given high arg must be <datetime>, but was <datetime>')
+
 def test_is_close_to():
     d2 = datetime.datetime.today()
     assert_that(d1).is_close_to(d2, datetime.timedelta(minutes=5))
@@ -284,6 +313,33 @@ def test_is_close_to_bad_tolerance_arg_type_failure():
     try:
         d2 = datetime.datetime.today()
         assert_that(d1).is_close_to(d2, 123)
+        fail('should have raised error')
+    except TypeError as ex:
+        assert_that(str(ex)).is_equal_to('given tolerance arg must be timedelta, but was <int>')
+
+def test_is_not_close_to():
+    d2 = d1 + datetime.timedelta(minutes=5)
+    assert_that(d1).is_not_close_to(d2, datetime.timedelta(minutes=4))
+
+def test_is_not_close_to_failure():
+    try:
+        d2 = datetime.datetime.today()
+        assert_that(d1).is_not_close_to(d2, datetime.timedelta(minutes=5))
+        fail('should have raised error')
+    except AssertionError as ex:
+        assert_that(str(ex)).matches('Expected <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> to not be close to <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> within tolerance <\d+:\d{2}:\d{2}>, but was.')
+
+def test_is_not_close_to_bad_arg_type_failure():
+    try:
+        assert_that(d1).is_not_close_to(123, 456)
+        fail('should have raised error')
+    except TypeError as ex:
+        assert_that(str(ex)).is_equal_to('given arg must be datetime, but was <int>')
+
+def test_is_not_close_to_bad_tolerance_arg_type_failure():
+    try:
+        d2 = datetime.datetime.today()
+        assert_that(d1).is_not_close_to(d2, 123)
         fail('should have raised error')
     except TypeError as ex:
         assert_that(str(ex)).is_equal_to('given tolerance arg must be timedelta, but was <int>')
@@ -378,3 +434,17 @@ def test_is_between_timedelta_failure():
         fail('should have raised error')
     except AssertionError as ex:
         assert_that(str(ex)).matches('Expected <\d{1,2}:\d{2}:\d{2}> to be between <\d{1,2}:\d{2}:\d{2}> and <\d{1,2}:\d{2}:\d{2}>, but was not.')
+
+def test_is_not_between_timedelta():
+    d2 = datetime.timedelta(seconds=90)
+    d3 = datetime.timedelta(seconds=120)
+    assert_that(t1).is_not_between(d2, d3)
+
+def test_is_not_between_timedelta_failure():
+    try:
+        d2 = datetime.timedelta(seconds=90)
+        d3 = datetime.timedelta(seconds=120)
+        assert_that(d2).is_not_between(t1, d3)
+        fail('should have raised error')
+    except AssertionError as ex:
+        assert_that(str(ex)).matches('Expected <\d{1,2}:\d{2}:\d{2}> to not be between <\d{1,2}:\d{2}:\d{2}> and <\d{1,2}:\d{2}:\d{2}>, but was.')

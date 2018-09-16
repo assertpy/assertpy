@@ -376,6 +376,54 @@ def test_is_between_bad_arg_delta_failure():
     except ValueError as ex:
         assert_that(str(ex)).is_equal_to('given low arg must be less than given high arg')
 
+def test_is_not_between():
+    assert_that(123).is_not_between(124,125)
+    assert_that(123).is_not_between(1e5,1e6)
+    assert_that(-123).is_not_between(-1000,-150)
+    assert_that(123).is_not_between(122.999,122.9999)
+
+def test_is_not_between_failure():
+    try:
+        assert_that(123).is_not_between(0,1000)
+        fail('should have raised error')
+    except AssertionError as ex:
+        assert_that(str(ex)).is_equal_to('Expected <123> to not be between <0> and <1000>, but was.')
+
+def test_is_not_between_complex_failure():
+    try:
+        assert_that(1 + 2j).is_not_between(0,1)
+        fail('should have raised error')
+    except TypeError as ex:
+        assert_that(str(ex)).is_equal_to('ordering is not defined for type <complex>')
+
+def test_is_not_between_bad_value_type_failure():
+    try:
+        assert_that('foo').is_not_between(0,1)
+        fail('should have raised error')
+    except TypeError as ex:
+        assert_that(str(ex)).is_equal_to('ordering is not defined for type <str>')
+
+def test_is_not_between_low_arg_type_failure():
+    try:
+        assert_that(123).is_not_between('foo',1)
+        fail('should have raised error')
+    except TypeError as ex:
+        assert_that(str(ex)).is_equal_to('given low arg must be numeric, but was <str>')
+
+def test_is_not_between_high_arg_type_failure():
+    try:
+        assert_that(123).is_not_between(0,'foo')
+        fail('should have raised error')
+    except TypeError as ex:
+        assert_that(str(ex)).is_equal_to('given high arg must be numeric, but was <str>')
+
+def test_is_not_between_bad_arg_delta_failure():
+    try:
+        assert_that(123).is_not_between(1,0)
+        fail('should have raised error')
+    except ValueError as ex:
+        assert_that(str(ex)).is_equal_to('given low arg must be less than given high arg')
+
 def test_is_close_to():
     assert_that(123.01).is_close_to(123,1)
     assert_that(0.01).is_close_to(0,1)
@@ -419,6 +467,53 @@ def test_is_close_to_bad_tolerance_arg_type_failure():
 def test_is_close_to_negative_tolerance_failure():
     try:
         assert_that(123.01).is_close_to(123,-1)
+        fail('should have raised error')
+    except ValueError as ex:
+        assert_that(str(ex)).is_equal_to('given tolerance arg must be positive')
+
+def test_is_not_close_to():
+    assert_that(123.01).is_not_close_to(122,1)
+    assert_that(0.01).is_not_close_to(0,0.001)
+    assert_that(-123.01).is_not_close_to(-122,1)
+
+def test_is_not_close_to_failure():
+    try:
+        assert_that(123.01).is_not_close_to(123,1)
+        fail('should have raised error')
+    except AssertionError as ex:
+        assert_that(str(ex)).is_equal_to('Expected <123.01> to not be close to <123> within tolerance <1>, but was.')
+
+def test_is_not_close_to_complex_failure():
+    try:
+        assert_that(1 + 2j).is_not_close_to(0,1)
+        fail('should have raised error')
+    except TypeError as ex:
+        assert_that(str(ex)).is_equal_to('ordering is not defined for complex numbers')
+
+def test_is_not_close_to_bad_value_type_failure():
+    try:
+        assert_that('foo').is_not_close_to(123,1)
+        fail('should have raised error')
+    except TypeError as ex:
+        assert_that(str(ex)).is_equal_to('val is not numeric or datetime')
+
+def test_is_not_close_to_bad_arg_type_failure():
+    try:
+        assert_that(123.01).is_not_close_to('foo',1)
+        fail('should have raised error')
+    except TypeError as ex:
+        assert_that(str(ex)).is_equal_to('given arg must be numeric')
+
+def test_is_not_close_to_bad_tolerance_arg_type_failure():
+    try:
+        assert_that(123.01).is_not_close_to(0,'foo')
+        fail('should have raised error')
+    except TypeError as ex:
+        assert_that(str(ex)).is_equal_to('given tolerance arg must be numeric')
+
+def test_is_not_close_to_negative_tolerance_failure():
+    try:
+        assert_that(123.01).is_not_close_to(123,-1)
         fail('should have raised error')
     except ValueError as ex:
         assert_that(str(ex)).is_equal_to('given tolerance arg must be positive')

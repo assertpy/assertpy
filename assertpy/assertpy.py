@@ -503,52 +503,32 @@ class AssertionBuilder(object):
 
     def is_between(self, low, high):
         """Asserts that val is numeric and is between low and high."""
-        self_type = type(self.val)
-        low_type = type(low)
-        high_type = type(high)
+        val_type = type(self.val)
+        self._validate_between_args(val_type, low, high)
 
-        if self_type in self.NON_COMPAREABLE_TYPES:
-            raise TypeError('ordering is not defined for type <%s>' % self_type.__name__)
-        if self_type in self.COMPAREABLE_TYPES:
-            if low_type is not self_type:
-                raise TypeError('given low arg must be <%s>, but was <%s>' % (self_type.__name__, low_type.__name__))
-            if high_type is not self_type:
-                raise TypeError('given high arg must be <%s>, but was <%s>' % (self_type.__name__, low_type.__name__))
-        elif isinstance(self.val, numbers.Number):
-            if isinstance(low, numbers.Number) is False:
-                raise TypeError('given low arg must be numeric, but was <%s>' % low_type.__name__)
-            if isinstance(high, numbers.Number) is False:
-                raise TypeError('given high arg must be numeric, but was <%s>' % high_type.__name__)
-        else:
-            raise TypeError('ordering is not defined for type <%s>' % self_type.__name__)
-
-        if low > high:
-            raise ValueError('given low arg must be less than given high arg')
         if self.val < low or self.val > high:
-            if self_type is datetime.datetime:
+            if val_type is datetime.datetime:
                 self._err('Expected <%s> to be between <%s> and <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), low.strftime('%Y-%m-%d %H:%M:%S'), high.strftime('%Y-%m-%d %H:%M:%S')))
             else:
                 self._err('Expected <%s> to be between <%s> and <%s>, but was not.' % (self.val, low, high))
         return self
 
+    def is_not_between(self, low, high):
+        """Asserts that val is numeric and is between low and high."""
+        val_type = type(self.val)
+        self._validate_between_args(val_type, low, high)
+
+        if self.val >= low and self.val <= high:
+            if val_type is datetime.datetime:
+                self._err('Expected <%s> to not be between <%s> and <%s>, but was.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), low.strftime('%Y-%m-%d %H:%M:%S'), high.strftime('%Y-%m-%d %H:%M:%S')))
+            else:
+                self._err('Expected <%s> to not be between <%s> and <%s>, but was.' % (self.val, low, high))
+        return self
+
     def is_close_to(self, other, tolerance):
         """Asserts that val is numeric and is close to other within tolerance."""
-        if type(self.val) is complex or type(other) is complex or type(tolerance) is complex:
-            raise TypeError('ordering is not defined for complex numbers')
-        if isinstance(self.val, numbers.Number) is False and type(self.val) is not datetime.datetime:
-            raise TypeError('val is not numeric or datetime')
-        if type(self.val) is datetime.datetime:
-            if type(other) is not datetime.datetime:
-                raise TypeError('given arg must be datetime, but was <%s>' % type(other).__name__)
-            if type(tolerance) is not datetime.timedelta:
-                raise TypeError('given tolerance arg must be timedelta, but was <%s>' % type(tolerance).__name__)
-        else:
-            if isinstance(other, numbers.Number) is False:
-                raise TypeError('given arg must be numeric')
-            if isinstance(tolerance, numbers.Number) is False:
-                raise TypeError('given tolerance arg must be numeric')
-            if tolerance < 0:
-                raise ValueError('given tolerance arg must be positive')
+        self._validate_close_to_args(self.val, other, tolerance)
+
         if self.val < (other-tolerance) or self.val > (other+tolerance):
             if type(self.val) is datetime.datetime:
                 tolerance_seconds = tolerance.days * 86400 + tolerance.seconds + tolerance.microseconds / 1000000
@@ -557,6 +537,20 @@ class AssertionBuilder(object):
                 self._err('Expected <%s> to be close to <%s> within tolerance <%d:%02d:%02d>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S'), h, m, s))
             else:
                 self._err('Expected <%s> to be close to <%s> within tolerance <%s>, but was not.' % (self.val, other, tolerance))
+        return self
+
+    def is_not_close_to(self, other, tolerance):
+        """Asserts that val is numeric and is not close to other within tolerance."""
+        self._validate_close_to_args(self.val, other, tolerance)
+
+        if self.val >= (other-tolerance) and self.val <= (other+tolerance):
+            if type(self.val) is datetime.datetime:
+                tolerance_seconds = tolerance.days * 86400 + tolerance.seconds + tolerance.microseconds / 1000000
+                h, rem = divmod(tolerance_seconds, 3600)
+                m, s = divmod(rem, 60)
+                self._err('Expected <%s> to not be close to <%s> within tolerance <%d:%02d:%02d>, but was.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S'), h, m, s))
+            else:
+                self._err('Expected <%s> to not be close to <%s> within tolerance <%s>, but was.' % (self.val, other, tolerance))
         return self
 
 ### string assertions ###
@@ -1132,6 +1126,49 @@ class AssertionBuilder(object):
             return out_kwargs
         else:
             return ''
+
+    def _validate_between_args(self, val_type, low, high):
+        low_type = type(low)
+        high_type = type(high)
+
+        if val_type in self.NON_COMPAREABLE_TYPES:
+            raise TypeError('ordering is not defined for type <%s>' % val_type.__name__)
+
+        if val_type in self.COMPAREABLE_TYPES:
+            if low_type is not val_type:
+                raise TypeError('given low arg must be <%s>, but was <%s>' % (val_type.__name__, low_type.__name__))
+            if high_type is not val_type:
+                raise TypeError('given high arg must be <%s>, but was <%s>' % (val_type.__name__, low_type.__name__))
+        elif isinstance(self.val, numbers.Number):
+            if isinstance(low, numbers.Number) is False:
+                raise TypeError('given low arg must be numeric, but was <%s>' % low_type.__name__)
+            if isinstance(high, numbers.Number) is False:
+                raise TypeError('given high arg must be numeric, but was <%s>' % high_type.__name__)
+        else:
+            raise TypeError('ordering is not defined for type <%s>' % val_type.__name__)
+
+        if low > high:
+            raise ValueError('given low arg must be less than given high arg')
+
+    def _validate_close_to_args(self, val, other, tolerance):
+        if type(val) is complex or type(other) is complex or type(tolerance) is complex:
+            raise TypeError('ordering is not defined for complex numbers')
+
+        if isinstance(val, numbers.Number) is False and type(val) is not datetime.datetime:
+            raise TypeError('val is not numeric or datetime')
+
+        if type(val) is datetime.datetime:
+            if type(other) is not datetime.datetime:
+                raise TypeError('given arg must be datetime, but was <%s>' % type(other).__name__)
+            if type(tolerance) is not datetime.timedelta:
+                raise TypeError('given tolerance arg must be timedelta, but was <%s>' % type(tolerance).__name__)
+        else:
+            if isinstance(other, numbers.Number) is False:
+                raise TypeError('given arg must be numeric')
+            if isinstance(tolerance, numbers.Number) is False:
+                raise TypeError('given tolerance arg must be numeric')
+            if tolerance < 0:
+                raise ValueError('given tolerance arg must be positive')
 
     def _check_dict_like(self, d, check_keys=True, check_values=True, check_getitem=True, name='val', return_as_bool=False):
         if not isinstance(d, collections.Iterable):
