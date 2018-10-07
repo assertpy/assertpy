@@ -26,6 +26,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import sys
 from assertpy import assert_that, fail
 
 
@@ -54,7 +55,11 @@ def test_is_not_same_as():
 
     assert_that({'a':1}).is_not_same_as({'a':1})
     assert_that([1,2,3]).is_not_same_as([1,2,3])
-    assert_that((1,2,3)).is_not_same_as((1,2,3))
+
+    if sys.version_info[0] == 3 and sys.version_info[1] >= 7:
+        assert_that((1,2,3)).is_same_as((1,2,3)) # tuples are identical in py 3.7
+    else:
+        assert_that((1,2,3)).is_not_same_as((1,2,3))
 
 
 def test_is_not_same_as_failure():
