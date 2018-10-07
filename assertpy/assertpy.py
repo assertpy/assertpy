@@ -160,7 +160,8 @@ class AssertionBuilder(object):
 
     def is_equal_to(self, other, **kwargs):
         """Asserts that val is equal to other."""
-        if self._check_dict_like(self.val, check_values=False, return_as_bool=True) and self._check_dict_like(other, check_values=False, return_as_bool=True):
+        if self._check_dict_like(self.val, check_values=False, return_as_bool=True) and \
+                self._check_dict_like(other, check_values=False, return_as_bool=True):
             if self._dict_not_equal(self.val, other, ignore=kwargs.get('ignore'), include=kwargs.get('include')):
                 self._dict_err(self.val, other, ignore=kwargs.get('ignore'), include=kwargs.get('include'))
         else:
@@ -963,6 +964,9 @@ class AssertionBuilder(object):
                     return x[name]
                 else:
                     raise ValueError('item keys %s did not contain key <%s>' % (list(x.keys()), name))
+            elif isinstance(x, collections.Iterable):
+                self._check_iterable(x, name='item')
+                return x[name]
             elif hasattr(x, name):
                 attr = getattr(x, name)
                 if callable(attr):
@@ -1196,6 +1200,13 @@ class AssertionBuilder(object):
                     raise TypeError('%s <%s> is not dict-like: missing [] accessor' % (name, type(d).__name__))
         if return_as_bool:
             return True
+
+    def _check_iterable(self, l, check_getitem=True, name='val'):
+        if not isinstance(l, collections.Iterable):
+            raise TypeError('%s <%s> is not iterable' % (name, type(l).__name__))
+        if check_getitem:
+            if not hasattr(l, '__getitem__'):
+                raise TypeError('%s <%s> does not have [] accessor' % (name, type(l).__name__))
 
     def _dict_not_equal(self, val, other, ignore=None, include=None):
         if ignore or include:

@@ -220,6 +220,15 @@ assert_that(['a','b','c']).starts_with('a')
 assert_that(['a','b','c']).ends_with('c')
 ```
 
+#### List Flattening
+
+Lists of lists can be flattened on any item (by index) using the `extracting` helper (see [dict flattening](#dict-flattening)):
+
+```py
+people = [['Fred', 'Smith'], ['Bob', 'Barr']]
+assert_that(people).extracting(0).is_equal_to(['Fred','Bob'])
+assert_that(people).extracting(-1).is_equal_to(['Smith','Barr'])
+```
 
 ### Tuples
 
@@ -253,6 +262,15 @@ assert_that((1,2,3)).starts_with(1)
 assert_that((1,2,3)).ends_with(3)
 ```
 
+#### Tuple Flattening
+
+Tuples of tuples can be flattened on any item (by index) using the `extracting` helper (see [dict flattening](#dict-flattening)):
+
+```py
+points = ((1,2,3),(4,5,6))
+assert_that(points).extracting(0).is_equal_to([1, 4])
+assert_that(points).extracting(-1).is_equal_to([3, 6])
+```
 
 ### Dicts
 
@@ -891,7 +909,7 @@ assert_that({'a':1,'b':2,'c':3}).snapshot(path='my-custom-folder')
 
 #### Snapshot Blackbox
 
-Functional testing (which snapshot testing falls under) is very much blackbox testing.  When something goes wrong, it's hard to pinpoint the issue, because they provide little *isolation*.  On the plus side, snapshots can provide enormous *leverage* as a few well-place snapshots can strongly verify applicaiton state that would require dozens if not hundreds of unit tests.
+Functional testing (which snapshot testing falls under) is very much blackbox testing.  When something goes wrong, it's hard to pinpoint the issue, because they provide little *isolation*.  On the plus side, snapshots can provide enormous *leverage* as a few well-place snapshots can strongly verify application state that would require dozens if not hundreds of unit tests.
 
 ### Chaining
 

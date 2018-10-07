@@ -273,3 +273,48 @@ def test_extracting_sort_bad_values():
                 assert_that(str(ex)).contains('unorderable types')
             else:
                 assert_that(str(ex)).contains("not supported between instances of 'str' and 'int'")
+
+def test_extracting_iterable_of_lists():
+    l = [[1,2,3],[4,5,6],[7,8,9]]
+    assert_that(l).extracting(0).is_equal_to([1,4,7])
+    assert_that(l).extracting(0,1).is_equal_to([(1,2),(4,5),(7,8)])
+    assert_that(l).extracting(-1).is_equal_to([3,6,9])
+    assert_that(l).extracting(-1,-2).extracting(0).is_equal_to([3,6,9])
+
+def test_extracting_iterable_multi_extracting():
+    l = [[1,2,3],[4,5,6],[7,8,9]]
+    assert_that(l).extracting(-1,2).is_equal_to([(3,3),(6,6),(9,9)])
+    assert_that(l).extracting(-1,1).extracting(1,0).is_equal_to([(2,3),(5,6),(8,9)])
+
+def test_extracting_iterable_of_tuples():
+    t = [(1,2,3),(4,5,6),(7,8,9)]
+    assert_that(t).extracting(0).is_equal_to([1,4,7])
+    assert_that(t).extracting(0,1).is_equal_to([(1,2),(4,5),(7,8)])
+    assert_that(t).extracting(-1).is_equal_to([3,6,9])
+
+def test_extracting_iterable_of_strings():
+    s = ['foo','bar','baz']
+    assert_that(s).extracting(0).is_equal_to(['f', 'b', 'b'])
+    assert_that(s).extracting(0,2).is_equal_to([('f','o'),('b','r'),('b','z')])
+
+def test_extracting_iterable_failure_set():
+    try:
+        assert_that([set([1])]).extracting(0).contains(1,4,7)
+        fail('should have raised error')
+    except TypeError as ex:
+        assert_that(str(ex)).is_equal_to('item <set> does not have [] accessor')
+
+def test_extracting_iterable_failure_out_of_range():
+    try:
+        assert_that([[1],[2],[3]]).extracting(4).is_equal_to(0)
+        fail('should have raised error')
+    except IndexError as ex:
+        assert_that(str(ex)).is_equal_to('list index out of range')
+
+def test_extracting_iterable_failure_index_is_not_int():
+    try:
+        assert_that([[1],[2],[3]]).extracting('1').is_equal_to(0)
+        fail('should have raised error')
+    except TypeError as ex:
+        assert_that(str(ex)).is_equal_to('list indices must be integers or slices, not str')
+
