@@ -316,5 +316,5 @@ def test_extracting_iterable_failure_index_is_not_int():
         assert_that([[1],[2],[3]]).extracting('1').is_equal_to(0)
         fail('should have raised error')
     except TypeError as ex:
-        assert_that(str(ex)).is_equal_to('list indices must be integers or slices, not str')
+        assert_that(str(ex)).contains('list indices must be integers')
 
