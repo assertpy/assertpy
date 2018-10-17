@@ -914,7 +914,7 @@ Functional testing (which snapshot testing falls under) is very much blackbox te
 ### Chaining
 
 One of the nicest aspects of any fluent API is the ability to chain methods together.  In the case of `assertpy`, chaining
-allows you to write assertions as single statement -- that reads like a sentance, and is easy to understand.
+allows you to write assertions as single statement -- that reads like a sentence, and is easy to understand.
 
 Here are just a few examples:
 
