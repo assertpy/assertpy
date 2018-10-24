@@ -810,9 +810,10 @@ class AssertionBuilder(object):
                 self._err('Expected <%s> to not contain values %s, but did contain %s.' % (self.val, self._fmt_items(values), self._fmt_items(found)))
         return self
 
-    def contains_entry(self, *entries):
+    def contains_entry(self, *args, **kwargs):
         """Asserts that val is a dict and contains the given entry or entries."""
         self._check_dict_like(self.val, check_values=False)
+        entries = list(args) + [{k:v} for k,v in kwargs.items()]
         if len(entries) == 0:
             raise ValueError('one or more entry args must be given')
         missing = []
@@ -830,9 +831,10 @@ class AssertionBuilder(object):
             self._err('Expected <%s> to contain entries %s, but did not contain %s.' % (self.val, self._fmt_items(entries), self._fmt_items(missing)))
         return self
 
-    def does_not_contain_entry(self, *entries):
+    def does_not_contain_entry(self, *args, **kwargs):
         """Asserts that val is a dict and does not contain the given entry or entries."""
         self._check_dict_like(self.val, check_values=False)
+        entries = list(args) + [{k:v} for k,v in kwargs.items()]
         if len(entries) == 0:
             raise ValueError('one or more entry args must be given')
         found = []

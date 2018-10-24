@@ -262,8 +262,14 @@ def test_does_not_contain_value_list_multi_item_failure():
         assert_that(str(ex)).contains('to not contain values <4, 1, 2>, but did contain <1, 2>.')
 
 def test_contains_entry():
-    assert_that({ 'a':1,'b':2,'c':3 }).contains_entry({ 'a':1 })
-    assert_that({ 'a':1,'b':2,'c':3 }).contains_entry({ 'a':1 },{ 'b':2 })
+    assert_that({'a':1,'b':2,'c':3}).contains_entry({'a':1})
+    assert_that({'a':1,'b':2,'c':3}).contains_entry({'a':1},{'b':2})
+    assert_that({'a':1,'b':2,'c':3}).contains_entry({'a':1},{'b':2},{'c':3})
+    assert_that({'a':1,'b':2,'c':3}).contains_entry(a=1)
+    assert_that({'a':1,'b':2,'c':3}).contains_entry(a=1, b=2)
+    assert_that({'a':1,'b':2,'c':3}).contains_entry(a=1, b=2, c=3)
+    assert_that({'a':1,'b':2,'c':3}).contains_entry({'a':1}, b=2)
+    assert_that({'a':1,'b':2,'c':3}).contains_entry({'b':2}, a=1, c=3)
 
 def test_contains_entry_bad_val_failure():
     try:
@@ -322,8 +328,11 @@ def test_contains_entry_bad_values_failure():
         assert_that(str(ex)).contains("to contain entries <{'a': 1}, {'b': 4}>, but did not contain <{'b': 4}>.")
 
 def test_does_not_contain_entry():
-    assert_that({ 'a':1,'b':2,'c':3 }).does_not_contain_entry({ 'a':2 })
-    assert_that({ 'a':1,'b':2,'c':3 }).does_not_contain_entry({ 'a':2 },{ 'b':1 })
+    assert_that({'a':1,'b':2,'c':3}).does_not_contain_entry({'a':2})
+    assert_that({'a':1,'b':2,'c':3}).does_not_contain_entry({'a':2},{'b':1})
+    assert_that({'a':1,'b':2,'c':3}).does_not_contain_entry(a=2)
+    assert_that({'a':1,'b':2,'c':3}).does_not_contain_entry(a=2,b=3)
+    assert_that({'a':1,'b':2,'c':3}).does_not_contain_entry({'x':4},y=5,z=6)
 
 def test_does_not_contain_entry_bad_val_failure():
     try:
