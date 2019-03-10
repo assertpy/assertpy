@@ -49,10 +49,12 @@ if sys.version_info[0] == 3:
     str_types = (str,)
     xrange = range
     unicode = str
+    Iterable = collections.abc.Iterable
 else:
     str_types = (basestring,)
     xrange = xrange
     unicode = unicode
+    Iterable = collections.Iterable
 
 
 ### soft assertions ###
@@ -584,7 +586,7 @@ class AssertionBuilder(object):
                         missing.append(i)
                 if missing:
                     self._err('Expected <%s> to case-insensitive contain items %s, but did not contain %s.' % (self.val, self._fmt_items(items), self._fmt_items(missing)))
-        elif isinstance(self.val, collections.Iterable):
+        elif isinstance(self.val, Iterable):
             missing = []
             for i in items:
                 if not isinstance(i, str_types):
@@ -615,7 +617,7 @@ class AssertionBuilder(object):
                 raise ValueError('given prefix arg must not be empty')
             if not self.val.startswith(prefix):
                 self._err('Expected <%s> to start with <%s>, but did not.' % (self.val, prefix))
-        elif isinstance(self.val, collections.Iterable):
+        elif isinstance(self.val, Iterable):
             if len(self.val) == 0:
                 raise ValueError('val must not be empty')
             first = next(iter(self.val))
@@ -636,7 +638,7 @@ class AssertionBuilder(object):
                 raise ValueError('given suffix arg must not be empty')
             if not self.val.endswith(suffix):
                 self._err('Expected <%s> to end with <%s>, but did not.' % (self.val, suffix))
-        elif isinstance(self.val, collections.Iterable):
+        elif isinstance(self.val, Iterable):
             if len(self.val) == 0:
                 raise ValueError('val must not be empty')
             last = None
@@ -721,19 +723,19 @@ class AssertionBuilder(object):
 ### collection assertions ###
     def is_iterable(self):
         """Asserts that val is iterable collection."""
-        if not isinstance(self.val, collections.Iterable):
+        if not isinstance(self.val, Iterable):
             self._err('Expected iterable, but was not.')
         return self
 
     def is_not_iterable(self):
         """Asserts that val is not iterable collection."""
-        if isinstance(self.val, collections.Iterable):
+        if isinstance(self.val, Iterable):
             self._err('Expected not iterable, but was.')
         return self
 
     def is_subset_of(self, *supersets):
         """Asserts that val is iterable and a subset of the given superset or flattened superset if multiple supersets are given."""
-        if not isinstance(self.val, collections.Iterable):
+        if not isinstance(self.val, Iterable):
             raise TypeError('val is not iterable')
         if len(supersets) == 0:
             raise ValueError('one or more superset args must be given')
@@ -953,7 +955,7 @@ class AssertionBuilder(object):
 ### collection of objects assertions ###
     def extracting(self, *names, **kwargs):
         """Asserts that val is collection, then extracts the named properties or named zero-arg methods into a list (or list of tuples if multiple names are given)."""
-        if not isinstance(self.val, collections.Iterable):
+        if not isinstance(self.val, Iterable):
             raise TypeError('val is not iterable')
         if isinstance(self.val, str_types):
             raise TypeError('val must not be string')
@@ -966,7 +968,7 @@ class AssertionBuilder(object):
                     return x[name]
                 else:
                     raise ValueError('item keys %s did not contain key <%s>' % (list(x.keys()), name))
-            elif isinstance(x, collections.Iterable):
+            elif isinstance(x, Iterable):
                 self._check_iterable(x, name='item')
                 return x[name]
             elif hasattr(x, name):
@@ -1000,7 +1002,7 @@ class AssertionBuilder(object):
             if 'sort' in kwargs:
                 if isinstance(kwargs['sort'], str_types):
                     return _extract(x, kwargs['sort'])
-                elif isinstance(kwargs['sort'], collections.Iterable):
+                elif isinstance(kwargs['sort'], Iterable):
                     items = []
                     for k in kwargs['sort']:
                         if isinstance(k, str_types):
@@ -1025,7 +1027,7 @@ class AssertionBuilder(object):
 
         attr_name = attr[4:]
         err_msg = False
-        is_dict = isinstance(self.val, collections.Iterable) and hasattr(self.val, '__getitem__')
+        is_dict = isinstance(self.val, Iterable) and hasattr(self.val, '__getitem__')
 
         if not hasattr(self.val, attr_name):
             if is_dict:
@@ -1177,7 +1179,7 @@ class AssertionBuilder(object):
                 raise ValueError('given tolerance arg must be positive')
 
     def _check_dict_like(self, d, check_keys=True, check_values=True, check_getitem=True, name='val', return_as_bool=False):
-        if not isinstance(d, collections.Iterable):
+        if not isinstance(d, Iterable):
             if return_as_bool:
                 return False
             else:
@@ -1204,7 +1206,7 @@ class AssertionBuilder(object):
             return True
 
     def _check_iterable(self, l, check_getitem=True, name='val'):
-        if not isinstance(l, collections.Iterable):
+        if not isinstance(l, Iterable):
             raise TypeError('%s <%s> is not iterable' % (name, type(l).__name__))
         if check_getitem:
             if not hasattr(l, '__getitem__'):
