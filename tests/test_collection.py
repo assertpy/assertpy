@@ -75,6 +75,27 @@ def test_is_subset_of():
     assert_that({'a':1,'b':2}).is_subset_of({'a':1,'b':2,'c':3})
     assert_that({'a':1,'b':2}).is_subset_of({'a':3}, {'b':2}, {'a':1})
 
+def test_is_subset_of_single_item_superset():
+    assert_that(['a']).is_subset_of(['a'])
+    assert_that((1,)).is_subset_of((1,))
+    assert_that('ab').is_subset_of('ab')
+    assert_that(set([1])).is_subset_of(set([1]))
+    assert_that({'a':1}).is_subset_of({'a':1})
+
+def test_is_subset_of_failure_empty_superset():
+    try:
+        assert_that(['a','b','c']).is_subset_of([])
+        fail('should have raised error')
+    except AssertionError as ex:
+        assert_that(str(ex)).contains('to be subset of <>')
+
+def test_is_subset_of_failure_single_item_superset():
+    try:
+        assert_that(['a','b','c']).is_subset_of(['x'])
+        fail('should have raised error')
+    except AssertionError as ex:
+        assert_that(str(ex)).contains("to be subset of <{'x'}>")
+
 def test_is_subset_of_failure_array():
     try:
         assert_that(['a','b','c']).is_subset_of(['a','b'])

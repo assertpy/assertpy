@@ -1113,7 +1113,7 @@ class AssertionBuilder(object):
     def _fmt_items(self, i):
         if len(i) == 0:
             return '<>'
-        elif len(i) == 1:
+        elif len(i) == 1 and hasattr(i, '__getitem__'):
             return '<%s>' % i[0]
         else:
             return '<%s>' % str(i).lstrip('([').rstrip(',])')
