@@ -94,7 +94,9 @@ def test_is_subset_of_failure_single_item_superset():
         assert_that(['a','b','c']).is_subset_of(['x'])
         fail('should have raised error')
     except AssertionError as ex:
-        assert_that(str(ex)).contains("to be subset of <{'x'}>")
+        if sys.version_info[0] == 3:
+            assert_that(str(ex)).contains("to be subset of <{'x'}>")
+        assert_that(str(ex)).contains("but <'a', 'b', 'c'> were missing.")
 
 def test_is_subset_of_failure_array():
     try:
