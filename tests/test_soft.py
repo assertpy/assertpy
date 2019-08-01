@@ -159,3 +159,21 @@ def test_double_fail():
         out = str(e)
         assert_that(out).is_equal_to('Fail!')
 
+def test_nested():
+    try:
+        with soft_assertions():
+            assert_that('a').is_equal_to('A')
+            with soft_assertions():
+                assert_that('b').is_equal_to('B')
+                with soft_assertions():
+                    assert_that('c').is_equal_to('C')
+                assert_that('b').is_equal_to('B2')
+            assert_that('a').is_equal_to('A2')
+        fail('should have raised error')
+    except AssertionError as e:
+        out = str(e)
+        assert_that(out).contains('1. Expected <a> to be equal to <A>, but was not.')
+        assert_that(out).contains('2. Expected <b> to be equal to <B>, but was not.')
+        assert_that(out).contains('3. Expected <c> to be equal to <C>, but was not.')
+        assert_that(out).contains('4. Expected <b> to be equal to <B2>, but was not.')
+        assert_that(out).contains('5. Expected <a> to be equal to <A2>, but was not.')

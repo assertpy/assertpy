@@ -58,7 +58,7 @@ else:
 
 
 ### soft assertions ###
-_soft_ctx = False
+_soft_ctx = 0
 _soft_err = []
 
 @contextlib.contextmanager
@@ -67,16 +67,17 @@ def soft_assertions():
     global _soft_err
 
     # init ctx
-    _soft_ctx = True
-    _soft_err = []
+    if _soft_ctx == 0:
+        _soft_err = []
+    _soft_ctx += 1
 
     try:
         yield
     finally:
         # reset ctx
-        _soft_ctx = False
+        _soft_ctx -= 1
 
-    if _soft_err:
+    if _soft_err and _soft_ctx == 0:
         out = 'soft assertion failures:'
         for i,msg in enumerate(_soft_err):
             out += '\n%d. %s' % (i+1, msg)
