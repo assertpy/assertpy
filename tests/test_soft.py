@@ -26,9 +26,8 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import sys
-
 from assertpy import assert_that, soft_assertions, fail
+
 
 def test_success():
     with soft_assertions():
@@ -43,6 +42,7 @@ def test_success():
         assert_that('foo').is_not_equal_to('bar')
         assert_that('foo').is_equal_to_ignoring_case('FOO')
         assert_that({'a': 1}).has_a(1)
+
 
 def test_failure():
     try:
@@ -75,10 +75,11 @@ def test_failure():
         assert_that(out).contains('Expected <1> to be equal to <2> on key <a>, but was not.')
         assert_that(out).contains('Expected key <foo>, but val has no key <foo>.')
 
+
 def test_failure_chain():
     try:
         with soft_assertions():
-            assert_that('foo').is_length(4).is_empty().is_false().is_digit().is_upper()\
+            assert_that('foo').is_length(4).is_empty().is_false().is_digit().is_upper() \
                 .is_equal_to('bar').is_not_equal_to('foo').is_equal_to_ignoring_case('BAR')
         fail('should have raised error')
     except AssertionError as e:
@@ -92,9 +93,11 @@ def test_failure_chain():
         assert_that(out).contains('Expected <foo> to be not equal to <foo>, but was.')
         assert_that(out).contains('Expected <foo> to be case-insensitive equal to <BAR>, but was not.')
 
+
 def test_expected_exception_success():
     with soft_assertions():
         assert_that(func_err).raises(RuntimeError).when_called_with('foo').is_equal_to('err')
+
 
 def test_expected_exception_failure():
     try:
@@ -107,8 +110,10 @@ def test_expected_exception_failure():
         assert_that(out).contains('Expected <err> to be equal to <bar>, but was not.')
         assert_that(out).contains("Expected <func_ok> to raise <RuntimeError> when called with ('baz').")
 
+
 def func_ok(arg):
     pass
+
 
 def func_err(arg):
     raise RuntimeError('err')
@@ -123,6 +128,7 @@ def test_fail():
         out = str(e)
         assert_that(out).is_equal_to('Fail!')
 
+
 def test_fail_with_msg():
     try:
         with soft_assertions():
@@ -131,6 +137,7 @@ def test_fail_with_msg():
     except AssertionError as e:
         out = str(e)
         assert_that(out).is_equal_to('Fail: foobar!')
+
 
 def test_fail_with_soft_failing_asserts():
     try:
@@ -149,6 +156,7 @@ def test_fail_with_soft_failing_asserts():
         assert_that(out).does_not_contain('Expected <foo> to be not equal to <foo>, but was.')
         assert_that(out).does_not_contain('Expected <foo> to be case-insensitive equal to <BAR>, but was not.')
 
+
 def test_double_fail():
     try:
         with soft_assertions():
@@ -158,6 +166,7 @@ def test_double_fail():
     except AssertionError as e:
         out = str(e)
         assert_that(out).is_equal_to('Fail!')
+
 
 def test_nested():
     try:
@@ -177,3 +186,23 @@ def test_nested():
         assert_that(out).contains('3. Expected <c> to be equal to <C>, but was not.')
         assert_that(out).contains('4. Expected <b> to be equal to <B2>, but was not.')
         assert_that(out).contains('5. Expected <a> to be equal to <A2>, but was not.')
+
+
+def test_recursive_nesting():
+    def recursive(number):
+        if number <= 0:
+            return
+        with soft_assertions():
+            recursive(number-1)
+            assert_that(number).is_equal_to(7)
+    try:
+        recursive(6)
+    except AssertionError as e:
+        out = str(e)
+        assert_that(out).contains('1. Expected <1> to be equal to <7>, but was not.')
+        assert_that(out).contains('2. Expected <2> to be equal to <7>, but was not.')
+        assert_that(out).contains('3. Expected <3> to be equal to <7>, but was not.')
+        assert_that(out).contains('4. Expected <4> to be equal to <7>, but was not.')
+        assert_that(out).contains('5. Expected <5> to be equal to <7>, but was not.')
+        assert_that(out).contains('6. Expected <6> to be equal to <7>, but was not.')
+
