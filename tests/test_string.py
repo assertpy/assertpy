@@ -329,19 +329,19 @@ def test_ends_with_bad_arg_empty_failure():
         assert_that(str(ex)).is_equal_to('given suffix arg must not be empty')
 
 def test_matches():
-    assert_that('fred').matches('\w')
-    assert_that('fred').matches('\w{2}')
-    assert_that('fred').matches('\w+')
-    assert_that('fred').matches('^\w{4}$')
-    assert_that('fred').matches('^.*?$')
-    assert_that('123-456-7890').matches('\d{3}-\d{3}-\d{4}')
+    assert_that('fred').matches(r'\w')
+    assert_that('fred').matches(r'\w{2}')
+    assert_that('fred').matches(r'\w+')
+    assert_that('fred').matches(r'^\w{4}$')
+    assert_that('fred').matches(r'^.*?$')
+    assert_that('123-456-7890').matches(r'\d{3}-\d{3}-\d{4}')
 
 def test_matches_failure():
     try:
-        assert_that('fred').matches('\d+')
+        assert_that('fred').matches(r'\d+')
         fail('should have raised error')
     except AssertionError as ex:
-        assert_that(str(ex)).is_equal_to('Expected <fred> to match pattern <\d+>, but did not.')
+        assert_that(str(ex)).is_equal_to('Expected <fred> to match pattern <\\d+>, but did not.')
 
 def test_matches_bad_value_type_failure():
     try:
@@ -365,16 +365,16 @@ def test_matches_bad_arg_empty_failure():
         assert_that(str(ex)).is_equal_to('given pattern arg must not be empty')
 
 def test_does_not_match():
-    assert_that('fred').does_not_match('\d+')
-    assert_that('fred').does_not_match('\w{5}')
-    assert_that('123-456-7890').does_not_match('^\d+$')
+    assert_that('fred').does_not_match(r'\d+')
+    assert_that('fred').does_not_match(r'\w{5}')
+    assert_that('123-456-7890').does_not_match(r'^\d+$')
 
 def test_does_not_match_failure():
     try:
-        assert_that('fred').does_not_match('\w+')
+        assert_that('fred').does_not_match(r'\w+')
         fail('should have raised error')
     except AssertionError as ex:
-        assert_that(str(ex)).is_equal_to('Expected <fred> to not match pattern <\w+>, but did.')
+        assert_that(str(ex)).is_equal_to('Expected <fred> to not match pattern <\\w+>, but did.')
 
 def test_does_not_match_bad_value_type_failure():
     try:
@@ -539,5 +539,5 @@ def test_is_unicode_failure():
 
 def test_chaining():
     assert_that('foo').is_type_of(str).is_length(3).contains('f').does_not_contain('x')
-    assert_that('fred').starts_with('f').ends_with('d').matches('^f.*?d$').does_not_match('\d')
+    assert_that('fred').starts_with('f').ends_with('d').matches(r'^f.*?d$').does_not_match(r'\d')
 
