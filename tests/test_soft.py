@@ -189,14 +189,14 @@ def test_nested():
 
 
 def test_recursive_nesting():
-    def recursive(number):
-        if number <= 0:
+    def recurs(i):
+        if i <= 0:
             return
         with soft_assertions():
-            recursive(number-1)
-            assert_that(number).is_equal_to(7)
+            recurs(i-1)
+            assert_that(i).is_equal_to(7)
     try:
-        recursive(6)
+        recurs(10)
     except AssertionError as e:
         out = str(e)
         assert_that(out).contains('1. Expected <1> to be equal to <7>, but was not.')
