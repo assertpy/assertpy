@@ -34,12 +34,13 @@ def is_even(self):
         raise TypeError('val is not integer number')
     if self.val % 2 != 0:
         self._err('Expected <%s> to be even, but was not.' % (self.val))
-        return self
+    return self
 
 
 def test_extension():
     add_extension(is_even)
     assert_that(124).is_even()
+    assert_that(124).is_type_of(int).is_even().is_greater_than(123).is_less_than(125).is_equal_to(124)
     assert_that(12345678901234567890).is_even()
 
 def test_extension_failure():
