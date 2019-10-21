@@ -1,4 +1,4 @@
-# Copyright (c) 2015-2019, Activision Publishing, Inc.
+# Copyright (c) 2015-2018, Activision Publishing, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -29,6 +29,7 @@
 """Assertion library for python unit testing with a fluent API"""
 
 import os
+import types
 import contextlib
 from .base import BaseMixin
 from .contains import ContainsMixin
@@ -50,7 +51,7 @@ __tracebackhide__ = True # clean tracebacks via py.test integration
 contextlib.__tracebackhide__ = True # monkey patch contextlib with clean py.test tracebacks
 
 
-### soft assertions ###
+# soft assertions
 _soft_ctx = 0
 _soft_err = []
 
@@ -78,19 +79,18 @@ def soft_assertions():
         _soft_err = []
         raise AssertionError(out)
 
-
-### factory methods ###
+# factory methods
 def assert_that(val, description=''):
     """Factory method for the assertion builder with value to be tested and optional description."""
     global _soft_ctx
     if _soft_ctx:
-        return AssertionBuilder(val, description, 'soft')
-    return AssertionBuilder(val, description)
+        return builder(val, description, 'soft')
+    return builder(val, description)
 
 def assert_warn(val, description=''):
     """Factory method for the assertion builder with value to be tested, optional description, and
        just warn on assertion failures instead of raisings exceptions."""
-    return AssertionBuilder(val, description, 'warn')
+    return builder(val, description, 'warn')
 
 def fail(msg=''):
     """Force test failure with the given message."""
@@ -105,6 +105,22 @@ def soft_fail(msg=''):
         _soft_err.append('Fail: %s!' % msg if msg else 'Fail!')
         return
     fail(msg)
+
+# assertion extensions
+_extensions = []
+def add_extension(func):
+    if not callable(func):
+        raise TypeError('func must be callable')
+    _extensions.append(func)
+
+def builder(val, description='', kind=None, expected=None):
+    ab = AssertionBuilder(val, description, kind, expected)
+    if _extensions:
+        # glue extension method onto new builder instance
+        for func in _extensions:
+            meth = types.MethodType(func, ab)
+            setattr(ab, func.__name__, meth)
+    return ab
 
 
 class AssertionBuilder(DynamicMixin, ExceptionMixin, SnapshotMixin, ExtractingMixin,
@@ -123,7 +139,7 @@ class AssertionBuilder(DynamicMixin, ExceptionMixin, SnapshotMixin, ExtractingMi
 
     def _builder(self, val, description='', kind=None, expected=None):
         """Helper to build a new Builder. Only used when we don't want to chain."""
-        return AssertionBuilder(val, description, kind, expected)
+        return builder(val, description, kind, expected)
 
     def _err(self, msg):
         """Helper to raise an AssertionError, and optionally prepend custom description."""
