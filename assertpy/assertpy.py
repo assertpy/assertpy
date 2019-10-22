@@ -132,8 +132,6 @@ class AssertionBuilder(DynamicMixin, ExceptionMixin, SnapshotMixin, ExtractingMi
         """Construct the assertion builder."""
         self.val = val
         self.description = description
-        if kind not in set([None, 'soft', 'warn']):
-            raise ValueError('bad assertion kind')
         self.kind = kind
         self.expected = expected
 
