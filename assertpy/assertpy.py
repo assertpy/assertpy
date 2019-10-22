@@ -28,6 +28,7 @@
 
 """Assertion library for python unit testing with a fluent API"""
 
+from __future__ import print_function
 import os
 import types
 import contextlib
