@@ -568,7 +568,7 @@ assert_that(people).extracting('first_name').contains('Fred','Bob')
 assert_that(people).extracting('first_name').does_not_contain('Charlie')
 ```
 
-Of couse `extracting` works with subclasses too...suppose we create a simple class hierarchy by creating a `Developer` subclass of `Person`, like this:
+Of course `extracting` works with subclasses too...suppose we create a simple class hierarchy by creating a `Developer` subclass of `Person`, like this:
 
 ```py
 class Developer(Person):
@@ -852,7 +852,7 @@ forgiving behavior, you can use `soft_fail()` which is collected like any other 
 
 ### Snapshot Testing
 
-Take a snapshot of a python data structure, store it on disk in JSON format, and automatically compare the latest data to the stored data on every test run.  The snapshot testing features of `assertpy` are borrowed from [Jest](https://facebook.github.io/jest/), a well-kwown and powerful Javascript testing framework.
+Take a snapshot of a python data structure, store it on disk in JSON format, and automatically compare the latest data to the stored data on every test run.  The snapshot testing features of `assertpy` are borrowed from [Jest](https://facebook.github.io/jest/), a well-kwown and powerful Javascript testing framework.  Snapshots require Python 3.
 
 For example, snapshot the following dict:
 
@@ -909,7 +909,33 @@ assert_that({'a':1,'b':2,'c':3}).snapshot(path='my-custom-folder')
 
 #### Snapshot Blackbox
 
-Functional testing (which snapshot testing falls under) is very much blackbox testing.  When something goes wrong, it's hard to pinpoint the issue, because they provide little *isolation*.  On the plus side, snapshots can provide enormous *leverage* as a few well-place snapshots can strongly verify application state that would require dozens if not hundreds of unit tests.
+Functional testing (which snapshot testing falls under) is very much blackbox testing.  When something goes wrong, it's hard to pinpoint the issue, because functional tests provide little *isolation*.  On the plus side, snapshots can provide enormous *leverage* as a few well-placed snapshot tests can strongly verify an application is working that would otherwise require dozens if not hundreds of unit tests.
+
+### Extending via Custom Assertions
+
+Sometimes you want to add your own custom assertions to `assertpy`.  This can be done using the `add_extension()` helper.
+
+For example, we can write a custom `is_5()` assertion like this:
+
+```py
+from assertpy import assert_that, add_extension
+
+def is_5(self):
+    if self.val != 5:
+        self._err(f'{self.val} is NOT 5!')
+    return self
+
+add_extension(is_5)
+```
+
+Once registered with `assertpy`, we can use our new assertion as expected (at the file level):
+
+```py
+assert_that(5).is_5()
+assert_that(6).is_5() # fails!
+```
+
+If you want better control of extension scope, such as writing extensions once and using them anywhere in your tests, you'll need to use the test setup functionality of your test runner.  With [pytest](http://pytest.org/latest/contents.html), you can just use a `conftest.py` file and a _setup_ fixture.
 
 ### Chaining
 
@@ -944,7 +970,7 @@ There are always a few new features in the works...if you'd like to help, check 
 
 All files are licensed under the BSD 3-Clause License as follows:
 
-> Copyright (c) 2015-2018, Activision Publishing, Inc.
+> Copyright (c) 2015-2019, Activision Publishing, Inc.
 > All rights reserved.
 >
 > Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
