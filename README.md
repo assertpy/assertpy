@@ -911,14 +911,14 @@ assert_that({'a':1,'b':2,'c':3}).snapshot(path='my-custom-folder')
 
 Functional testing (which snapshot testing falls under) is very much blackbox testing.  When something goes wrong, it's hard to pinpoint the issue, because functional tests provide little *isolation*.  On the plus side, snapshots can provide enormous *leverage* as a few well-placed snapshot tests can strongly verify an application is working that would otherwise require dozens if not hundreds of unit tests.
 
-### Extending via Custom Assertions
+### Extension System - adding custom assertions
 
 Sometimes you want to add your own custom assertions to `assertpy`.  This can be done using the `add_extension()` helper.
 
 For example, we can write a custom `is_5()` assertion like this:
 
 ```py
-from assertpy import assert_that, add_extension
+from assertpy import add_extension
 
 def is_5(self):
     if self.val != 5:
@@ -928,14 +928,75 @@ def is_5(self):
 add_extension(is_5)
 ```
 
-Once registered with `assertpy`, we can use our new assertion as expected (at the file level):
+Once registered with `assertpy`, we can use our new assertion as expected:
 
 ```py
 assert_that(5).is_5()
 assert_that(6).is_5() # fails!
 ```
 
-If you want better control of extension scope, such as writing extensions once and using them anywhere in your tests, you'll need to use the test setup functionality of your test runner.  With [pytest](http://pytest.org/latest/contents.html), you can just use a `conftest.py` file and a _setup_ fixture.
+Of course, `is_5()` is only available in the test file where `add_extension()` is called.  If you want better control of scope of your custom extensions, such as writing extensions once and using them in any test file, you'll need to use the test setup functionality of your test runner.  With [pytest](http://pytest.org/latest/contents.html), you can just use a `conftest.py` file and a _fixture_.
+
+For example, if your `conftest.py` is:
+
+```py
+import pytest
+from assertpy import add_extension
+
+def is_5(self):
+    if self.val != 5:
+        self._err(f'{self.val} is NOT 5!')
+    return self
+
+@pytest.fixture(scope='module')
+def my_extensions():
+    add_extension(is_5)
+```
+
+Then in any test method in any test file (like `test_foo.py` for example), you just pass in the fixture and all of your extensions are available, like this:
+
+```py
+from assertpy import assert_that
+
+def test_foo(my_extensions):
+    assert_that(5).is_5()
+    assert_that(6).is_5() # fails!
+```
+
+#### Writing custom assertions
+
+Here are some useful tips to help you write your own custom assertions:
+
+1. Use `self.val` to get the _actual_ value to be tested.
+2. It's better to test the negative and fail if true.
+3. Fail by raising an `AssertionError`
+4. Always use the `self._err()` helper to fail (and print your failure message).
+5. Always `return self` to allow for chaining.
+
+Putting it all together, here is another custom assertion example, but annotated with comments:
+
+```py
+def is_multiple_of(self, other):
+    # validate actual value - must be "integer" (aka int or long)
+    if isinstance(self.val, numbers.Integral) is False and self.val > 0:
+        # bad input is error, not an assertion fail, so raise error
+        raise TypeError('val must be a positive integer')
+
+    # validate expected value
+    if isinstance(other, numbers.Integral) is False and other > 0:
+        raise TypeError('given arg must be a positive integer')
+
+    # divide and compute remainder using divmod() built-in
+    _, rem = divmod(self.val, other)
+
+    # test the negative (is remainder non-zero?)
+    if rem > 0:
+        # non-zero remainder, so not multiple -> we fail!
+        self._err('Expected <%s> to be multiple of <%s>, but was not.' % (self.val, other))
+
+    # success, and return self to allow chaining
+    return self
+```
 
 ### Chaining
 
