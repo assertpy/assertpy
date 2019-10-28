@@ -1,4 +1,4 @@
-# Copyright (c) 2015-2018, Activision Publishing, Inc.
+# Copyright (c) 2015-2019, Activision Publishing, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -30,8 +30,11 @@
 
 from __future__ import print_function
 import os
-import types
 import contextlib
+import inspect
+import logging
+import sys
+import types
 from .base import BaseMixin
 from .contains import ContainsMixin
 from .numeric import NumericMixin
@@ -88,10 +91,10 @@ def assert_that(val, description=''):
         return builder(val, description, 'soft')
     return builder(val, description)
 
-def assert_warn(val, description=''):
+def assert_warn(val, description='', logger=None):
     """Factory method for the assertion builder with value to be tested, optional description, and
        just warn on assertion failures instead of raisings exceptions."""
-    return builder(val, description, 'warn')
+    return builder(val, description, 'warn', logger=logger)
 
 def fail(msg=''):
     """Force test failure with the given message."""
@@ -114,8 +117,8 @@ def add_extension(func):
         raise TypeError('func must be callable')
     _extensions.append(func)
 
-def builder(val, description='', kind=None, expected=None):
-    ab = AssertionBuilder(val, description, kind, expected)
+def builder(val, description='', kind=None, expected=None, logger=None):
+    ab = AssertionBuilder(val, description, kind, expected, logger)
     if _extensions:
         # glue extension method onto new builder instance
         for func in _extensions:
@@ -123,28 +126,51 @@ def builder(val, description='', kind=None, expected=None):
             setattr(ab, func.__name__, meth)
     return ab
 
+# warnings
+class WarningLoggingAdapter(logging.LoggerAdapter):
+    """Logging adapter to unwind the stack to get the correct callee filename and line number."""
+    def process(self, msg, kwargs):
+        def _unwind(frame, fn='assert_warn'):
+            if frame and fn in frame.f_code.co_names:
+                return frame
+            return _unwind(frame.f_back, fn)
+
+        frame = _unwind(inspect.currentframe())
+        lineno = frame.f_lineno
+        filename = os.path.basename(frame.f_code.co_filename)
+        return '[%s:%d]: %s' % (filename, lineno, msg), kwargs
+
+_logger = logging.getLogger('assertpy')
+_handler = logging.StreamHandler(sys.stdout)
+_handler.setLevel(logging.WARNING)
+_format = logging.Formatter('%(asctime)s %(levelname)s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+_handler.setFormatter(_format)
+_logger.addHandler(_handler)
+_default_logger = WarningLoggingAdapter(_logger, None)
+
 
 class AssertionBuilder(DynamicMixin, ExceptionMixin, SnapshotMixin, ExtractingMixin,
         FileMixin, DateMixin, DictMixin, CollectionMixin, StringMixin, NumericMixin,
         ContainsMixin, HelpersMixin, BaseMixin, object):
     """Assertion builder."""
 
-    def __init__(self, val, description='', kind=None, expected=None):
+    def __init__(self, val, description='', kind=None, expected=None, logger=None):
         """Construct the assertion builder."""
         self.val = val
         self.description = description
         self.kind = kind
         self.expected = expected
+        self.logger = logger if logger else _default_logger
 
-    def _builder(self, val, description='', kind=None, expected=None):
+    def _builder(self, val, description='', kind=None, expected=None, logger=None):
         """Helper to build a new Builder. Only used when we don't want to chain."""
-        return builder(val, description, kind, expected)
+        return builder(val, description, kind, expected, logger)
 
     def _err(self, msg):
         """Helper to raise an AssertionError, and optionally prepend custom description."""
         out = '%s%s' % ('[%s] ' % self.description if len(self.description) > 0 else '', msg)
         if self.kind == 'warn':
-            print(out)
+            self.logger.warning(out)
             return self
         elif self.kind == 'soft':
             global _soft_err

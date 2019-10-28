@@ -777,7 +777,9 @@ The `described_as()` helper causes the custom message `adding stuff` to be prepe
 
 #### Just A Warning
 
-There are times when you only want a warning message instead of an failing test. In this case, just replace `assert_that` with `assert_warn`.
+There are times when you only want a warning message instead of a failing test. For example, if you are using `assertpy`
+to write defensive assertions in the normal flow of your application (not in a test).  In this case, just replace
+`assert_that` with `assert_warn`.
 
 ```py
 assert_warn('foo').is_length(4)
@@ -792,21 +794,32 @@ assert_warn('foo').is_not_equal_to('foo')
 assert_warn('foo').is_equal_to_ignoring_case('BAR')
 ```
 
-The above assertions just print the following warning messages, and an `AssertionError` is never raised:
+Even though all of the above assertions fail, an `AssertionError` is never raised and execution is
+not halted.  Instead, the failed assertions merely log the following warning messages to `stdout`:
 
 ```
-Expected <foo> to be of length <4>, but was <3>.
-Expected <foo> to be empty string, but was not.
-Expected <False>, but was not.
-Expected <foo> to contain only digits, but did not.
-Expected <123> to contain only alphabetic chars, but did not.
-Expected <foo> to contain only uppercase chars, but did not.
-Expected <FOO> to contain only lowercase chars, but did not.
-Expected <foo> to be equal to <bar>, but was not.
-Expected <foo> to be not equal to <foo>, but was.
-Expected <foo> to be case-insensitive equal to <BAR>, but was not.
+2019-10-27 20:00:35 WARNING [test_readme.py:423]: Expected <foo> to be of length <4>, but was <3>.
+2019-10-27 20:00:35 WARNING [test_readme.py:424]: Expected <foo> to be empty string, but was not.
+2019-10-27 20:00:35 WARNING [test_readme.py:425]: Expected <False>, but was not.
+2019-10-27 20:00:35 WARNING [test_readme.py:426]: Expected <foo> to contain only digits, but did not.
+2019-10-27 20:00:35 WARNING [test_readme.py:427]: Expected <123> to contain only alphabetic chars, but did not.
+2019-10-27 20:00:35 WARNING [test_readme.py:428]: Expected <foo> to contain only uppercase chars, but did not.
+2019-10-27 20:00:35 WARNING [test_readme.py:429]: Expected <FOO> to contain only lowercase chars, but did not.
+2019-10-27 20:00:35 WARNING [test_readme.py:430]: Expected <foo> to be equal to <bar>, but was not.
+2019-10-27 20:00:35 WARNING [test_readme.py:431]: Expected <foo> to be not equal to <foo>, but was.
+2019-10-27 20:00:35 WARNING [test_readme.py:432]: Expected <foo> to be case-insensitive equal to <BAR>, but was not.
 ```
 
+##### Custom Warning Logger
+
+By default, warnings are written to `stdout` with a formatter that includes timestamp, log level `WARNING`, and message,
+plus some stack frame magic to find the correct filename and line number where `assert_warn()` was called and failed.
+For more control or better log formatting, you can pass in your own customer logger when you call `assert_warn()`.
+
+```py
+assert_warn('foo', logger=my_logger).is_length(4)
+assert_warn('foo', logger=my_logger).is_equal_to_ignoring_case('BAR')
+```
 
 ### Soft Assertions
 

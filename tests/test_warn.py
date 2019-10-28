@@ -1,4 +1,4 @@
-# Copyright (c) 2015-2018, Activision Publishing, Inc.
+# Copyright (c) 2015-2019, Activision Publishing, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -27,8 +27,9 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import sys
+import logging
 
-from assertpy import assert_that, assert_warn, fail
+from assertpy import assert_that, assert_warn, fail, WarningLoggingAdapter
 
 
 def test_success():
@@ -49,34 +50,36 @@ def test_failures():
     else:
         from StringIO import StringIO
 
-    # capture stdout
-    old = sys.stdout
-    sys.stdout = StringIO()
+    # capture log
+    capture = StringIO()
+    logger = logging.getLogger('capture')
+    handler = logging.StreamHandler(capture)
+    logger.addHandler(handler)
+    adapted = WarningLoggingAdapter(logger, None)
 
-    assert_warn('foo').is_length(4)
-    assert_warn('foo').is_empty()
-    assert_warn('foo').is_false()
-    assert_warn('foo').is_digit()
-    assert_warn('123').is_alpha()
-    assert_warn('foo').is_upper()
-    assert_warn('FOO').is_lower()
-    assert_warn('foo').is_equal_to('bar')
-    assert_warn('foo').is_not_equal_to('foo')
-    assert_warn('foo').is_equal_to_ignoring_case('BAR')
+    assert_warn('foo', logger=adapted).is_length(4)
+    assert_warn('foo', logger=adapted).is_empty()
+    assert_warn('foo', logger=adapted).is_false()
+    assert_warn('foo', logger=adapted).is_digit()
+    assert_warn('123', logger=adapted).is_alpha()
+    assert_warn('foo', logger=adapted).is_upper()
+    assert_warn('FOO', logger=adapted).is_lower()
+    assert_warn('foo', logger=adapted).is_equal_to('bar')
+    assert_warn('foo', logger=adapted).is_not_equal_to('foo')
+    assert_warn('foo', logger=adapted).is_equal_to_ignoring_case('BAR')
 
-    # stop capturing stdout
-    out = sys.stdout.getvalue()
-    sys.stdout.close()
-    sys.stdout = old
+    # dump log to string
+    out = capture.getvalue()
+    capture.close()
 
-    assert_that(out).contains('Expected <foo> to be of length <4>, but was <3>.')
-    assert_that(out).contains('Expected <foo> to be empty string, but was not.')
-    assert_that(out).contains('Expected <False>, but was not.')
-    assert_that(out).contains('Expected <foo> to contain only digits, but did not.')
-    assert_that(out).contains('Expected <123> to contain only alphabetic chars, but did not.')
-    assert_that(out).contains('Expected <foo> to contain only uppercase chars, but did not.')
-    assert_that(out).contains('Expected <FOO> to contain only lowercase chars, but did not.')
-    assert_that(out).contains('Expected <foo> to be equal to <bar>, but was not.')
-    assert_that(out).contains('Expected <foo> to be not equal to <foo>, but was.')
-    assert_that(out).contains('Expected <foo> to be case-insensitive equal to <BAR>, but was not.')
+    assert_that(out).contains('[test_warn.py:60]: Expected <foo> to be of length <4>, but was <3>.')
+    assert_that(out).contains('[test_warn.py:61]: Expected <foo> to be empty string, but was not.')
+    assert_that(out).contains('[test_warn.py:62]: Expected <False>, but was not.')
+    assert_that(out).contains('[test_warn.py:63]: Expected <foo> to contain only digits, but did not.')
+    assert_that(out).contains('[test_warn.py:64]: Expected <123> to contain only alphabetic chars, but did not.')
+    assert_that(out).contains('[test_warn.py:65]: Expected <foo> to contain only uppercase chars, but did not.')
+    assert_that(out).contains('[test_warn.py:66]: Expected <FOO> to contain only lowercase chars, but did not.')
+    assert_that(out).contains('[test_warn.py:67]: Expected <foo> to be equal to <bar>, but was not.')
+    assert_that(out).contains('[test_warn.py:68]: Expected <foo> to be not equal to <foo>, but was.')
+    assert_that(out).contains('[test_warn.py:69]: Expected <foo> to be case-insensitive equal to <BAR>, but was not.')
 
