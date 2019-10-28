@@ -111,19 +111,25 @@ def soft_fail(msg=''):
     fail(msg)
 
 # assertion extensions
-_extensions = []
+_extensions = {}
 def add_extension(func):
     if not callable(func):
         raise TypeError('func must be callable')
-    _extensions.append(func)
+    _extensions[func.__name__] = func
+
+def remove_extension(func):
+    if not callable(func):
+        raise TypeError('func must be callable')
+    if func.__name__ in _extensions:
+        del _extensions[func.__name__]
 
 def builder(val, description='', kind=None, expected=None, logger=None):
     ab = AssertionBuilder(val, description, kind, expected, logger)
     if _extensions:
         # glue extension method onto new builder instance
-        for func in _extensions:
+        for name,func in _extensions.items():
             meth = types.MethodType(func, ab)
-            setattr(ab, func.__name__, meth)
+            setattr(ab, name, meth)
     return ab
 
 # warnings
