@@ -114,7 +114,6 @@ def test_is_multiple_of_extension_failure_bad_val():
 
 def test_is_multiple_of_extension_failure_negative_val():
     try:
-        add_extension(is_multiple_of)
         assert_that(-24).is_multiple_of(6)
         fail('should have raised error')
     except TypeError as ex:
@@ -129,7 +128,6 @@ def test_is_multiple_of_extension_failure_bad_arg():
 
 def test_is_multiple_of_extension_failure_negative_arg():
     try:
-        add_extension(is_multiple_of)
         assert_that(24).is_multiple_of(-6)
         fail('should have raised error')
     except TypeError as ex:
