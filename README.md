@@ -991,12 +991,12 @@ Putting it all together, here is another custom assertion example, but annotated
 ```py
 def is_multiple_of(self, other):
     # validate actual value - must be "integer" (aka int or long)
-    if isinstance(self.val, numbers.Integral) is False and self.val > 0:
+    if isinstance(self.val, numbers.Integral) is False or self.val <= 0:
         # bad input is error, not an assertion fail, so raise error
         raise TypeError('val must be a positive integer')
 
     # validate expected value
-    if isinstance(other, numbers.Integral) is False and other > 0:
+    if isinstance(other, numbers.Integral) is False or other <= 0:
         raise TypeError('given arg must be a positive integer')
 
     # divide and compute remainder using divmod() built-in
