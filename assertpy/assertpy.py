@@ -49,7 +49,7 @@ from .exception import ExceptionMixin
 from .dynamic import DynamicMixin
 from .helpers import HelpersMixin
 
-__version__ = '0.14'
+__version__ = '0.15'
 
 __tracebackhide__ = True # clean tracebacks via py.test integration
 contextlib.__tracebackhide__ = True # monkey patch contextlib with clean py.test tracebacks
