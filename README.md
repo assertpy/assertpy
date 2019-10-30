@@ -24,8 +24,8 @@ Of course, `assertpy` works best with a python test runner like [pytest](http://
 
 ## Installation
 
+### Install via pip
 [![PyPI Badge](https://badge.fury.io/py/assertpy.svg)](https://pypi.python.org/pypi/assertpy)
-[![Binstar Badge](https://anaconda.org/activisiongamescience/assertpy/badges/version.svg)](https://anaconda.org/ActivisionGameScience/assertpy)
 
 The `assertpy` library is available via [PyPI](https://pypi.python.org/pypi/assertpy).
 Just install with:
@@ -34,14 +34,12 @@ Just install with:
 pip install assertpy
 ```
 
-Or, if you are a big fan of [conda](https://conda.io/) like we are, `assertpy` is in [Anaconda Cloud](https://anaconda.org/ActivisionGameScience/assertpy).
-Just install from our channel:
+### Install via conda
 
-```
-conda install assertpy --channel ActivisionGameScience
-```
+[![Conda Version](https://img.shields.io/conda/vn/conda-forge/assertpy.svg)](https://anaconda.org/conda-forge/assertpy)
+[![Conda Platforms](https://img.shields.io/conda/pn/conda-forge/assertpy.svg)](https://anaconda.org/conda-forge/assertpy)
 
-There is also an [assertpy-feedstock](https://github.com/conda-forge/assertpy-feedstock) for [Conda-Forge](https://conda-forge.org/) that you can use:
+Or, if you are a big fan of [conda](https://conda.io/) like we are, there is an [assertpy-feedstock](https://github.com/conda-forge/assertpy-feedstock) for [Conda-Forge](https://conda-forge.org/) that you can use:
 
 ```
 conda install assertpy --channel conda-forge
