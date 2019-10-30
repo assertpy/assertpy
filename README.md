@@ -976,13 +976,16 @@ def test_foo(my_extensions):
     assert_that(6).is_5() # fails!
 ```
 
+where the `my_extensions` parameter must be the name of your fixture function in `conftest.py`.  See the [fixture docs](https://docs.pytest.org/en/latest/fixture.html) for details.
+
 #### Writing custom assertions
 
 Here are some useful tips to help you write your own custom assertions:
 
-1. Use `self.val` to get the _actual_ value to be tested.
-2. It's better to test the negative and fail if true.
-3. Fail by raising an `AssertionError`
+1. Use `self` as first param (as if your function was an instance method).
+2. Use `self.val` to get the _actual_ value to be tested.
+2. It's better to test the negative, and then fail if true.
+3. Fail by raising an `AssertionError`.
 4. Always use the `self._err()` helper to fail (and print your failure message).
 5. Always `return self` to allow for chaining.
 
