@@ -25,7 +25,7 @@
 # ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+import operator
 import sys
 import collections
 
@@ -162,5 +162,34 @@ def test_is_subset_of_bad_arg_failure():
         assert_that(str(ex)).is_equal_to('one or more superset args must be given')
 
 def test_chaining():
-    assert_that(['a','b','c']).is_iterable().is_type_of(list).is_length(3)
+    assert_that(['a','b','c']).is_iterable().is_type_of(list).is_sorted().is_length(3)
 
+def test_is_sorted_default_compare_op():
+    assert_that([1,2,5,6]).is_sorted()
+
+def test_is_sorted_default_compare_op_failure():
+    try:
+        assert_that([1,5,2,6]).is_sorted()
+        assert fail("should have raised error")
+    except AssertionError as ae:
+        pass
+
+def test_is_sorted_one_compare_op():
+    assert_that([6, 5, 2, 1]).is_sorted(operator.le)
+
+def test_is_sorted_one_compare_op_failure():
+    try:
+        assert_that([6, 2, 5, 1]).is_sorted(operator.le)
+        assert fail("should have raised error")
+    except AssertionError as ae:
+        pass
+
+def test_is_sorted_multiple_compare_ops():
+    assert_that(["d", "c", "b", "a"]).is_sorted([operator.ge, operator.le])
+
+def test_is_sorted_multiple_compare_ops_failure():
+    try:
+        assert_that(["d", "b", "c", "a"]).is_sorted([operator.ge, operator.le])
+        assert fail("should have raised error")
+    except AssertionError as ae:
+        pass

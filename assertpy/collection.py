@@ -25,7 +25,7 @@
 # ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+import operator
 import sys
 import collections
 
@@ -88,5 +88,37 @@ class CollectionMixin(object):
                     missing.append(i)
             if missing:
                 self._err('Expected <%s> to be subset of %s, but %s %s missing.' % (self.val, self._fmt_items(superset), self._fmt_items(missing), 'was' if len(missing) == 1 else 'were'))
+
+        return self
+
+    def is_sorted(self, compare_op=operator.ge):
+        """Asserts that value is sorted by at least one of the provided compare functions."""
+
+        # Make compare_op a list
+        try:
+            self._check_iterable(compare_op)
+            compare_ops = compare_op
+        except TypeError as e:
+            compare_ops = [compare_op]
+
+        # Loop through compare_ops and find two unsorted items.
+        op_it = iter(compare_ops)
+        sorted_by_any = False
+
+        while not sorted_by_any:
+            try:
+                op = next(op_it)
+            except StopIteration as si:
+                break
+
+            sorted_by_any = True
+
+            for i in range(len(self.val) - 1):
+                if not op(self.val[i + 1], self.val[i]):
+                    sorted_by_any = False
+                    break
+
+        if not sorted_by_any:
+            self._err('Expected value to be sorted by any of %s, but was not.' % str(compare_ops))
 
         return self
