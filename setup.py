@@ -24,7 +24,7 @@ setup(
     name = 'assertpy',
     packages = ['assertpy'],
     version = assertpy.__version__,
-    description = 'Assertion library for python unit testing with a fluent API',
+    description = 'Simple assertion library for unit testing in python with a fluent API',
     long_description = desc,
     author = 'Justin Shacklette',
     author_email = 'justin@saturnboy.com',
