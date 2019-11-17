@@ -161,6 +161,48 @@ def test_is_subset_of_bad_arg_failure():
     except ValueError as ex:
         assert_that(str(ex)).is_equal_to('one or more superset args must be given')
 
-def test_chaining():
-    assert_that(['a','b','c']).is_iterable().is_type_of(list).is_length(3)
+def test_is_sorted():
+    assert_that([1,2,3]).is_sorted()
+    assert_that((3,2,1)).is_sorted(reverse=True)
+    assert_that(['a','b','c']).is_sorted()
+    assert_that(['c','b','a']).is_sorted(reverse=True)
+    assert_that('abcdefghijklmnopqrstuvwxyz').is_sorted()
+    assert_that('zyxwvutsrqponmlkjihgfedcba').is_sorted(reverse=True)
+    assert_that([{'a':1}, {'a':2}, {'a':3}]).is_sorted(key=lambda x: x['a'])
+    assert_that([{'a':3}, {'a':2}, {'a':1}]).is_sorted(key=lambda x: x['a'], reverse=True)
+    assert_that([('a',2),('b',1)]).is_sorted(key=lambda x: x[0])
+    assert_that([('a',2),('b',1)]).is_sorted(key=lambda x: x[1], reverse=True)
+    assert_that([1,1,1]).is_sorted()
+    assert_that([1,1,1]).is_sorted(reverse=True)
+    assert_that([]).is_sorted()
+    assert_that([1]).is_sorted()
 
+    if sys.version_info[0] == 3:
+        import collections
+        ordered = collections.OrderedDict([('a',2),('b',1)])
+        assert_that(ordered).is_sorted()
+        assert_that(ordered.keys()).is_sorted()
+
+def test_is_sorted_failure():
+    try:
+        assert_that([1,2,3,4,5,6,-1,7,8,9]).is_sorted()
+        fail("should have raised error")
+    except AssertionError as ex:
+        assert_that(str(ex)).is_equal_to('Expected <[1, 2, 3, 4, 5, 6, -1, 7, 8, 9]> to be sorted, but subset <6, -1> at index 5 is not.')
+
+def test_is_sorted_reverse_failure():
+    try:
+        assert_that([1,2,3]).is_sorted(reverse=True)
+        fail("should have raised error")
+    except AssertionError as ex:
+        assert_that(str(ex)).is_equal_to('Expected <[1, 2, 3]> to be sorted reverse, but subset <1, 2> at index 0 is not.')
+
+def test_is_sorted_failure_bad_val():
+    try:
+        assert_that(123).is_sorted()
+        fail("should have raised error")
+    except TypeError as ex:
+        assert_that(str(ex)).is_equal_to('val is not iterable')
+
+def test_chaining():
+    assert_that(['a','b','c']).is_iterable().is_type_of(list).is_sorted().is_length(3)

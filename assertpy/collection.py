@@ -90,3 +90,20 @@ class CollectionMixin(object):
                 self._err('Expected <%s> to be subset of %s, but %s %s missing.' % (self.val, self._fmt_items(superset), self._fmt_items(missing), 'was' if len(missing) == 1 else 'were'))
 
         return self
+
+    def is_sorted(self, key=lambda x: x, reverse=False):
+        """Asserts that value is iterable collection and is sorted."""
+        if not isinstance(self.val, Iterable):
+            raise TypeError('val is not iterable')
+
+        for i, x in enumerate(self.val):
+            if i > 0:
+                if reverse:
+                    if key(x) > key(prev):
+                        self._err('Expected <%s> to be sorted reverse, but subset %s at index %s is not.' % (self.val, self._fmt_items([prev, x]), i-1))
+                else:
+                    if key(x) < key(prev):
+                        self._err('Expected <%s> to be sorted, but subset %s at index %s is not.' % (self.val, self._fmt_items([prev, x]), i-1))
+            prev = x
+
+        return self
