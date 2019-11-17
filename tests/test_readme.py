@@ -175,6 +175,8 @@ class TestReadme(object):
         assert_that(['a','a']).contains_only('a')
         assert_that(['a','b','c']).contains_sequence('b','c')
         assert_that(['a','b']).is_subset_of(['a','b','c'])
+        assert_that(['a','b','c']).is_sorted()
+        assert_that(['c','b','a']).is_sorted(reverse=True)
 
         assert_that(['a','x','x']).contains_duplicates()
         assert_that(['a','b','c']).does_not_contain_duplicates()
@@ -202,6 +204,8 @@ class TestReadme(object):
         assert_that((1,1,1)).contains_only(1)
         assert_that((1,2,3)).contains_sequence(2,3)
         assert_that((1,2,3)).is_subset_of((1,2,3,4))
+        assert_that((1,2,3)).is_sorted()
+        assert_that((3,2,1)).is_sorted(reverse=True)
 
         assert_that((1,2,2)).contains_duplicates()
         assert_that((1,2,3)).does_not_contain_duplicates()
