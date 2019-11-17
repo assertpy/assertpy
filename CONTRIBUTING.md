@@ -9,10 +9,10 @@ Here's how:
 1. Create a branch (`git checkout -b my_branch`)
 1. Commit your changes (`git commit -am "added some cool feature"`)
 1. Push your branch to your fork (`git push origin my_branch`)
-1. Open a [Pull Request](http://github.com/ActivisionGameScience/assertpy/pulls)
+1. Open a [Pull Request](http://github.com/assertpy/assertpy/pulls)
 1. Respond to any questions during our review process
 
-Read more about how pulls work on GitHub's [Using Pull Requests](https://help.github.com/articles/using-pull-requests/) page.
+Read more about how pulls work on GitHub's [About pull requests](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-requests) page.
 
 ## Running the Tests
 
@@ -31,11 +31,11 @@ Should produce output something like this:
 
 ```
 ===== test session starts =====
-collected 373 items
+collected 589 items
 
-tests/test_bool.py::TestBool::test_is_true PASSED
+tests/test_bool.py::test_is_true PASSED
 ..
-tests/test_type.py::TestType::test_is_instance_of_bad_arg_failure PASSED
+tests/test_warn.py::test_failures PASSED
 
-===== 373 passed in 0.52 seconds =====
+===== 589 passed in 1.91s =====
 ```

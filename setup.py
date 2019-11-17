@@ -4,8 +4,7 @@ import assertpy
 desc = """assertpy
 ========
 
-Dead simple assertion library for python unit testing with a fluent API
-that supports Python 2 and 3.
+Simple assertions library for unit testing in Python with a nice fluent API. Supports both Python 2 and 3.
 
 Usage
 '''''
@@ -19,9 +18,7 @@ Just import the ``assert_that`` function, and away you go::
         assert_that('foobar').is_length(6).starts_with('foo').ends_with('bar')
         assert_that(['a', 'b', 'c']).contains('a').does_not_contain('x')
 
-Of course, ``assertpy`` works best with a python test runner
-like `pytest <http://pytest.org/latest/contents.html>`_ (our favorite)
-or `Nose <http://nose.readthedocs.org/>`_."""
+Of course, ``assertpy`` works best with a python test runner like `pytest <http://pytest.org/>`_ (our favorite) or `Nose <http://nose.readthedocs.org/>`_."""
 
 setup(
     name = 'assertpy',
@@ -31,8 +28,8 @@ setup(
     long_description = desc,
     author = 'Justin Shacklette',
     author_email = 'justin@saturnboy.com',
-    url = 'https://github.com/ActivisionGameScience/assertpy',
-    download_url = 'https://codeload.github.com/ActivisionGameScience/assertpy/tar.gz/%s' % assertpy.__version__,
+    url = 'https://github.com/assertpy/assertpy',
+    download_url = 'https://github.com/assertpy/assertpy/archive/%s.tar.gz' % assertpy.__version__,
     keywords = ['test', 'testing', 'assert', 'assertion', 'assertthat', 'assert_that', 'nose', 'nosetests', 'pytest', 'unittest'],
     license = 'BSD',
     classifiers = [

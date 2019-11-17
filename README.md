@@ -2,8 +2,8 @@
 
 Simple assertions library for unit testing in Python with a nice fluent API.  Supports both Python 2 and 3.
 
-[![Build Status](https://travis-ci.org/ActivisionGameScience/assertpy.svg?branch=master)](https://travis-ci.org/ActivisionGameScience/assertpy)
-[![Coverage Status](https://coveralls.io/repos/ActivisionGameScience/assertpy/badge.svg?branch=master)](https://coveralls.io/github/ActivisionGameScience/assertpy)
+[![Build Status](https://travis-ci.org/assertpy/assertpy.svg?branch=master)](https://travis-ci.org/assertpy/assertpy)
+[![Coverage Status](https://coveralls.io/repos/github/assertpy/assertpy/badge.svg?branch=master)](https://coveralls.io/github/assertpy/assertpy?branch=master)
 
 
 ## Usage
@@ -19,15 +19,15 @@ def test_something():
     assert_that(['a', 'b', 'c']).contains('a').does_not_contain('x')
 ```
 
-Of course, `assertpy` works best with a python test runner like [pytest](http://pytest.org/latest/contents.html) (our favorite) or [Nose](http://nose.readthedocs.org/).
+Of course, `assertpy` works best with a python test runner like [pytest](http://pytest.org/) (our favorite) or [Nose](http://nose.readthedocs.org/).
 
 
 ## Installation
 
 ### Install via pip
-[![PyPI Badge](https://badge.fury.io/py/assertpy.svg)](https://pypi.python.org/pypi/assertpy)
+[![PyPI Badge](https://badge.fury.io/py/assertpy.svg)](https://pypi.org/project/assertpy/)
 
-The `assertpy` library is available via [PyPI](https://pypi.python.org/pypi/assertpy).
+The `assertpy` library is available via [PyPI](https://pypi.org/project/assertpy/).
 Just install with:
 
 ```
@@ -1038,7 +1038,7 @@ assert_that(people).is_length(2).extracting('first_name').contains('Fred','Joe')
 
 ## Future
 
-There are always a few new features in the works...if you'd like to help, check out the [open issues](https://github.com/ActivisionGameScience/assertpy/issues?q=is%3Aopen+is%3Aissue) and see our [Contributing](CONTRIBUTING.md) doc.
+There are always a few new features in the works...if you'd like to help, check out the [open issues](https://github.com/assertpy/assertpy/issues) and see our [Contributing](CONTRIBUTING.md) doc.
 
 
 ## License
