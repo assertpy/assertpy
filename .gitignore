@@ -2,6 +2,7 @@
 *.py[cod]
 .cache
 .pytest_cache
+__pycache__
 
 # testing output
 *.xml
