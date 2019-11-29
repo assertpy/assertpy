@@ -32,19 +32,19 @@ from assertpy import assert_that, fail
 class CustomList(object):
 
     def __init__(self, s):
-         self._s = s
-         self._idx = 0
+        self._s = s
+        self._idx = 0
 
     def __iter__(self):
         return self
 
     def __next__(self):
-         try:
-             result = self._s[self._idx]
-         except IndexError:
-             raise StopIteration
-         self._idx += 1
-         return result
+        try:
+            result = self._s[self._idx]
+        except IndexError:
+            raise StopIteration
+        self._idx += 1
+        return result
 
     def __getitem__(self, idx):
         return self._s[idx]
@@ -52,7 +52,7 @@ class CustomList(object):
 
 def test_custom_list():
     l = CustomList('foobar')
-    assert_that([CustomList('foo'), CustomList('bar')]).extracting(0,-1).is_equal_to([('f','o'),('b','r')])
+    assert_that([CustomList('foo'), CustomList('bar')]).extracting(0, -1).is_equal_to([('f', 'o'), ('b', 'r')])
 
 
 def test_check_iterable():

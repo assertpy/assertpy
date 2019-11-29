@@ -45,7 +45,7 @@ def test_custom_dict():
     assert_that(d).contains_value('application/json')
 
     assert_that(d['Accept']).is_equal_to('application/json')
-    assert_that(d).contains_entry({'Accept':'application/json'})
+    assert_that(d).contains_entry({'Accept': 'application/json'})
 
 
 def test_requests():
@@ -66,7 +66,7 @@ def test_requests():
         assert_that(d).contains_value('application/json')
 
         assert_that(d['Accept']).is_equal_to('application/json')
-        assert_that(d).contains_entry({'Accept':'application/json'})
+        assert_that(d).contains_entry({'Accept': 'application/json'})
     except ImportError:
         pass
 
@@ -74,19 +74,19 @@ def test_requests():
 class CustomDict(object):
 
     def __init__(self, d):
-         self._dict = d
-         self._idx = 0
+        self._dict = d
+        self._idx = 0
 
     def __iter__(self):
         return self
 
     def __next__(self):
-         try:
-             result = self.keys()[self._idx]
-         except IndexError:
-             raise StopIteration
-         self._idx += 1
-         return result
+        try:
+            result = self.keys()[self._idx]
+        except IndexError:
+            raise StopIteration
+        self._idx += 1
+        return result
 
     def __contains__(self, key):
         return key in self.keys()
@@ -180,18 +180,18 @@ class CustomDictNoKeys(object):
         return self
 
     def __next__(self):
-         return 1
+        return 1
 
 
 class CustomDictNoKeysCallable(object):
     def __init__(self):
-         self.keys = 'foo'
+        self.keys = 'foo'
 
     def __iter__(self):
         return self
 
     def __next__(self):
-         return 1
+        return 1
 
 
 class CustomDictNoValues(object):
@@ -199,7 +199,7 @@ class CustomDictNoValues(object):
         return self
 
     def __next__(self):
-         return 1
+        return 1
 
     def keys(self):
         return 'foo'
@@ -207,13 +207,13 @@ class CustomDictNoValues(object):
 
 class CustomDictNoValuesCallable(object):
     def __init__(self):
-         self.values = 'foo'
+        self.values = 'foo'
 
     def __iter__(self):
         return self
 
     def __next__(self):
-         return 1
+        return 1
 
     def keys(self):
         return 'foo'
@@ -224,11 +224,10 @@ class CustomDictNoGetitem(object):
         return self
 
     def __next__(self):
-         return 1
+        return 1
 
     def keys(self):
         return 'foo'
 
     def values(self):
         return 'bar'
-

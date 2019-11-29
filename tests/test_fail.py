@@ -26,7 +26,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from assertpy import assert_that,fail
+from assertpy import assert_that, fail
 
 
 def test_fail():
@@ -35,6 +35,7 @@ def test_fail():
         fail('should have raised error')
     except AssertionError as ex:
         assert_that(str(ex)).is_equal_to('Fail!')
+
 
 def test_fail_msg():
     try:

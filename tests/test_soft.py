@@ -205,4 +205,3 @@ def test_recursive_nesting():
         assert_that(out).contains('4. Expected <4> to be equal to <7>, but was not.')
         assert_that(out).contains('5. Expected <5> to be equal to <7>, but was not.')
         assert_that(out).contains('6. Expected <6> to be equal to <7>, but was not.')
-

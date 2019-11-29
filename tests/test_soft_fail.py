@@ -28,6 +28,7 @@
 
 from assertpy import assert_that, fail, soft_fail, soft_assertions
 
+
 def test_soft_fail_without_context():
     try:
         soft_fail()
@@ -37,6 +38,7 @@ def test_soft_fail_without_context():
         assert_that(out).is_equal_to('Fail!')
         assert_that(out).does_not_contain('should have raised error')
 
+
 def test_soft_fail_with_msg_without_context():
     try:
         soft_fail('some msg')
@@ -45,6 +47,7 @@ def test_soft_fail_with_msg_without_context():
         out = str(e)
         assert_that(out).is_equal_to('Fail: some msg!')
         assert_that(out).does_not_contain('should have raised error')
+
 
 def test_soft_fail():
     try:
@@ -56,6 +59,7 @@ def test_soft_fail():
         assert_that(out).contains('Fail!')
         assert_that(out).does_not_contain('should have raised error')
 
+
 def test_soft_fail_with_msg():
     try:
         with soft_assertions():
@@ -65,6 +69,7 @@ def test_soft_fail_with_msg():
         out = str(e)
         assert_that(out).contains('Fail: foobar!')
         assert_that(out).does_not_contain('should have raised error')
+
 
 def test_soft_fail_with_soft_failing_asserts():
     try:
@@ -83,6 +88,7 @@ def test_soft_fail_with_soft_failing_asserts():
         assert_that(out).contains('Expected <foo> to be not equal to <foo>, but was.')
         assert_that(out).contains('Expected <foo> to be case-insensitive equal to <BAR>, but was not.')
         assert_that(out).does_not_contain('should have raised error')
+
 
 def test_double_soft_fail():
     try:

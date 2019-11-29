@@ -26,11 +26,12 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from assertpy import assert_that,fail
+from assertpy import assert_that, fail
 
 
 def test_is_none():
     assert_that(None).is_none()
+
 
 def test_is_none_failure():
     try:
@@ -39,12 +40,14 @@ def test_is_none_failure():
     except AssertionError as ex:
         assert_that(str(ex)).is_equal_to('Expected <foo> to be <None>, but was not.')
 
+
 def test_is_not_none():
     assert_that('foo').is_not_none()
     assert_that(123).is_not_none()
     assert_that(False).is_not_none()
     assert_that([]).is_not_none()
     assert_that({}).is_not_none()
+
 
 def test_is_not_none_failure():
     try:

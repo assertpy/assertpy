@@ -26,21 +26,23 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from assertpy import assert_that,fail
+from assertpy import assert_that, fail
 
 
 def test_is_in():
     assert_that(1).is_in(1)
-    assert_that(1).is_in(1,2,3)
+    assert_that(1).is_in(1, 2, 3)
     assert_that('foo').is_in('foo', 'bar', 'baz')
-    assert_that([1,2,3]).is_in([1,2,3], [2,3,4], [3,4,5])
+    assert_that([1, 2, 3]).is_in([1, 2, 3], [2, 3, 4], [3, 4, 5])
+
 
 def test_is_in_failure():
     try:
-        assert_that(4).is_in(1,2,3)
+        assert_that(4).is_in(1, 2, 3)
         fail('should have raised error')
     except AssertionError as ex:
         assert_that(str(ex)).is_equal_to('Expected <4> to be in <1, 2, 3>, but was not.')
+
 
 def test_is_in_missing_arg_failure():
     try:
@@ -49,18 +51,21 @@ def test_is_in_missing_arg_failure():
     except ValueError as ex:
         assert_that(str(ex)).is_equal_to('one or more args must be given')
 
+
 def test_is_not_in():
     assert_that(4).is_not_in(1)
-    assert_that(4).is_not_in(1,2,3)
+    assert_that(4).is_not_in(1, 2, 3)
     assert_that('fred').is_not_in('foo', 'bar', 'baz')
-    assert_that([4,4,4]).is_not_in([1,2,3], [2,3,4], [3,4,5])
+    assert_that([4, 4, 4]).is_not_in([1, 2, 3], [2, 3, 4], [3, 4, 5])
+
 
 def test_is_not_in_failure():
     try:
-        assert_that(1).is_not_in(1,2,3)
+        assert_that(1).is_not_in(1, 2, 3)
         fail('should have raised error')
     except AssertionError as ex:
         assert_that(str(ex)).is_equal_to('Expected <1> to not be in <1, 2, 3>, but was.')
+
 
 def test_is_not_in_missing_arg_failure():
     try:
@@ -68,4 +73,3 @@ def test_is_not_in_missing_arg_failure():
         fail('should have raised error')
     except ValueError as ex:
         assert_that(str(ex)).is_equal_to('one or more args must be given')
-

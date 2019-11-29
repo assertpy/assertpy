@@ -29,166 +29,193 @@
 import sys
 import os
 import tempfile
-from assertpy import assert_that,contents_of,fail
+import pytest
+from assertpy import assert_that, contents_of, fail
 
-class TestFile(object):
 
-    def setup(self):
-        self.tmp = tempfile.NamedTemporaryFile()
-        self.tmp.write('foobar'.encode('utf-8'))
-        self.tmp.seek(0)
+@pytest.fixture()
+def tmpfile():
+    tmp = tempfile.NamedTemporaryFile()
+    tmp.write('foobar'.encode('utf-8'))
+    tmp.seek(0)
+    yield tmp
+    tmp.close()
 
-    def teardown(self):
-        self.tmp.close()
 
-    def test_contents_of_path(self):
-        contents = contents_of(self.tmp.name)
-        assert_that(contents).is_equal_to('foobar').starts_with('foo').ends_with('bar')
+def test_contents_of_path(tmpfile):
+    contents = contents_of(tmpfile.name)
+    assert_that(contents).is_equal_to('foobar').starts_with('foo').ends_with('bar')
 
-    def test_contents_of_path_ascii(self):
-        contents = contents_of(self.tmp.name, 'ascii')
-        assert_that(contents).is_equal_to('foobar').starts_with('foo').ends_with('bar')
 
-    def test_contents_of_return_type(self):
-        if sys.version_info[0] == 3:
-            contents = contents_of(self.tmp.name)
-            assert_that(contents).is_type_of(str)
-        else:
-            contents = contents_of(self.tmp.name)
-            assert_that(contents).is_type_of(unicode)
+def test_contents_of_path_ascii(tmpfile):
+    contents = contents_of(tmpfile.name, 'ascii')
+    assert_that(contents).is_equal_to('foobar').starts_with('foo').ends_with('bar')
 
-    def test_contents_of_return_type_ascii(self):
-        if sys.version_info[0] == 3:
-            contents = contents_of(self.tmp.name, 'ascii')
-            assert_that(contents).is_type_of(str)
-        else:
-            contents = contents_of(self.tmp.name, 'ascii')
-            assert_that(contents).is_type_of(str)
 
-    def test_contents_of_file(self):
-        contents = contents_of(self.tmp.file)
-        assert_that(contents).is_equal_to('foobar').starts_with('foo').ends_with('bar')
+def test_contents_of_return_type(tmpfile):
+    if sys.version_info[0] == 3:
+        contents = contents_of(tmpfile.name)
+        assert_that(contents).is_type_of(str)
+    else:
+        contents = contents_of(tmpfile.name)
+        assert_that(contents).is_type_of(unicode)
 
-    def test_contents_of_file_ascii(self):
-        contents = contents_of(self.tmp.file, 'ascii')
-        assert_that(contents).is_equal_to('foobar').starts_with('foo').ends_with('bar')
 
-    def test_contains_of_bad_type_failure(self):
-        try:
-            contents_of(123)
-            fail('should have raised error')
-        except ValueError as ex:
-            assert_that(str(ex)).is_equal_to('val must be file or path, but was type <int>')
+def test_contents_of_return_type_ascii(tmpfile):
+    if sys.version_info[0] == 3:
+        contents = contents_of(tmpfile.name, 'ascii')
+        assert_that(contents).is_type_of(str)
+    else:
+        contents = contents_of(tmpfile.name, 'ascii')
+        assert_that(contents).is_type_of(str)
 
-    def test_contains_of_missing_file_failure(self):
-        try:
-            contents_of('missing.txt')
-            fail('should have raised error')
-        except IOError as ex:
-            assert_that(str(ex)).contains_ignoring_case('no such file')
 
-    def test_exists(self):
-        assert_that(self.tmp.name).exists()
+def test_contents_of_file(tmpfile):
+    contents = contents_of(tmpfile.file)
+    assert_that(contents).is_equal_to('foobar').starts_with('foo').ends_with('bar')
 
-    def test_exists_failure(self):
-        try:
-            assert_that('missing.txt').exists()
-            fail('should have raised error')
-        except AssertionError as ex:
-            assert_that(str(ex)).is_equal_to('Expected <missing.txt> to exist, but was not found.')
 
-    def test_exists_bad_val_failure(self):
-        try:
-            assert_that(123).exists()
-            fail('should have raised error')
-        except TypeError as ex:
-            assert_that(str(ex)).is_equal_to('val is not a path')
+def test_contents_of_file_ascii(tmpfile):
+    contents = contents_of(tmpfile.file, 'ascii')
+    assert_that(contents).is_equal_to('foobar').starts_with('foo').ends_with('bar')
 
-    def test_does_not_exist(self):
-        assert_that('missing.txt').does_not_exist()
 
-    def test_does_not_exist_failure(self):
-        try:
-            assert_that(self.tmp.name).does_not_exist()
-            fail('should have raised error')
-        except AssertionError as ex:
-            assert_that(str(ex)).is_equal_to('Expected <{}> to not exist, but was found.'.format(self.tmp.name))
+def test_contains_of_bad_type_failure(tmpfile):
+    try:
+        contents_of(123)
+        fail('should have raised error')
+    except ValueError as ex:
+        assert_that(str(ex)).is_equal_to('val must be file or path, but was type <int>')
 
-    def test_does_not_exist_bad_val_failure(self):
-        try:
-            assert_that(123).does_not_exist()
-            fail('should have raised error')
-        except TypeError as ex:
-            assert_that(str(ex)).is_equal_to('val is not a path')
 
-    def test_is_file(self):
-        assert_that(self.tmp.name).is_file()
+def test_contains_of_missing_file_failure(tmpfile):
+    try:
+        contents_of('missing.txt')
+        fail('should have raised error')
+    except IOError as ex:
+        assert_that(str(ex)).contains_ignoring_case('no such file')
 
-    def test_is_file_exists_failure(self):
-        try:
-            assert_that('missing.txt').is_file()
-            fail('should have raised error')
-        except AssertionError as ex:
-            assert_that(str(ex)).is_equal_to('Expected <missing.txt> to exist, but was not found.')
 
-    def test_is_file_directory_failure(self):
-        try:
-            dirname = os.path.dirname(self.tmp.name)
-            assert_that(dirname).is_file()
-            fail('should have raised error')
-        except AssertionError as ex:
-            assert_that(str(ex)).matches('Expected <.*> to be a file, but was not.')
+def test_exists(tmpfile):
+    assert_that(tmpfile.name).exists()
+    assert_that(os.path.dirname(tmpfile.name)).exists()
 
-    def test_is_directory(self):
-        dirname = os.path.dirname(self.tmp.name)
-        assert_that(dirname).is_directory()
 
-    def test_is_directory_exists_failure(self):
-        try:
-            assert_that('missing_dir').is_directory()
-            fail('should have raised error')
-        except AssertionError as ex:
-            assert_that(str(ex)).is_equal_to('Expected <missing_dir> to exist, but was not found.')
+def test_exists_failure(tmpfile):
+    try:
+        assert_that('missing.txt').exists()
+        fail('should have raised error')
+    except AssertionError as ex:
+        assert_that(str(ex)).is_equal_to('Expected <missing.txt> to exist, but was not found.')
 
-    def test_is_directory_file_failure(self):
-        try:
-            assert_that(self.tmp.name).is_directory()
-            fail('should have raised error')
-        except AssertionError as ex:
-            assert_that(str(ex)).matches('Expected <.*> to be a directory, but was not.')
 
-    def test_is_named(self):
-        basename = os.path.basename(self.tmp.name)
-        assert_that(self.tmp.name).is_named(basename)
+def test_exists_bad_val_failure(tmpfile):
+    try:
+        assert_that(123).exists()
+        fail('should have raised error')
+    except TypeError as ex:
+        assert_that(str(ex)).is_equal_to('val is not a path')
 
-    def test_is_named_failure(self):
-        try:
-            assert_that(self.tmp.name).is_named('foo.txt')
-            fail('should have raised error')
-        except AssertionError as ex:
-            assert_that(str(ex)).matches('Expected filename <.*> to be equal to <foo.txt>, but was not.')
 
-    def test_is_named_bad_arg_type_failure(self):
-        try:
-            assert_that(self.tmp.name).is_named(123)
-            fail('should have raised error')
-        except TypeError as ex:
-            assert_that(str(ex)).matches('given filename arg must be a path')
+def test_does_not_exist():
+    assert_that('missing.txt').does_not_exist()
 
-    def test_is_child_of(self):
-        dirname = os.path.dirname(self.tmp.name)
-        assert_that(self.tmp.name).is_child_of(dirname)
 
-    def test_is_child_of_failure(self):
-        try:
-            assert_that(self.tmp.name).is_child_of('foo_dir')
-            fail('should have raised error')
-        except AssertionError as ex:
-            assert_that(str(ex)).matches('Expected file <.*> to be a child of <.*/foo_dir>, but was not.')
+def test_does_not_exist_failure(tmpfile):
+    try:
+        assert_that(tmpfile.name).does_not_exist()
+        fail('should have raised error')
+    except AssertionError as ex:
+        assert_that(str(ex)).is_equal_to('Expected <{}> to not exist, but was found.'.format(tmpfile.name))
 
-    def test_is_child_of_bad_arg_type_failure(self):
-        try:
-            assert_that(self.tmp.name).is_child_of(123)
-            fail('should have raised error')
-        except TypeError as ex:
-            assert_that(str(ex)).matches('given parent directory arg must be a path')
+
+def test_does_not_exist_bad_val_failure(tmpfile):
+    try:
+        assert_that(123).does_not_exist()
+        fail('should have raised error')
+    except TypeError as ex:
+        assert_that(str(ex)).is_equal_to('val is not a path')
+
+
+def test_is_file(tmpfile):
+    assert_that(tmpfile.name).is_file()
+
+
+def test_is_file_exists_failure():
+    try:
+        assert_that('missing.txt').is_file()
+        fail('should have raised error')
+    except AssertionError as ex:
+        assert_that(str(ex)).is_equal_to('Expected <missing.txt> to exist, but was not found.')
+
+
+def test_is_file_directory_failure(tmpfile):
+    try:
+        dirname = os.path.dirname(tmpfile.name)
+        assert_that(dirname).is_file()
+        fail('should have raised error')
+    except AssertionError as ex:
+        assert_that(str(ex)).matches('Expected <.*> to be a file, but was not.')
+
+
+def test_is_directory(tmpfile):
+    dirname = os.path.dirname(tmpfile.name)
+    assert_that(dirname).is_directory()
+
+
+def test_is_directory_exists_failure():
+    try:
+        assert_that('missing_dir').is_directory()
+        fail('should have raised error')
+    except AssertionError as ex:
+        assert_that(str(ex)).is_equal_to('Expected <missing_dir> to exist, but was not found.')
+
+
+def test_is_directory_file_failure(tmpfile):
+    try:
+        assert_that(tmpfile.name).is_directory()
+        fail('should have raised error')
+    except AssertionError as ex:
+        assert_that(str(ex)).matches('Expected <.*> to be a directory, but was not.')
+
+
+def test_is_named(tmpfile):
+    basename = os.path.basename(tmpfile.name)
+    assert_that(tmpfile.name).is_named(basename)
+
+
+def test_is_named_failure(tmpfile):
+    try:
+        assert_that(tmpfile.name).is_named('foo.txt')
+        fail('should have raised error')
+    except AssertionError as ex:
+        assert_that(str(ex)).matches('Expected filename <.*> to be equal to <foo.txt>, but was not.')
+
+
+def test_is_named_bad_arg_type_failure(tmpfile):
+    try:
+        assert_that(tmpfile.name).is_named(123)
+        fail('should have raised error')
+    except TypeError as ex:
+        assert_that(str(ex)).matches('given filename arg must be a path')
+
+
+def test_is_child_of(tmpfile):
+    dirname = os.path.dirname(tmpfile.name)
+    assert_that(tmpfile.name).is_child_of(dirname)
+
+
+def test_is_child_of_failure(tmpfile):
+    try:
+        assert_that(tmpfile.name).is_child_of('foo_dir')
+        fail('should have raised error')
+    except AssertionError as ex:
+        assert_that(str(ex)).matches('Expected file <.*> to be a child of <.*/foo_dir>, but was not.')
+
+
+def test_is_child_of_bad_arg_type_failure(tmpfile):
+    try:
+        assert_that(tmpfile.name).is_child_of(123)
+        fail('should have raised error')
+    except TypeError as ex:
+        assert_that(str(ex)).matches('given parent directory arg must be a path')

@@ -43,12 +43,15 @@ class Person(object):
     def say_hello(self):
         return 'Hello, %s!' % self.first_name
 
+
 class Developer(Person):
     def say_hello(self):
         return '%s writes code.' % self.first_name
 
+
 class AbstractAutomobile(object):
     __metaclass__ = abc.ABCMeta
+
     def __init__(self):
         pass
 
@@ -56,10 +59,12 @@ class AbstractAutomobile(object):
     def classification(self):
         raise NotImplementedError('This method must be overridden')
 
+
 class Car(AbstractAutomobile):
     @property
     def classification(self):
         return 'car'
+
 
 class Truck(AbstractAutomobile):
     @property
@@ -67,8 +72,8 @@ class Truck(AbstractAutomobile):
         return 'truck'
 
 
-fred = Person('Fred','Smith')
-joe = Developer('Joe','Coder')
+fred = Person('Fred', 'Smith')
+joe = Developer('Joe', 'Coder')
 people = [fred, joe]
 car = Car()
 truck = Truck()
@@ -80,8 +85,10 @@ def test_is_type_of():
     assert_that(car).is_type_of(Car)
     assert_that(truck).is_type_of(Truck)
 
+
 def test_is_type_of_class():
     assert_that(fred.__class__).is_type_of(Person.__class__)
+
 
 def test_is_type_of_class_failure():
     try:
@@ -89,6 +96,7 @@ def test_is_type_of_class_failure():
         fail('should have raised error')
     except AssertionError as ex:
         assert_that(str(ex)).contains('to be of type <Person>, but was not')
+
 
 def test_is_instance_of():
     assert_that(fred).is_instance_of(Person)
@@ -106,8 +114,10 @@ def test_is_instance_of():
     assert_that(truck).is_instance_of(AbstractAutomobile)
     assert_that(truck).is_instance_of(object)
 
+
 def test_is_instance_of_class():
     assert_that(fred.__class__).is_instance_of(Person.__class__)
+
 
 def test_is_instance_of_class_failure():
     try:
@@ -116,16 +126,19 @@ def test_is_instance_of_class_failure():
     except AssertionError as ex:
         assert_that(str(ex)).contains('to be instance of class <Person>, but was not')
 
+
 def test_extract_attribute():
-    assert_that(people).extracting('first_name').is_equal_to(['Fred','Joe'])
-    assert_that(people).extracting('first_name').contains('Fred','Joe')
+    assert_that(people).extracting('first_name').is_equal_to(['Fred', 'Joe'])
+    assert_that(people).extracting('first_name').contains('Fred', 'Joe')
+
 
 def test_extract_property():
-    assert_that(people).extracting('name').contains('Fred Smith','Joe Coder')
+    assert_that(people).extracting('name').contains('Fred Smith', 'Joe Coder')
+
 
 def test_extract_multiple():
-    assert_that(people).extracting('first_name', 'name').contains(('Fred','Fred Smith'), ('Joe','Joe Coder'))
+    assert_that(people).extracting('first_name', 'name').contains(('Fred', 'Fred Smith'), ('Joe', 'Joe Coder'))
+
 
 def test_extract_zero_arg_method():
     assert_that(people).extracting('say_hello').contains('Hello, Fred!', 'Joe writes code.')
-

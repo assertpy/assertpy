@@ -28,7 +28,8 @@
 
 import sys
 import traceback
-from assertpy import assert_that,fail
+from assertpy import assert_that, fail
+
 
 def test_traceback():
     try:
@@ -44,13 +45,13 @@ def test_traceback():
 
         # walk_tb added in 3.5
         if sys.version_info[0] == 3 and sys.version_info[1] >= 5:
-            frames = [(f.f_code.co_filename, f.f_code.co_name, lineno) for f,lineno in traceback.walk_tb(tb)]
+            frames = [(f.f_code.co_filename, f.f_code.co_name, lineno) for f, lineno in traceback.walk_tb(tb)]
 
             assert_that(frames).is_length(3)
-            
+
             assert_that(frames[0][0]).ends_with('test_traceback.py')
             assert_that(frames[0][1]).is_equal_to('test_traceback')
-            assert_that(frames[0][2]).is_equal_to(35)
+            assert_that(frames[0][2]).is_equal_to(36)
 
             assert_that(frames[1][0]).ends_with('base.py')
             assert_that(frames[1][1]).is_equal_to('is_equal_to')

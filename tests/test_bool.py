@@ -26,7 +26,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from assertpy import assert_that,fail
+from assertpy import assert_that, fail
 
 
 def test_is_true():
@@ -35,7 +35,8 @@ def test_is_true():
     assert_that(1).is_true()
     assert_that('a').is_true()
     assert_that([1]).is_true()
-    assert_that({'a':1}).is_true()
+    assert_that({'a': 1}).is_true()
+
 
 def test_is_true_failure():
     try:
@@ -44,6 +45,7 @@ def test_is_true_failure():
     except AssertionError as ex:
         assert_that(str(ex)).is_equal_to('Expected <True>, but was not.')
 
+
 def test_is_false():
     assert_that(False).is_false()
     assert_that(1 == 2).is_false()
@@ -51,6 +53,7 @@ def test_is_false():
     assert_that([]).is_false()
     assert_that({}).is_false()
     assert_that(()).is_false()
+
 
 def test_is_false_failure():
     try:

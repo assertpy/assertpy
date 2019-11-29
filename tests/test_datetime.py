@@ -27,13 +27,15 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import datetime
-from assertpy import assert_that,fail
+from assertpy import assert_that, fail
 
 d1 = datetime.datetime.today()
+
 
 def test_is_before():
     d2 = datetime.datetime.today()
     assert_that(d1).is_before(d2)
+
 
 def test_is_before_failure():
     try:
@@ -43,12 +45,14 @@ def test_is_before_failure():
     except AssertionError as ex:
         assert_that(str(ex)).matches(r'Expected <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> to be before <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}>, but was not.')
 
+
 def test_is_before_bad_val_type_failure():
     try:
         assert_that(123).is_before(123)
         fail('should have raised error')
     except TypeError as ex:
         assert_that(str(ex)).is_equal_to('val must be datetime, but was type <int>')
+
 
 def test_is_before_bad_arg_type_failure():
     try:
@@ -57,9 +61,11 @@ def test_is_before_bad_arg_type_failure():
     except TypeError as ex:
         assert_that(str(ex)).is_equal_to('given arg must be datetime, but was type <int>')
 
+
 def test_is_after():
     d2 = datetime.datetime.today()
     assert_that(d2).is_after(d1)
+
 
 def test_is_after_failure():
     try:
@@ -69,12 +75,14 @@ def test_is_after_failure():
     except AssertionError as ex:
         assert_that(str(ex)).matches(r'Expected <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> to be after <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}>, but was not.')
 
+
 def test_is_after_bad_val_type_failure():
     try:
         assert_that(123).is_after(123)
         fail('should have raised error')
     except TypeError as ex:
         assert_that(str(ex)).is_equal_to('val must be datetime, but was type <int>')
+
 
 def test_is_after_bad_arg_type_failure():
     try:
@@ -83,8 +91,10 @@ def test_is_after_bad_arg_type_failure():
     except TypeError as ex:
         assert_that(str(ex)).is_equal_to('given arg must be datetime, but was type <int>')
 
+
 def test_is_equal_to_ignoring_milliseconds():
     assert_that(d1).is_equal_to_ignoring_milliseconds(d1)
+
 
 def test_is_equal_to_ignoring_milliseconds_failure():
     try:
@@ -94,12 +104,14 @@ def test_is_equal_to_ignoring_milliseconds_failure():
     except AssertionError as ex:
         assert_that(str(ex)).matches(r'Expected <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> to be equal to <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}>, but was not.')
 
+
 def test_is_equal_to_ignoring_milliseconds_bad_val_type_failure():
     try:
         assert_that(123).is_equal_to_ignoring_milliseconds(123)
         fail('should have raised error')
     except TypeError as ex:
         assert_that(str(ex)).is_equal_to('val must be datetime, but was type <int>')
+
 
 def test_is_equal_to_ignoring_milliseconds_bad_arg_type_failure():
     try:
@@ -108,8 +120,10 @@ def test_is_equal_to_ignoring_milliseconds_bad_arg_type_failure():
     except TypeError as ex:
         assert_that(str(ex)).is_equal_to('given arg must be datetime, but was type <int>')
 
+
 def test_is_equal_to_ignoring_seconds():
     assert_that(d1).is_equal_to_ignoring_seconds(d1)
+
 
 def test_is_equal_to_ignoring_seconds_failure():
     try:
@@ -119,12 +133,14 @@ def test_is_equal_to_ignoring_seconds_failure():
     except AssertionError as ex:
         assert_that(str(ex)).matches(r'Expected <\d{4}-\d{2}-\d{2} \d{2}:\d{2}> to be equal to <\d{4}-\d{2}-\d{2} \d{2}:\d{2}>, but was not.')
 
+
 def test_is_equal_to_ignoring_seconds_bad_val_type_failure():
     try:
         assert_that(123).is_equal_to_ignoring_seconds(123)
         fail('should have raised error')
     except TypeError as ex:
         assert_that(str(ex)).is_equal_to('val must be datetime, but was type <int>')
+
 
 def test_is_equal_to_ignoring_seconds_bad_arg_type_failure():
     try:
@@ -133,8 +149,10 @@ def test_is_equal_to_ignoring_seconds_bad_arg_type_failure():
     except TypeError as ex:
         assert_that(str(ex)).is_equal_to('given arg must be datetime, but was type <int>')
 
+
 def test_is_equal_to_ignoring_time():
     assert_that(d1).is_equal_to_ignoring_time(d1)
+
 
 def test_is_equal_to_ignoring_time_failure():
     try:
@@ -144,12 +162,14 @@ def test_is_equal_to_ignoring_time_failure():
     except AssertionError as ex:
         assert_that(str(ex)).matches(r'Expected <\d{4}-\d{2}-\d{2}> to be equal to <\d{4}-\d{2}-\d{2}>, but was not.')
 
+
 def test_is_equal_to_ignoring_time_bad_val_type_failure():
     try:
         assert_that(123).is_equal_to_ignoring_time(123)
         fail('should have raised error')
     except TypeError as ex:
         assert_that(str(ex)).is_equal_to('val must be datetime, but was type <int>')
+
 
 def test_is_equal_to_ignoring_time_bad_arg_type_failure():
     try:
@@ -158,9 +178,11 @@ def test_is_equal_to_ignoring_time_bad_arg_type_failure():
     except TypeError as ex:
         assert_that(str(ex)).is_equal_to('given arg must be datetime, but was type <int>')
 
+
 def test_is_greater_than():
     d2 = datetime.datetime.today()
     assert_that(d2).is_greater_than(d1)
+
 
 def test_is_greater_than_failure():
     try:
@@ -170,6 +192,7 @@ def test_is_greater_than_failure():
     except AssertionError as ex:
         assert_that(str(ex)).matches(r'Expected <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> to be greater than <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}>, but was not.')
 
+
 def test_is_greater_than_bad_arg_type_failure():
     try:
         assert_that(d1).is_greater_than(123)
@@ -177,8 +200,10 @@ def test_is_greater_than_bad_arg_type_failure():
     except TypeError as ex:
         assert_that(str(ex)).is_equal_to('given arg must be <datetime>, but was <int>')
 
+
 def test_is_greater_than_or_equal_to():
     assert_that(d1).is_greater_than_or_equal_to(d1)
+
 
 def test_is_greater_than_or_equal_to_failure():
     try:
@@ -186,7 +211,9 @@ def test_is_greater_than_or_equal_to_failure():
         assert_that(d1).is_greater_than_or_equal_to(d2)
         fail('should have raised error')
     except AssertionError as ex:
-        assert_that(str(ex)).matches(r'Expected <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> to be greater than or equal to <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}>, but was not.')
+        assert_that(str(ex)).matches(
+            r'Expected <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> to be greater than or equal to <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}>, but was not.')
+
 
 def test_is_greater_than_or_equal_to_bad_arg_type_failure():
     try:
@@ -195,9 +222,11 @@ def test_is_greater_than_or_equal_to_bad_arg_type_failure():
     except TypeError as ex:
         assert_that(str(ex)).is_equal_to('given arg must be <datetime>, but was <int>')
 
+
 def test_is_less_than():
     d2 = datetime.datetime.today()
     assert_that(d1).is_less_than(d2)
+
 
 def test_is_less_than_failure():
     try:
@@ -205,7 +234,9 @@ def test_is_less_than_failure():
         assert_that(d2).is_less_than(d1)
         fail('should have raised error')
     except AssertionError as ex:
-        assert_that(str(ex)).matches(r'Expected <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> to be less than <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}>, but was not.')
+        assert_that(str(ex)).matches(
+            r'Expected <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> to be less than <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}>, but was not.')
+
 
 def test_is_less_than_bad_arg_type_failure():
     try:
@@ -214,8 +245,10 @@ def test_is_less_than_bad_arg_type_failure():
     except TypeError as ex:
         assert_that(str(ex)).is_equal_to('given arg must be <datetime>, but was <int>')
 
+
 def test_is_less_than_or_equal_to():
     assert_that(d1).is_less_than_or_equal_to(d1)
+
 
 def test_is_less_than_or_equal_to_failure():
     try:
@@ -223,7 +256,9 @@ def test_is_less_than_or_equal_to_failure():
         assert_that(d2).is_less_than_or_equal_to(d1)
         fail('should have raised error')
     except AssertionError as ex:
-        assert_that(str(ex)).matches(r'Expected <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> to be less than or equal to <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}>, but was not.')
+        assert_that(str(ex)).matches(
+            r'Expected <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> to be less than or equal to <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}>, but was not.')
+
 
 def test_is_less_than_or_equal_to_bad_arg_type_failure():
     try:
@@ -232,10 +267,12 @@ def test_is_less_than_or_equal_to_bad_arg_type_failure():
     except TypeError as ex:
         assert_that(str(ex)).is_equal_to('given arg must be <datetime>, but was <int>')
 
+
 def test_is_between():
     d2 = datetime.datetime.today()
     d3 = datetime.datetime.today()
     assert_that(d2).is_between(d1, d3)
+
 
 def test_is_between_failure():
     try:
@@ -244,7 +281,10 @@ def test_is_between_failure():
         assert_that(d1).is_between(d2, d3)
         fail('should have raised error')
     except AssertionError as ex:
-        assert_that(str(ex)).matches(r'Expected <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> to be between <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> and <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}>, but was not.')
+        assert_that(str(ex)).matches(
+            r'Expected <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> to be between ' +
+            r'<\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> and <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}>, but was not.')
+
 
 def test_is_between_bad_arg1_type_failure():
     try:
@@ -252,6 +292,7 @@ def test_is_between_bad_arg1_type_failure():
         fail('should have raised error')
     except TypeError as ex:
         assert_that(str(ex)).is_equal_to('given low arg must be <datetime>, but was <int>')
+
 
 def test_is_between_bad_arg2_type_failure():
     try:
@@ -261,10 +302,12 @@ def test_is_between_bad_arg2_type_failure():
     except TypeError as ex:
         assert_that(str(ex)).is_equal_to('given high arg must be <datetime>, but was <datetime>')
 
+
 def test_is_not_between():
     d2 = d1 + datetime.timedelta(minutes=5)
     d3 = d1 + datetime.timedelta(minutes=10)
     assert_that(d1).is_not_between(d2, d3)
+
 
 def test_is_not_between_failure():
     try:
@@ -273,7 +316,10 @@ def test_is_not_between_failure():
         assert_that(d2).is_not_between(d1, d3)
         fail('should have raised error')
     except AssertionError as ex:
-        assert_that(str(ex)).matches(r'Expected <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> to not be between <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> and <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}>, but was.')
+        assert_that(str(ex)).matches(
+            r'Expected <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> to not be between ' +
+            r'<\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> and <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}>, but was.')
+
 
 def test_is_not_between_bad_arg1_type_failure():
     try:
@@ -281,6 +327,7 @@ def test_is_not_between_bad_arg1_type_failure():
         fail('should have raised error')
     except TypeError as ex:
         assert_that(str(ex)).is_equal_to('given low arg must be <datetime>, but was <int>')
+
 
 def test_is_not_between_bad_arg2_type_failure():
     try:
@@ -290,9 +337,11 @@ def test_is_not_between_bad_arg2_type_failure():
     except TypeError as ex:
         assert_that(str(ex)).is_equal_to('given high arg must be <datetime>, but was <datetime>')
 
+
 def test_is_close_to():
     d2 = datetime.datetime.today()
     assert_that(d1).is_close_to(d2, datetime.timedelta(minutes=5))
+
 
 def test_is_close_to_failure():
     try:
@@ -300,7 +349,10 @@ def test_is_close_to_failure():
         assert_that(d1).is_close_to(d2, datetime.timedelta(minutes=1))
         fail('should have raised error')
     except AssertionError as ex:
-        assert_that(str(ex)).matches(r'Expected <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> to be close to <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> within tolerance <\d+:\d{2}:\d{2}>, but was not.')
+        assert_that(str(ex)).matches(
+            r'Expected <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> to be close to ' +
+            r'<\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> within tolerance <\d+:\d+:\d+>, but was not.')
+
 
 def test_is_close_to_bad_arg_type_failure():
     try:
@@ -308,6 +360,7 @@ def test_is_close_to_bad_arg_type_failure():
         fail('should have raised error')
     except TypeError as ex:
         assert_that(str(ex)).is_equal_to('given arg must be datetime, but was <int>')
+
 
 def test_is_close_to_bad_tolerance_arg_type_failure():
     try:
@@ -317,9 +370,11 @@ def test_is_close_to_bad_tolerance_arg_type_failure():
     except TypeError as ex:
         assert_that(str(ex)).is_equal_to('given tolerance arg must be timedelta, but was <int>')
 
+
 def test_is_not_close_to():
     d2 = d1 + datetime.timedelta(minutes=5)
     assert_that(d1).is_not_close_to(d2, datetime.timedelta(minutes=4))
+
 
 def test_is_not_close_to_failure():
     try:
@@ -327,7 +382,9 @@ def test_is_not_close_to_failure():
         assert_that(d1).is_not_close_to(d2, datetime.timedelta(minutes=5))
         fail('should have raised error')
     except AssertionError as ex:
-        assert_that(str(ex)).matches(r'Expected <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> to not be close to <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> within tolerance <\d+:\d{2}:\d{2}>, but was.')
+        assert_that(str(ex)).matches(
+            r'Expected <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> to not be close to <\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}> within tolerance <\d+:\d+:\d+>, but was.')
+
 
 def test_is_not_close_to_bad_arg_type_failure():
     try:
@@ -335,6 +392,7 @@ def test_is_not_close_to_bad_arg_type_failure():
         fail('should have raised error')
     except TypeError as ex:
         assert_that(str(ex)).is_equal_to('given arg must be datetime, but was <int>')
+
 
 def test_is_not_close_to_bad_tolerance_arg_type_failure():
     try:
@@ -347,9 +405,11 @@ def test_is_not_close_to_bad_tolerance_arg_type_failure():
 
 t1 = datetime.timedelta(seconds=60)
 
+
 def test_is_greater_than_timedelta():
     d2 = datetime.timedelta(seconds=120)
     assert_that(d2).is_greater_than(t1)
+
 
 def test_is_greater_than_timedelta_failure():
     try:
@@ -357,7 +417,9 @@ def test_is_greater_than_timedelta_failure():
         assert_that(t1).is_greater_than(t2)
         fail('should have raised error')
     except AssertionError as ex:
-        assert_that(str(ex)).matches(r'Expected <\d{1,2}:\d{2}:\d{2}> to be greater than <\d{1,2}:\d{2}:\d{2}>, but was not.')
+        assert_that(str(ex)).matches(
+            r'Expected <\d{1,2}:\d{2}:\d{2}> to be greater than <\d{1,2}:\d{2}:\d{2}>, but was not.')
+
 
 def test_is_greater_than_timedelta_bad_arg_type_failure():
     try:
@@ -366,8 +428,10 @@ def test_is_greater_than_timedelta_bad_arg_type_failure():
     except TypeError as ex:
         assert_that(str(ex)).is_equal_to('given arg must be <timedelta>, but was <int>')
 
+
 def test_is_greater_than_or_equal_to_timedelta():
     assert_that(t1).is_greater_than_or_equal_to(t1)
+
 
 def test_is_greater_than_or_equal_to_timedelta_failure():
     try:
@@ -375,7 +439,9 @@ def test_is_greater_than_or_equal_to_timedelta_failure():
         assert_that(t1).is_greater_than_or_equal_to(t2)
         fail('should have raised error')
     except AssertionError as ex:
-        assert_that(str(ex)).matches(r'Expected <\d{1,2}:\d{2}:\d{2}> to be greater than or equal to <\d{1,2}:\d{2}:\d{2}>, but was not.')
+        assert_that(str(ex)).matches(
+            r'Expected <\d{1,2}:\d{2}:\d{2}> to be greater than or equal to <\d{1,2}:\d{2}:\d{2}>, but was not.')
+
 
 def test_is_greater_than_or_equal_to_timedelta_bad_arg_type_failure():
     try:
@@ -384,9 +450,11 @@ def test_is_greater_than_or_equal_to_timedelta_bad_arg_type_failure():
     except TypeError as ex:
         assert_that(str(ex)).is_equal_to('given arg must be <timedelta>, but was <int>')
 
+
 def test_is_less_than_timedelta():
     t2 = datetime.timedelta(seconds=90)
     assert_that(t1).is_less_than(t2)
+
 
 def test_is_less_than_timedelta_failure():
     try:
@@ -394,7 +462,9 @@ def test_is_less_than_timedelta_failure():
         assert_that(t2).is_less_than(t1)
         fail('should have raised error')
     except AssertionError as ex:
-        assert_that(str(ex)).matches(r'Expected <\d{1,2}:\d{2}:\d{2}> to be less than <\d{1,2}:\d{2}:\d{2}>, but was not.')
+        assert_that(str(ex)).matches(
+            r'Expected <\d{1,2}:\d{2}:\d{2}> to be less than <\d{1,2}:\d{2}:\d{2}>, but was not.')
+
 
 def test_is_less_than_timedelta_bad_arg_type_failure():
     try:
@@ -403,8 +473,10 @@ def test_is_less_than_timedelta_bad_arg_type_failure():
     except TypeError as ex:
         assert_that(str(ex)).is_equal_to('given arg must be <timedelta>, but was <int>')
 
+
 def test_is_less_than_or_equal_to_timedelta():
     assert_that(t1).is_less_than_or_equal_to(t1)
+
 
 def test_is_less_than_or_equal_to_timedelta_failure():
     try:
@@ -412,7 +484,9 @@ def test_is_less_than_or_equal_to_timedelta_failure():
         assert_that(t2).is_less_than_or_equal_to(t1)
         fail('should have raised error')
     except AssertionError as ex:
-        assert_that(str(ex)).matches(r'Expected <\d{1,2}:\d{2}:\d{2}> to be less than or equal to <\d{1,2}:\d{2}:\d{2}>, but was not.')
+        assert_that(str(ex)).matches(
+            r'Expected <\d{1,2}:\d{2}:\d{2}> to be less than or equal to <\d{1,2}:\d{2}:\d{2}>, but was not.')
+
 
 def test_is_less_than_or_equal_to_timedelta_bad_arg_type_failure():
     try:
@@ -421,10 +495,12 @@ def test_is_less_than_or_equal_to_timedelta_bad_arg_type_failure():
     except TypeError as ex:
         assert_that(str(ex)).is_equal_to('given arg must be <timedelta>, but was <int>')
 
+
 def test_is_between_timedelta():
     d2 = datetime.timedelta(seconds=90)
     d3 = datetime.timedelta(seconds=120)
     assert_that(d2).is_between(t1, d3)
+
 
 def test_is_between_timedelta_failure():
     try:
@@ -433,12 +509,15 @@ def test_is_between_timedelta_failure():
         assert_that(t1).is_between(d2, d3)
         fail('should have raised error')
     except AssertionError as ex:
-        assert_that(str(ex)).matches(r'Expected <\d{1,2}:\d{2}:\d{2}> to be between <\d{1,2}:\d{2}:\d{2}> and <\d{1,2}:\d{2}:\d{2}>, but was not.')
+        assert_that(str(ex)).matches(
+            r'Expected <\d{1,2}:\d{2}:\d{2}> to be between <\d{1,2}:\d{2}:\d{2}> and <\d{1,2}:\d{2}:\d{2}>, but was not.')
+
 
 def test_is_not_between_timedelta():
     d2 = datetime.timedelta(seconds=90)
     d3 = datetime.timedelta(seconds=120)
     assert_that(t1).is_not_between(d2, d3)
+
 
 def test_is_not_between_timedelta_failure():
     try:
@@ -447,4 +526,5 @@ def test_is_not_between_timedelta_failure():
         assert_that(d2).is_not_between(t1, d3)
         fail('should have raised error')
     except AssertionError as ex:
-        assert_that(str(ex)).matches(r'Expected <\d{1,2}:\d{2}:\d{2}> to not be between <\d{1,2}:\d{2}:\d{2}> and <\d{1,2}:\d{2}:\d{2}>, but was.')
+        assert_that(str(ex)).matches(
+            r'Expected <\d{1,2}:\d{2}:\d{2}> to not be between <\d{1,2}:\d{2}:\d{2}> and <\d{1,2}:\d{2}:\d{2}>, but was.')

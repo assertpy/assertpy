@@ -26,8 +26,8 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from assertpy import assert_that, add_extension, remove_extension, fail
 import numbers
+from assertpy import assert_that, add_extension, remove_extension, fail
 
 
 def is_even(self):
@@ -36,6 +36,7 @@ def is_even(self):
     if self.val % 2 != 0:
         self._err('Expected <%s> to be even, but was not.' % (self.val))
     return self
+
 
 def is_multiple_of(self, other):
     # validate actual value - must be "integer" (aka int or long)
@@ -58,6 +59,7 @@ def is_multiple_of(self, other):
     # success, and return self to allow chaining
     return self
 
+
 add_extension(is_even)
 add_extension(is_multiple_of)
 
@@ -66,12 +68,14 @@ def test_is_even_extension():
     assert_that(124).is_even()
     assert_that(124).is_type_of(int).is_even().is_greater_than(123).is_less_than(125).is_equal_to(124)
 
+
 def test_is_even_extension_failure():
     try:
         assert_that(123).is_even()
         fail('should have raised error')
     except AssertionError as ex:
         assert_that(str(ex)).is_equal_to('Expected <123> to be even, but was not.')
+
 
 def test_is_even_extension_failure_not_callable():
     try:
@@ -80,12 +84,14 @@ def test_is_even_extension_failure_not_callable():
     except TypeError as ex:
         assert_that(str(ex)).is_equal_to('func must be callable')
 
+
 def test_is_even_extension_failure_not_integer():
     try:
         assert_that(124.0).is_even()
         fail('should have raised error')
     except TypeError as ex:
         assert_that(str(ex)).is_equal_to('val must be an integer')
+
 
 def test_is_multiple_of_extension():
     assert_that(24).is_multiple_of(1)
@@ -98,12 +104,14 @@ def test_is_multiple_of_extension():
     assert_that(24).is_multiple_of(24)
     assert_that(124).is_type_of(int).is_even().is_multiple_of(31).is_equal_to(124)
 
+
 def test_is_multiple_of_extension_failure():
     try:
         assert_that(24).is_multiple_of(5)
         fail('should have raised error')
     except AssertionError as ex:
         assert_that(str(ex)).is_equal_to('Expected <24> to be multiple of <5>, but was not.')
+
 
 def test_is_multiple_of_extension_failure_bad_val():
     try:
@@ -112,12 +120,14 @@ def test_is_multiple_of_extension_failure_bad_val():
     except TypeError as ex:
         assert_that(str(ex)).is_equal_to('val must be a positive integer')
 
+
 def test_is_multiple_of_extension_failure_negative_val():
     try:
         assert_that(-24).is_multiple_of(6)
         fail('should have raised error')
     except TypeError as ex:
         assert_that(str(ex)).is_equal_to('val must be a positive integer')
+
 
 def test_is_multiple_of_extension_failure_bad_arg():
     try:
@@ -126,12 +136,14 @@ def test_is_multiple_of_extension_failure_bad_arg():
     except TypeError as ex:
         assert_that(str(ex)).is_equal_to('given arg must be a positive integer')
 
+
 def test_is_multiple_of_extension_failure_negative_arg():
     try:
         assert_that(24).is_multiple_of(-6)
         fail('should have raised error')
     except TypeError as ex:
         assert_that(str(ex)).is_equal_to('given arg must be a positive integer')
+
 
 def test_call_missing_extension():
     def is_missing(): pass
@@ -144,6 +156,7 @@ def test_call_missing_extension():
     except AttributeError as ex:
         assert_that(str(ex)).is_equal_to('assertpy has no assertion <is_multiple_of()>')
 
+
 def test_remove_bad_extension():
     def is_missing(): pass
     try:
@@ -152,10 +165,12 @@ def test_remove_bad_extension():
     except TypeError as ex:
         assert_that(str(ex)).is_equal_to('func must be callable')
 
+
 def is_foo(self):
     if self.val != 'foo':
         self._err('Expected <%s> to be foo, but was not.' % (self.val))
     return self
+
 
 def dupe1():
     add_extension(is_foo)
@@ -166,12 +181,13 @@ def dupe1():
     except AssertionError as ex:
         assert_that(str(ex)).is_equal_to('Expected <FOO> to be foo, but was not.')
 
+
 def dupe2():
     def is_foo(self):
         if self.val != 'FOO':
             self._err('Expected <%s> to be FOO, but was not.' % (self.val))
         return self
-    
+
     add_extension(is_foo)
     assert_that('FOO').is_foo()
     try:
@@ -179,6 +195,7 @@ def dupe2():
         fail('should have raised error')
     except AssertionError as ex:
         assert_that(str(ex)).is_equal_to('Expected <foo> to be FOO, but was not.')
+
 
 def test_dupe_extensions():
     dupe1()

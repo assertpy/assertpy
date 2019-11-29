@@ -53,13 +53,13 @@ def test_is_not_same_as():
     assert_that(obj).is_not_same_as(True)
     assert_that(1).is_not_same_as(2)
 
-    assert_that({'a':1}).is_not_same_as({'a':1})
-    assert_that([1,2,3]).is_not_same_as([1,2,3])
+    assert_that({'a': 1}).is_not_same_as({'a': 1})
+    assert_that([1, 2, 3]).is_not_same_as([1, 2, 3])
 
     if sys.version_info[0] == 3 and sys.version_info[1] >= 7:
-        assert_that((1,2,3)).is_same_as((1,2,3)) # tuples are identical in py 3.7
+        assert_that((1, 2, 3)).is_same_as((1, 2, 3))  # tuples are identical in py 3.7
     else:
-        assert_that((1,2,3)).is_not_same_as((1,2,3))
+        assert_that((1, 2, 3)).is_not_same_as((1, 2, 3))
 
 
 def test_is_not_same_as_failure():
@@ -69,4 +69,3 @@ def test_is_not_same_as_failure():
             fail('should have raised error')
         except AssertionError as ex:
             assert_that(str(ex)).matches('Expected <.+> to be not identical to <.+>, but was.')
-
