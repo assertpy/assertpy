@@ -56,7 +56,8 @@ class ContainsMixin(object):
                     missing.append(i)
             if missing:
                 if self._check_dict_like(self.val, return_as_bool=True):
-                    self._err('Expected <%s> to contain keys %s, but did not contain key%s %s.' % (self.val, self._fmt_items(items), '' if len(missing) == 0 else 's', self._fmt_items(missing)))
+                    self._err('Expected <%s> to contain keys %s, but did not contain key%s %s.' % (
+                        self.val, self._fmt_items(items), '' if len(missing) == 0 else 's', self._fmt_items(missing)))
                 else:
                     self._err('Expected <%s> to contain items %s, but did not contain %s.' % (self.val, self._fmt_items(items), self._fmt_items(missing)))
         return self

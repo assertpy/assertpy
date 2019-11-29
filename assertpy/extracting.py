@@ -40,9 +40,8 @@ else:
 class ExtractingMixin(object):
     """Collection flattening mixin."""
 
-### collection of objects assertions ###
     def extracting(self, *names, **kwargs):
-        """Asserts that val is collection, then extracts the named properties or named zero-arg methods into a list (or list of tuples if multiple names are given)."""
+        """Asserts that val is iterable, then extracts the named props or named zero-arg methods into a list (or list of tuples if multiple names are given)."""
         if not isinstance(self.val, Iterable):
             raise TypeError('val is not iterable')
         if isinstance(self.val, str_types):
@@ -105,6 +104,6 @@ class ExtractingMixin(object):
             if _filter(i):
                 items = [_extract(i, name) for name in names]
                 extracted.append(tuple(items) if len(items) > 1 else items[0])
-        
+
         # chain on with _extracted_ list (don't chain to self!)
         return self._builder(extracted, self.description, self.kind)

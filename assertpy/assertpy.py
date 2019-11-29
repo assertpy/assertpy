@@ -51,13 +51,14 @@ from .helpers import HelpersMixin
 
 __version__ = '0.15'
 
-__tracebackhide__ = True # clean tracebacks via py.test integration
-contextlib.__tracebackhide__ = True # monkey patch contextlib with clean py.test tracebacks
+__tracebackhide__ = True  # clean tracebacks via py.test integration
+contextlib.__tracebackhide__ = True  # monkey patch contextlib with clean py.test tracebacks
 
 
 # soft assertions
 _soft_ctx = 0
 _soft_err = []
+
 
 @contextlib.contextmanager
 def soft_assertions():
@@ -77,11 +78,12 @@ def soft_assertions():
 
     if _soft_err and _soft_ctx == 0:
         out = 'soft assertion failures:'
-        for i,msg in enumerate(_soft_err):
+        for i, msg in enumerate(_soft_err):
             out += '\n%d. %s' % (i+1, msg)
         # reset msg, then raise
         _soft_err = []
         raise AssertionError(out)
+
 
 # factory methods
 def assert_that(val, description=''):
@@ -91,14 +93,17 @@ def assert_that(val, description=''):
         return builder(val, description, 'soft')
     return builder(val, description)
 
+
 def assert_warn(val, description='', logger=None):
     """Factory method for the assertion builder with value to be tested, optional description, and
        just warn on assertion failures instead of raisings exceptions."""
     return builder(val, description, 'warn', logger=logger)
 
+
 def fail(msg=''):
     """Force test failure with the given message."""
     raise AssertionError('Fail: %s!' % msg if msg else 'Fail!')
+
 
 def soft_fail(msg=''):
     """Adds error message to soft errors list if within soft assertions context.
@@ -110,12 +115,16 @@ def soft_fail(msg=''):
         return
     fail(msg)
 
+
 # assertion extensions
 _extensions = {}
+
+
 def add_extension(func):
     if not callable(func):
         raise TypeError('func must be callable')
     _extensions[func.__name__] = func
+
 
 def remove_extension(func):
     if not callable(func):
@@ -123,14 +132,16 @@ def remove_extension(func):
     if func.__name__ in _extensions:
         del _extensions[func.__name__]
 
+
 def builder(val, description='', kind=None, expected=None, logger=None):
     ab = AssertionBuilder(val, description, kind, expected, logger)
     if _extensions:
         # glue extension method onto new builder instance
-        for name,func in _extensions.items():
+        for name, func in _extensions.items():
             meth = types.MethodType(func, ab)
             setattr(ab, name, meth)
     return ab
+
 
 # warnings
 class WarningLoggingAdapter(logging.LoggerAdapter):
@@ -146,6 +157,7 @@ class WarningLoggingAdapter(logging.LoggerAdapter):
         filename = os.path.basename(frame.f_code.co_filename)
         return '[%s:%d]: %s' % (filename, lineno, msg), kwargs
 
+
 _logger = logging.getLogger('assertpy')
 _handler = logging.StreamHandler(sys.stdout)
 _handler.setLevel(logging.WARNING)
@@ -155,9 +167,22 @@ _logger.addHandler(_handler)
 _default_logger = WarningLoggingAdapter(_logger, None)
 
 
-class AssertionBuilder(DynamicMixin, ExceptionMixin, SnapshotMixin, ExtractingMixin,
-        FileMixin, DateMixin, DictMixin, CollectionMixin, StringMixin, NumericMixin,
-        ContainsMixin, HelpersMixin, BaseMixin, object):
+class AssertionBuilder(
+    DynamicMixin,
+    ExceptionMixin,
+    SnapshotMixin,
+    ExtractingMixin,
+    FileMixin,
+    DateMixin,
+    DictMixin,
+    CollectionMixin,
+    StringMixin,
+    NumericMixin,
+    ContainsMixin,
+    HelpersMixin,
+    BaseMixin,
+    object
+):
     """Assertion builder."""
 
     def __init__(self, val, description='', kind=None, expected=None, logger=None):

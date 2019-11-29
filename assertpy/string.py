@@ -71,7 +71,8 @@ class StringMixin(object):
                     if i.lower() not in self.val.lower():
                         missing.append(i)
                 if missing:
-                    self._err('Expected <%s> to case-insensitive contain items %s, but did not contain %s.' % (self.val, self._fmt_items(items), self._fmt_items(missing)))
+                    self._err('Expected <%s> to case-insensitive contain items %s, but did not contain %s.' % (
+                        self.val, self._fmt_items(items), self._fmt_items(missing)))
         elif isinstance(self.val, Iterable):
             missing = []
             for i in items:
@@ -87,7 +88,8 @@ class StringMixin(object):
                 if not found:
                     missing.append(i)
             if missing:
-                self._err('Expected <%s> to case-insensitive contain items %s, but did not contain %s.' % (self.val, self._fmt_items(items), self._fmt_items(missing)))
+                self._err('Expected <%s> to case-insensitive contain items %s, but did not contain %s.' % (
+                    self.val, self._fmt_items(items), self._fmt_items(missing)))
         else:
             raise TypeError('val is not a string or iterable')
         return self

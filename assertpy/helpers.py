@@ -53,8 +53,8 @@ class HelpersMixin(object):
         if some_args:
             out_args = str(some_args).lstrip('(').rstrip(',)')
         if some_kwargs:
-            out_kwargs = ', '.join([str(i).lstrip('(').rstrip(')').replace(', ',': ') for i in [
-                    (k,some_kwargs[k]) for k in sorted(some_kwargs.keys())]])
+            out_kwargs = ', '.join([str(i).lstrip('(').rstrip(')').replace(', ', ': ') for i in [
+                    (k, some_kwargs[k]) for k in sorted(some_kwargs.keys())]])
 
         if some_args and some_kwargs:
             return out_args + ', ' + out_kwargs
@@ -165,22 +165,26 @@ class HelpersMixin(object):
                 k1 = set([k for k in val if k not in ignores and k in includes])
             elif ignore:
                 k1 = set([k for k in val if k not in ignores])
-            else: # include
+            else:  # include
                 k1 = set([k for k in val if k in includes])
 
             if ignore and include:
                 k2 = set([k for k in other if k not in ignores and k in includes])
             elif ignore:
                 k2 = set([k for k in other if k not in ignores])
-            else: # include
+            else:  # include
                 k2 = set([k for k in other if k in includes])
 
             if k1 != k2:
                 return True
             else:
                 for k in k1:
-                    if self._check_dict_like(val[k], check_values=False, return_as_bool=True) and self._check_dict_like(other[k], check_values=False, return_as_bool=True):
-                        return self._dict_not_equal(val[k], other[k],
+                    if self._check_dict_like(
+                        val[k], check_values=False, return_as_bool=True) and self._check_dict_like(
+                            other[k], check_values=False, return_as_bool=True):
+                        return self._dict_not_equal(
+                            val[k],
+                            other[k],
                             ignore=[i[1:] for i in ignores if type(i) is tuple and i[0] == k] if ignore else None,
                             include=[i[1:] for i in self._dict_ignore(include) if type(i) is tuple and i[0] == k] if include else None)
                     elif val[k] != other[k]:
@@ -190,23 +194,25 @@ class HelpersMixin(object):
             return val != other
 
     def _dict_ignore(self, ignore):
-        return [i[0] if type(i) is tuple and len(i) == 1 else i \
-            for i in (ignore if type(ignore) is list else [ignore])]
+        return [i[0] if type(i) is tuple and len(i) == 1 else i for i in (ignore if type(ignore) is list else [ignore])]
 
     def _dict_include(self, include):
-        return [i[0] if type(i) is tuple else i \
-            for i in (include if type(include) is list else [include])]
+        return [i[0] if type(i) is tuple else i for i in (include if type(include) is list else [include])]
 
     def _dict_err(self, val, other, ignore=None, include=None):
         def _dict_repr(d, other):
             out = ''
             ellip = False
-            for k,v in d.items():
+            for k, v in d.items():
                 if k not in other:
                     out += '%s%s: %s' % (', ' if len(out) > 0 else '', repr(k), repr(v))
                 elif v != other[k]:
-                    out += '%s%s: %s' % (', ' if len(out) > 0 else '', repr(k),
-                        _dict_repr(v, other[k]) if self._check_dict_like(v, check_values=False, return_as_bool=True) and self._check_dict_like(other[k], check_values=False, return_as_bool=True) else repr(v)
+                    out += '%s%s: %s' % (
+                        ', ' if len(out) > 0 else '',
+                        repr(k),
+                        _dict_repr(v, other[k]) if self._check_dict_like(
+                            v, check_values=False, return_as_bool=True) and self._check_dict_like(
+                                other[k], check_values=False, return_as_bool=True) else repr(v)
                     )
                 else:
                     ellip = True

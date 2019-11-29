@@ -122,7 +122,8 @@ class NumericMixin(object):
         self._validate_compareable(other)
         if self.val < other:
             if type(self.val) is datetime.datetime:
-                self._err('Expected <%s> to be greater than or equal to <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
+                self._err('Expected <%s> to be greater than or equal to <%s>, but was not.' % (
+                    self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
             else:
                 self._err('Expected <%s> to be greater than or equal to <%s>, but was not.' % (self.val, other))
         return self
@@ -142,7 +143,8 @@ class NumericMixin(object):
         self._validate_compareable(other)
         if self.val > other:
             if type(self.val) is datetime.datetime:
-                self._err('Expected <%s> to be less than or equal to <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
+                self._err('Expected <%s> to be less than or equal to <%s>, but was not.' % (
+                    self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
             else:
                 self._err('Expected <%s> to be less than or equal to <%s>, but was not.' % (self.val, other))
         return self
@@ -162,7 +164,8 @@ class NumericMixin(object):
 
         if self.val < low or self.val > high:
             if val_type is datetime.datetime:
-                self._err('Expected <%s> to be between <%s> and <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), low.strftime('%Y-%m-%d %H:%M:%S'), high.strftime('%Y-%m-%d %H:%M:%S')))
+                self._err('Expected <%s> to be between <%s> and <%s>, but was not.' % (
+                    self.val.strftime('%Y-%m-%d %H:%M:%S'), low.strftime('%Y-%m-%d %H:%M:%S'), high.strftime('%Y-%m-%d %H:%M:%S')))
             else:
                 self._err('Expected <%s> to be between <%s> and <%s>, but was not.' % (self.val, low, high))
         return self
@@ -174,7 +177,8 @@ class NumericMixin(object):
 
         if self.val >= low and self.val <= high:
             if val_type is datetime.datetime:
-                self._err('Expected <%s> to not be between <%s> and <%s>, but was.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), low.strftime('%Y-%m-%d %H:%M:%S'), high.strftime('%Y-%m-%d %H:%M:%S')))
+                self._err('Expected <%s> to not be between <%s> and <%s>, but was.' % (
+                    self.val.strftime('%Y-%m-%d %H:%M:%S'), low.strftime('%Y-%m-%d %H:%M:%S'), high.strftime('%Y-%m-%d %H:%M:%S')))
             else:
                 self._err('Expected <%s> to not be between <%s> and <%s>, but was.' % (self.val, low, high))
         return self
@@ -188,7 +192,8 @@ class NumericMixin(object):
                 tolerance_seconds = tolerance.days * 86400 + tolerance.seconds + tolerance.microseconds / 1000000
                 h, rem = divmod(tolerance_seconds, 3600)
                 m, s = divmod(rem, 60)
-                self._err('Expected <%s> to be close to <%s> within tolerance <%d:%02d:%02d>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S'), h, m, s))
+                self._err('Expected <%s> to be close to <%s> within tolerance <%d:%02d:%02d>, but was not.' % (
+                    self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S'), h, m, s))
             else:
                 self._err('Expected <%s> to be close to <%s> within tolerance <%s>, but was not.' % (self.val, other, tolerance))
         return self
@@ -202,7 +207,8 @@ class NumericMixin(object):
                 tolerance_seconds = tolerance.days * 86400 + tolerance.seconds + tolerance.microseconds / 1000000
                 h, rem = divmod(tolerance_seconds, 3600)
                 m, s = divmod(rem, 60)
-                self._err('Expected <%s> to not be close to <%s> within tolerance <%d:%02d:%02d>, but was.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S'), h, m, s))
+                self._err('Expected <%s> to not be close to <%s> within tolerance <%d:%02d:%02d>, but was.' % (
+                    self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S'), h, m, s))
             else:
                 self._err('Expected <%s> to not be close to <%s> within tolerance <%s>, but was.' % (self.val, other, tolerance))
         return self

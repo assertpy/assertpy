@@ -32,7 +32,6 @@ import datetime
 class DateMixin(object):
     """Date and time assertions mixin."""
 
-### datetime assertions ###
     def is_before(self, other):
         """Asserts that val is a date and is before other date."""
         if type(self.val) is not datetime.datetime:

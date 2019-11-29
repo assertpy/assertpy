@@ -56,7 +56,7 @@ class DynamicMixin(object):
 
         def _wrapper(*args, **kwargs):
             if err_msg:
-                self._err(err_msg) # ok to raise AssertionError now that we are inside wrapper
+                self._err(err_msg)  # ok to raise AssertionError now that we are inside wrapper
             else:
                 if len(args) != 1:
                     raise TypeError('assertion <%s()> takes exactly 1 argument (%d given)' % (attr, len(args)))

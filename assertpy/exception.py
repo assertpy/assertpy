@@ -44,7 +44,7 @@ class ExceptionMixin(object):
             raise TypeError('val must be callable')
         if not issubclass(ex, BaseException):
             raise TypeError('given arg must be exception')
-        return self._builder(self.val, self.description, self.kind, ex) # don't chain!
+        return self._builder(self.val, self.description, self.kind, ex)  # don't chain!
 
     def when_called_with(self, *some_args, **some_kwargs):
         """Asserts the val callable when invoked with the given args and kwargs raises the expected exception."""
