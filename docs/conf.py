@@ -18,3 +18,5 @@ extensions = [
 exclude_patterns = ['build', '.DS_Store']
 
 html_theme = 'sphinx_rtd_theme'
+
+add_module_names = False
