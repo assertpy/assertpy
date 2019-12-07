@@ -39,29 +39,36 @@ def is_even(self):
 
 
 def is_multiple_of(self, other):
-    # validate actual value - must be "integer" (aka int or long)
     if isinstance(self.val, numbers.Integral) is False or self.val <= 0:
-        # bad input is error, not an assertion fail, so raise error
         raise TypeError('val must be a positive integer')
 
-    # validate expected value
     if isinstance(other, numbers.Integral) is False or other <= 0:
         raise TypeError('given arg must be a positive integer')
 
-    # divide and compute remainder using divmod() built-in
     _, rem = divmod(self.val, other)
-
-    # test the negative (is remainder non-zero?)
     if rem > 0:
-        # non-zero remainder, so not multiple -> we fail!
         self._err('Expected <%s> to be multiple of <%s>, but was not.' % (self.val, other))
 
-    # success, and return self to allow chaining
+    return self
+
+
+def is_factor_of(self, other):
+    if isinstance(self.val, numbers.Integral) is False or self.val <= 0:
+        raise TypeError('val must be a positive integer')
+
+    if isinstance(other, numbers.Integral) is False or other <= 0:
+        raise TypeError('given arg must be a positive integer')
+
+    _, rem = divmod(other, self.val)
+    if rem > 0:
+        self._err('Expected <%s> to be factor of <%s>, but was not.' % (self.val, other))
+
     return self
 
 
 add_extension(is_even)
 add_extension(is_multiple_of)
+add_extension(is_factor_of)
 
 
 def test_is_even_extension():
@@ -145,11 +152,32 @@ def test_is_multiple_of_extension_failure_negative_arg():
         assert_that(str(ex)).is_equal_to('given arg must be a positive integer')
 
 
+def test_is_factor_of_extension():
+    assert_that(1).is_factor_of(24)
+    assert_that(2).is_factor_of(24)
+    assert_that(3).is_factor_of(24)
+    assert_that(4).is_factor_of(24)
+    assert_that(6).is_factor_of(24)
+    assert_that(8).is_factor_of(24)
+    assert_that(12).is_factor_of(24)
+    assert_that(24).is_factor_of(24)
+    assert_that(31).is_type_of(int).is_factor_of(124).is_equal_to(31)
+
+
+def test_is_factor_of_extension_failure():
+    try:
+        assert_that(5).is_factor_of(24)
+        fail('should have raised error')
+    except AssertionError as ex:
+        assert_that(str(ex)).is_equal_to('Expected <5> to be factor of <24>, but was not.')
+
+
 def test_call_missing_extension():
     def is_missing(): pass
     try:
         remove_extension(is_even)
         remove_extension(is_multiple_of)
+        remove_extension(is_factor_of)
         remove_extension(is_missing)
         assert_that(24).is_multiple_of(6)
         fail('should have raised error')
@@ -158,7 +186,6 @@ def test_call_missing_extension():
 
 
 def test_remove_bad_extension():
-    def is_missing(): pass
     try:
         remove_extension('foo')
         fail('should have raised error')
