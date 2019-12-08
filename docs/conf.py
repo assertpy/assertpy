@@ -6,7 +6,7 @@ print('SYS.PATH=', sys.path)
 
 # proj info
 project = 'assertpy'
-copyright = '2014-2019 Activision Publishing Inc'
+copyright = '2015-2019 Activision Publishing, Inc.'
 author = 'Activision'
 
 # extensions (for Google-style doc strings)
