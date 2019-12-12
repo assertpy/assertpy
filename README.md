@@ -76,8 +76,8 @@ assert_that('foo').is_equal_to('foo')
 assert_that('foo').is_not_equal_to('bar')
 assert_that('foo').is_equal_to_ignoring_case('FOO')
 
-assert_that(u'foo').is_unicode() # on python 2
-assert_that('foo').is_unicode()  # on python 3
+assert_that(u'foo').is_unicode()  # on python 2
+assert_that('foo').is_unicode()   # on python 3
 
 assert_that('foo').contains('f')
 assert_that('foo').contains('f','oo')
@@ -937,7 +937,7 @@ from assertpy import add_extension
 
 def is_5(self):
     if self.val != 5:
-        self._err(f'{self.val} is NOT 5!')
+        self.error(f'{self.val} is NOT 5!')
     return self
 
 add_extension(is_5)
@@ -947,7 +947,7 @@ Once registered with `assertpy`, we can use our new assertion as expected:
 
 ```py
 assert_that(5).is_5()
-assert_that(6).is_5() # fails!
+assert_that(6).is_5()  # fails!
 ```
 
 Of course, `is_5()` is only available in the test file where `add_extension()` is called.  If you want better control of scope of your custom extensions, such as writing extensions once and using them in any test file, you'll need to use the test setup functionality of your test runner.  With [pytest](http://pytest.org/latest/contents.html), you can just use a `conftest.py` file and a _fixture_.
@@ -960,7 +960,7 @@ from assertpy import add_extension
 
 def is_5(self):
     if self.val != 5:
-        self._err(f'{self.val} is NOT 5!')
+        self.error(f'{self.val} is NOT 5!')
     return self
 
 @pytest.fixture(scope='module')
@@ -975,7 +975,7 @@ from assertpy import assert_that
 
 def test_foo(my_extensions):
     assert_that(5).is_5()
-    assert_that(6).is_5() # fails!
+    assert_that(6).is_5()  # fails!
 ```
 
 where the `my_extensions` parameter must be the name of your fixture function in `conftest.py`.  See the [fixture docs](https://docs.pytest.org/en/latest/fixture.html) for details.
@@ -986,10 +986,10 @@ Here are some useful tips to help you write your own custom assertions:
 
 1. Use `self` as first param (as if your function was an instance method).
 2. Use `self.val` to get the _actual_ value to be tested.
-2. It's better to test the negative, and then fail if true.
-3. Fail by raising an `AssertionError`.
-4. Always use the `self._err()` helper to fail (and print your failure message).
-5. Always `return self` to allow for chaining.
+3. It's better to test the negative, and then fail if true.
+4. Fail by raising an `AssertionError` (the `self.error()` helper does this for you).
+5. Always use the `self.error()` helper to fail (and print your failure message).
+6. Always `return self` to allow for chaining.
 
 Putting it all together, here is another custom assertion example, but annotated with comments:
 
@@ -1004,13 +1004,13 @@ def is_multiple_of(self, other):
     if isinstance(other, numbers.Integral) is False or other <= 0:
         raise TypeError('given arg must be a positive integer')
 
-    # divide and compute remainder using divmod() built-in
+    # calc remainder using divmod() built-in
     _, rem = divmod(self.val, other)
 
     # test the negative (is remainder non-zero?)
     if rem > 0:
         # non-zero remainder, so not multiple -> we fail!
-        self._err('Expected <%s> to be multiple of <%s>, but was not.' % (self.val, other))
+        self.error('Expected <%s> to be multiple of <%s>, but was not.' % (self.val, other))
 
     # success, and return self to allow chaining
     return self
