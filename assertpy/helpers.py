@@ -38,9 +38,10 @@ else:
 
 
 class HelpersMixin(object):
-    """Helpers mixin."""
+    """Helpers mixin.  For internal use only."""
 
     def _fmt_items(self, i):
+        """Helper to format the given items."""
         if len(i) == 0:
             return '<>'
         elif len(i) == 1 and hasattr(i, '__getitem__'):
@@ -66,6 +67,7 @@ class HelpersMixin(object):
             return ''
 
     def _validate_between_args(self, val_type, low, high):
+        """Helper to validate given range args."""
         low_type = type(low)
         high_type = type(high)
 
@@ -89,6 +91,7 @@ class HelpersMixin(object):
             raise ValueError('given low arg must be less than given high arg')
 
     def _validate_close_to_args(self, val, other, tolerance):
+        """Helper for validate given arg and delta."""
         if type(val) is complex or type(other) is complex or type(tolerance) is complex:
             raise TypeError('ordering is not defined for complex numbers')
 
@@ -109,6 +112,7 @@ class HelpersMixin(object):
                 raise ValueError('given tolerance arg must be positive')
 
     def _check_dict_like(self, d, check_keys=True, check_values=True, check_getitem=True, name='val', return_as_bool=False):
+        """Helper to check if given val has various dict-like attributes."""
         if not isinstance(d, Iterable):
             if return_as_bool:
                 return False
@@ -136,6 +140,7 @@ class HelpersMixin(object):
             return True
 
     def _check_iterable(self, l, check_getitem=True, name='val'):
+        """Helper to check if given val has various iterable attributes."""
         if not isinstance(l, Iterable):
             raise TypeError('%s <%s> is not iterable' % (name, type(l).__name__))
         if check_getitem:
@@ -143,6 +148,7 @@ class HelpersMixin(object):
                 raise TypeError('%s <%s> does not have [] accessor' % (name, type(l).__name__))
 
     def _dict_not_equal(self, val, other, ignore=None, include=None):
+        """Helper to compare dicts."""
         if ignore or include:
             ignores = self._dict_ignore(ignore)
             includes = self._dict_include(include)
@@ -154,7 +160,7 @@ class HelpersMixin(object):
                     if i not in val:
                         missing.append(i)
                 if missing:
-                    self._err('Expected <%s> to include key%s %s, but did not include key%s %s.' % (
+                    self.error('Expected <%s> to include key%s %s, but did not include key%s %s.' % (
                         val,
                         '' if len(includes) == 1 else 's',
                         self._fmt_items(['.'.join([str(s) for s in i]) if type(i) is tuple else i for i in includes]),
@@ -194,12 +200,15 @@ class HelpersMixin(object):
             return val != other
 
     def _dict_ignore(self, ignore):
+        """Helper to make list for given ignore kwarg values."""
         return [i[0] if type(i) is tuple and len(i) == 1 else i for i in (ignore if type(ignore) is list else [ignore])]
 
     def _dict_include(self, include):
+        """Helper to make a list from given include kwarg values."""
         return [i[0] if type(i) is tuple else i for i in (include if type(include) is list else [include])]
 
     def _dict_err(self, val, other, ignore=None, include=None):
+        """Helper to construct error message for dict comparison."""
         def _dict_repr(d, other):
             out = ''
             ellip = False
@@ -225,7 +234,7 @@ class HelpersMixin(object):
             includes = self._dict_ignore(include)
             include_err = ' including keys %s' % self._fmt_items(['.'.join([str(s) for s in i]) if type(i) is tuple else i for i in includes])
 
-        self._err('Expected <%s> to be equal to <%s>%s%s, but was not.' % (
+        self.error('Expected <%s> to be equal to <%s>%s%s, but was not.' % (
             _dict_repr(val, other),
             _dict_repr(other, val),
             ignore_err if ignore else '',

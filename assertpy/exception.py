@@ -39,33 +39,73 @@ class ExceptionMixin(object):
     """Expected exception mixin."""
 
     def raises(self, ex):
-        """Asserts that val is callable and that when called raises the given error."""
+        """Asserts that val is callable and set the expected exception.
+
+        Just sets the expected exception, but never calls val, and therefore never failes. You must
+        chain to :meth:`~when_called_with` to invoke ``val()``.
+
+        Args:
+            ex: the expected exception
+
+        Examples:
+            Usage::
+
+                assert_that(some_func).raises(RuntimeError).when_called_with('foo')
+
+        Returns:
+            AssertionBuilder: returns a new instance (now with the given expected exception) to chain to the next assertion
+        """
         if not callable(self.val):
             raise TypeError('val must be callable')
         if not issubclass(ex, BaseException):
             raise TypeError('given arg must be exception')
-        return self._builder(self.val, self.description, self.kind, ex)  # don't chain!
+
+        # chain on with ex as the expected exception
+        return self.builder(self.val, self.description, self.kind, ex)
 
     def when_called_with(self, *some_args, **some_kwargs):
-        """Asserts the val callable when invoked with the given args and kwargs raises the expected exception."""
+        """Asserts that val, when invoked with the given args and kwargs, raises the expected exception.
+
+        Invokes ``val()`` with the given args and kwargs.  You must first set the expected
+        exception with :meth:`~raises`.
+
+        Args:
+            *some_args: the args to call ``val()``
+            **some_kwargs: the kwargs to call ``val()``
+
+        Examples:
+            Usage::
+
+                def some_func(a):
+                    raise RuntimeError('some error!')
+
+                assert_that(some_func).raises(RuntimeError).when_called_with('foo')
+
+        Returns:
+            AssertionBuilder: returns a new instance (now with the captured exception error message as the val) to chain to the next assertion
+
+        Raises:
+            AssertionError: if val does **not** raise the expected exception
+            TypeError: if expected exception not set via :meth:`raises`
+        """
         if not self.expected:
             raise TypeError('expected exception not set, raises() must be called first')
         try:
             self.val(*some_args, **some_kwargs)
         except BaseException as e:
             if issubclass(type(e), self.expected):
-                # chain on with _message_ (don't chain to self!)
-                return self._builder(str(e), self.description, self.kind)
+                # chain on with error message
+                return self.builder(str(e), self.description, self.kind)
             else:
                 # got exception, but wrong type, so raise
-                self._err('Expected <%s> to raise <%s> when called with (%s), but raised <%s>.' % (
+                self.error('Expected <%s> to raise <%s> when called with (%s), but raised <%s>.' % (
                     self.val.__name__,
                     self.expected.__name__,
                     self._fmt_args_kwargs(*some_args, **some_kwargs),
                     type(e).__name__))
 
         # didn't fail as expected, so raise
-        self._err('Expected <%s> to raise <%s> when called with (%s).' % (
+        self.error('Expected <%s> to raise <%s> when called with (%s).' % (
             self.val.__name__,
             self.expected.__name__,
             self._fmt_args_kwargs(*some_args, **some_kwargs)))

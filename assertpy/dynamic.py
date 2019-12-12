@@ -36,10 +36,42 @@ else:
 
 
 class DynamicMixin(object):
-    """Dynamic assertions mixin."""
+    """Dynamic assertions mixin.
+
+    When testing attributes of an object (or the contents of a dict), the
+    :meth:`~assertpy.base.BaseMixin.is_equal_to` assertion can be a bit verbose::
+
+        fred = Person('Fred', 'Smith')
+
+        assert_that(fred.first_name).is_equal_to('Fred')
+        assert_that(fred.name).is_equal_to('Fred Smith')
+        assert_that(fred.say_hello()).is_equal_to('Hello, Fred!')
+
+    Instead, use dynamic assertions in the form of ``has_<name>()`` where ``<name>`` is the name of
+    any attribute, property, or zero-argument method on the given object. Dynamic equality
+    assertions test if actual is equal to expected using the ``==`` operator. Using dynamic
+    assertions, we can rewrite the above example as::
+
+        assert_that(fred).has_first_name('Fred')
+        assert_that(fred).has_name('Fred Smith')
+        assert_that(fred).has_say_hello('Hello, Fred!')
+
+    Similarly, dynamic assertions also work on any *dict-like* object::
+
+        fred = {
+            'first_name': 'Fred',
+            'last_name': 'Smith',
+            'shoe_size': 12
+        }
+
+        assert_that(fred).has_first_name('Fred')
+        assert_that(fred).has_last_name('Smith')
+        assert_that(fred).has_shoe_size(12)
+    """
 
     def __getattr__(self, attr):
-        """Asserts that val has attribute attr and that attribute's value is equal to other via a dynamic assertion of the form: has_<attr>()."""
+        """Asserts that val has attribute attr and that its value is equal to other via a dynamic
+        assertion of the form ``has_<attr>()``."""
         if not attr.startswith('has_'):
             raise AttributeError('assertpy has no assertion <%s()>' % attr)
 
@@ -56,7 +88,7 @@ class DynamicMixin(object):
 
         def _wrapper(*args, **kwargs):
             if err_msg:
-                self._err(err_msg)  # ok to raise AssertionError now that we are inside wrapper
+                self.error(err_msg)  # ok to raise AssertionError now that we are inside wrapper
             else:
                 if len(args) != 1:
                     raise TypeError('assertion <%s()> takes exactly 1 argument (%d given)' % (attr, len(args)))
@@ -76,7 +108,7 @@ class DynamicMixin(object):
 
                 expected = args[0]
                 if actual != expected:
-                    self._err('Expected <%s> to be equal to <%s> on %s <%s>, but was not.' % (actual, expected, 'key' if is_dict else 'attribute', attr_name))
+                    self.error('Expected <%s> to be equal to <%s> on %s <%s>, but was not.' % (actual, expected, 'key' if is_dict else 'attribute', attr_name))
             return self
 
         return _wrapper

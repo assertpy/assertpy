@@ -35,21 +35,39 @@ else:
     str_types = (basestring,)
 
 
-def contents_of(f, encoding='utf-8'):
+def contents_of(file, encoding='utf-8'):
     """Helper to read the contents of the given file or path into a string with the given encoding.
-    Encoding defaults to 'utf-8', other useful encodings are 'ascii' and 'latin-1'."""
 
+    Args:
+        file: a *path-like object* (aka a file name) or a *file-like object* (aka a file)
+        encoding (str): the target encoding.  Defaults to ``utf-8``, other useful encodings are ``ascii`` and ``latin-1``.
+
+    Examples:
+        Usage::
+
+            from assertpy import assert_that, contents_of
+
+            contents = contents_of('foo.txt')
+            assert_that(contents).starts_with('foo').ends_with('bar').contains('oob')
+
+    Returns:
+        str: returns the file contents as a string
+
+    Raises:
+        IOError: if file not found
+        TypeError: if file is not a *path-like object* or a *file-like object*
+    """
     try:
-        contents = f.read()
+        contents = file.read()
     except AttributeError:
         try:
-            with open(f, 'r') as fp:
+            with open(file, 'r') as fp:
                 contents = fp.read()
         except TypeError:
-            raise ValueError('val must be file or path, but was type <%s>' % type(f).__name__)
+            raise ValueError('val must be file or path, but was type <%s>' % type(file).__name__)
         except OSError:
-            if not isinstance(f, str_types):
-                raise ValueError('val must be file or path, but was type <%s>' % type(f).__name__)
+            if not isinstance(file, str_types):
+                raise ValueError('val must be file or path, but was type <%s>' % type(file).__name__)
             raise
 
     if sys.version_info[0] == 3 and type(contents) is bytes:
@@ -72,52 +90,134 @@ class FileMixin(object):
     """File assertions mixin."""
 
     def exists(self):
-        """Asserts that val is a path and that it exists."""
+        """Asserts that val is a path and that it exists.
+
+        Examples:
+            Usage::
+
+                assert_that('myfile.txt').exists()
+                assert_that('mydir').exists()
+
+        Returns:
+            AssertionBuilder: returns this instance to chain to the next assertion
+
+        Raises:
+            AssertionError: if val does **not** exist
+        """
         if not isinstance(self.val, str_types):
             raise TypeError('val is not a path')
         if not os.path.exists(self.val):
-            self._err('Expected <%s> to exist, but was not found.' % self.val)
+            self.error('Expected <%s> to exist, but was not found.' % self.val)
         return self
 
     def does_not_exist(self):
-        """Asserts that val is a path and that it does not exist."""
+        """Asserts that val is a path and that it does *not* exist.
+
+        Examples:
+            Usage::
+
+                assert_that('missing.txt').does_not_exist()
+                assert_that('missing_dir').does_not_exist()
+
+        Returns:
+            AssertionBuilder: returns this instance to chain to the next assertion
+
+        Raises:
+            AssertionError: if val **does** exist
+        """
         if not isinstance(self.val, str_types):
             raise TypeError('val is not a path')
         if os.path.exists(self.val):
-            self._err('Expected <%s> to not exist, but was found.' % self.val)
+            self.error('Expected <%s> to not exist, but was found.' % self.val)
         return self
 
     def is_file(self):
-        """Asserts that val is an existing path to a file."""
+        """Asserts that val is a *file* and that it exists.
+
+        Examples:
+            Usage::
+
+                assert_that('myfile.txt').is_file()
+
+        Returns:
+            AssertionBuilder: returns this instance to chain to the next assertion
+
+        Raises:
+            AssertionError: if val does **not** exist, or is **not** a file
+        """
         self.exists()
         if not os.path.isfile(self.val):
-            self._err('Expected <%s> to be a file, but was not.' % self.val)
+            self.error('Expected <%s> to be a file, but was not.' % self.val)
         return self
 
     def is_directory(self):
-        """Asserts that val is an existing path to a directory."""
+        """Asserts that val is a *directory* and that it exists.
+
+        Examples:
+            Usage::
+
+                assert_that('mydir').is_directory()
+
+        Returns:
+            AssertionBuilder: returns this instance to chain to the next assertion
+
+        Raises:
+            AssertionError: if val does **not** exist, or is **not** a directory
+        """
         self.exists()
         if not os.path.isdir(self.val):
-            self._err('Expected <%s> to be a directory, but was not.' % self.val)
+            self.error('Expected <%s> to be a directory, but was not.' % self.val)
         return self
 
     def is_named(self, filename):
-        """Asserts that val is an existing path to a file and that file is named filename."""
+        """Asserts that val is an existing path to a file and that file is named filename.
+
+        Args:
+            filename: the expected filename
+
+        Examples:
+            Usage::
+
+                assert_that('/path/to/mydir/myfile.txt').is_named('myfile.txt')
+
+        Returns:
+            AssertionBuilder: returns this instance to chain to the next assertion
+
+        Raises:
+            AssertionError: if val does **not** exist, or is **not** a file, or is **not** named the given filename
+        """
         self.is_file()
         if not isinstance(filename, str_types):
             raise TypeError('given filename arg must be a path')
         val_filename = os.path.basename(os.path.abspath(self.val))
         if val_filename != filename:
-            self._err('Expected filename <%s> to be equal to <%s>, but was not.' % (val_filename, filename))
+            self.error('Expected filename <%s> to be equal to <%s>, but was not.' % (val_filename, filename))
         return self
 
     def is_child_of(self, parent):
-        """Asserts that val is an existing path to a file and that file is a child of parent."""
+        """Asserts that val is an existing path to a file and that file is a child of parent.
+
+        Args:
+            parent: the expected parent directory
+
+        Examples:
+            Usage::
+
+                assert_that('/path/to/mydir/myfile.txt').is_child_of('mydir')
+                assert_that('/path/to/mydir/myfile.txt').is_child_of('to')
+                assert_that('/path/to/mydir/myfile.txt').is_child_of('path')
+
+        Returns:
+            AssertionBuilder: returns this instance to chain to the next assertion
+
+        Raises:
+            AssertionError: if val does **not** exist, or is **not** a file, or is **not** a child of the given directory
+        """
         self.is_file()
         if not isinstance(parent, str_types):
             raise TypeError('given parent directory arg must be a path')
         val_abspath = os.path.abspath(self.val)
         parent_abspath = os.path.abspath(parent)
         if not val_abspath.startswith(parent_abspath):
-            self._err('Expected file <%s> to be a child of <%s>, but was not.' % (val_abspath, parent_abspath))
+            self.error('Expected file <%s> to be a child of <%s>, but was not.' % (val_abspath, parent_abspath))
         return self
