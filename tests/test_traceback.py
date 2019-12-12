@@ -58,5 +58,5 @@ def test_traceback():
             assert_that(frames[1][2]).is_greater_than(40)
 
             assert_that(frames[2][0]).ends_with('assertpy.py')
-            assert_that(frames[2][1]).is_equal_to('_err')
+            assert_that(frames[2][1]).is_equal_to('error')
             assert_that(frames[2][2]).is_greater_than(100)

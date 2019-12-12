@@ -95,8 +95,8 @@ if sys.version_info[0] == 3:
         assert_that(1 + 2j).snapshot()
 
         # tuples are always converted to lists...can this be fixed?
-        # assert_that((1,2,3)).snapshot()
-        # assert_that({'a': (1,2),'b': (3,4),'c': (5,6)}).snapshot()
+        # assert_that((1, 2, 3)).snapshot()
+        # assert_that({'a': (1,2), 'b': (3,4), 'c': (5,6)}).snapshot()
 
         assert_that({'custom': 'id'}).snapshot(id='mycustomid')
 
