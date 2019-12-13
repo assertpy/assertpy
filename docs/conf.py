@@ -15,8 +15,10 @@ extensions = [
     'sphinxcontrib.napoleon'
 ]
 
+templates_path = ['templates']
+
 exclude_patterns = ['build', '.DS_Store']
 
-html_theme = 'sphinx_rtd_theme'
+# html_theme = 'sphinx_rtd_theme'
 
 add_module_names = False

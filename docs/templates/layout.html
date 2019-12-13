@@ -1,0 +1,74 @@
+{# assertpy layout #}
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>assertpy docs</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.8.0/css/bulma.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/styles/atom-one-light.min.css">
+<link rel="icon" href="img/icon/favicon-32.png" sizes="32x32">
+<link rel="icon" href="img/icon/favicon-96.png" sizes="96x96">
+<link rel="icon" href="img/icon/favicon-128.png" sizes="128x128">
+<link rel="icon" href="img/icon/favicon-192.png" sizes="192x192">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto&display=swap">
+<style>
+body { font-family: 'Roboto', sans-serif; font-size: 15px; }
+pre.code { margin: 1em 0; padding: 0; }
+pre.code code { display: block; padding: 0.5em; }
+.content dl:not(:last-child) { margin-bottom: 1.2em; }
+.content dt { margin-bottom: 0.4em; }
+.content dd { margin-left: 1.5em; }
+.content:not(:last-child) { margin-bottom: 0; }
+.title:not(:last-child) { margin-top: 0.2em; margin-bottom: 0.5em; }
+.section { padding-top: 0; }
+.navbar-item img { max-height: 48px; }
+</style>
+</head>
+<body>
+<section class="section">
+<div class="container">
+
+<nav class="navbar is-danger is-spaced" role="navigation" aria-label="main navigation">
+<div class="navbar-brand">
+  <a class="navbar-item" href="index.html">
+    <img src="img/assertpy.svg" title="assertpy" width="153" height="48" />
+  </a>
+</div>
+
+<div class="navbar-menu">
+<div class="navbar-start">
+  <div class="navbar-item">Docs</div>
+</div>
+
+<div class="navbar-end">
+  <div class="navbar-item">
+    <a href="https://github.com/assertpy/assertpy">
+      <button class="button is-grey">
+        <span class="icon"><i class="fa fa-lg fa-github"></i></span>
+        <span>Code</span>
+      </button>
+    </a>
+  </div>
+</div>
+</div>
+</nav>
+</div>
+
+<div class="container">
+<div class="columns is-mobile">
+<div class="column is-full">
+{% block body %} {% endblock %}
+</div>
+</div>
+</div>
+
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js"></script>
+<script>
+hljs.initHighlightingOnLoad();
+</script>
+</body>
+</html>
