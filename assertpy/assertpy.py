@@ -68,7 +68,7 @@ def soft_assertions():
     Soft assertions are way to collect assertion failures (and failure messages) together, to be
     raised all at once at the end, without halting your test.
 
-    Example:
+    Examples:
         Create a soft assertion context, and some failing tests::
 
             from assertpy import assert_that, soft_assertions
@@ -132,7 +132,7 @@ def assert_that(val, description=''):
         description (str, optional): the extra error message description. Defaults to ``''``
             (aka empty string)
 
-    Example:
+    Examples:
         Just import it once at the top of your test file, and away you go...::
 
             from assertpy import assert_that
@@ -165,7 +165,7 @@ def assert_warn(val, description='', logger=None):
         logger (Logger, optional): the logger for warning message on assertion failure. Defaults to ``None``
             (aka use the default simple logger that prints warnings to ``stdout``)
 
-    Example:
+    Examples:
         Usage::
 
             from assertpy import assert_warn
