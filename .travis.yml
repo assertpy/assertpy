@@ -8,6 +8,7 @@ python:
   - 3.8
 before_install:
   - pip install pytest-cov
+  - pip install requests==2.21.0  # last version that still supports py 3.4
   - pip install coveralls
 install:
   - pip install .
