@@ -54,7 +54,7 @@ class BaseMixin(object):
     def is_equal_to(self, other, **kwargs):
         """Asserts that val is equal to other.
 
-        Checks actual is equal to expected using the ``==`` operator. When value is *dict-like*,
+        Checks actual is equal to expected using the ``==`` operator. When val is *dict-like*,
         optionally ignore or include keys when checking equality.
 
         Args:
@@ -77,7 +77,7 @@ class BaseMixin(object):
                 assert_that({'a': 1, 'b': 2}).is_equal_to({'a': 1, 'b': 2})
                 assert_that({'a', 'b'}).is_equal_to({'a', 'b'})
 
-            When the value is *dict-like*, keys can optionally be *ignored* when checking equality::
+            When the val is *dict-like*, keys can optionally be *ignored* when checking equality::
 
                 # ignore a single key
                 assert_that({'a': 1, 'b': 2}).is_equal_to({'a': 1}, ignore='b')
@@ -85,7 +85,7 @@ class BaseMixin(object):
                 # ignore multiple keys
                 assert_that({'a': 1, 'b': 2, 'c': 3}).is_equal_to({'a': 1}, ignore=['b', 'c'])
 
-            When the value is *dict-like*, only certain keys can be *included* when checking equality::
+            When the val is *dict-like*, only certain keys can be *included* when checking equality::
 
                 # include a single key
                 assert_that({'a': 1, 'b': 2}).is_equal_to({'a': 1}, include='a')
@@ -105,7 +105,7 @@ class BaseMixin(object):
             AssertionError: if actual is **not** equal to expected
 
         Tip:
-            Using :meth:`is_equal_to` with a ``float`` value is just asking for trouble. Instead, you'll
+            Using :meth:`is_equal_to` with a ``float`` val is just asking for trouble. Instead, you'll
             always want to use *fuzzy* numeric assertions like :meth:`~assertpy.numeric.NumericMixin.is_close_to`
             or :meth:`~assertpy.numeric.NumericMixin.is_between`.
 
@@ -173,9 +173,9 @@ class BaseMixin(object):
             But mutable collections like ``list``, ``dict``, and ``set`` are not::
 
                 # these all fail...
-                assert_that(['a', 'b']).is_same_as(['a', 'b'])
-                assert_that({'a': 1, 'b': 2}).is_same_as({'a': 1, 'b': 2})
-                assert_that({'a', 'b'}).is_same_as({'a', 'b'})
+                assert_that(['a', 'b']).is_same_as(['a', 'b'])  # fails
+                assert_that({'a': 1, 'b': 2}).is_same_as({'a': 1, 'b': 2})  # fails
+                assert_that({'a', 'b'}).is_same_as({'a', 'b'})  # fails
 
             Unless they are the same object::
 
