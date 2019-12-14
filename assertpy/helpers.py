@@ -71,10 +71,10 @@ class HelpersMixin(object):
         low_type = type(low)
         high_type = type(high)
 
-        if val_type in self.NUMERIC_NON_COMPAREABLE:
+        if val_type in self._NUMERIC_NON_COMPAREABLE:
             raise TypeError('ordering is not defined for type <%s>' % val_type.__name__)
 
-        if val_type in self.NUMERIC_COMPAREABLE:
+        if val_type in self._NUMERIC_COMPAREABLE:
             if low_type is not val_type:
                 raise TypeError('given low arg must be <%s>, but was <%s>' % (val_type.__name__, low_type.__name__))
             if high_type is not val_type:

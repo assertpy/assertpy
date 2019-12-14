@@ -36,16 +36,16 @@ import datetime
 class NumericMixin(object):
     """Numeric assertions mixin."""
 
-    NUMERIC_COMPAREABLE = set([datetime.datetime, datetime.timedelta, datetime.date, datetime.time])
-    NUMERIC_NON_COMPAREABLE = set([complex])
+    _NUMERIC_COMPAREABLE = set([datetime.datetime, datetime.timedelta, datetime.date, datetime.time])
+    _NUMERIC_NON_COMPAREABLE = set([complex])
 
     def _validate_compareable(self, other):
         self_type = type(self.val)
         other_type = type(other)
 
-        if self_type in self.NUMERIC_NON_COMPAREABLE:
+        if self_type in self._NUMERIC_NON_COMPAREABLE:
             raise TypeError('ordering is not defined for type <%s>' % self_type.__name__)
-        if self_type in self.NUMERIC_COMPAREABLE:
+        if self_type in self._NUMERIC_COMPAREABLE:
             if other_type is not self_type:
                 raise TypeError('given arg must be <%s>, but was <%s>' % (self_type.__name__, other_type.__name__))
             return
