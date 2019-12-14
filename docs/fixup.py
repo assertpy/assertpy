@@ -41,8 +41,15 @@ if __name__ == '__main__':
     html = html.replace('"admonition note"', '"message is-info"')
     html = html.replace('"admonition seealso"', '"message is-link"')
 
-    html = html.replace('<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>', '<pre class="code"><code>')
+    html = html.replace('<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>', '<pre class="code"><code class="python">')
     html = html.replace('</pre></div>\n</div>', '</code></pre>')
+
+    html = html.replace('class="code"><code class="python"><span class="mi">2019',
+                        'class="code"><code class="bash"><span class="mi">2019')
+    html = html.replace('class="code"><code class="python"><span class="ne">AssertionError</span><span class="p">:',
+                        'class="code"><code class="bash"><span class="ne">AssertionError</span><span class="p">:')
+    html = html.replace('class="code"><code class="python">AssertionError: soft assertion failures',
+                        'class="code"><code class="bash">AssertionError: soft assertion failures')
 
     html = html.replace('<div class="section"', '<div class="section content"')
     html = html.replace('<p>Usage:</p>', '')
