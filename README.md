@@ -46,12 +46,16 @@ conda install assertpy --channel conda-forge
 ```
 
 
-## The API
+## Docs
 
 The fluent API of `assertpy` is designed to create compact, yet readable tests.
 The API has been modeled after other fluent testing APIs, especially the awesome
 [AssertJ](http://joel-costigliola.github.io/assertj/) assertion library for Java.  Of course, in the `assertpy` library everything is fully pythonic and designed to take full advantage of the dynamism in the Python runtime.
 
+All assertions, with usage examples, are documented here:  
+https://assertpy.github.io/docs.html
+
+And there are hundreds of examples below.  Read on...
 
 ### Strings
 
@@ -1025,17 +1029,11 @@ Here are just a few examples:
 
 ```py
 assert_that('foo').is_length(3).starts_with('f').ends_with('oo')
-```
 
-```py
 assert_that([1,2,3]).is_type_of(list).contains(1,2).does_not_contain(4,5)
-```
 
-```py
 assert_that(fred).has_first_name('Fred').has_last_name('Smith').has_shoe_size(12)
-```
 
-```py
 assert_that(people).is_length(2).extracting('first_name').contains('Fred','Joe')
 ```
 
