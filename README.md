@@ -871,7 +871,7 @@ forgiving behavior, you can use `soft_fail()` which is collected like any other 
 
 ### Snapshot Testing
 
-Take a snapshot of a python data structure, store it on disk in JSON format, and automatically compare the latest data to the stored data on every test run.  The snapshot testing features of `assertpy` are borrowed from [Jest](https://facebook.github.io/jest/), a well-kwown and powerful Javascript testing framework.  Snapshots require Python 3.
+Take a snapshot of a python data structure, store it on disk in JSON format, and automatically compare the latest data to the stored data on every test run.  The snapshot testing features of `assertpy` are borrowed from [Jest](https://facebook.github.io/jest/), a well-known and powerful Javascript testing framework.  Snapshots require Python 3.
 
 For example, snapshot the following dict:
 
