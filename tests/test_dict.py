@@ -470,3 +470,16 @@ def test_dynamic_assertion_bad_key_failure():
         fail('should have raised error')
     except AssertionError as ex:
         assert_that(str(ex)).is_equal_to('Expected key <foo>, but val has no key <foo>.')
+
+def test_dynamic_assertion_on_reserved_word():
+    fred = {'def': 'Fred'}
+    assert_that(fred).is_type_of(dict)
+    assert_that(fred['def']).is_equal_to('Fred')
+    assert_that(fred).has_def('Fred')
+
+def test_dynamic_assertion_on_dict_method():
+    fred = {'update': 'Foo'}
+    fred.update({'update': 'Fred'})
+    assert_that(fred).is_type_of(dict)
+    assert_that(fred['update']).is_equal_to('Fred')
+    assert_that(fred).has_update('Fred')

@@ -93,10 +93,10 @@ class DynamicMixin(object):
                 if len(args) != 1:
                     raise TypeError('assertion <%s()> takes exactly 1 argument (%d given)' % (attr, len(args)))
 
-                try:
-                    val_attr = getattr(self.val, attr_name)
-                except AttributeError:
+                if is_dict:
                     val_attr = self.val[attr_name]
+                else:
+                    val_attr = getattr(self.val, attr_name)
 
                 if callable(val_attr):
                     try:
