@@ -167,6 +167,7 @@ class HelpersMixin(object):
                         '' if len(missing) == 1 else 's',
                         self._fmt_items(missing)))
 
+            # calc val keys given ignores and includes
             if ignore and include:
                 k1 = set([k for k in val if k not in ignores and k in includes])
             elif ignore:
@@ -174,6 +175,7 @@ class HelpersMixin(object):
             else:  # include
                 k1 = set([k for k in val if k in includes])
 
+            # calc other keys given ignores and includes
             if ignore and include:
                 k2 = set([k for k in other if k not in ignores and k in includes])
             elif ignore:
@@ -182,18 +184,22 @@ class HelpersMixin(object):
                 k2 = set([k for k in other if k in includes])
 
             if k1 != k2:
+                # different set of keys, so not equal
                 return True
             else:
                 for k in k1:
-                    if self._check_dict_like(
-                        val[k], check_values=False, return_as_bool=True) and self._check_dict_like(
-                            other[k], check_values=False, return_as_bool=True):
-                        return self._dict_not_equal(
+                    if self._check_dict_like(val[k], check_values=False, return_as_bool=True) and \
+                            self._check_dict_like(other[k], check_values=False, return_as_bool=True):
+                        subdicts_not_equal = self._dict_not_equal(
                             val[k],
                             other[k],
                             ignore=[i[1:] for i in ignores if type(i) is tuple and i[0] == k] if ignore else None,
                             include=[i[1:] for i in self._dict_ignore(include) if type(i) is tuple and i[0] == k] if include else None)
+                        if subdicts_not_equal:
+                            # fast fail inside the loop since sub-dicts are not equal
+                            return True
                     elif val[k] != other[k]:
+                        # fast fail inside the loop since values are not equal
                         return True
             return False
         else:
