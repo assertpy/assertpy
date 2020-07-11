@@ -374,3 +374,10 @@ def test_failure_deep_mismatch_when_ignoring_double_nested_sibling_key():
         fail('should have raised error')
     except AssertionError as ex:
         assert_that(str(ex)).is_equal_to("Expected <{.., 'b': {.., 'd': {'e': 3}}}> to be equal to <{.., 'b': {.., 'd': {'e': 4}}}> ignoring keys <b.f.g>, but was not.")
+
+
+def test_ignore_all_nested_keys():
+    assert_that({'a': {'b': 1}}).is_equal_to({}, ignore='a')
+    assert_that({'a': {'b': 1}}).is_equal_to({'a': {}}, ignore=[('a', 'b')])
+    assert_that({'a': {'b': 1, 'c': 2}}).is_equal_to({'a': {}}, ignore=[('a', 'b'), ('a', 'c')])
+    assert_that({'a': 1, 'b': {'c': 2}}).is_equal_to({'b': {}}, ignore=['a', ('b', 'c')])
