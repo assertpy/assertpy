@@ -85,6 +85,9 @@ class BaseMixin(object):
                 # ignore multiple keys
                 assert_that({'a': 1, 'b': 2, 'c': 3}).is_equal_to({'a': 1}, ignore=['b', 'c'])
 
+                # ignore nested keys
+                assert_that({'a': {'b': 2, 'c': 3, 'd': 4}}).is_equal_to({'a': {'d': 4}}, ignore=[('a', 'b'), ('a', 'c')])
+
             When the val is *dict-like*, only certain keys can be *included* when checking equality::
 
                 # include a single key
