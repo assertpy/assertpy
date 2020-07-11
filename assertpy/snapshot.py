@@ -67,7 +67,7 @@ class SnapshotMixin(object):
 
     It's easy to update your snapshots...just delete them all and re-run the test suite to regenerate all snapshots.
 
-    Important:
+    Note:
         Snapshots require Python 3.x
     """
 
