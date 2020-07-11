@@ -218,7 +218,7 @@ class HelpersMixin(object):
         def _dict_repr(d, other):
             out = ''
             ellip = False
-            for k, v in d.items():
+            for k, v in sorted(d.items()):
                 if k not in other:
                     out += '%s%s: %s' % (', ' if len(out) > 0 else '', repr(k), repr(v))
                 elif v != other[k]:
