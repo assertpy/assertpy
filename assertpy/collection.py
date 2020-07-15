@@ -34,6 +34,8 @@ if sys.version_info[0] == 3:
 else:
     Iterable = collections.Iterable
 
+__tracebackhide__ = True
+
 
 class CollectionMixin(object):
     """Collection assertions mixin."""

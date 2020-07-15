@@ -34,6 +34,8 @@ if sys.version_info[0] == 3:
 else:
     Iterable = collections.Iterable
 
+__tracebackhide__ = True
+
 
 class DynamicMixin(object):
     """Dynamic assertions mixin.

@@ -32,6 +32,8 @@ import math
 import numbers
 import datetime
 
+__tracebackhide__ = True
+
 
 class NumericMixin(object):
     """Numeric assertions mixin."""

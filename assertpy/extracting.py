@@ -36,6 +36,8 @@ else:
     str_types = (basestring,)
     Iterable = collections.Iterable
 
+__tracebackhide__ = True
+
 
 class ExtractingMixin(object):
     """Collection flattening mixin.

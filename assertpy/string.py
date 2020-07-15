@@ -39,6 +39,8 @@ else:
     unicode = unicode
     Iterable = collections.Iterable
 
+__tracebackhide__ = True
+
 
 class StringMixin(object):
     """String assertions mixin."""

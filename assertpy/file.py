@@ -34,6 +34,8 @@ if sys.version_info[0] == 3:
 else:
     str_types = (basestring,)
 
+__tracebackhide__ = True
+
 
 def contents_of(file, encoding='utf-8'):
     """Helper to read the contents of the given file or path into a string with the given encoding.

@@ -32,6 +32,8 @@ import datetime
 import inspect
 import json
 
+__tracebackhide__ = True
+
 
 class SnapshotMixin(object):
     """Snapshot mixin.

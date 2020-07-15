@@ -28,6 +28,8 @@
 
 import datetime
 
+__tracebackhide__ = True
+
 
 class DateMixin(object):
     """Date and time assertions mixin."""

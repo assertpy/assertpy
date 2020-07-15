@@ -35,6 +35,8 @@ else:
     str_types = (basestring,)
     xrange = xrange
 
+__tracebackhide__ = True
+
 
 class ContainsMixin(object):
     """Containment assertions mixin."""

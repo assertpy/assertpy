@@ -36,6 +36,8 @@ if sys.version_info[0] == 3:
 else:
     Iterable = collections.Iterable
 
+__tracebackhide__ = True
+
 
 class HelpersMixin(object):
     """Helpers mixin.  For internal use only."""
