@@ -31,6 +31,11 @@ import logging
 
 from assertpy import assert_that, assert_warn, fail, WarningLoggingAdapter
 
+if sys.version_info[0] == 3:
+    from io import StringIO
+else:
+    from StringIO import StringIO
+
 
 def test_success():
     assert_warn('foo').is_length(3)
@@ -46,11 +51,6 @@ def test_success():
 
 
 def test_failures():
-    if sys.version_info[0] == 3:
-        from io import StringIO
-    else:
-        from StringIO import StringIO
-
     # capture log
     capture = StringIO()
     logger = logging.getLogger('capture')
@@ -83,3 +83,39 @@ def test_failures():
     assert_that(out).contains('[test_warn.py:68]: Expected <foo> to be equal to <bar>, but was not.')
     assert_that(out).contains('[test_warn.py:69]: Expected <foo> to be not equal to <foo>, but was.')
     assert_that(out).contains('[test_warn.py:70]: Expected <foo> to be case-insensitive equal to <BAR>, but was not.')
+
+def test_failures_with_renamed_import():
+    from assertpy import assert_warn as warn
+
+    # capture log
+    capture2 = StringIO()
+    logger = logging.getLogger('capture2')
+    handler = logging.StreamHandler(capture2)
+    logger.addHandler(handler)
+    adapted = WarningLoggingAdapter(logger, None)
+
+    warn('foo', logger=adapted).is_length(4)
+    warn('foo', logger=adapted).is_empty()
+    warn('foo', logger=adapted).is_false()
+    warn('foo', logger=adapted).is_digit()
+    warn('123', logger=adapted).is_alpha()
+    warn('foo', logger=adapted).is_upper()
+    warn('FOO', logger=adapted).is_lower()
+    warn('foo', logger=adapted).is_equal_to('bar')
+    warn('foo', logger=adapted).is_not_equal_to('foo')
+    warn('foo', logger=adapted).is_equal_to_ignoring_case('BAR')
+
+    # dump log to string
+    out = capture2.getvalue()
+    capture2.close()
+
+    assert_that(out).contains('[test_warn.py:97]: Expected <foo> to be of length <4>, but was <3>.')
+    assert_that(out).contains('[test_warn.py:98]: Expected <foo> to be empty string, but was not.')
+    assert_that(out).contains('[test_warn.py:99]: Expected <False>, but was not.')
+    assert_that(out).contains('[test_warn.py:100]: Expected <foo> to contain only digits, but did not.')
+    assert_that(out).contains('[test_warn.py:101]: Expected <123> to contain only alphabetic chars, but did not.')
+    assert_that(out).contains('[test_warn.py:102]: Expected <foo> to contain only uppercase chars, but did not.')
+    assert_that(out).contains('[test_warn.py:103]: Expected <FOO> to contain only lowercase chars, but did not.')
+    assert_that(out).contains('[test_warn.py:104]: Expected <foo> to be equal to <bar>, but was not.')
+    assert_that(out).contains('[test_warn.py:105]: Expected <foo> to be not equal to <foo>, but was.')
+    assert_that(out).contains('[test_warn.py:106]: Expected <foo> to be case-insensitive equal to <BAR>, but was not.')

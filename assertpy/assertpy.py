@@ -54,6 +54,23 @@ __version__ = '1.1'
 __tracebackhide__ = True  # clean tracebacks via py.test integration
 contextlib.__tracebackhide__ = True  # monkey patch contextlib with clean py.test tracebacks
 
+# assertpy files
+ASSERTPY_FILES = [
+    'assertpy/assertpy.py',
+    'assertpy/base.py',
+    'assertpy/collection.py',
+    'assertpy/contains.py',
+    'assertpy/date.py',
+    'assertpy/dict.py',
+    'assertpy/dynamic.py',
+    'assertpy/exception.py',
+    'assertpy/extracting.py',
+    'assertpy/file.py',
+    'assertpy/helpers.py',
+    'assertpy/numeric.py',
+    'assertpy/snapshot.py',
+    'assertpy/string.py'
+]
 
 # soft assertions
 _soft_ctx = 0
@@ -329,15 +346,23 @@ class WarningLoggingAdapter(logging.LoggerAdapter):
     """Logging adapter to unwind the stack to get the correct callee filename and line number."""
 
     def process(self, msg, kwargs):
-        def _unwind(frame, fn='assert_warn'):
-            if frame and fn in frame.f_code.co_names:
-                return frame
-            return _unwind(frame.f_back, fn)
+        def _unwind(frame):
+            # walk all the frames
+            frames = []
+            while frame:
+                frames.append((frame.f_code.co_filename, frame.f_lineno))
+                frame = frame.f_back
 
-        frame = _unwind(inspect.currentframe())
-        lineno = frame.f_lineno
-        filename = os.path.basename(frame.f_code.co_filename)
-        return '[%s:%d]: %s' % (filename, lineno, msg), kwargs
+            # in reverse, find the first assertpy frame (and return the previous one)
+            prev = None
+            for frame in reversed(frames):
+                for f in ASSERTPY_FILES:
+                    if frame[0].endswith(f):
+                        return prev
+                prev = frame
+
+        filename, lineno = _unwind(inspect.currentframe())
+        return '[%s:%d]: %s' % (os.path.basename(filename), lineno, msg), kwargs
 
 
 _logger = logging.getLogger('assertpy')
