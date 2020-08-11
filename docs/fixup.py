@@ -53,6 +53,7 @@ if __name__ == '__main__':
 
     html = html.replace('<div class="section"', '<div class="section content"')
     html = html.replace('<p>Usage:</p>', '')
+    html = html.replace('BR', '<br />')
 
     margin = 'style="margin:0.2em 0;"'
     html = html.replace('<dt class="field-odd">Parameters</dt>', f'<dt class="field-odd subtitle"{margin}>Parameters</dt>')

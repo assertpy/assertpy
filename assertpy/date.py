@@ -55,6 +55,10 @@ class DateMixin(object):
 
         Raises:
             AssertionError: if val is **not** before the given date
+
+        See Also:
+            :meth:`~assertpy.string.NumericMixin.is_less_than` - numeric assertion, but also works with datetime BR
+            :meth:`~assertpy.string.NumericMixin.is_less_than_or_equal_to` - numeric assertion, but also works with datetime
         """
         if type(self.val) is not datetime.datetime:
             raise TypeError('val must be datetime, but was type <%s>' % type(self.val).__name__)
@@ -85,6 +89,10 @@ class DateMixin(object):
 
         Raises:
             AssertionError: if val is **not** after the given date
+
+        See Also:
+            :meth:`~assertpy.string.NumericMixin.is_greater_than` - numeric assertion, but also works with datetime BR
+            :meth:`~assertpy.string.NumericMixin.is_greater_than_or_equal_to` - numeric assertion, but also works with datetime
         """
         if type(self.val) is not datetime.datetime:
             raise TypeError('val must be datetime, but was type <%s>' % type(self.val).__name__)
