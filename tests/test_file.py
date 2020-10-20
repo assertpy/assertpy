@@ -28,18 +28,16 @@
 
 import sys
 import os
-import tempfile
 import pytest
 from assertpy import assert_that, contents_of, fail
 
 
 @pytest.fixture()
-def tmpfile():
-    tmp = tempfile.NamedTemporaryFile()
+def tmpfile(tmpdir):
+    tmp = tmpdir.join('test.txt')
     tmp.write('foobar'.encode('utf-8'))
-    tmp.seek(0)
-    yield tmp
-    tmp.close()
+    with tmp.open('rb') as f:
+        yield f
 
 
 def test_contents_of_path(tmpfile):
@@ -71,12 +69,12 @@ def test_contents_of_return_type_ascii(tmpfile):
 
 
 def test_contents_of_file(tmpfile):
-    contents = contents_of(tmpfile.file)
+    contents = contents_of(tmpfile)
     assert_that(contents).is_equal_to('foobar').starts_with('foo').ends_with('bar')
 
 
 def test_contents_of_file_ascii(tmpfile):
-    contents = contents_of(tmpfile.file, 'ascii')
+    contents = contents_of(tmpfile, 'ascii')
     assert_that(contents).is_equal_to('foobar').starts_with('foo').ends_with('bar')
 
 
@@ -210,7 +208,7 @@ def test_is_child_of_failure(tmpfile):
         assert_that(tmpfile.name).is_child_of('foo_dir')
         fail('should have raised error')
     except AssertionError as ex:
-        assert_that(str(ex)).matches('Expected file <.*> to be a child of <.*/foo_dir>, but was not.')
+        assert_that(str(ex)).matches(r'Expected file <.*> to be a child of <.*[\\/]foo_dir>, but was not.')
 
 
 def test_is_child_of_bad_arg_type_failure(tmpfile):
