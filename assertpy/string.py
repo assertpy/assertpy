@@ -311,13 +311,13 @@ class StringMixin(object):
         Examples:
             Usage::
 
-                assert_that('foo').is_lower()
+                assert_that('foo').is_alpha()
 
         Returns:
             AssertionBuilder: returns this instance to chain to the next assertion
 
         Raises:
-            AssertionError: if val is **not** lowercase
+            AssertionError: if val is **not** alphabetic
         """
         if not isinstance(self.val, str_types):
             raise TypeError('val is not a string')
