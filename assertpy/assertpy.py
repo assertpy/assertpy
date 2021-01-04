@@ -55,22 +55,22 @@ __tracebackhide__ = True  # clean tracebacks via py.test integration
 contextlib.__tracebackhide__ = True  # monkey patch contextlib with clean py.test tracebacks
 
 # assertpy files
-ASSERTPY_FILES = [
-    'assertpy/assertpy.py',
-    'assertpy/base.py',
-    'assertpy/collection.py',
-    'assertpy/contains.py',
-    'assertpy/date.py',
-    'assertpy/dict.py',
-    'assertpy/dynamic.py',
-    'assertpy/exception.py',
-    'assertpy/extracting.py',
-    'assertpy/file.py',
-    'assertpy/helpers.py',
-    'assertpy/numeric.py',
-    'assertpy/snapshot.py',
-    'assertpy/string.py'
-]
+ASSERTPY_FILES = [os.path.join('assertpy', file) for file in [
+    'assertpy.py',
+    'base.py',
+    'collection.py',
+    'contains.py',
+    'date.py',
+    'dict.py',
+    'dynamic.py',
+    'exception.py',
+    'extracting.py',
+    'file.py',
+    'helpers.py',
+    'numeric.py',
+    'snapshot.py',
+    'string.py'
+]]
 
 # soft assertions
 _soft_ctx = 0
