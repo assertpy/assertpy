@@ -177,7 +177,8 @@ class ExtractingMixin(object):
                     return x[name]
                 else:
                     raise ValueError('item keys %s did not contain key <%s>' % (list(x.keys()), name))
-            elif isinstance(x, Iterable) and self._check_iterable(x, name='item'):
+            elif isinstance(x, Iterable):
+                self._check_iterable(x, name='item')
                 return x[name]
             elif hasattr(x, name):
                 attr = getattr(x, name)

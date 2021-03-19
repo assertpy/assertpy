@@ -144,11 +144,10 @@ class HelpersMixin(object):
     def _check_iterable(self, l, check_getitem=True, name='val'):
         """Helper to check if given val has various iterable attributes."""
         if not isinstance(l, Iterable):
-            return False
+            raise TypeError('%s <%s> is not iterable' % (name, type(l).__name__))
         if check_getitem:
             if not hasattr(l, '__getitem__'):
-                return False
-        return True
+                raise TypeError('%s <%s> does not have [] accessor' % (name, type(l).__name__))
 
     def _dict_not_equal(self, val, other, ignore=None, include=None):
         """Helper to compare dicts."""
