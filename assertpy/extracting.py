@@ -39,6 +39,13 @@ else:
 __tracebackhide__ = True
 
 
+try:
+    from pydantic import BaseModel as PydanticBase
+except ImportError:
+    class PydanticBase:
+        pass  # implement necessary parts here
+
+
 class ExtractingMixin(object):
     """Collection flattening mixin.
 
@@ -177,7 +184,7 @@ class ExtractingMixin(object):
                     return x[name]
                 else:
                     raise ValueError('item keys %s did not contain key <%s>' % (list(x.keys()), name))
-            elif isinstance(x, Iterable):
+            elif isinstance(x, Iterable) and not isinstance(x, PydanticBase):
                 self._check_iterable(x, name='item')
                 return x[name]
             elif hasattr(x, name):
