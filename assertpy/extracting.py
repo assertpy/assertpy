@@ -191,11 +191,11 @@ class ExtractingMixin(object):
                     try:
                         return attr()
                     except TypeError:
-                        raise ValueError('val method <%s()> exists, but is not zero-arg method' % name)
+                        raise ValueError('item method <%s()> exists, but is not zero-arg method' % name)
                 else:
                     return attr
             else:
-                raise ValueError('val does not have property or zero-arg method <%s>' % name)
+                raise ValueError('item does not have property or zero-arg method <%s>' % name)
 
         def _filter(x):
             if 'filter' in kwargs:

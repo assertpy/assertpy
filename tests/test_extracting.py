@@ -99,7 +99,7 @@ def test_extracting_bad_property_failure():
         assert_that(people).extracting('foo')
         fail('should have raised error')
     except ValueError as ex:
-        assert_that(str(ex)).is_equal_to('val does not have property or zero-arg method <foo>')
+        assert_that(str(ex)).is_equal_to('item does not have property or zero-arg method <foo>')
 
 
 def test_extracting_too_many_args_method_failure():
@@ -107,7 +107,7 @@ def test_extracting_too_many_args_method_failure():
         assert_that(people).extracting('say_hello')
         fail('should have raised error')
     except ValueError as ex:
-        assert_that(str(ex)).is_equal_to('val method <say_hello()> exists, but is not zero-arg method')
+        assert_that(str(ex)).is_equal_to('item method <say_hello()> exists, but is not zero-arg method')
 
 
 def test_extracting_dict_missing_key_failure():
