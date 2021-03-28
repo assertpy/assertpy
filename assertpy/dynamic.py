@@ -79,10 +79,11 @@ class DynamicMixin(object):
 
         attr_name = attr[4:]
         err_msg = False
+        is_namedtuple = isinstance(self.val, tuple) and hasattr(self.val, '_fields')
         is_dict = isinstance(self.val, Iterable) and hasattr(self.val, '__getitem__')
 
         if not hasattr(self.val, attr_name):
-            if is_dict:
+            if is_dict and not is_namedtuple:
                 if attr_name not in self.val:
                     err_msg = 'Expected key <%s>, but val has no key <%s>.' % (attr_name, attr_name)
             else:
@@ -95,7 +96,7 @@ class DynamicMixin(object):
                 if len(args) != 1:
                     raise TypeError('assertion <%s()> takes exactly 1 argument (%d given)' % (attr, len(args)))
 
-                if is_dict:
+                if is_dict and not is_namedtuple:
                     val_attr = self.val[attr_name]
                 else:
                     val_attr = getattr(self.val, attr_name)
