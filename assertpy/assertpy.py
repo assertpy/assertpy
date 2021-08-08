@@ -294,7 +294,7 @@ def add_extension(func):
 
             def is_5(self):
                 if self.val != 5:
-                    self.error(f'{self.val} is NOT 5!')
+                    return self.error(f'{self.val} is NOT 5!')
                 return self
 
             add_extension(is_5)
@@ -439,12 +439,16 @@ class AssertionBuilder(
             Used to fail an assertion::
 
                 if self.val != other:
-                    self.error('Expected <%s> to be equal to <%s>, but was not.' % (self.val, other))
+                    return self.error('Expected <%s> to be equal to <%s>, but was not.' % (self.val, other))
 
         Raises:
             AssertionError: always raised unless ``kind`` is ``warn`` (as set when using an
                 :meth:`assert_warn` assertion) or ``kind`` is ``soft`` (as set when inside a
                 :meth:`soft_assertions` context).
+
+        Returns:
+            AssertionBuilder: returns this instance to chain to the next assertion, but only when
+                ``AssertionError`` is not raised, as is the case when ``kind`` is ``warn`` or ``soft``.
         """
         out = '%s%s' % ('[%s] ' % self.description if len(self.description) > 0 else '', msg)
         if self.kind == 'warn':

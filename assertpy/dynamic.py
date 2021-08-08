@@ -91,7 +91,7 @@ class DynamicMixin(object):
 
         def _wrapper(*args, **kwargs):
             if err_msg:
-                self.error(err_msg)  # ok to raise AssertionError now that we are inside wrapper
+                return self.error(err_msg)  # ok to raise AssertionError now that we are inside wrapper
             else:
                 if len(args) != 1:
                     raise TypeError('assertion <%s()> takes exactly 1 argument (%d given)' % (attr, len(args)))
@@ -111,7 +111,7 @@ class DynamicMixin(object):
 
                 expected = args[0]
                 if actual != expected:
-                    self.error('Expected <%s> to be equal to <%s> on %s <%s>, but was not.' % (actual, expected, 'key' if is_dict else 'attribute', attr_name))
+                    return self.error('Expected <%s> to be equal to <%s> on %s <%s>, but was not.' % (actual, expected, 'key' if is_dict else 'attribute', attr_name))
             return self
 
         return _wrapper

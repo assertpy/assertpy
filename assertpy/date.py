@@ -65,7 +65,7 @@ class DateMixin(object):
         if type(other) is not datetime.datetime:
             raise TypeError('given arg must be datetime, but was type <%s>' % type(other).__name__)
         if self.val >= other:
-            self.error('Expected <%s> to be before <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
+            return self.error('Expected <%s> to be before <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
         return self
 
     def is_after(self, other):
@@ -99,7 +99,7 @@ class DateMixin(object):
         if type(other) is not datetime.datetime:
             raise TypeError('given arg must be datetime, but was type <%s>' % type(other).__name__)
         if self.val <= other:
-            self.error('Expected <%s> to be after <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
+            return self.error('Expected <%s> to be after <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
         return self
 
     def is_equal_to_ignoring_milliseconds(self, other):
@@ -129,7 +129,7 @@ class DateMixin(object):
         if type(other) is not datetime.datetime:
             raise TypeError('given arg must be datetime, but was type <%s>' % type(other).__name__)
         if self.val.date() != other.date() or self.val.hour != other.hour or self.val.minute != other.minute or self.val.second != other.second:
-            self.error('Expected <%s> to be equal to <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
+            return self.error('Expected <%s> to be equal to <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
         return self
 
     def is_equal_to_ignoring_seconds(self, other):
@@ -159,7 +159,7 @@ class DateMixin(object):
         if type(other) is not datetime.datetime:
             raise TypeError('given arg must be datetime, but was type <%s>' % type(other).__name__)
         if self.val.date() != other.date() or self.val.hour != other.hour or self.val.minute != other.minute:
-            self.error('Expected <%s> to be equal to <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M'), other.strftime('%Y-%m-%d %H:%M')))
+            return self.error('Expected <%s> to be equal to <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M'), other.strftime('%Y-%m-%d %H:%M')))
         return self
 
     def is_equal_to_ignoring_time(self, other):
@@ -189,5 +189,5 @@ class DateMixin(object):
         if type(other) is not datetime.datetime:
             raise TypeError('given arg must be datetime, but was type <%s>' % type(other).__name__)
         if self.val.date() != other.date():
-            self.error('Expected <%s> to be equal to <%s>, but was not.' % (self.val.strftime('%Y-%m-%d'), other.strftime('%Y-%m-%d')))
+            return self.error('Expected <%s> to be equal to <%s>, but was not.' % (self.val.strftime('%Y-%m-%d'), other.strftime('%Y-%m-%d')))
         return self

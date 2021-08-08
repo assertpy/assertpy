@@ -106,7 +106,7 @@ class DictMixin(object):
             if v not in self.val.values():
                 missing.append(v)
         if missing:
-            self.error('Expected <%s> to contain values %s, but did not contain %s.' % (self.val, self._fmt_items(values), self._fmt_items(missing)))
+            return self.error('Expected <%s> to contain values %s, but did not contain %s.' % (self.val, self._fmt_items(values), self._fmt_items(missing)))
         return self
 
     def does_not_contain_value(self, *values):
@@ -138,7 +138,7 @@ class DictMixin(object):
                 if v in self.val.values():
                     found.append(v)
             if found:
-                self.error('Expected <%s> to not contain values %s, but did contain %s.' % (self.val, self._fmt_items(values), self._fmt_items(found)))
+                return self.error('Expected <%s> to not contain values %s, but did contain %s.' % (self.val, self._fmt_items(values), self._fmt_items(found)))
         return self
 
     def contains_entry(self, *args, **kwargs):
@@ -189,7 +189,7 @@ class DictMixin(object):
             elif self.val[k] != e[k]:
                 missing.append(e)  # bad val
         if missing:
-            self.error('Expected <%s> to contain entries %s, but did not contain %s.' % (self.val, self._fmt_items(entries), self._fmt_items(missing)))
+            return self.error('Expected <%s> to contain entries %s, but did not contain %s.' % (self.val, self._fmt_items(entries), self._fmt_items(missing)))
         return self
 
     def does_not_contain_entry(self, *args, **kwargs):
@@ -232,5 +232,5 @@ class DictMixin(object):
             if k in self.val and e[k] == self.val[k]:
                 found.append(e)
         if found:
-            self.error('Expected <%s> to not contain entries %s, but did contain %s.' % (self.val, self._fmt_items(entries), self._fmt_items(found)))
+            return self.error('Expected <%s> to not contain entries %s, but did contain %s.' % (self.val, self._fmt_items(entries), self._fmt_items(found)))
         return self

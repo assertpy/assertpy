@@ -109,7 +109,7 @@ class FileMixin(object):
         if not isinstance(self.val, str_types):
             raise TypeError('val is not a path')
         if not os.path.exists(self.val):
-            self.error('Expected <%s> to exist, but was not found.' % self.val)
+            return self.error('Expected <%s> to exist, but was not found.' % self.val)
         return self
 
     def does_not_exist(self):
@@ -130,7 +130,7 @@ class FileMixin(object):
         if not isinstance(self.val, str_types):
             raise TypeError('val is not a path')
         if os.path.exists(self.val):
-            self.error('Expected <%s> to not exist, but was found.' % self.val)
+            return self.error('Expected <%s> to not exist, but was found.' % self.val)
         return self
 
     def is_file(self):
@@ -149,7 +149,7 @@ class FileMixin(object):
         """
         self.exists()
         if not os.path.isfile(self.val):
-            self.error('Expected <%s> to be a file, but was not.' % self.val)
+            return self.error('Expected <%s> to be a file, but was not.' % self.val)
         return self
 
     def is_directory(self):
@@ -168,7 +168,7 @@ class FileMixin(object):
         """
         self.exists()
         if not os.path.isdir(self.val):
-            self.error('Expected <%s> to be a directory, but was not.' % self.val)
+            return self.error('Expected <%s> to be a directory, but was not.' % self.val)
         return self
 
     def is_named(self, filename):
@@ -193,7 +193,7 @@ class FileMixin(object):
             raise TypeError('given filename arg must be a path')
         val_filename = os.path.basename(os.path.abspath(self.val))
         if val_filename != filename:
-            self.error('Expected filename <%s> to be equal to <%s>, but was not.' % (val_filename, filename))
+            return self.error('Expected filename <%s> to be equal to <%s>, but was not.' % (val_filename, filename))
         return self
 
     def is_child_of(self, parent):
@@ -221,5 +221,5 @@ class FileMixin(object):
         val_abspath = os.path.abspath(self.val)
         parent_abspath = os.path.abspath(parent)
         if not val_abspath.startswith(parent_abspath):
-            self.error('Expected file <%s> to be a child of <%s>, but was not.' % (val_abspath, parent_abspath))
+            return self.error('Expected file <%s> to be a child of <%s>, but was not.' % (val_abspath, parent_abspath))
         return self

@@ -100,14 +100,14 @@ class ExceptionMixin(object):
                 return self.builder(str(e), self.description, self.kind)
             else:
                 # got exception, but wrong type, so raise
-                self.error('Expected <%s> to raise <%s> when called with (%s), but raised <%s>.' % (
+                return self.error('Expected <%s> to raise <%s> when called with (%s), but raised <%s>.' % (
                     self.val.__name__,
                     self.expected.__name__,
                     self._fmt_args_kwargs(*some_args, **some_kwargs),
                     type(e).__name__))
 
         # didn't fail as expected, so raise
-        self.error('Expected <%s> to raise <%s> when called with (%s).' % (
+        return self.error('Expected <%s> to raise <%s> when called with (%s).' % (
             self.val.__name__,
             self.expected.__name__,
             self._fmt_args_kwargs(*some_args, **some_kwargs)))
