@@ -123,7 +123,7 @@ class BaseMixin(object):
                 self._dict_err(self.val, other, ignore=kwargs.get('ignore'), include=kwargs.get('include'))
         else:
             if self.val != other:
-                self.error('Expected <%s> to be equal to <%s>, but was not.' % (self.val, other))
+                return self.error('Expected <%s> to be equal to <%s>, but was not.' % (self.val, other))
         return self
 
     def is_not_equal_to(self, other):
@@ -153,7 +153,7 @@ class BaseMixin(object):
             AssertionError: if actual **is** equal to expected
         """
         if self.val == other:
-            self.error('Expected <%s> to be not equal to <%s>, but was.' % (self.val, other))
+            return self.error('Expected <%s> to be not equal to <%s>, but was.' % (self.val, other))
         return self
 
     def is_same_as(self, other):
@@ -195,7 +195,7 @@ class BaseMixin(object):
             AssertionError: if actual is **not** identical to expected
         """
         if self.val is not other:
-            self.error('Expected <%s> to be identical to <%s>, but was not.' % (self.val, other))
+            return self.error('Expected <%s> to be identical to <%s>, but was not.' % (self.val, other))
         return self
 
     def is_not_same_as(self, other):
@@ -226,7 +226,7 @@ class BaseMixin(object):
             AssertionError: if actual **is** identical to expected
         """
         if self.val is other:
-            self.error('Expected <%s> to be not identical to <%s>, but was.' % (self.val, other))
+            return self.error('Expected <%s> to be not identical to <%s>, but was.' % (self.val, other))
         return self
 
     def is_true(self):
@@ -251,7 +251,7 @@ class BaseMixin(object):
             AssertionError: if val **is** false
         """
         if not self.val:
-            self.error('Expected <True>, but was not.')
+            return self.error('Expected <True>, but was not.')
         return self
 
     def is_false(self):
@@ -276,7 +276,7 @@ class BaseMixin(object):
             AssertionError: if val **is** true
         """
         if self.val:
-            self.error('Expected <False>, but was not.')
+            return self.error('Expected <False>, but was not.')
         return self
 
     def is_none(self):
@@ -295,7 +295,7 @@ class BaseMixin(object):
             AssertionError: if val is **not** none
         """
         if self.val is not None:
-            self.error('Expected <%s> to be <None>, but was not.' % self.val)
+            return self.error('Expected <%s> to be <None>, but was not.' % self.val)
         return self
 
     def is_not_none(self):
@@ -315,7 +315,7 @@ class BaseMixin(object):
             AssertionError: if val **is** none
         """
         if self.val is None:
-            self.error('Expected not <None>, but was.')
+            return self.error('Expected not <None>, but was.')
         return self
 
     def _type(self, val):
@@ -353,7 +353,7 @@ class BaseMixin(object):
             raise TypeError('given arg must be a type')
         if type(self.val) is not some_type:
             t = self._type(self.val)
-            self.error('Expected <%s:%s> to be of type <%s>, but was not.' % (self.val, t, some_type.__name__))
+            return self.error('Expected <%s:%s> to be of type <%s>, but was not.' % (self.val, t, some_type.__name__))
         return self
 
     def is_instance_of(self, some_class):
@@ -390,7 +390,7 @@ class BaseMixin(object):
         try:
             if not isinstance(self.val, some_class):
                 t = self._type(self.val)
-                self.error('Expected <%s:%s> to be instance of class <%s>, but was not.' % (self.val, t, some_class.__name__))
+                return self.error('Expected <%s:%s> to be instance of class <%s>, but was not.' % (self.val, t, some_class.__name__))
         except TypeError:
             raise TypeError('given arg must be a class')
         return self
@@ -423,5 +423,5 @@ class BaseMixin(object):
         if length < 0:
             raise ValueError('given arg must be a positive int')
         if len(self.val) != length:
-            self.error('Expected <%s> to be of length <%d>, but was <%d>.' % (self.val, length, len(self.val)))
+            return self.error('Expected <%s> to be of length <%d>, but was <%d>.' % (self.val, length, len(self.val)))
         return self

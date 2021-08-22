@@ -34,7 +34,7 @@ def is_even(self):
     if isinstance(self.val, numbers.Integral) is False:
         raise TypeError('val must be an integer')
     if self.val % 2 != 0:
-        self.error('Expected <%s> to be even, but was not.' % (self.val))
+        return self.error('Expected <%s> to be even, but was not.' % (self.val))
     return self
 
 
@@ -47,7 +47,7 @@ def is_multiple_of(self, other):
 
     _, rem = divmod(self.val, other)
     if rem > 0:
-        self.error('Expected <%s> to be multiple of <%s>, but was not.' % (self.val, other))
+        return self.error('Expected <%s> to be multiple of <%s>, but was not.' % (self.val, other))
 
     return self
 
@@ -61,7 +61,7 @@ def is_factor_of(self, other):
 
     _, rem = divmod(other, self.val)
     if rem > 0:
-        self.error('Expected <%s> to be factor of <%s>, but was not.' % (self.val, other))
+        return self.error('Expected <%s> to be factor of <%s>, but was not.' % (self.val, other))
 
     return self
 
@@ -195,7 +195,7 @@ def test_remove_bad_extension():
 
 def is_foo(self):
     if self.val != 'foo':
-        self.error('Expected <%s> to be foo, but was not.' % (self.val))
+        return self.error('Expected <%s> to be foo, but was not.' % (self.val))
     return self
 
 
@@ -212,7 +212,7 @@ def dupe1():
 def dupe2():
     def is_foo(self):
         if self.val != 'FOO':
-            self.error('Expected <%s> to be FOO, but was not.' % (self.val))
+            return self.error('Expected <%s> to be FOO, but was not.' % (self.val))
         return self
 
     add_extension(is_foo)

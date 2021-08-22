@@ -162,7 +162,7 @@ class HelpersMixin(object):
                     if i not in val:
                         missing.append(i)
                 if missing:
-                    self.error('Expected <%s> to include key%s %s, but did not include key%s %s.' % (
+                    return self.error('Expected <%s> to include key%s %s, but did not include key%s %s.' % (
                         val,
                         '' if len(includes) == 1 else 's',
                         self._fmt_items(['.'.join([str(s) for s in i]) if type(i) is tuple else i for i in includes]),
@@ -242,7 +242,7 @@ class HelpersMixin(object):
             includes = self._dict_ignore(include)
             include_err = ' including keys %s' % self._fmt_items(['.'.join([str(s) for s in i]) if type(i) is tuple else i for i in includes])
 
-        self.error('Expected <%s> to be equal to <%s>%s%s, but was not.' % (
+        return self.error('Expected <%s> to be equal to <%s>%s%s, but was not.' % (
             _dict_repr(val, other),
             _dict_repr(other, val),
             ignore_err if ignore else '',

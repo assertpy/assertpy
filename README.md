@@ -941,7 +941,7 @@ from assertpy import add_extension
 
 def is_5(self):
     if self.val != 5:
-        self.error(f'{self.val} is NOT 5!')
+        return self.error(f'{self.val} is NOT 5!')
     return self
 
 add_extension(is_5)
@@ -964,7 +964,7 @@ from assertpy import add_extension
 
 def is_5(self):
     if self.val != 5:
-        self.error(f'{self.val} is NOT 5!')
+        return self.error(f'{self.val} is NOT 5!')
     return self
 
 @pytest.fixture(scope='module')
@@ -1014,7 +1014,7 @@ def is_multiple_of(self, other):
     # test the negative (is remainder non-zero?)
     if rem > 0:
         # non-zero remainder, so not multiple -> we fail!
-        self.error('Expected <%s> to be multiple of <%s>, but was not.' % (self.val, other))
+        return self.error('Expected <%s> to be multiple of <%s>, but was not.' % (self.val, other))
 
     # success, and return self to allow chaining
     return self

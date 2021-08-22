@@ -57,7 +57,7 @@ class CollectionMixin(object):
             AssertionError: if val is **not** iterable
         """
         if not isinstance(self.val, Iterable):
-            self.error('Expected iterable, but was not.')
+            return self.error('Expected iterable, but was not.')
         return self
 
     def is_not_iterable(self):
@@ -78,7 +78,7 @@ class CollectionMixin(object):
             AssertionError: if val **is** iterable
         """
         if isinstance(self.val, Iterable):
-            self.error('Expected not iterable, but was.')
+            return self.error('Expected not iterable, but was.')
         return self
 
     def is_subset_of(self, *supersets):
@@ -129,7 +129,7 @@ class CollectionMixin(object):
                 elif self.val[i] != superdict[i]:
                     missing.append({i: self.val[i]})  # bad val
             if missing:
-                self.error('Expected <%s> to be subset of %s, but %s %s missing.' % (
+                return self.error('Expected <%s> to be subset of %s, but %s %s missing.' % (
                     self.val, self._fmt_items(superdict), self._fmt_items(missing), 'was' if len(missing) == 1 else 'were'))
         else:
             # flatten supersets
@@ -145,7 +145,7 @@ class CollectionMixin(object):
                 if i not in superset:
                     missing.append(i)
             if missing:
-                self.error('Expected <%s> to be subset of %s, but %s %s missing.' % (
+                return self.error('Expected <%s> to be subset of %s, but %s %s missing.' % (
                     self.val, self._fmt_items(superset), self._fmt_items(missing), 'was' if len(missing) == 1 else 'were'))
 
         return self
@@ -187,10 +187,10 @@ class CollectionMixin(object):
             if i > 0:
                 if reverse:
                     if key(x) > key(prev):
-                        self.error('Expected <%s> to be sorted reverse, but subset %s at index %s is not.' % (self.val, self._fmt_items([prev, x]), i-1))
+                        return self.error('Expected <%s> to be sorted reverse, but subset %s at index %s is not.' % (self.val, self._fmt_items([prev, x]), i-1))
                 else:
                     if key(x) < key(prev):
-                        self.error('Expected <%s> to be sorted, but subset %s at index %s is not.' % (self.val, self._fmt_items([prev, x]), i-1))
+                        return self.error('Expected <%s> to be sorted, but subset %s at index %s is not.' % (self.val, self._fmt_items([prev, x]), i-1))
             prev = x
 
         return self
