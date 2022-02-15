@@ -47,7 +47,7 @@ class HelpersMixin(object):
         if len(i) == 0:
             return '<>'
         elif len(i) == 1 and hasattr(i, '__getitem__'):
-            return '<%s>' % i[0]
+            return '<%s>' % (i[0],)
         else:
             return '<%s>' % str(i).lstrip('([').rstrip(',])')
 

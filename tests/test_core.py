@@ -38,6 +38,7 @@ def test_fmt_items_single():
     ab = assert_that(None)
     assert_that(ab._fmt_items([1])).is_equal_to('<1>')
     assert_that(ab._fmt_items(['foo'])).is_equal_to('<foo>')
+    assert_that(ab._fmt_items([('bar', 'baz')])).is_equal_to('<(\'bar\', \'baz\')>')
 
 
 def test_fmt_items_multiple():
