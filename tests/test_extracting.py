@@ -31,10 +31,11 @@ from assertpy import assert_that, fail
 
 
 class Person(object):
-    def __init__(self, first_name, last_name, shoe_size):
+    def __init__(self, first_name, last_name, shoe_size, phone):
         self.first_name = first_name
         self.last_name = last_name
         self.shoe_size = shoe_size
+        self.phone = phone
 
     def full_name(self):
         return '%s %s' % (self.first_name, self.last_name)
@@ -43,8 +44,20 @@ class Person(object):
         return 'Hello, %s!' % name
 
 
-fred = Person('Fred', 'Smith', 12)
-john = Person('John', 'Jones', 9.5)
+class Phone:
+    def __init__(self, manufacturer: str):
+        self.__manufacturer = manufacturer
+
+    def __call__(self):
+        return f"I am calling someone from my {self.__manufacturer} phone!"
+
+
+motorola = Phone("motorola")
+nokia = Phone("nokia")
+phones = [motorola, nokia]
+
+fred = Person('Fred', 'Smith', 12, phone=motorola)
+john = Person('John', 'Jones', 9.5, phone=nokia)
 people = [fred, john]
 
 
@@ -358,3 +371,7 @@ def test_extracting_iterable_failure_index_is_not_int():
         fail('should have raised error')
     except TypeError as ex:
         assert_that(str(ex)).contains('list indices must be integers')
+
+
+def test_should_not_call_callable_attribute_when_extracting():
+    assert_that(people).extracting('phone').is_equal_to(phones)
