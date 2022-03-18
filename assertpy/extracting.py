@@ -27,6 +27,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import sys
+import types
 import collections
 
 if sys.version_info[0] == 3:
@@ -187,7 +188,7 @@ class ExtractingMixin(object):
                 return x[name]
             elif hasattr(x, name):
                 attr = getattr(x, name)
-                if callable(attr):
+                if isinstance(attr, types.MethodType):
                     try:
                         return attr()
                     except TypeError:
