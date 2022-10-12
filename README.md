@@ -50,7 +50,7 @@ conda install assertpy --channel conda-forge
 
 The fluent API of `assertpy` is designed to create compact, yet readable tests.
 The API has been modeled after other fluent testing APIs, especially the awesome
-[AssertJ](http://joel-costigliola.github.io/assertj/) assertion library for Java.  Of course, in the `assertpy` library everything is fully pythonic and designed to take full advantage of the dynamism in the Python runtime.
+[AssertJ](https://assertj.github.io/doc/) assertion library for Java.  Of course, in the `assertpy` library everything is fully pythonic and designed to take full advantage of the dynamism in the Python runtime.
 
 All assertions, with usage examples, are documented here:  
 https://assertpy.github.io/docs.html
