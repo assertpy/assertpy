@@ -42,7 +42,7 @@ from .date import DateMixin
 from .dict import DictMixin
 from .dynamic import DynamicMixin
 from .extracting import ExtractingMixin
-from .exception import ExceptionMixin
+from .exception import ExceptionMixin, _NoChainingMixin
 from .file import FileMixin
 from .helpers import HelpersMixin
 from .numeric import NumericMixin
@@ -456,6 +456,10 @@ class AssertionBuilder(
             return self
         elif self.kind == 'soft':
             global _soft_err
+            if callable(self.val):
+                # replace all callable methods of AssertionBuilder instance with empty function if self.val is callable
+                self.__class__ = type(self.__class__.__name__, (self.__class__, _NoChainingMixin), {})
+                out += " Any further chain assertions ignored."
             _soft_err.append(out)
             return self
         else:
