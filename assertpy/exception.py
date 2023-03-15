@@ -116,7 +116,7 @@ class ExceptionMixin(object):
 class _NoChainingMixin(object):
     """Mixin that replaces all method calls with empty function."""
     def __getattribute__(self, item):
-        attr = super().__getattribute__(item)
+        attr = super(_NoChainingMixin, self).__getattribute__(item)
         if callable(attr) and item != "_do_nothing":
             return self._do_nothing
         return attr
