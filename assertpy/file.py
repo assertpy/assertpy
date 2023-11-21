@@ -28,6 +28,7 @@
 
 import os
 import sys
+import pathlib
 
 if sys.version_info[0] == 3:
     str_types = (str,)
@@ -106,7 +107,7 @@ class FileMixin(object):
         Raises:
             AssertionError: if val does **not** exist
         """
-        if not isinstance(self.val, str_types):
+        if not isinstance(self.val, str_types) and not isinstance(self.val, pathlib.PosixPath):
             raise TypeError('val is not a path')
         if not os.path.exists(self.val):
             return self.error('Expected <%s> to exist, but was not found.' % self.val)
@@ -127,7 +128,7 @@ class FileMixin(object):
         Raises:
             AssertionError: if val **does** exist
         """
-        if not isinstance(self.val, str_types):
+        if not isinstance(self.val, str_types) and not isinstance(self.val, pathlib.PosixPath):
             raise TypeError('val is not a path')
         if os.path.exists(self.val):
             return self.error('Expected <%s> to not exist, but was found.' % self.val)
