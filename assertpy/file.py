@@ -224,3 +224,22 @@ class FileMixin(object):
         if not val_abspath.startswith(parent_abspath):
             return self.error('Expected file <%s> to be a child of <%s>, but was not.' % (val_abspath, parent_abspath))
         return self
+
+    def is_readable(self):
+        """Asserts that val is readable.
+
+        Examples:
+            Usage::
+
+                assert_that('/path/to/mydir/myfile.txt').is_readable()
+
+        Returns:
+            AssertionBuilder: returns this instance to chain to the next assertion
+
+        Raises:
+            AssertionError: if val is **not** readable
+        """
+        self.exists()
+        if not os.access(self.val, os.R_OK):
+            return self.error('Expected <%s> to be readable, but was not.' % self.val)
+        return self
