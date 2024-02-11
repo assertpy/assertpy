@@ -111,3 +111,16 @@ class ExceptionMixin(object):
             self.val.__name__,
             self.expected.__name__,
             self._fmt_args_kwargs(*some_args, **some_kwargs)))
+
+
+class _NoChainingMixin(object):
+    """Mixin that replaces all method calls with empty function."""
+    def __getattribute__(self, item):
+        attr = super(_NoChainingMixin, self).__getattribute__(item)
+        if callable(attr) and item != "_do_nothing":
+            return self._do_nothing
+        return attr
+
+    def _do_nothing(self, *args, **kwargs):
+        """Method that is used instead of all callable attributes of AssertionBuilder"""
+        return self
