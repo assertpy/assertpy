@@ -150,6 +150,10 @@ def test_extracting_filter():
     assert_that(users).extracting('user', filter=lambda x: x['age'] < 10).is_empty()
 
 
+def test_extracting_filter_none():
+    assert_that(users).extracting('user', filter=None).is_equal_to(['Fred', 'Bob', 'Johnny'])
+
+
 def test_extracting_filter_bad_type():
     assert_that(users).extracting('user', filter=123).is_equal_to([])
 
@@ -229,6 +233,10 @@ def test_extracting_sort():
     assert_that(users).extracting('user', sort=['active', 'age']).is_equal_to(['Bob', 'Johnny', 'Fred'])
     assert_that(users).extracting('user', sort=('active', 'age')).is_equal_to(['Bob', 'Johnny', 'Fred'])
     assert_that(users).extracting('user', sort=lambda x: -x['age']).is_equal_to(['Bob', 'Fred', 'Johnny'])
+
+
+def test_extracting_sort_none():
+    assert_that(users).extracting('user', sort=None).is_equal_to(['Fred', 'Bob', 'Johnny'])
 
 
 def test_extracting_sort_ignore_bad_type():
