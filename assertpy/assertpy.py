@@ -41,6 +41,7 @@ from .contains import ContainsMixin
 from .date import DateMixin
 from .dict import DictMixin
 from .dynamic import DynamicMixin
+from .extract_path import ExtractPathMixin
 from .extracting import ExtractingMixin
 from .exception import ExceptionMixin
 from .file import FileMixin
@@ -64,6 +65,7 @@ ASSERTPY_FILES = [os.path.join('assertpy', file) for file in [
     'dict.py',
     'dynamic.py',
     'exception.py',
+    'extract_path.py',
     'extracting.py',
     'file.py',
     'helpers.py',
@@ -380,6 +382,7 @@ class AssertionBuilder(
     NumericMixin,
     HelpersMixin,
     FileMixin,
+    ExtractPathMixin,
     ExtractingMixin,
     ExceptionMixin,
     DynamicMixin,
