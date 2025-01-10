@@ -107,10 +107,8 @@ example_obj = ExampleClass(
         'Alice': 5
     }
 )
-example_nested_obj = [
-    1,
-    2,
-    {
+example_nested_blob = [
+    1, 2, {
         'anything_1': 55,
         'instance': ExampleClass(
             name='Fred',
@@ -121,8 +119,7 @@ example_nested_obj = [
             }
         ),
         'anything_2': 66
-    },
-    4
+    }, 4
 ]
 
 
@@ -143,14 +140,16 @@ def test_obj_extraction_invalid_field_failure(invalid_field):
 
 
 def test_nested_obj_extraction():
-    assert_that(example_nested_obj).extract_path(2, 'instance', 'name').is_equal_to('Fred')
-    assert_that(example_nested_obj).extract_path(2, 'instance', 'children').has_Bob(3).has_Alice(5)
-    assert_that(example_nested_obj).extract_path(2, 'instance', 'children').does_not_contain('name', 'age')
+    assert_that(example_nested_blob).extract_path(1).is_equal_to(2)
+    assert_that(example_nested_blob).extract_path(2, 'anything_2').is_equal_to(66)
+    assert_that(example_nested_blob).extract_path(2, 'instance', 'name').is_equal_to('Fred')
+    assert_that(example_nested_blob).extract_path(2, 'instance', 'children').has_Bob(3).has_Alice(5)
+    assert_that(example_nested_blob).extract_path(2, 'instance', 'children').does_not_contain('name', 'age')
 
 
 def test_nested_obj_extraction_path_end_failure():
     try:
-        assert_that(example_nested_obj).extract_path(1, 'instance', 'name')
+        assert_that(example_nested_blob).extract_path(1, 'instance', 'name')
         fail('should have raised error')
     except ValueError as ex:
         assert_that(str(ex)).is_equal_to('invalid extraction key <instance> for value at path depth 1')
@@ -158,7 +157,7 @@ def test_nested_obj_extraction_path_end_failure():
 
 def test_nested_obj_extraction_depth_1_invalid_key_failure():
     try:
-        assert_that(example_nested_obj).extract_path(2, 'instances', 'name')
+        assert_that(example_nested_blob).extract_path(2, 'instances', 'name')
         fail('should have raised error')
     except ValueError as ex:
         assert_that(str(ex)).is_equal_to('key <instances> is not in dict keys at path depth 1')
@@ -166,7 +165,7 @@ def test_nested_obj_extraction_depth_1_invalid_key_failure():
 
 def test_nested_obj_extraction_depth_2_invalid_key_failure():
     try:
-        assert_that(example_nested_obj).extract_path(2, 'instance', 'names')
+        assert_that(example_nested_blob).extract_path(2, 'instance', 'names')
         fail('should have raised error')
     except ValueError as ex:
         assert_that(str(ex)).is_equal_to('invalid extraction key <names> for value at path depth 2')
