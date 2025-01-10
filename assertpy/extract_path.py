@@ -43,11 +43,81 @@ __tracebackhide__ = True
 class ExtractPathMixin(object):
     """
     Path extracting mixin.
+
+    It is often necessary to test responses in json format, or mixed dictionary/list/user-defined-object/et blobs
+    validating specific entries, in various response paths. Use the ``extract_path()`` helper to access such
+    entries while at the same time validating path expectations. Extract values at different paths from a
+    mixed dict/list/user-obj blob:
+
+        example_obj = ExampleClass(
+            name='Fred',
+            age=32,
+            children={
+                'Bob': 3,
+                'Alice': 5
+            }
+        )
+        example_nested_blob = [
+            1, 2, {
+                'anything_1': 55,
+                'instance': ExampleClass(
+                    name='Fred',
+                    age=32,
+                    children={
+                        'Bob': 3,
+                        'Alice': 5,
+                    }
+                ),
+                'anything_2': 66
+            }, 4
+        ]
+
+        assert_that(example_nested_blob).extract_path(1).is_equal_to(2)
+        assert_that(example_nested_blob).extract_path(2, 'anything_2').is_equal_to(66)
+        assert_that(example_nested_blob).extract_path(2, 'instance', 'name').is_equal_to('Fred')
+        assert_that(example_nested_blob).extract_path(2, 'instance', 'children').has_Bob(3).has_Alice(5)
     """
     def extract_path(self, *keys):
-        """
-        Extracts element at path pointed by keys, from object value.
-        Verifies each key validity and presence.
+        """Asserts that each of keys is index, key or attribute of the corresponding val layer, then extracts
+        element at final layer.
+
+        Args:
+            *keys: the keys forming the path to extraction.
+
+        Examples:
+            Usage::
+                example_obj = ExampleClass(
+                    name='Fred',
+                    age=32,
+                    children={
+                        'Bob': 3,
+                        'Alice': 5
+                    }
+                )
+                example_nested_blob = [
+                    1, 2, {
+                        'anything_1': 55,
+                        'instance': ExampleClass(
+                            name='Fred',
+                            age=32,
+                            children={
+                                'Bob': 3,
+                                'Alice': 5,
+                            }
+                        ),
+                        'anything_2': 66
+                    }, 4
+                ]
+
+                assert_that(example_nested_blob).extract_path(1).is_equal_to(2)
+                assert_that(example_nested_blob).extract_path(2, 'anything_2').is_equal_to(66)
+                assert_that(example_nested_blob).extract_path(2, 'instance', 'name').is_equal_to('Fred')
+                assert_that(example_nested_blob).extract_path(2, 'instance', 'children').has_Bob(3).has_Alice(5)
+
+            Works with list, tuple, dict, user-object types.
+
+        Returns:
+            AssertionBuilder: returns a new instance (now with the extracted element as the val) to chain to the next assertion
         """
         for path_depth, key in enumerate(keys):
             if isinstance(key, int) and isinstance(self.val, (list, tuple, range)):
