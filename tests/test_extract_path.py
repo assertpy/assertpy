@@ -108,20 +108,6 @@ example_obj = ExampleClass(
         'Alice': 5
     }
 )
-example_nested_blob = [
-    1, 2, {
-        'anything_1': 55,
-        'instance': ExampleClass(
-            name='Fred',
-            age=32,
-            children={
-                'Bob': 3,
-                'Alice': 5,
-            }
-        ),
-        'anything_2': 66
-    }, 4
-]
 
 
 class TestExtractPathMethodWithUserDefinedObjects:
@@ -141,14 +127,25 @@ class TestExtractPathMethodWithUserDefinedObjects:
             assert_that(str(ex)).is_equal_to('invalid extraction key <%s> for value at path depth 0' % invalid_field)
 
 
+example_nested_blob = [
+    True, False, {
+        'anything_1': ('a', 'b', 'c'),
+        'instance': example_obj,
+        'anything_2': 66
+    }, None,
+]
+
+
 class TestExtractPathMethodWithNestedMixedTypeBobs:
     def test_nested_obj_extraction(self):
-        assert_that(example_nested_blob).extract_path(1).is_equal_to(2)
+        assert_that(example_nested_blob).extract_path(1).is_equal_to(False)
         assert_that(example_nested_blob).extract_path(2, 'anything_2').is_equal_to(66)
         assert_that(example_nested_blob).extract_path(2, 'instance', 'name').is_equal_to('Fred')
         assert_that(example_nested_blob).extract_path(2, 'instance', 'children').has_Bob(3).has_Alice(5)
         assert_that(example_nested_blob).extract_path(2, 'instance', 'children').does_not_contain('name', 'age')
 
+    def test_nested_obj_chained_extractions(self):
+        assert_that(example_nested_blob).extract_path(2, 'anything_1').is_length(3).extract_path(1).is_equal_to('b')
 
     def test_nested_obj_extraction_path_end_failure(self):
         try:

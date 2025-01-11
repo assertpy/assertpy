@@ -49,17 +49,9 @@ class ExtractPathMixin(object):
     entries while at the same time validating path expectations. Extract values at different paths from a
     mixed dict/list/user-obj blob:
 
-        example_obj = ExampleClass(
-            name='Fred',
-            age=32,
-            children={
-                'Bob': 3,
-                'Alice': 5
-            }
-        )
         example_nested_blob = [
-            1, 2, {
-                'anything_1': 55,
+            True, False, {
+                'anything_1': ('a', 'b', 'c'),
                 'instance': ExampleClass(
                     name='Fred',
                     age=32,
@@ -69,10 +61,11 @@ class ExtractPathMixin(object):
                     }
                 ),
                 'anything_2': 66
-            }, 4
+            }, None,
         ]
 
-        assert_that(example_nested_blob).extract_path(1).is_equal_to(2)
+        assert_that(example_nested_blob).extract_path(1).is_equal_to(False)
+        assert_that(example_nested_blob).extract_path(2, 'anything_1').is_length(3).extract_path(1).is_equal_to('b')
         assert_that(example_nested_blob).extract_path(2, 'anything_2').is_equal_to(66)
         assert_that(example_nested_blob).extract_path(2, 'instance', 'name').is_equal_to('Fred')
         assert_that(example_nested_blob).extract_path(2, 'instance', 'children').has_Bob(3).has_Alice(5)
@@ -86,17 +79,9 @@ class ExtractPathMixin(object):
 
         Examples:
             Usage::
-                example_obj = ExampleClass(
-                    name='Fred',
-                    age=32,
-                    children={
-                        'Bob': 3,
-                        'Alice': 5
-                    }
-                )
                 example_nested_blob = [
-                    1, 2, {
-                        'anything_1': 55,
+                    True, False, {
+                        'anything_1': ('a', 'b', 'c'),
                         'instance': ExampleClass(
                             name='Fred',
                             age=32,
@@ -106,18 +91,25 @@ class ExtractPathMixin(object):
                             }
                         ),
                         'anything_2': 66
-                    }, 4
+                    }, None,
                 ]
 
-                assert_that(example_nested_blob).extract_path(1).is_equal_to(2)
+                assert_that(example_nested_blob).extract_path(1).is_equal_to(False)
                 assert_that(example_nested_blob).extract_path(2, 'anything_2').is_equal_to(66)
                 assert_that(example_nested_blob).extract_path(2, 'instance', 'name').is_equal_to('Fred')
                 assert_that(example_nested_blob).extract_path(2, 'instance', 'children').has_Bob(3).has_Alice(5)
 
             Works with list, tuple, dict, user-object types.
 
+            Allows chaining extractions while doing validations along the path::
+
+                assert_that(example_nested_blob).extract_path(2, 'anything_1').is_length(3).extract_path(1).is_equal_to('b')
+
         Returns:
             AssertionBuilder: returns a new instance (now with the extracted element as the val) to chain to the next assertion
+
+        Raises:
+            AssertionError: if any of the given keys representing path is **not** index, key or attribute of the corresponding val layer
         """
         for path_depth, key in enumerate(keys):
             if isinstance(key, int) and isinstance(self.val, (list, tuple, range)):
