@@ -25,6 +25,8 @@
 # ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+from collections import defaultdict, ChainMap, OrderedDict
+from types import MappingProxyType
 
 from assertpy import assert_that, fail
 from pytest import mark, param
@@ -83,6 +85,12 @@ class TestExtractPathMethodWithDictionaries:
         assert_that ({'1': 1, 55: 2, '3': 3}).extract_path(55).is_equal_to(2)
         assert_that({'1': 1, '2': 2, '3': 3}).extract_path().is_equal_to({'1': 1, '2': 2, '3': 3})
 
+    def test_dict_like_extraction(self):
+        assert_that(defaultdict(int, {'1': 1})).extract_path('1').is_equal_to(1)
+        assert_that(defaultdict(int, {'1': 1})).extract_path('2').is_equal_to(0)
+        assert_that(ChainMap({'a': 1}, {'b': 2})).extract_path('b').is_equal_to(2)
+        assert_that(OrderedDict([('a', 1), ('b', 2)])).extract_path('b').is_equal_to(2)
+        assert_that(MappingProxyType({'a': 1, 'b': 2})).extract_path('b').is_equal_to(2)
 
     @mark.parametrize('invalid_key', [0, '4', None])
     def test_dict_extraction_invalid_key_failure(self, invalid_key):

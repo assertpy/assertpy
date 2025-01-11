@@ -99,7 +99,7 @@ class ExtractPathMixin(object):
                 assert_that(example_nested_blob).extract_path(2, 'instance', 'name').is_equal_to('Fred')
                 assert_that(example_nested_blob).extract_path(2, 'instance', 'children').has_Bob(3).has_Alice(5)
 
-            Works with list, tuple, dict, user-object types.
+            Works with list/tuple/range, dict-like & user-object types.
 
             Allows chaining extractions while doing validations along the path::
 
@@ -116,10 +116,11 @@ class ExtractPathMixin(object):
                 if not -len(self.val) <= key < len(self.val):
                     raise ValueError('index <%i> is out of value range at path depth %i' % (key, path_depth))
                 self.val = self.val[key]
-            elif isinstance(key, Hashable) and isinstance(self.val, dict):
-                if key not in self.val:
+            elif isinstance(key, Hashable) and self._check_dict_like(self.val, return_as_bool=True): # isinstance(self.val, dict):
+                try:
+                    self.val = self.val[key]
+                except KeyError:
                     raise ValueError('key <%s> is not in dict keys at path depth %i' % (key, path_depth))
-                self.val = self.val[key]
             elif isinstance(key, str) and hasattr(self.val, key):
                 self.val = eval(f'self.val.{key}')
             else:
