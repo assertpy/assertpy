@@ -43,7 +43,6 @@ class TestExtractPathMethodWithLists:
         assert_that(example_iterable).extract_path(2).is_equal_to(3)
         assert_that(example_iterable).extract_path().is_equal_to(example_iterable)
 
-
     def test_iterable_extraction_neg_index(self, example_iterable):
         assert_that(example_iterable).extract_path(-1).is_equal_to(3)
         assert_that(example_iterable).extract_path(-3).is_equal_to(1)
@@ -125,7 +124,6 @@ class TestExtractPathMethodWithUserDefinedObjects:
         assert_that(example_obj).extract_path('children').has_Bob(3).has_Alice(5).does_not_contain('name', 'age')
         assert_that(example_obj).extract_path().is_equal_to(example_obj)
 
-
     @mark.parametrize('invalid_field', ['Age', 0, None])
     def test_obj_extraction_invalid_field_failure(self, invalid_field):
         try:
@@ -144,9 +142,9 @@ example_nested_blob = [
 ]
 
 
-class TestExtractPathMethodWithNestedMixedTypeBobs:
+class TestExtractPathMethodWithNestedMixedTypeBlobs:
     def test_nested_obj_extraction(self):
-        assert_that(example_nested_blob).extract_path(1).is_equal_to(False)
+        assert_that(example_nested_blob).extract_path(1).is_false()
         assert_that(example_nested_blob).extract_path(2, 'anything_2').is_equal_to(66)
         assert_that(example_nested_blob).extract_path(2, 'instance', 'name').is_equal_to('Fred')
         assert_that(example_nested_blob).extract_path(2, 'instance', 'children').has_Bob(3).has_Alice(5)
@@ -162,14 +160,12 @@ class TestExtractPathMethodWithNestedMixedTypeBobs:
         except ValueError as ex:
             assert_that(str(ex)).is_equal_to('invalid extraction key <instance> for value at path depth 1')
 
-
     def test_nested_obj_extraction_depth_1_invalid_key_failure(self):
         try:
             assert_that(example_nested_blob).extract_path(2, 'instances', 'name')
             fail('should have raised error')
         except ValueError as ex:
             assert_that(str(ex)).is_equal_to('key <instances> is not in dict keys at path depth 1')
-
 
     def test_nested_obj_extraction_depth_2_invalid_key_failure(self):
         try:

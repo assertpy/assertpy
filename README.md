@@ -708,6 +708,48 @@ assert_that(fred).has_first_name('Fred')
 assert_that(fred).has_last_name('Smith')
 ```
 
+### Key Path Extractions
+
+It is frequently necessary to test a value, residing deep in a blob, API json response, or similar structure, using a specific key path. 
+Such blobs are often made up of list-like, dict-like and user-defined-objects combinations. The `assertpy` library provides an `extract_path()` method.
+
+Given such a blob: 
+
+```py
+example_nested_blob = [
+    True, False, {
+        'anything_1': ('a', 'b', 'c'),
+        'instance': SomeUserDefinedClass(
+            name='Fred',
+            age=32,
+            children={
+                'Bob': 3,
+                'Alice': 5,
+            }
+        ),
+        'anything_2': 66
+    }, None,
+]
+```
+
+We can extract deep nested values, with given key paths, for testing directly, saving or chaining, as such:
+
+```py
+assert_that(example_nested_blob).extract_path(1).is_false()
+assert_that(example_nested_blob).extract_path(2, 'anything_1').is_length(3).extract_path(1).is_equal_to('b')
+assert_that(example_nested_blob).extract_path(2, 'anything_2').is_equal_to(66)
+assert_that(example_nested_blob).extract_path(2, 'instance', 'name').is_equal_to('Fred')
+assert_that(example_nested_blob).extract_path(2, 'instance', 'children').has_Bob(3).has_Alice(5)
+```
+
+Simultaneously any discrepancies between the given path and value structure will be reported and runtime errors will be avoided.
+For example a typo in attribute name `children` will produce:
+ 
+```
+>       assert_that(example_nested_blob).extract_path(2, 'instance', 'Children', 'Bob').is_equal_to(3)
+E       ValueError: invalid extraction key <Children> for value at path depth 2
+```
+
 ### Failure
 
 The `assertpy` library includes a `fail()` method to explicitly force a test failure.  It can be used like this:

@@ -52,7 +52,7 @@ class ExtractPathMixin(object):
         example_nested_blob = [
             True, False, {
                 'anything_1': ('a', 'b', 'c'),
-                'instance': ExampleClass(
+                'instance': SomeUserDefinedClass(
                     name='Fred',
                     age=32,
                     children={
@@ -82,7 +82,7 @@ class ExtractPathMixin(object):
                 example_nested_blob = [
                     True, False, {
                         'anything_1': ('a', 'b', 'c'),
-                        'instance': ExampleClass(
+                        'instance': SomeUserDefinedClass(
                             name='Fred',
                             age=32,
                             children={
