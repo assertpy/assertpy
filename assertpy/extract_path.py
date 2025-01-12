@@ -114,17 +114,17 @@ class ExtractPathMixin(object):
         for path_depth, key in enumerate(keys):
             if isinstance(key, int) and isinstance(self.val, (list, tuple, range)):
                 if not -len(self.val) <= key < len(self.val):
-                    raise ValueError('index <%i> is out of value range at path depth %i' % (key, path_depth))
+                    self.error('index <%i> is out of value range at path depth %i' % (key, path_depth))
                 self.val = self.val[key]
             elif isinstance(key, Hashable) and self._check_dict_like(self.val, return_as_bool=True): # isinstance(self.val, dict):
                 try:
                     self.val = self.val[key]
                 except KeyError:
-                    raise ValueError('key <%s> is not in dict keys at path depth %i' % (key, path_depth))
+                    self.error('key <%s> is not in dict keys at path depth %i' % (key, path_depth))
             elif isinstance(key, str) and hasattr(self.val, key):
                 self.val = eval(f'self.val.{key}')
             else:
-                raise ValueError('invalid extraction key <%s> for value at path depth %i' % (key, path_depth))
+                self.error('invalid extraction key <%s> for value at path depth %i' % (key, path_depth))
 
         return self
 

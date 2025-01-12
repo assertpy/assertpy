@@ -747,7 +747,7 @@ For example a typo in attribute name `children` will produce:
  
 ```
 >       assert_that(example_nested_blob).extract_path(2, 'instance', 'Children', 'Bob').is_equal_to(3)
-E       ValueError: invalid extraction key <Children> for value at path depth 2
+E       AssertionError: invalid extraction key <Children> for value at path depth 2
 ```
 
 ### Failure

@@ -51,28 +51,28 @@ class TestExtractPathMethodWithLists:
         try:
             assert_that(example_iterable).extract_path(3)
             fail('should have raised error')
-        except ValueError as ex:
+        except AssertionError as ex:
             assert_that(str(ex)).is_equal_to('index <3> is out of value range at path depth 0')
 
     def test_iterable_extraction_neg_index_bounds_failure(self, example_iterable):
         try:
             assert_that(example_iterable).extract_path(-4)
             fail('should have raised error')
-        except ValueError as ex:
+        except AssertionError as ex:
             assert_that(str(ex)).is_equal_to('index <-4> is out of value range at path depth 0')
 
     def test_iterable_extraction_invalid_str_index_failure(self, example_iterable):
         try:
             assert_that(example_iterable).extract_path('1')
             fail('should have raised error')
-        except ValueError as ex:
+        except AssertionError as ex:
             assert_that(str(ex)).is_equal_to('invalid extraction key <1> for value at path depth 0')
 
     def test_iterable_extraction_invalid_none_index_failure(self, example_iterable):
         try:
             assert_that(example_iterable).extract_path(None)
             fail('should have raised error')
-        except ValueError as ex:
+        except AssertionError as ex:
             assert_that(str(ex)).is_equal_to('invalid extraction key <None> for value at path depth 0')
 
 
@@ -96,7 +96,7 @@ class TestExtractPathMethodWithDictionaries:
         try:
             assert_that({'1': 1, '2': 2, '3': 3}).extract_path(invalid_key)
             fail('should have raised error')
-        except ValueError as ex:
+        except AssertionError as ex:
             assert_that(str(ex)).is_equal_to('key <%s> is not in dict keys at path depth 0' % invalid_key)
 
 
@@ -129,7 +129,7 @@ class TestExtractPathMethodWithUserDefinedObjects:
         try:
             assert_that(example_obj).extract_path(invalid_field)
             fail('should have raised error')
-        except ValueError as ex:
+        except AssertionError as ex:
             assert_that(str(ex)).is_equal_to('invalid extraction key <%s> for value at path depth 0' % invalid_field)
 
 
@@ -157,19 +157,19 @@ class TestExtractPathMethodWithNestedMixedTypeBlobs:
         try:
             assert_that(example_nested_blob).extract_path(1, 'instance', 'name')
             fail('should have raised error')
-        except ValueError as ex:
+        except AssertionError as ex:
             assert_that(str(ex)).is_equal_to('invalid extraction key <instance> for value at path depth 1')
 
     def test_nested_obj_extraction_depth_1_invalid_key_failure(self):
         try:
             assert_that(example_nested_blob).extract_path(2, 'instances', 'name')
             fail('should have raised error')
-        except ValueError as ex:
+        except AssertionError as ex:
             assert_that(str(ex)).is_equal_to('key <instances> is not in dict keys at path depth 1')
 
     def test_nested_obj_extraction_depth_2_invalid_key_failure(self):
         try:
             assert_that(example_nested_blob).extract_path(2, 'instance', 'names')
             fail('should have raised error')
-        except ValueError as ex:
+        except AssertionError as ex:
             assert_that(str(ex)).is_equal_to('invalid extraction key <names> for value at path depth 2')
