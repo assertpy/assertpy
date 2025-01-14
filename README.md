@@ -742,12 +742,76 @@ assert_that(example_nested_blob).extract_path(2, 'instance', 'name').is_equal_to
 assert_that(example_nested_blob).extract_path(2, 'instance', 'children').has_Bob(3).has_Alice(5)
 ```
 
-Simultaneously any discrepancies between the given path and value structure will be reported and runtime errors will be avoided.
-For example a typo in attribute name `children` will produce:
- 
+At the same time any discrepancies between the given path and value structure will be reported and runtime errors will be avoided.
+For example given following json response:
+
+```py
+api_response = {
+  "jsonapi": { "version": "1.1" },
+  "errors": [
+    {
+      "code":   "123",
+      "source": { "pointer": "/data/attributes/firstName" },
+      "title":  "Value is too short",
+      "detail": "First name must contain at least two characters."
+    },
+    {
+      "code":   "225",
+      "source": { "pointer": "/data/attributes/password" },
+      "title": "Passwords must contain a letter, number, and punctuation character.",
+      "detail": "The password provided is missing a punctuation character."
+    },
+    {
+      "code":   "226",
+      "source": { "pointer": "/data/attributes/password" },
+      "title": "Password and password confirmation do not match."
+    }
+  ]
+}
 ```
->       assert_that(example_nested_blob).extract_path(2, 'instance', 'Children', 'Bob').is_equal_to(3)
-E       AssertionError: invalid extraction key <Children> for value at path depth 2
+
+And assertion:
+
+```py
+from json import dumps
+
+assert_that(api_response, dumps(api_response, indent=4)).extract_path('errors', 1, 'source', 'pointer').is_equal_to('/data/attributes/password')
+```
+
+Replacing key name `source` with 'sauce', and json dumping blob for readability, will produce useful outputs like:
+
+```
+>       assert_that(api_response, dumps(api_response, indent=4)).extract_path('errors', 1, 'sauce', 'pointer').is_equal_to('/data/attributes/password')
+E       AssertionError: [{
+E           "jsonapi": {
+E               "version": "1.1"
+E           },
+E           "errors": [
+E               {
+E                   "code": "123",
+E                   "source": {
+E                       "pointer": "/data/attributes/firstName"
+E                   },
+E                   "title": "Value is too short",
+E                   "detail": "First name must contain at least two characters."
+E               },
+E               {
+E                   "code": "225",
+E                   "source": {
+E                       "pointer": "/data/attributes/password"
+E                   },
+E                   "title": "Passwords must contain a letter, number, and punctuation character.",
+E                   "detail": "The password provided is missing a punctuation character."
+E               },
+E               {
+E                   "code": "226",
+E                   "source": {
+E                       "pointer": "/data/attributes/password"
+E                   },
+E                   "title": "Password and password confirmation do not match."
+E               }
+E           ]
+E       }] Expected key <sauce> to be in dict keys at path depth 2 but was not.
 ```
 
 ### Failure
