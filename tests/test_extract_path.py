@@ -25,6 +25,7 @@
 # ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 from collections import defaultdict, ChainMap, OrderedDict
 from types import MappingProxyType
 
@@ -52,28 +53,28 @@ class TestExtractPathMethodWithLists:
             assert_that(example_iterable).extract_path(3)
             fail('should have raised error')
         except AssertionError as ex:
-            assert_that(str(ex)).is_equal_to('index <3> is out of value range at path depth 0')
+            assert_that(str(ex)).is_equal_to('Expected index <3> to be in range of iterable value at path depth 0, but was not.')
 
     def test_iterable_extraction_neg_index_bounds_failure(self, example_iterable):
         try:
             assert_that(example_iterable).extract_path(-4)
             fail('should have raised error')
         except AssertionError as ex:
-            assert_that(str(ex)).is_equal_to('index <-4> is out of value range at path depth 0')
+            assert_that(str(ex)).is_equal_to('Expected index <-4> to be in range of iterable value at path depth 0, but was not.')
 
     def test_iterable_extraction_invalid_str_index_failure(self, example_iterable):
         try:
             assert_that(example_iterable).extract_path('1')
             fail('should have raised error')
         except AssertionError as ex:
-            assert_that(str(ex)).is_equal_to('invalid extraction key <1> for value at path depth 0')
+            assert_that(str(ex)).is_equal_to('Expected key <1> to be valid extraction key for value at path depth 0, but was not.')
 
     def test_iterable_extraction_invalid_none_index_failure(self, example_iterable):
         try:
             assert_that(example_iterable).extract_path(None)
             fail('should have raised error')
         except AssertionError as ex:
-            assert_that(str(ex)).is_equal_to('invalid extraction key <None> for value at path depth 0')
+            assert_that(str(ex)).is_equal_to('Expected key <None> to be valid extraction key for value at path depth 0, but was not.')
 
 
 class TestExtractPathMethodWithDictionaries:
@@ -97,7 +98,7 @@ class TestExtractPathMethodWithDictionaries:
             assert_that({'1': 1, '2': 2, '3': 3}).extract_path(invalid_key)
             fail('should have raised error')
         except AssertionError as ex:
-            assert_that(str(ex)).is_equal_to('key <%s> is not in dict keys at path depth 0' % invalid_key)
+            assert_that(str(ex)).is_equal_to('Expected key <%s> to be in dict keys of value at path depth 0, but was not.' % invalid_key)
 
 
 class ExampleClass:
@@ -130,7 +131,7 @@ class TestExtractPathMethodWithUserDefinedObjects:
             assert_that(example_obj).extract_path(invalid_field)
             fail('should have raised error')
         except AssertionError as ex:
-            assert_that(str(ex)).is_equal_to('invalid extraction key <%s> for value at path depth 0' % invalid_field)
+            assert_that(str(ex)).is_equal_to('Expected key <%s> to be valid extraction key for value at path depth 0, but was not.' % invalid_field)
 
 
 example_nested_blob = [
@@ -158,18 +159,18 @@ class TestExtractPathMethodWithNestedMixedTypeBlobs:
             assert_that(example_nested_blob).extract_path(1, 'instance', 'name')
             fail('should have raised error')
         except AssertionError as ex:
-            assert_that(str(ex)).is_equal_to('invalid extraction key <instance> for value at path depth 1')
+            assert_that(str(ex)).is_equal_to('Expected key <instance> to be valid extraction key for value at path depth 1, but was not.')
 
     def test_nested_obj_extraction_depth_1_invalid_key_failure(self):
         try:
             assert_that(example_nested_blob).extract_path(2, 'instances', 'name')
             fail('should have raised error')
         except AssertionError as ex:
-            assert_that(str(ex)).is_equal_to('key <instances> is not in dict keys at path depth 1')
+            assert_that(str(ex)).is_equal_to('Expected key <instances> to be in dict keys of value at path depth 1, but was not.')
 
     def test_nested_obj_extraction_depth_2_invalid_key_failure(self):
         try:
             assert_that(example_nested_blob).extract_path(2, 'instance', 'names')
             fail('should have raised error')
         except AssertionError as ex:
-            assert_that(str(ex)).is_equal_to('invalid extraction key <names> for value at path depth 2')
+            assert_that(str(ex)).is_equal_to('Expected key <names> to be valid extraction key for value at path depth 2, but was not.')
