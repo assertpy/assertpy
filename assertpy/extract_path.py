@@ -122,7 +122,7 @@ class ExtractPathMixin(object):
                 except KeyError:
                     self.error('Expected key <%s> to be in dict keys of value at path depth %i, but was not.' % (key, path_depth))
             elif isinstance(key, str) and hasattr(self.val, key):
-                self.val = eval(f'self.val.{key}')
+                self.val = getattr(self.val, key)
             else:
                 self.error('Expected key <%s> to be valid extraction key for value at path depth %i, but was not.' % (key, path_depth))
 
