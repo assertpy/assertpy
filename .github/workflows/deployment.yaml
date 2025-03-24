@@ -1,0 +1,27 @@
+name: PYPI_DEPLOYMENT
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Upload to PyPi
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/assertpy
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v3
+      - name: setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.8
+      - name: Install Build
+        run: pip install --upgrade build
+      - name: Build Deployments
+        run: python -m build
+      - name: Publish Package
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PY_PI }}
