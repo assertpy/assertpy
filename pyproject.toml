@@ -1,0 +1,62 @@
+[build-system]
+requires = ["setuptools>=64", "wheel", "setuptools-scm>=8", "setuptools-git-versioning>=2.0,<3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "assertpy"
+description = "Simple assertion library for unit testing in python with a fluent API"
+dynamic = ["version"]
+requires-python = ">=3.8"
+dependencies = []
+license={file = "LICENSE"}
+readme = "README.md"
+authors = [
+    { name = "Justin Shacklette", email = "justin@saturnboy.com"}
+]
+
+keywords=['test', 'testing', 'assert', 'assertion', 'assertthat', 'assert_that', 'nose', 'nosetests', 'pytest', 'unittest']
+
+classifiers = [
+    'Development Status :: 5 - Production/Stable',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: BSD License',
+        'Natural Language :: English',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Topic :: Software Development',
+        'Topic :: Software Development :: Testing'
+]
+
+[project.urls]
+"Homepage" = "https://github.com/assertpy/assertpy"
+"Repository" = "https://github.com/assertpy/assertpy"
+"Documentation" = "https://assertpy.github.io/docs.html"
+"Issue Tracker" = "https://github.com/assertpy/assertpy/issues"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.5",
+    "pytest-cov>=5.0.0",
+    "requests>=2.32.3",
+]
+
+
+[tool.setuptools-git-versioning]
+enabled = true
+version_file = "VERSION"
+
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+
+
+[tool.pylint.main]
+source-roots = ["."]
