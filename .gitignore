@@ -27,3 +27,6 @@ dist
 # docs output
 docs/build
 docs/out
+
+venv
+.venv
