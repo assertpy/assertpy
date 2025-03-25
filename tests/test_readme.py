@@ -467,7 +467,7 @@ def test_soft_assertions():
     except AssertionError as e:
         assert_that(str(e)).contains('1. Expected <foo> to be of length <4>, but was <3>.')
         assert_that(str(e)).contains('2. Expected <foo> to be empty string, but was not.')
-        assert_that(str(e)).contains('3. Expected <False>, but was not.')
+        assert_that(str(e)).contains('3. Expected <foo> to be <False>, but was not.')
         assert_that(str(e)).contains('4. Expected <foo> to contain only digits, but did not.')
         assert_that(str(e)).contains('5. Expected <123> to contain only alphabetic chars, but did not.')
         assert_that(str(e)).contains('6. Expected <foo> to contain only uppercase chars, but did not.')
