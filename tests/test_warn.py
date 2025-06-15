@@ -75,7 +75,7 @@ def test_failures():
 
     assert_that(out).contains('[test_warn.py:61]: Expected <foo> to be of length <4>, but was <3>.')
     assert_that(out).contains('[test_warn.py:62]: Expected <foo> to be empty string, but was not.')
-    assert_that(out).contains('[test_warn.py:63]: Expected <False>, but was not.')
+    assert_that(out).contains('[test_warn.py:63]: Expected <foo> to be <False>, but was not.')
     assert_that(out).contains('[test_warn.py:64]: Expected <foo> to contain only digits, but did not.')
     assert_that(out).contains('[test_warn.py:65]: Expected <123> to contain only alphabetic chars, but did not.')
     assert_that(out).contains('[test_warn.py:66]: Expected <foo> to contain only uppercase chars, but did not.')
@@ -131,7 +131,7 @@ def test_failures_with_renamed_import():
 
     assert_that(out).contains('[test_warn.py:117]: Expected <foo> to be of length <4>, but was <3>.')
     assert_that(out).contains('[test_warn.py:118]: Expected <foo> to be empty string, but was not.')
-    assert_that(out).contains('[test_warn.py:119]: Expected <False>, but was not.')
+    assert_that(out).contains('[test_warn.py:119]: Expected <foo> to be <False>, but was not.')
     assert_that(out).contains('[test_warn.py:120]: Expected <foo> to contain only digits, but did not.')
     assert_that(out).contains('[test_warn.py:121]: Expected <123> to contain only alphabetic chars, but did not.')
     assert_that(out).contains('[test_warn.py:122]: Expected <foo> to contain only uppercase chars, but did not.')

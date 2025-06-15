@@ -251,7 +251,7 @@ class BaseMixin(object):
             AssertionError: if val **is** false
         """
         if not self.val:
-            return self.error('Expected <True>, but was not.')
+            return self.error('Expected <%s> to be <True>, but was not.' % self.val)
         return self
 
     def is_false(self):
@@ -276,7 +276,7 @@ class BaseMixin(object):
             AssertionError: if val **is** true
         """
         if self.val:
-            return self.error('Expected <False>, but was not.')
+            return self.error('Expected <%s> to be <False>, but was not.' % self.val)
         return self
 
     def is_none(self):
