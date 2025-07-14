@@ -111,6 +111,30 @@ def test_expected_exception_failure():
         assert_that(out).contains("Expected <func_ok> to raise <RuntimeError> when called with ('baz').")
 
 
+def test_expected_exception_failure_chaining():
+    try:
+        with soft_assertions():
+            # No exception
+            assert_that(func_ok).raises(RuntimeError).when_called_with('a').is_equal_to('dog').matches('cat')
+            # Exception type mismatch
+            assert_that(func_ok).raises(TypeError).when_called_with('a').contains('dog')
+            # Error message mismatch
+            assert_that(func_err).raises(RuntimeError).when_called_with('a').matches('dog')
+        fail('should have raised error')
+    except AssertionError as ex:
+        out = str(ex)
+        assert_that(out).contains(
+            "1. Expected <func_ok> to raise <RuntimeError> when called with ('a')."
+            " Any further chain assertions ignored."
+        )
+        assert_that(out).contains(
+            "2. Expected <func_ok> to raise <TypeError> when called with ('a')."
+            " Any further chain assertions ignored."
+        )
+        assert_that(out).contains("3. Expected <err> to match pattern <dog>, but did not.")
+        assert_that(out).does_not_contain("4.")
+
+
 def func_ok(arg):
     pass
 
