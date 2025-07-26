@@ -28,6 +28,7 @@
 
 import os
 import sys
+import pathlib
 
 if sys.version_info[0] == 3:
     str_types = (str,)
@@ -106,7 +107,7 @@ class FileMixin(object):
         Raises:
             AssertionError: if val does **not** exist
         """
-        if not isinstance(self.val, str_types):
+        if not isinstance(self.val, str_types) and not isinstance(self.val, pathlib.PosixPath):
             raise TypeError('val is not a path')
         if not os.path.exists(self.val):
             return self.error('Expected <%s> to exist, but was not found.' % self.val)
@@ -127,7 +128,7 @@ class FileMixin(object):
         Raises:
             AssertionError: if val **does** exist
         """
-        if not isinstance(self.val, str_types):
+        if not isinstance(self.val, str_types) and not isinstance(self.val, pathlib.PosixPath):
             raise TypeError('val is not a path')
         if os.path.exists(self.val):
             return self.error('Expected <%s> to not exist, but was found.' % self.val)
@@ -222,4 +223,61 @@ class FileMixin(object):
         parent_abspath = os.path.abspath(parent)
         if not val_abspath.startswith(parent_abspath):
             return self.error('Expected file <%s> to be a child of <%s>, but was not.' % (val_abspath, parent_abspath))
+        return self
+
+    def is_readable(self):
+        """Asserts that val is readable.
+
+        Examples:
+            Usage::
+
+                assert_that('/path/to/mydir/myfile.txt').is_readable()
+
+        Returns:
+            AssertionBuilder: returns this instance to chain to the next assertion
+
+        Raises:
+            AssertionError: if val is **not** readable
+        """
+        self.exists()
+        if not os.access(self.val, os.R_OK):
+            return self.error('Expected <%s> to be readable, but was not.' % self.val)
+        return self
+
+    def is_writable(self):
+        """Asserts that val is writable.
+
+        Examples:
+            Usage::
+
+                assert_that('/path/to/mydir/myfile.txt').is_writable()
+
+        Returns:
+            AssertionBuilder: returns this instance to chain to the next assertion
+
+        Raises:
+            AssertionError: if val is **not** writable
+        """
+        self.exists()
+        if not os.access(self.val, os.W_OK):
+            return self.error('Expected <%s> to be writable, but was not.' % self.val)
+        return self
+
+    def is_executable(self):
+        """Asserts that val is executable.
+
+        Examples:
+            Usage::
+
+                assert_that('/path/to/mydir/myfile.txt').is_executable()
+
+        Returns:
+            AssertionBuilder: returns this instance to chain to the next assertion
+
+        Raises:
+            AssertionError: if val is **not** executable
+        """
+        self.exists()
+        if not os.access(self.val, os.X_OK):
+            return self.error('Expected <%s> to be executable, but was not.' % self.val)
         return self
