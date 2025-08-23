@@ -12,7 +12,7 @@ author = 'Activision'
 # extensions (for Google-style doc strings)
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinxcontrib.napoleon'
+    'sphinx.ext.napoleon'
 ]
 
 templates_path = ['templates']
