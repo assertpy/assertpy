@@ -5,6 +5,8 @@ Simple assertions library for unit testing in Python with a nice fluent API.  Su
 [![Build Status](https://travis-ci.org/assertpy/assertpy.svg?branch=main)](https://travis-ci.org/assertpy/assertpy)
 [![Coverage Status](https://coveralls.io/repos/github/assertpy/assertpy/badge.svg?branch=main)](https://coveralls.io/github/assertpy/assertpy?branch=main)
 
+> **Note:** For a drop-in, fully typed fork that's actively maintained and developed, see [assertpy2](https://github.com/Solganis/assertpy2).
+
 
 ## Usage
 
