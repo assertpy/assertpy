@@ -29,9 +29,9 @@ import pathlib
 
 import pytest
 
-from assertpy2 import _matcher_impls, assert_that
-from assertpy2._engine import _typing
-from assertpy2.assertpy import AssertionBuilder
+from assertpy import _matcher_impls, assert_that
+from assertpy._engine import _typing
+from assertpy.assertpy import AssertionBuilder
 from tests.test_protocol_parity import _PROTOCOLS, _VALUE_VIEWS, _declarations_of, _members_of
 
 _KINDS = {

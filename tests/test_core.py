@@ -1,6 +1,6 @@
 import pytest
 
-from assertpy2 import AssertionOutcome, assert_that, assert_warn, soft_assertions
+from assertpy import AssertionOutcome, assert_that, assert_warn, soft_assertions
 
 
 def _inert_builder():

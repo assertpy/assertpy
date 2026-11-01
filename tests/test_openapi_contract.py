@@ -6,7 +6,7 @@ import pytest
 
 pytest.importorskip("jsonschema", reason="jsonschema not installed")
 
-from assertpy2 import assert_that
+from assertpy import assert_that
 
 SPEC_30 = {
     "openapi": "3.0.3",
@@ -876,7 +876,7 @@ class TestAKeywordTheDialectDoesNotHaveIsRefused:
         "reference",
         [
             "#/components/schemas/Rule",
-            "urn:assertpy2-openapi#/components/schemas/Rule",
+            "urn:assertpy-openapi#/components/schemas/Rule",
             "#/components/schemas/Both/allOf/0",
         ],
         ids=["by its pointer", "by the address of the document", "into a list"],

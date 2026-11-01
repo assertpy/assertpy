@@ -4,8 +4,8 @@ from unittest import mock
 
 import pytest
 
-import assertpy2.assertpy
-from assertpy2 import add_extension, assert_that, remove_extension
+import assertpy.assertpy
+from assertpy import add_extension, assert_that, remove_extension
 
 
 def is_even_integer(self):
@@ -65,20 +65,20 @@ def _shared_extensions():
     mapping alone left four names on the class after this file: another test reading the builder's own
     surface then saw them as members it was missing, and passed or failed on what ran before it.
     """
-    before = dict(assertpy2.assertpy._extensions)
-    on_the_builder = dict(vars(assertpy2.assertpy._ExtendedBuilder))
+    before = dict(assertpy.assertpy._extensions)
+    on_the_builder = dict(vars(assertpy.assertpy._ExtendedBuilder))
     try:
         for extension in _SHARED:
             add_extension(extension, override=True)
         yield
     finally:
-        assertpy2.assertpy._extensions.clear()
-        assertpy2.assertpy._extensions.update(before)
-        for name in set(vars(assertpy2.assertpy._ExtendedBuilder)) - set(on_the_builder):
-            delattr(assertpy2.assertpy._ExtendedBuilder, name)
+        assertpy.assertpy._extensions.clear()
+        assertpy.assertpy._extensions.update(before)
+        for name in set(vars(assertpy.assertpy._ExtendedBuilder)) - set(on_the_builder):
+            delattr(assertpy.assertpy._ExtendedBuilder, name)
         for name, member in on_the_builder.items():
-            if getattr(assertpy2.assertpy._ExtendedBuilder, name, None) is not member:
-                setattr(assertpy2.assertpy._ExtendedBuilder, name, member)
+            if getattr(assertpy.assertpy._ExtendedBuilder, name, None) is not member:
+                setattr(assertpy.assertpy._ExtendedBuilder, name, member)
 
 
 def test_is_even_extension():
@@ -543,7 +543,7 @@ class TestExtensionBindingMechanics:
             builder.is_transient()
 
     def test_builder_stays_an_assertion_builder_instance(self):
-        from assertpy2.assertpy import AssertionBuilder
+        from assertpy.assertpy import AssertionBuilder
 
         assert_that(assert_that(1)).is_instance_of(AssertionBuilder)
 
@@ -572,7 +572,7 @@ class TestAnOverrideLeavesOneImplementation:
             with pytest.raises(AssertionError) as failure:
                 assert_that(1).is_shape_changed()
             assert_that(str(failure.value)).is_equal_to("the function ran")
-            assert_that(assertpy2.assertpy._extensions).does_not_contain_key("is_shape_changed")
+            assert_that(assertpy.assertpy._extensions).does_not_contain_key("is_shape_changed")
         finally:
             remove_extension(is_shape_changed)
 
@@ -593,7 +593,7 @@ class TestAnOverrideLeavesOneImplementation:
             with pytest.raises(AssertionError) as failure:
                 assert_that(1).is_shape_changed()
             assert_that(str(failure.value)).is_equal_to("the callable object ran")
-            assert_that(vars(assertpy2.assertpy._ExtendedBuilder)).does_not_contain_key("is_shape_changed")
+            assert_that(vars(assertpy.assertpy._ExtendedBuilder)).does_not_contain_key("is_shape_changed")
         finally:
             remove_extension(replacement)
 
@@ -632,8 +632,8 @@ class TestAnOverrideLeavesOneImplementation:
         for installed in (first, is_shape_changed, second):
             add_extension(installed, override=True)
             halves = [
-                "is_shape_changed" in vars(assertpy2.assertpy._ExtendedBuilder),
-                "is_shape_changed" in assertpy2.assertpy._extensions,
+                "is_shape_changed" in vars(assertpy.assertpy._ExtendedBuilder),
+                "is_shape_changed" in assertpy.assertpy._extensions,
             ]
             assert_that(halves).described_as(f"where {installed!r} was registered").contains_only(True, False)
         remove_extension(second)

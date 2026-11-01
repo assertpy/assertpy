@@ -234,7 +234,7 @@ suite, because a query that returned no rows leaves the assertion with nothing t
 Turn the guard on and those cases say so:
 
 ```bash
-pytest --assertpy2-vacuous
+pytest --assertpy-vacuous
 ```
 
 ```text
@@ -244,8 +244,8 @@ was checked. Pass allow_empty=True if that is intended.
 
 The warning points at your line, not at library code. To escalate or relocate it:
 
-- `-W error::assertpy2.VacuousAssertionWarning` turns it into a failure
-- `ASSERTPY2_VACUOUS=1` enables it for runners other than pytest
+- `-W error::assertpy.VacuousAssertionWarning` turns it into a failure
+- `ASSERTPY_VACUOUS=1` enables it for runners other than pytest
 
 It is off by default for two reasons. A suite running `filterwarnings = ["error"]` would start failing
 on upgrade, and a property-based test generates empty collections as a matter of course.
@@ -350,7 +350,7 @@ reading as though it checked one. `B018` does not apply here, since the value is
 discarded, and coverage counts the line as run.
 
 ```bash
-pytest --assertpy2-dangling
+pytest --assertpy-dangling
 ```
 
 ```text
@@ -362,7 +362,7 @@ person can try it without editing a file the whole team shares:
 
 ```toml
 [tool.pytest.ini_options]
-assertpy2_dangling = "on"
+assertpy_dangling = "on"
 ```
 
 The check reads your test files rather than running anything, so it costs nothing at runtime and
@@ -375,7 +375,7 @@ line, so promoting it fails that test and nothing else:
 ```toml
 [tool.pytest.ini_options]
 filterwarnings = [
-    "error::assertpy2.DanglingAssertionWarning",
+    "error::assertpy.DanglingAssertionWarning",
 ]
 ```
 
@@ -388,7 +388,7 @@ the assertion machinery itself - say so on the line and the check passes over it
 <!-- docs-guard: skip -->
 ```python
 for index in range(1000):
-    assert_that(index)  # assertpy2: allow-dangling
+    assert_that(index)  # assertpy: allow-dangling
 ```
 
 The marker is namespaced rather than borrowing ruff's, so a line silenced for one tool is not silently
@@ -400,7 +400,7 @@ one it has never heard of. Name yours and it reads them the same way:
 
 ```toml
 [tool.pytest.ini_options]
-assertpy2_dangling_entries = "check verify"
+assertpy_dangling_entries = "check verify"
 ```
 
 - List only a wrapper that **builds** something to assert on, as `assert_that` does. A helper that asserts
@@ -821,7 +821,7 @@ assert_that(None).is_type_of(type(None))
 
 ## Dates
 
-`assertpy2` supports dates via the `datetime` type.
+`assertpy` supports dates via the `datetime` type.
 
 ```python
 import datetime
@@ -909,7 +909,7 @@ assertions:
 
 <!-- docs-guard: skip -->
 ```python
-from assertpy2 import assert_that, contents_of
+from assertpy import assert_that, contents_of
 
 assert_that(contents_of("foo.txt", "ascii")).starts_with("foo").ends_with(
     "bar"
@@ -1066,7 +1066,7 @@ assert_that(users).extracting("user", sort=lambda x: -x["age"]).is_equal_to(
 
 ### Dynamic assertions on objects
 
-`assertpy2` exposes `has_<name>()` for any attribute, property, or zero-argument method on the value,
+`assertpy` exposes `has_<name>()` for any attribute, property, or zero-argument method on the value,
 so attribute checks stay compact:
 
 <!-- docs-guard: skip -->

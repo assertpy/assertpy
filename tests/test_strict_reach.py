@@ -16,8 +16,8 @@ import pytest
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
-from assertpy2 import AssertionFailure, assert_that, match
-from assertpy2._engine import _compare
+from assertpy import AssertionFailure, assert_that, match
+from assertpy._engine import _compare
 
 STRICT: dict[str, Any] = {"strict_types": True}
 

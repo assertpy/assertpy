@@ -64,15 +64,15 @@ import sys
 from typing import Final, NamedTuple, cast
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-VIEWS = ROOT / "assertpy2" / "_engine" / "_typing.py"
-ENTRY = ROOT / "assertpy2" / "assertpy.py"
-TARGET = ROOT / "assertpy2" / "_engine" / "_poll_typing.py"
-TARGET_VERDICT = ROOT / "assertpy2" / "_engine" / "_builder_check_typing.py"
-TARGET_CAPABLE = ROOT / "assertpy2" / "_engine" / "_capable_typing.py"
-TARGET_NEGATED = ROOT / "assertpy2" / "_engine" / "_negated_typing.py"
+VIEWS = ROOT / "assertpy" / "_engine" / "_typing.py"
+ENTRY = ROOT / "assertpy" / "assertpy.py"
+TARGET = ROOT / "assertpy" / "_engine" / "_poll_typing.py"
+TARGET_VERDICT = ROOT / "assertpy" / "_engine" / "_builder_check_typing.py"
+TARGET_CAPABLE = ROOT / "assertpy" / "_engine" / "_capable_typing.py"
+TARGET_NEGATED = ROOT / "assertpy" / "_engine" / "_negated_typing.py"
 
 sys.path.insert(0, str(ROOT))
-from assertpy2._engine._operations import (  # noqa: E402 - needs the path
+from assertpy._engine._operations import (  # noqa: E402 - needs the path
     ALSO_ASSERTS,
     NOT_AN_OPERATION,
     TRANSFORMS,
@@ -1186,7 +1186,7 @@ def _builder_surface() -> list[ast.FunctionDef]:
     the library recognised without being able to name.
     """
     found: dict[str, ast.FunctionDef] = {}
-    for path in sorted((ROOT / "assertpy2").glob("*.py")):
+    for path in sorted((ROOT / "assertpy").glob("*.py")):
         module = ast.parse(path.read_text(encoding="utf-8"))
         for node in ast.walk(module):
             if not isinstance(node, ast.ClassDef) or not node.name.endswith("Mixin"):

@@ -1,6 +1,6 @@
 import pytest
 
-from assertpy2 import AssertionFailure, BaseMatcher, assert_that, match
+from assertpy import AssertionFailure, BaseMatcher, assert_that, match
 
 _NO_MATCHER = r"given matcher arg must be a Matcher or a callable, but was <123> \(int\)"
 

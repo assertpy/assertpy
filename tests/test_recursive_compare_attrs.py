@@ -6,8 +6,8 @@ import attrs
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from assertpy2 import assert_that
-from assertpy2.helpers import HelpersMixin
+from assertpy import assert_that
+from assertpy.helpers import HelpersMixin
 
 
 @attrs.define

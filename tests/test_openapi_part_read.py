@@ -17,7 +17,7 @@ import pytest
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
-from assertpy2 import assert_that, json_mixin
+from assertpy import assert_that, json_mixin
 from tests.test_openapi_30_keywords import _BODIES, _DRAFT_FOUR, _spec
 
 pytest.importorskip("jsonschema", reason="jsonschema not installed")
@@ -189,7 +189,7 @@ _CUT_OUT: dict[str, tuple[Any, Any]] = {
 _NOT_CUT_OUT: dict[str, tuple[Any, Any]] = {
     "a reference to the whole document": (_document({"properties": {"p": {"$ref": "#"}}}), {"p": 5}),
     "a reference by the address of the document": (
-        _document({"$ref": "urn:assertpy2-openapi#/components/schemas/Held"}, Held={"type": "integer"}),
+        _document({"$ref": "urn:assertpy-openapi#/components/schemas/Held"}, Held={"type": "integer"}),
         "seven",
     ),
     "a reference out of the document": (

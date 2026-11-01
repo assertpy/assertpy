@@ -3,9 +3,9 @@ import sys
 import pytest
 from hypothesis import HealthCheck, settings
 
-from assertpy2 import errors as _errors
-from assertpy2 import snapshot as _snapshot
-from assertpy2.assertpy import AssertionBuilder
+from assertpy import errors as _errors
+from assertpy import snapshot as _snapshot
+from assertpy.assertpy import AssertionBuilder
 
 _UNINSTALLED: pytest.StashKey[str] = pytest.StashKey()
 
@@ -21,7 +21,7 @@ if (_trampoline := sys.modules.get("mutmut.mutation.trampoline")) is not None:
 def _plain_messages(monkeypatch):
     """Pin the diff off the failure message for the suite.
 
-    The suite runs with the plugin disabled (``-p no:assertpy2``), so the diff-in-message default (on)
+    The suite runs with the plugin disabled (``-p no:assertpy``), so the diff-in-message default (on)
     would append the structured diff to every ``str(exc)`` and break the exact-message assertions.  Off
     here it mirrors what plugin-on users see, where the plugin renders the diff as its own report section
     instead; the off-pytest diff-in-message path has its own targeted tests that opt back in.

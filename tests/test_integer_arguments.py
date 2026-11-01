@@ -13,7 +13,7 @@ import numbers
 
 import pytest
 
-from assertpy2 import assert_that, match
+from assertpy import assert_that, match
 
 
 class _Two(enum.IntEnum):

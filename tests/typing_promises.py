@@ -17,7 +17,7 @@ import warnings
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Any
 
-from assertpy2 import assert_that
+from assertpy import assert_that
 
 if TYPE_CHECKING:
     from collections.abc import Iterator

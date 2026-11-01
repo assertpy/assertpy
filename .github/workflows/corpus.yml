@@ -23,13 +23,13 @@ on:
   # that records late polls and once for the ones that build the diff a section prints
   push:
     paths:
-      - "assertpy2/**"
+      - "assertpy/**"
       - "pyproject.toml"
       - "corpus/**"
       - ".github/workflows/corpus.yml"
   pull_request:
     paths:
-      - "assertpy2/**"
+      - "assertpy/**"
       - "pyproject.toml"
       - "corpus/**"
       - ".github/workflows/corpus.yml"

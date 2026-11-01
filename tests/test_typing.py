@@ -3,7 +3,7 @@
 These are verified by type checkers (ty, Pyright, Mypy, Pyrefly), not at runtime: each ``assert_type`` pins the
 overload resolution to the documented type-specific Protocol, so a regression that broadens or changes a
 return type fails the type check. The body lives under ``TYPE_CHECKING`` because the Protocols in
-:mod:`assertpy2._engine._typing` exist only for static analysis and are absent at runtime; Pytest imports this
+:mod:`assertpy._engine._typing` exist only for static analysis and are absent at runtime; Pytest imports this
 module without executing the block.
 """
 
@@ -28,10 +28,10 @@ if TYPE_CHECKING:
 
     from typing_extensions import TypeIs, assert_type
 
-    from assertpy2 import AssertionOutcome, assert_conforms, assert_that, assert_warn, log_passes, match
-    from assertpy2._engine._builder_check_typing import _CheckAnyValue
-    from assertpy2._engine._capable_typing import _CapableAssertion, _NegatedCapableAssertion
-    from assertpy2._engine._check_typing import (
+    from assertpy import AssertionOutcome, assert_conforms, assert_that, assert_warn, log_passes, match
+    from assertpy._engine._builder_check_typing import _CheckAnyValue
+    from assertpy._engine._capable_typing import _CapableAssertion, _NegatedCapableAssertion
+    from assertpy._engine._check_typing import (
         _CheckArrayAssertion,
         _CheckBoolAssertion,
         _CheckBytesAssertion,
@@ -55,9 +55,9 @@ if TYPE_CHECKING:
         _CheckStringAssertion,
         _CheckWarnedAssertion,
     )
-    from assertpy2._engine._negated_typing import _NegatedObjectAssertion
-    from assertpy2._engine._poll_typing import _AsyncPoll, _SyncPoll, _SyncPollCompleted, _SyncPollInvoked
-    from assertpy2._engine._typing import (
+    from assertpy._engine._negated_typing import _NegatedObjectAssertion
+    from assertpy._engine._poll_typing import _AsyncPoll, _SyncPoll, _SyncPollCompleted, _SyncPollInvoked
+    from assertpy._engine._typing import (
         _ArrayAssertion,
         _ArrayShape,
         _BoolAssertion,
@@ -84,9 +84,9 @@ if TYPE_CHECKING:
         _TextAssertion,
         _WarnedAssertion,
     )
-    from assertpy2._matcher_impls import AllOfMatcher, AnyOfMatcher, NotMatcher, _Composable
-    from assertpy2.assertpy import AssertionBuilder
-    from assertpy2.matchers import IsInstanceOfMatcher, IsTypeOfMatcher, Matcher
+    from assertpy._matcher_impls import AllOfMatcher, AnyOfMatcher, NotMatcher, _Composable
+    from assertpy.assertpy import AssertionBuilder
+    from assertpy.matchers import IsInstanceOfMatcher, IsTypeOfMatcher, Matcher
 
     assert_type(assert_that("text"), _StringAssertion)
     assert_type(assert_that(42), _NumericAssertion[int])

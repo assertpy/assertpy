@@ -2,17 +2,17 @@
 
 ## Allure
 
-When `allure-pytest` is installed, the assertpy2 pytest plugin automatically attaches structured failure
+When `allure-pytest` is installed, the assertpy pytest plugin automatically attaches structured failure
 data to Allure reports as JSON attachments. No code changes needed.
 
 !!! note "Optional dependency"
     ```bash
-    pip install assertpy2[allure]
+    pip install assertpy[allure]
     ```
 
 ### Attachment modes
 
-Control what gets attached via the `assertpy2_allure` ini option:
+Control what gets attached via the `assertpy_allure` ini option:
 
 | Mode | Structured Diff | Actual/Expected |
 |---|:---:|:---:|
@@ -22,7 +22,7 @@ Control what gets attached via the `assertpy2_allure` ini option:
 
 ```toml
 [tool.pytest.ini_options]
-assertpy2_allure = "full"
+assertpy_allure = "full"
 ```
 
 ### What gets attached
@@ -63,7 +63,7 @@ Caps on oversized values:
 - Strings at 4000 characters, containers at 100 items. A mapping says how many keys it dropped under
   `"__truncated__"`.
 - Nesting past six levels becomes `{"__repr__": ...}`.
-- Entries stop at `assertpy2_diff_max_entries` (50 by default), and `"truncated"` gives the number left out.
+- Entries stop at `assertpy_diff_max_entries` (50 by default), and `"truncated"` gives the number left out.
 - A polling trace that dropped samples says how many under `"dropped"`.
 
 An **AssertionFailure** attachment (mode `full` only) with what was asked of the value, and with the
@@ -182,18 +182,18 @@ diff (dict):
 
 ## Behave
 
-assertpy2 provides ready-made parameter types for [Behave](https://behave.readthedocs.io/) step
+assertpy provides ready-made parameter types for [Behave](https://behave.readthedocs.io/) step
 definitions that parse and validate step parameters automatically.
 
 !!! note "Optional dependency"
     ```bash
-    pip install assertpy2[behave]
+    pip install assertpy[behave]
     ```
 
 Register the types once, typically in `environment.py` or a step file:
 
 ```python
-from assertpy2.behave_matchers import register_assertpy_types
+from assertpy.behave_matchers import register_assertpy_types
 
 register_assertpy_types()
 ```
@@ -230,7 +230,7 @@ got 0`).
 The `ASSERTPY_TYPES` dict exposes the parsers without Behave:
 
 ```python
-from assertpy2.behave_matchers import ASSERTPY_TYPES
+from assertpy.behave_matchers import ASSERTPY_TYPES
 
 parse_int = ASSERTPY_TYPES["PositiveInt"]
 value = parse_int("42")  # 42
@@ -249,8 +249,8 @@ sits nested inside a dict, dataclass, or list under comparison.
     Each library is its own extra, so you only install what you use (a polars user does not pull in
     pandas or numpy):
     ```bash
-    pip install assertpy2[pandas]    # or assertpy2[polars], or assertpy2[numpy]
-    pip install assertpy2[data]      # convenience: all three at once
+    pip install assertpy[pandas]    # or assertpy[polars], or assertpy[numpy]
+    pip install assertpy[data]      # convenience: all three at once
     ```
 
 ### DataFrames and Series
@@ -264,7 +264,7 @@ Any keyword options are forwarded straight through.
 
 ```python
 import pandas as pd
-from assertpy2 import assert_that
+from assertpy import assert_that
 
 assert_that(pd.DataFrame({"a": [1, 2]})).is_frame_equal(pd.DataFrame({"a": [1, 2]}))
 
@@ -311,7 +311,7 @@ Two array assertions, both accepting any array-like numpy can coerce:
 
 ```python
 import numpy as np
-from assertpy2 import assert_that
+from assertpy import assert_that
 
 assert_that(np.array([1, 2, 3])).is_array_equal(np.array([1, 2, 3]))
 assert_that(np.array([1, 2, 3])).is_array_equal([1, 2, 3])
@@ -342,7 +342,7 @@ inside a list or a tuple, in a set or as a dict key, and past the range a float 
 from decimal import Decimal
 
 import numpy as np
-from assertpy2 import assert_that
+from assertpy import assert_that
 
 assert_that(np.int64(5)).is_equal_to(Decimal(5))
 assert_that(Decimal("4.5")).is_less_than(np.int64(5))
@@ -482,6 +482,6 @@ builder. `is_frame_equal()` on a `Series` runs under all three, and only ty says
 
 !!! note "Delegated semantics"
     The frame and array assertions add only the fluent entry point and route failures through the
-    standard assertpy2 error model (so soft assertions, `described_as`, and warn mode all apply). Their
+    standard assertpy error model (so soft assertions, `described_as`, and warn mode all apply). Their
     comparison is always the source library's, never a reimplementation. A numpy scalar outside them
     is compared by the library's own rules, as described above.

@@ -84,7 +84,7 @@ assert_that("x").not_.is_empty().is_greater_than(0)
 <!-- docs-guard: raises -->
 ```python
 assert_that(5).described_as("my check").not_.is_positive()
-# assertpy2.AssertionFailure: [my check] Expected <5> to NOT satisfy: is_positive()
+# assertpy.AssertionFailure: [my check] Expected <5> to NOT satisfy: is_positive()
 
 with soft_assertions():
     assert_that(5).not_.is_positive()    # collected, not raised
@@ -103,7 +103,7 @@ key, the group `extracting_group()` names, an exception group for `contains_erro
 <!-- docs-guard: raises -->
 ```python
 assert_that("no/such/file.txt").not_.is_readable()
-# assertpy2.AssertionFailure: Expected <no/such/file.txt> to exist, but was not found.
+# assertpy.AssertionFailure: Expected <no/such/file.txt> to exist, but was not found.
 ```
 
 !!! note

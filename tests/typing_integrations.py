@@ -18,9 +18,9 @@ import numpy
 import pandas
 import polars
 
-from assertpy2 import assert_that
-from assertpy2._engine._capable_typing import _CapableAssertion
-from assertpy2._engine._typing import _ArrayAssertion, _FrameAssertion
+from assertpy import assert_that
+from assertpy._engine._capable_typing import _CapableAssertion
+from assertpy._engine._typing import _ArrayAssertion, _FrameAssertion
 
 
 def resolution(

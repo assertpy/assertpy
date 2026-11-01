@@ -15,7 +15,7 @@ import pytest
 from hypothesis import assume, example, given, settings
 from hypothesis import strategies as st
 
-from assertpy2 import AssertionFailure, assert_that, match
+from assertpy import AssertionFailure, assert_that, match
 
 _DIRECTED = [
     (102.0, 100.0, 0.02, True),

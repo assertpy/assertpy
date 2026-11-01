@@ -10,8 +10,8 @@ from hypothesis import example, given, settings
 from hypothesis import strategies as st
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, computed_field, field_serializer
 
-from assertpy2 import AssertionFailure, assert_that
-from assertpy2._snapshot_codec import _Decoder, _Encoder
+from assertpy import AssertionFailure, assert_that
+from assertpy._snapshot_codec import _Decoder, _Encoder
 
 
 class UserDto(BaseModel):

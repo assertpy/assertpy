@@ -2,4 +2,4 @@
 
 Extract attributes, keys, or zero-arg method results from each item in an iterable.
 
-::: assertpy2.extracting.ExtractingMixin
+::: assertpy.extracting.ExtractingMixin

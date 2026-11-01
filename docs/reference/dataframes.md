@@ -19,4 +19,4 @@ How a numpy scalar, a numpy duration and a numpy integer argument are compared, 
 checker offers on each value, is described in
 [Data frames and arrays](../extending/integrations.md#data-frames-and-arrays).
 
-::: assertpy2.dataframe.DataFrameMixin
+::: assertpy.dataframe.DataFrameMixin

@@ -1,6 +1,6 @@
 import pytest
 
-from assertpy2 import assert_that, fail
+from assertpy import assert_that, fail
 
 
 def test_fail():

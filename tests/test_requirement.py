@@ -18,7 +18,7 @@ import symtable
 
 import pytest
 
-from assertpy2 import (
+from assertpy import (
     add_extension,
     assert_all,
     assert_conforms,
@@ -30,7 +30,7 @@ from assertpy2 import (
     soft_assertions,
     soft_fail,
 )
-from assertpy2.assertpy import _ASSERTS, ASSERTPY_FILES, NegatedBuilder
+from assertpy.assertpy import _ASSERTS, ASSERTPY_FILES, NegatedBuilder
 
 _EARLIER = datetime.datetime(2026, 1, 1, tzinfo=datetime.timezone.utc)
 _LATER = datetime.datetime(2026, 1, 2, tzinfo=datetime.timezone.utc)

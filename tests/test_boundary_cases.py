@@ -8,8 +8,8 @@ from dataclasses import FrozenInstanceError
 
 import pytest
 
-from assertpy2 import assert_that, match
-from assertpy2._engine._compare import _CompareConfig
+from assertpy import assert_that, match
+from assertpy._engine._compare import _CompareConfig
 
 
 def test_is_zero_matcher_rejects_negative():

@@ -17,9 +17,9 @@ import sys
 
 import pytest
 
-from assertpy2 import AssertionFailure, assert_that, match, soft_assertions
-from assertpy2._engine._equality import _holds_only_its_args, comparable_fields
-from assertpy2._engine._introspection import TakenApart
+from assertpy import AssertionFailure, assert_that, match, soft_assertions
+from assertpy._engine._equality import _holds_only_its_args, comparable_fields
+from assertpy._engine._introspection import TakenApart
 
 
 @dataclasses.dataclass

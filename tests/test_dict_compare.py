@@ -6,8 +6,8 @@ import typing
 
 import pytest
 
-from assertpy2 import AssertionFailure, assert_that, match
-from assertpy2._engine import _equality
+from assertpy import AssertionFailure, assert_that, match
+from assertpy._engine import _equality
 
 
 def test_ignore_key():

@@ -8,8 +8,8 @@ agree on which set. Read this before changing a public signature. None of it is 
 The runtime is a stack of mixins. `AssertionBuilder` inherits `StringMixin`, `NumericMixin`, `DictMixin` and a
 dozen more, so every assertion exists on every value and refuses what it cannot handle.
 
-The typed surface is Protocols in `assertpy2/_engine/_typing.py`, one per kind of value, picked by an overload
-ladder on `assert_that` in `assertpy2/assertpy.py`. A checker sees only the protocol, so
+The typed surface is Protocols in `assertpy/_engine/_typing.py`, one per kind of value, picked by an overload
+ladder on `assert_that` in `assertpy/assertpy.py`. A checker sees only the protocol, so
 `assert_that({}).is_positive()` is a type error and `assert_that(1).is_positive()` is not.
 
 Neither half knows about the other. Everything below keeps them from drifting apart.
@@ -36,7 +36,7 @@ move on every edit to a generated file.
 | `assertpy.py` overload ladder | hand | which protocol each subject resolves to |
 | `_engine/_poll_typing.py` | `scripts/generate_poll_protocols.py` | `_typing.py`, `assertpy.py`, `_engine/_operations.py` |
 | `_engine/_builder_check_typing.py` | `scripts/generate_poll_protocols.py` | the same three |
-| `_engine/_capable_typing.py` | `scripts/generate_poll_protocols.py` | the **runtime mixins** under `assertpy2/*.py`, `_engine/_operations.py` |
+| `_engine/_capable_typing.py` | `scripts/generate_poll_protocols.py` | the **runtime mixins** under `assertpy/*.py`, `_engine/_operations.py` |
 | `_engine/_negated_typing.py` | `scripts/generate_poll_protocols.py` | `_typing.py` and `_engine/_operations.py` |
 | `_engine/_check_typing.py` | `scripts/generate_check_protocols.py` | `_typing.py`, `_engine/_operations.py` |
 
@@ -125,7 +125,7 @@ import lines are templates inside the generators.
 | `test_operation_contract.py` | is the register of operations that reach no verdict still the true one |
 | `test_typing_claims.py` | are the four checkers still run with zero suppressions, as the badge says |
 | `test_docs_typing.py` | do the snippets in the README and the guides type-check |
-| `test_public_surface.py` | does `import assertpy2` still give what it gave |
+| `test_public_surface.py` | does `import assertpy` still give what it gave |
 
 Which one goes red tells you what you did:
 
@@ -150,7 +150,7 @@ and the two move at different speeds.
   a protocol carrying the whole surface and die. The overloads are what callers see.
 - **Some overlapping overloads are deliberate**, recorded per method in `tests/pyright_baseline.py`.
 - **Some variance suggestions are refused**, recorded there too, per TypeVar.
-- **`ty` is scoped to `assertpy2/` and `tests/test_typing.py`.** Over the whole tree it reports hundreds of
+- **`ty` is scoped to `assertpy/` and `tests/test_typing.py`.** Over the whole tree it reports hundreds of
   diagnostics from `tests/`, which is full of calls that must not type-check.
 
 ## Where the two halves may differ

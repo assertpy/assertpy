@@ -1,6 +1,6 @@
 import pytest
 
-from assertpy2 import assert_all, assert_that, soft_assertions, soft_fail
+from assertpy import assert_all, assert_that, soft_assertions, soft_fail
 
 
 class TestGroupedSoftAssertions:

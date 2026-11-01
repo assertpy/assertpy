@@ -21,7 +21,7 @@ pytest.importorskip("pandas")
 pytest.importorskip("polars")
 pytest.importorskip("numpy")
 
-from assertpy2 import assert_that
+from assertpy import assert_that
 from tests import typing_harness
 from tests.typing_integrations_baseline import DIVERGING, REFUSED, SILENT, STUB_WITNESS
 

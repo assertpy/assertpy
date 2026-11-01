@@ -74,7 +74,7 @@ jobs:
         # is reporting on top, not the sole guard (it uploads async and can fail open).
         # The doc-example guard is excluded here so its runs never pad the coverage number.
         if: matrix.full-deps
-        run: uv run pytest -v -n 4 --dist loadfile --cov=assertpy2 --cov-report=term-missing --cov-report=xml --cov-fail-under=100 --ignore=tests/test_docs_examples.py tests
+        run: uv run pytest -v -n 4 --dist loadfile --cov=assertpy --cov-report=term-missing --cov-report=xml --cov-fail-under=100 --ignore=tests/test_docs_examples.py tests
 
       - name: Guard doc examples
         # Runs once (docs are platform-independent) and without coverage, so executing the
@@ -280,7 +280,7 @@ jobs:
               for line in group:
                   requirement = Requirement(line)
                   floors = [spec.version for spec in requirement.specifier if spec.operator == ">="]
-                  if floors and requirement.name != "assertpy2":
+                  if floors and requirement.name != "assertpy":
                       declared.setdefault(requirement.name, set()).add(floors[0])
 
           installed = {}
@@ -371,7 +371,7 @@ jobs:
         run: uv run ruff format --check .
 
       - name: Type check (ty)
-        run: uv run ty check assertpy2/ tests/test_typing.py
+        run: uv run ty check assertpy/ tests/test_typing.py
 
       - name: Type check (mypy --strict, public typing surface)
         run: uv run mypy --strict --follow-imports=silent tests/test_typing.py

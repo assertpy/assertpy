@@ -1,9 +1,9 @@
 import pytest
 
-import assertpy2._inline as _inline
-import assertpy2.snapshot as _snap
-from assertpy2 import AssertionFailure, assert_that, match
-from assertpy2._inline import is_literalable
+import assertpy._inline as _inline
+import assertpy.snapshot as _snap
+from assertpy import AssertionFailure, assert_that, match
+from assertpy._inline import is_literalable
 
 
 def _written(filename, start, end, text):
@@ -81,7 +81,7 @@ class TestSelective:
 class TestEmpty:
     def test_empty_without_update_errors(self, monkeypatch):
         monkeypatch.setattr(_snap, "_CI_MODE", False)
-        with pytest.raises(AssertionError, match="run --assertpy2-snapshot-update"):
+        with pytest.raises(AssertionError, match="run --assertpy-snapshot-update"):
             assert_that(1).matches_inline()
 
     def test_empty_in_ci_forbidden(self, monkeypatch):
@@ -94,7 +94,7 @@ class TestEmpty:
         with pytest.raises(AssertionError) as failure:
             assert_that(1).matches_inline()
         assert_that(str(failure.value)).is_equal_to(
-            "inline snapshot is empty; run --assertpy2-snapshot-update to record it"
+            "inline snapshot is empty; run --assertpy-snapshot-update to record it"
         )
 
     def test_the_ci_message_is_exact(self, monkeypatch):
@@ -103,7 +103,7 @@ class TestEmpty:
             assert_that(1).matches_inline()
         assert_that(str(failure.value)).is_equal_to(
             "inline snapshot is empty and CI mode forbids recording it - record it locally with"
-            " --assertpy2-snapshot-update and commit the source"
+            " --assertpy-snapshot-update and commit the source"
         )
 
 
@@ -135,14 +135,14 @@ def test_inline_mismatch_names_its_kind_and_the_update_flag():
         assert_that({"id": 7, "status": "paid"}).matches_inline({"id": 7, "status": "pending"})
     message = str(exc_info.value)
     assert_that(message).contains("Inline snapshot")
-    assert_that(message).contains("--assertpy2-snapshot-update")
+    assert_that(message).contains("--assertpy-snapshot-update")
 
 
 def test_the_inline_mismatch_ends_by_naming_its_kind_and_the_way_to_accept_it():
     with pytest.raises(AssertionError) as failure:
         assert_that({"id": 7}).matches_inline({"id": 8})
     assert_that(str(failure.value)).ends_with(
-        " Inline snapshot; rerun with --assertpy2-snapshot-update to rewrite the literal here."
+        " Inline snapshot; rerun with --assertpy-snapshot-update to rewrite the literal here."
     )
 
 

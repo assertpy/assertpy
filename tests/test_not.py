@@ -3,7 +3,7 @@ from io import StringIO
 
 import pytest
 
-from assertpy2 import (
+from assertpy import (
     AssertionFailure,
     WarningLoggingAdapter,
     add_extension,

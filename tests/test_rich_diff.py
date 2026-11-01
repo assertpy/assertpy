@@ -6,14 +6,14 @@ from dataclasses import dataclass
 
 import pytest
 
-from assertpy2 import assert_that, match
-from assertpy2._engine import _diff as _diff_module
-from assertpy2._engine._compare import _build_compare_config
-from assertpy2._engine._diff import _build_equality_diff, _sub_diff_entries
-from assertpy2._engine._path import _Path
-from assertpy2.errors import DiffEntry, DiffResult, _cut, _within_budget
-from assertpy2.helpers import HelpersMixin
-from assertpy2.pytest_plugin import _format_diff
+from assertpy import assert_that, match
+from assertpy._engine import _diff as _diff_module
+from assertpy._engine._compare import _build_compare_config
+from assertpy._engine._diff import _build_equality_diff, _sub_diff_entries
+from assertpy._engine._path import _Path
+from assertpy.errors import DiffEntry, DiffResult, _cut, _within_budget
+from assertpy.helpers import HelpersMixin
+from assertpy.pytest_plugin import _format_diff
 
 
 class _Boxed:
@@ -688,7 +688,7 @@ class TestPytestPluginDiffRendering:
     def test_diff_appears_in_report(self, tmp_path):
         test_file = tmp_path / "test_sample.py"
         test_file.write_text(
-            "from assertpy2 import assert_that\n"
+            "from assertpy import assert_that\n"
             "def test_list_diff():\n"
             "    assert_that([1, 2, 3]).is_equal_to([1, 9, 3])\n",
         )
@@ -705,7 +705,7 @@ class TestPytestPluginDiffRendering:
     def test_scalar_diff_in_report(self, tmp_path):
         test_file = tmp_path / "test_sample.py"
         test_file.write_text(
-            "from assertpy2 import assert_that\ndef test_scalar():\n    assert_that(42).is_equal_to(99)\n",
+            "from assertpy import assert_that\ndef test_scalar():\n    assert_that(42).is_equal_to(99)\n",
         )
         (tmp_path / "pytest.ini").write_text("[pytest]\n", encoding="utf-8")
         result = subprocess.run(
@@ -719,7 +719,7 @@ class TestPytestPluginDiffRendering:
     def test_diff_disabled_via_ini(self, tmp_path):
         test_file = tmp_path / "test_sample.py"
         test_file.write_text(
-            "from assertpy2 import assert_that\ndef test_x():\n    assert_that([1]).is_equal_to([2])\n",
+            "from assertpy import assert_that\ndef test_x():\n    assert_that([1]).is_equal_to([2])\n",
         )
         (tmp_path / "pytest.ini").write_text("[pytest]\n", encoding="utf-8")
         result = subprocess.run(
@@ -732,7 +732,7 @@ class TestPytestPluginDiffRendering:
                 "--no-header",
                 "--tb=short",
                 "-o",
-                "assertpy2_diff=off",
+                "assertpy_diff=off",
             ],
             capture_output=True,
             text=True,
@@ -743,7 +743,7 @@ class TestPytestPluginDiffRendering:
     def test_matches_structure_diff_in_report(self, tmp_path):
         test_file = tmp_path / "test_sample.py"
         test_file.write_text(
-            "from assertpy2 import assert_that, match\n"
+            "from assertpy import assert_that, match\n"
             "def test_structure():\n"
             "    assert_that({'role': 'guest', 'address': {'city': 'LA'}}).matches_structure({\n"
             "        'role': match.is_in('admin', 'user'),\n"

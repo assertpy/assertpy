@@ -1,5 +1,5 @@
 [project]
-name = "assertpy2"
+name = "assertpy"
 version = "2.34.0"
 description = "Fluent, fully typed assertion library for Python: your type checker sees only the assertions that fit the value, and every failure carries a structured diff. Soft assertions, polling, inline snapshots, OpenAPI contracts."
 readme = "README.md"
@@ -35,18 +35,18 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/Solganis/assertpy2"
-Repository = "https://github.com/Solganis/assertpy2"
-Issues = "https://github.com/Solganis/assertpy2/issues"
+Homepage = "https://github.com/assertpy/assertpy"
+Repository = "https://github.com/assertpy/assertpy"
+Issues = "https://github.com/assertpy/assertpy/issues"
 
 [project.entry-points."pytest11"]
-assertpy2 = "assertpy2.pytest_plugin"
+assertpy = "assertpy.pytest_plugin"
 
 [project.optional-dependencies]
 allure = ["allure-pytest>=2.13"]
 # 1.2.6 has no `ParseMatcher.TYPE_REGISTRY`, so our parser never reaches behave's own registry
 behave = ["behave>=1.3.0"]
-data = ["assertpy2[numpy,pandas,polars]"]
+data = ["assertpy[numpy,pandas,polars]"]
 # asttokens below 2.0.4 misreads a keyword argument and cannot mark the tokens of the file it rewrites
 inline = ["executing>=2.2", "asttokens>=2.0.4"]
 json = ["idna>=3.7", "jsonpath-ng>=1.8", "jsonschema>=4.18", "referencing>=0.28.4"]
@@ -66,7 +66,7 @@ build-backend = "hatchling.build"
 # docs those tests execute, and the benchmark module one of them reads.
 [tool.hatch.build.targets.sdist]
 include = [
-    "assertpy2",
+    "assertpy",
     "tests",
     # the suite reads it: `tests/test_check_protocols.py` regenerates the verdict twins and compares.
     # Without it the shipped sdist carries a test that fails during collection
@@ -149,7 +149,7 @@ benchmark = [
 ]
 
 [tool.mutmut]
-source_paths = ["assertpy2/"]
+source_paths = ["assertpy/"]
 # mutmut's trampoline renames every function of the mutated module to `xǁClassǁnameǁ__mutmut_orig`
 # and adds a frame to the stack. A test that asserts on the *shape of execution* rather than on the
 # result therefore fails against the unmutated baseline as well, and mutmut reads a red baseline as
@@ -317,7 +317,7 @@ pytest_add_cli_args = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 # --strict-markers: unknown @pytest.mark.* is an error, not a silent typo.
-addopts = ["-p", "no:assertpy2", "--strict-markers"]
+addopts = ["-p", "no:assertpy", "--strict-markers"]
 xfail_strict = true  # an xfail that unexpectedly passes (xpass) fails the run
 # Warnings are errors: a deprecation or runtime warning fails the run instead of
 # scrolling past. The suite already passes clean under this; add targeted
@@ -326,15 +326,15 @@ filterwarnings = ["error"]
 
 [tool.coverage.run]
 branch = true
-source = ["assertpy2"]
+source = ["assertpy"]
 
 [tool.coverage.report]
 # the negation twins are protocol declarations only: nothing imports the module at run time, so its
 # two import lines are the whole of it and never execute
 omit = [
     "tests/*",
-    "assertpy2/__init__.py",
-    "assertpy2/_engine/_negated_typing.py",
+    "assertpy/__init__.py",
+    "assertpy/_engine/_negated_typing.py",
 ]
 
 [tool.ruff]
@@ -406,11 +406,11 @@ max-complexity = 32
 [tool.ruff.lint.per-file-ignores]
 # The generated twins mirror the signatures they were generated from, `snapshot(id=...)` among them.  A suppression written into the generator would be a style decision made where nobody
 # reads it, so it lives here instead
-"assertpy2/_engine/_check_typing.py" = ["A002"]
-"assertpy2/_engine/_poll_typing.py" = ["A002"]
-"assertpy2/_engine/_builder_check_typing.py" = ["A002"]
-"assertpy2/_engine/_capable_typing.py" = ["A002"]
-"assertpy2/_engine/_negated_typing.py" = ["A002"]
+"assertpy/_engine/_check_typing.py" = ["A002"]
+"assertpy/_engine/_poll_typing.py" = ["A002"]
+"assertpy/_engine/_builder_check_typing.py" = ["A002"]
+"assertpy/_engine/_capable_typing.py" = ["A002"]
+"assertpy/_engine/_negated_typing.py" = ["A002"]
 
 # Tests trade a few style rules for directness and literal fixtures:
 "tests/*" = [

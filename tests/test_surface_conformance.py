@@ -23,8 +23,8 @@ from typing import TYPE_CHECKING, NamedTuple
 
 import pytest
 
-from assertpy2 import AssertionFailure, assert_that, assert_warn, match, soft_assertions
-from assertpy2.async_assertions import AsyncAssertionBuilder
+from assertpy import AssertionFailure, assert_that, assert_warn, match, soft_assertions
+from assertpy.async_assertions import AsyncAssertionBuilder
 
 if TYPE_CHECKING:
     from collections.abc import Callable

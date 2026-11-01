@@ -1,105 +1,105 @@
 # Entry points
 
-The top-level functions exported by ``assertpy2``.
+The top-level functions exported by ``assertpy``.
 
 ``assert_that`` is statically overloaded: the return type narrows to the assertions valid for the
 value's type. Each per-type overload is listed below. See [Type safety](../concepts/type-safety.md) for how this
 drives editor autocomplete.
 
-::: assertpy2.assertpy.assert_that
+::: assertpy.assertpy.assert_that
     options:
       show_root_heading: true
       show_root_toc_entry: true
 
-::: assertpy2.assertpy.AssertionBuilder.value
-    options:
-      show_root_heading: true
-      show_root_full_path: false
-      show_root_toc_entry: true
-
-::: assertpy2.assertpy.AssertionBuilder.check
+::: assertpy.assertpy.AssertionBuilder.value
     options:
       show_root_heading: true
       show_root_full_path: false
       show_root_toc_entry: true
 
-::: assertpy2.assertpy.CheckBuilder
+::: assertpy.assertpy.AssertionBuilder.check
     options:
       show_root_heading: true
       show_root_full_path: false
       show_root_toc_entry: true
 
-::: assertpy2.assertpy.NegatedBuilder
+::: assertpy.assertpy.CheckBuilder
     options:
       show_root_heading: true
       show_root_full_path: false
       show_root_toc_entry: true
 
-::: assertpy2.outcome.AssertionOutcome
+::: assertpy.assertpy.NegatedBuilder
     options:
       show_root_heading: true
       show_root_full_path: false
       show_root_toc_entry: true
 
-::: assertpy2.outcome.Requirement
+::: assertpy.outcome.AssertionOutcome
     options:
       show_root_heading: true
       show_root_full_path: false
       show_root_toc_entry: true
 
-::: assertpy2.assertpy.assert_conforms
-    options:
-      show_root_heading: true
-      show_root_toc_entry: true
-
-::: assertpy2.assertpy.assert_warn
-    options:
-      show_root_heading: true
-      show_root_toc_entry: true
-
-::: assertpy2.assertpy.WarningLoggingAdapter
+::: assertpy.outcome.Requirement
     options:
       show_root_heading: true
       show_root_full_path: false
       show_root_toc_entry: true
 
-::: assertpy2.assertpy.log_passes
+::: assertpy.assertpy.assert_conforms
     options:
       show_root_heading: true
       show_root_toc_entry: true
 
-::: assertpy2.assertpy.soft_assertions
+::: assertpy.assertpy.assert_warn
     options:
       show_root_heading: true
       show_root_toc_entry: true
 
-::: assertpy2.assertpy.SoftAssertionCollector
+::: assertpy.assertpy.WarningLoggingAdapter
     options:
       show_root_heading: true
       show_root_full_path: false
       show_root_toc_entry: true
 
-::: assertpy2.assertpy.assert_all
+::: assertpy.assertpy.log_passes
     options:
       show_root_heading: true
       show_root_toc_entry: true
 
-::: assertpy2.assertpy.fail
+::: assertpy.assertpy.soft_assertions
     options:
       show_root_heading: true
       show_root_toc_entry: true
 
-::: assertpy2.assertpy.soft_fail
+::: assertpy.assertpy.SoftAssertionCollector
+    options:
+      show_root_heading: true
+      show_root_full_path: false
+      show_root_toc_entry: true
+
+::: assertpy.assertpy.assert_all
     options:
       show_root_heading: true
       show_root_toc_entry: true
 
-::: assertpy2.assertpy.add_extension
+::: assertpy.assertpy.fail
     options:
       show_root_heading: true
       show_root_toc_entry: true
 
-::: assertpy2.assertpy.remove_extension
+::: assertpy.assertpy.soft_fail
+    options:
+      show_root_heading: true
+      show_root_toc_entry: true
+
+::: assertpy.assertpy.add_extension
+    options:
+      show_root_heading: true
+      show_root_toc_entry: true
+
+::: assertpy.assertpy.remove_extension
     options:
       show_root_heading: true
       show_root_toc_entry: true

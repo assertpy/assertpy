@@ -6,7 +6,7 @@ Navigate JSON structures with JSONPath and validate them against JSON Schema.
 
 !!! note "Optional dependency"
     ```bash
-    pip install assertpy2[json]
+    pip install assertpy[json]
     ```
 
 ### at_json_path
@@ -218,7 +218,7 @@ diff (openapi):
     + 'type integer'
 ```
 
-Needs the JSON extra: `pip install assertpy2[json]`.
+Needs the JSON extra: `pip install assertpy[json]`.
 
 ## Regex Group Extraction
 

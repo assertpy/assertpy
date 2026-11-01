@@ -20,9 +20,9 @@ import warnings
 
 import pytest
 
-import assertpy2
-from assertpy2 import assert_that, match
-from assertpy2._engine._require import argument, refuse, require_type, sized_len
+import assertpy
+from assertpy import assert_that, match
+from assertpy._engine._require import argument, refuse, require_type, sized_len
 
 # `<subject> must be <expectation>, but was <value> (<type>)`
 SHAPE = re.compile(r"^.+ must be .+, but was <.*> \(\w+\)$", re.DOTALL)
@@ -37,7 +37,7 @@ NOT_ABOUT_A_TYPE = (
     "assertpy has no assertion",
 )
 
-_PACKAGE = pathlib.Path(assertpy2.__file__).parent
+_PACKAGE = pathlib.Path(assertpy.__file__).parent
 
 WRONG_VALUES = [42, object(), None]
 WRONG_OPERANDS = ["wrong", 42, object()]
@@ -57,7 +57,7 @@ def _public_assertions() -> list[str]:
         if name.startswith("_") or name == "error":
             continue
         method = getattr(builder, name, None)
-        if callable(method) and getattr(method, "__module__", "").startswith("assertpy2"):
+        if callable(method) and getattr(method, "__module__", "").startswith("assertpy"):
             names.append(name)
     return names
 

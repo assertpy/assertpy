@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import pytest
 
-from assertpy2 import assert_that, contents_of
+from assertpy import assert_that, contents_of
 
 
 @pytest.fixture()

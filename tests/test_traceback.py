@@ -3,7 +3,7 @@ import traceback
 
 import pytest
 
-from assertpy2 import AssertionFailure, assert_that, fail
+from assertpy import AssertionFailure, assert_that, fail
 
 
 def test_traceback():

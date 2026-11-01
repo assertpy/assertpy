@@ -1,4 +1,4 @@
-"""Pin what `import assertpy2` gives a caller.
+"""Pin what `import assertpy` gives a caller.
 
 The golden failure harness proves the text of a failure has not moved. It says nothing about the Python
 contract, and nothing else did either: before this file, removing a name from `__all__` or a field from
@@ -25,8 +25,8 @@ import sys
 
 import pytest
 
-import assertpy2
-from assertpy2 import assert_that
+import assertpy
+from assertpy import assert_that
 
 
 def _protocol_count(source: str) -> int:
@@ -205,37 +205,37 @@ class TestEveryExportHasAReferenceEntry:
     WITHOUT_AN_ENTRY = frozenset({"__version__", "match"})
 
     def test_every_export_has_a_heading(self):
-        missing = sorted(set(assertpy2.__all__) - set(_headed_entries()) - self.WITHOUT_AN_ENTRY)
+        missing = sorted(set(assertpy.__all__) - set(_headed_entries()) - self.WITHOUT_AN_ENTRY)
         assert_that(missing).described_as("exports with no heading in the reference").is_empty()
 
     def test_each_heading_documents_the_exported_object(self):
         entries = _headed_entries()
         elsewhere = {
             name: entries[name]
-            for name in sorted(set(assertpy2.__all__) & set(entries))
-            if _resolve(entries[name]) is not getattr(assertpy2, name)
+            for name in sorted(set(assertpy.__all__) & set(entries))
+            if _resolve(entries[name]) is not getattr(assertpy, name)
         }
         assert_that(elsewhere).described_as("headings naming another object of the same name").is_empty()
 
 
 class TestExports:
     def test_the_exported_names_are_the_recorded_ones(self):
-        assert_that(sorted(assertpy2.__all__)).is_equal_to(sorted(EXPECTED_EXPORTS))
+        assert_that(sorted(assertpy.__all__)).is_equal_to(sorted(EXPECTED_EXPORTS))
 
     def test_every_exported_name_resolves(self):
         # a name left in `__all__` after its import was dropped fails only at `import *`, which nothing does
-        missing = [name for name in assertpy2.__all__ if not hasattr(assertpy2, name)]
+        missing = [name for name in assertpy.__all__ if not hasattr(assertpy, name)]
         assert_that(missing).described_as("names in __all__ with nothing behind them").is_empty()
 
 
 class TestRecordFields:
     def test_each_published_record_keeps_its_fields(self):
-        observed = {name: _fields(getattr(assertpy2, name)) for name in EXPECTED_FIELDS}
+        observed = {name: _fields(getattr(assertpy, name)) for name in EXPECTED_FIELDS}
         assert_that(observed).is_equal_to(EXPECTED_FIELDS)
 
     def test_every_pinned_record_is_exported(self):
         # a record dropped from `__all__` would keep passing the check above through this module's import path
-        assert_that(sorted(EXPECTED_FIELDS)).is_subset_of(set(assertpy2.__all__))
+        assert_that(sorted(EXPECTED_FIELDS)).is_subset_of(set(assertpy.__all__))
 
 
 class TestTheCountsTheDocsQuote:
@@ -253,10 +253,10 @@ class TestTheCountsTheDocsQuote:
     QUOTED_PROTOCOL_COUNT = 15
 
     def test_the_matcher_count(self):
-        matchers = [name for name in dir(assertpy2.match) if not name.startswith("_")]
+        matchers = [name for name in dir(assertpy.match) if not name.startswith("_")]
         assert_that(matchers).described_as("matchers, quoted in the docs").is_length(self.QUOTED_MATCHER_COUNT)
 
-    # a bare `(\d+) matchers` reads the "2" out of "assertpy2 matchers", and "41 composable matchers" must fit
+    # a bare `(\d+) matchers` reads the "2" out of "assertpy matchers", and "41 composable matchers" must fit
     _QUOTED = re.compile(r"(?<![\w.])(\d+)\s+(?:\w+\s+)?matchers")
 
     def test_every_page_quoting_the_matcher_count_quotes_the_right_one(self):
@@ -271,7 +271,7 @@ class TestTheCountsTheDocsQuote:
     def test_the_protocol_count(self):
         # counted from what `assert_that` dispatches to, which is the claim the pages make.
         # `_InvokedAssertion` is reached through `raised()`, so an IDE never offers it on the first call
-        source = pathlib.Path("assertpy2/assertpy.py").read_text(encoding="utf-8")
+        source = pathlib.Path("assertpy/assertpy.py").read_text(encoding="utf-8")
         returned = set(re.findall(r"-> (_[A-Za-z]+Assertion)\b", source))
         assert_that(returned).described_as("protocols assert_that returns, quoted in the docs").is_length(
             self.QUOTED_PROTOCOL_COUNT
@@ -286,9 +286,9 @@ class TestTheCountsTheDocsQuote:
         """
         page = pathlib.Path("docs/concepts/stability.md").read_text(encoding="utf-8")
         typing_suite = pathlib.Path("tests/test_typing.py").read_text(encoding="utf-8")
-        protocols = pathlib.Path("assertpy2/_engine/_typing.py").read_text(encoding="utf-8")
+        protocols = pathlib.Path("assertpy/_engine/_typing.py").read_text(encoding="utf-8")
         quoted = {
-            "exported names": (re.search(r"The (\d+) names", page), len(assertpy2.__all__)),
+            "exported names": (re.search(r"The (\d+) names", page), len(assertpy.__all__)),
             "assert_type checks": (re.search(r"(\d+) `assert_type` checks", page), typing_suite.count("assert_type(")),
             "protocols": (re.search(r"walks all ([\w-]+) protocols", page), _protocol_count(protocols)),
             "kinds of change": (re.search(r"([\w-]+) kinds of change", page), _kinds_listed(page)),
@@ -305,7 +305,7 @@ class TestTheCountsTheDocsQuote:
         figure in the docs a consumer branches on. The diff attachment moved to 4 and the page went on
         printing 2, which is worse than no example: it reads as a contract.
         """
-        plugin = pathlib.Path("assertpy2/pytest_plugin.py").read_text(encoding="utf-8")
+        plugin = pathlib.Path("assertpy/pytest_plugin.py").read_text(encoding="utf-8")
         page = pathlib.Path("docs/extending/integrations.md").read_text(encoding="utf-8")
         emitted = {int(number) for number in re.findall(r'"format":\s*(\d+)', plugin)}
         documented = {int(number) for number in re.findall(r'"format":\s*(\d+)', page)}
@@ -314,7 +314,7 @@ class TestTheCountsTheDocsQuote:
     def test_the_assertion_count_clears_the_floor_the_docs_claim(self):
         # a floor: `add_extension` writes onto the builder, so a suite that registers one makes the exact
         # count depend on test order. The page says "over 100", and that is the claim worth holding
-        builder = assertpy2.assert_that(1)
+        builder = assertpy.assert_that(1)
         assertions = [
             name for name in dir(builder) if not name.startswith("_") and callable(getattr(builder, name, None))
         ]
@@ -326,7 +326,7 @@ class TestTheCountsTheDocsQuote:
 class TestNoOptionalDependencyIsImportedEagerly:
     """Importing the package must not drag in a library it only needs on one branch.
 
-    The pytest plugin is auto-loaded, so `import assertpy2` happens in every pytest run in the
+    The pytest plugin is auto-loaded, so `import assertpy` happens in every pytest run in the
     environment, whether or not a test ever calls an assertion. `attrs` sat at module level in
     `helpers.py` and cost 8.5 ms and 22 modules of a 39.8 ms import, a fifth of it, for a branch that
     fires only when an attrs instance reaches a comparison. Nothing in the suite noticed, because an
@@ -339,16 +339,16 @@ class TestNoOptionalDependencyIsImportedEagerly:
 
     def test_none_of_them_arrives_with_the_package(self):
         program = (
-            "import sys, json; import assertpy2; "
+            "import sys, json; import assertpy; "
             f"print(json.dumps([name for name in {self.OPTIONAL!r} if name in sys.modules]))"
         )
         result = subprocess.run([sys.executable, "-c", program], capture_output=True, text=True, check=True)
         eager = json.loads(result.stdout)
-        assert_that(eager).described_as("optional dependencies imported by `import assertpy2`").is_empty()
+        assert_that(eager).described_as("optional dependencies imported by `import assertpy`").is_empty()
 
     def test_the_guard_can_see_an_eager_import(self):
         program = (
-            "import sys, json; import attrs; import assertpy2; "
+            "import sys, json; import attrs; import assertpy; "
             f"print(json.dumps([name for name in {self.OPTIONAL!r} if name in sys.modules]))"
         )
         result = subprocess.run([sys.executable, "-c", program], capture_output=True, text=True, check=True)
@@ -366,10 +366,10 @@ class TestWhatAFailureLetsYouRead:
     READABLE = ("actual", "expected", "has_expected", "diff", "requirement", "trace", "failures")
 
     def test_it_stays_an_assertion_error(self):
-        assert_that(issubclass(assertpy2.AssertionFailure, AssertionError)).is_true()
+        assert_that(issubclass(assertpy.AssertionFailure, AssertionError)).is_true()
 
     def test_a_plain_failure_carries_the_readable_surface(self):
-        with pytest.raises(assertpy2.AssertionFailure) as failure:
+        with pytest.raises(assertpy.AssertionFailure) as failure:
             assert_that(1).is_equal_to(2)
         missing = [name for name in self.READABLE if not hasattr(failure.value, name)]
         assert_that(missing).described_as("documented attributes missing from a failure").is_empty()
@@ -377,21 +377,21 @@ class TestWhatAFailureLetsYouRead:
         assert_that(failure.value.expected).is_equal_to(2)
 
     def test_a_plain_failure_names_what_was_asked(self):
-        with pytest.raises(assertpy2.AssertionFailure) as failure:
+        with pytest.raises(assertpy.AssertionFailure) as failure:
             assert_that(1).is_equal_to(2)
         assert_that(failure.value.requirement).is_equal_to(
-            assertpy2.Requirement("is_equal_to", {"other": 2, "kwargs": {}})
+            assertpy.Requirement("is_equal_to", {"other": 2, "kwargs": {}})
         )
 
     def test_a_soft_block_reports_what_it_collected(self):
-        with pytest.raises(assertpy2.AssertionFailure) as failure, assertpy2.soft_assertions():
+        with pytest.raises(assertpy.AssertionFailure) as failure, assertpy.soft_assertions():
             assert_that(1).is_equal_to(2)
             assert_that("a").is_equal_to("b")
         assert_that(failure.value.failures).is_length(2)
         assert_that([outcome.passed for outcome in failure.value.failures]).is_equal_to([False, False])
 
     def test_a_polling_failure_reports_its_trace(self):
-        with pytest.raises(assertpy2.AssertionFailure) as failure:
+        with pytest.raises(assertpy.AssertionFailure) as failure:
             assert_that(lambda: 1).eventually_sync(timeout=0.05, interval=0.01).is_equal_to(2)
         assert_that(failure.value.trace).is_not_none()
         assert_that(failure.value.trace.total_polls).is_greater_than_or_equal_to(1)
@@ -403,9 +403,9 @@ class TestWhatAFailureLetsYouRead:
         reporter deciding whether to show an expected column could not tell them apart.  The
         distinction used to live only on the outcome the pytest plugin reads.
         """
-        with pytest.raises(assertpy2.AssertionFailure) as compared:
+        with pytest.raises(assertpy.AssertionFailure) as compared:
             assert_that(1).is_equal_to(None)
-        with pytest.raises(assertpy2.AssertionFailure) as unset:
+        with pytest.raises(assertpy.AssertionFailure) as unset:
             assert_that(1).is_none()
         assert_that(compared.value.expected).is_equal_to(unset.value.expected).is_none()
         assert_that(compared.value.actual).is_equal_to(unset.value.actual).is_equal_to(1)
@@ -414,9 +414,9 @@ class TestWhatAFailureLetsYouRead:
 
     def test_has_expected_separates_an_assertion_that_names_no_expectation(self):
         """What `has_expected` is for, which is the other question `expected is None` cannot answer."""
-        with pytest.raises(assertpy2.AssertionFailure) as named:
+        with pytest.raises(assertpy.AssertionFailure) as named:
             assert_that(1).is_equal_to(None)
-        with pytest.raises(assertpy2.AssertionFailure) as unnamed:
+        with pytest.raises(assertpy.AssertionFailure) as unnamed:
             assert_that([]).is_not_empty()
         assert_that(named.value.expected).is_equal_to(unnamed.value.expected).is_none()
         assert_that(named.value.has_expected).described_as("named an expectation").is_true()

@@ -29,7 +29,7 @@ import pytest
 from hypothesis import assume, example, given, settings
 from hypothesis import strategies as st
 
-from assertpy2 import (
+from assertpy import (
     AssertionOutcome,
     Requirement,
     VacuousAssertionWarning,
@@ -43,9 +43,9 @@ from assertpy2 import (
     soft_assertions,
     soft_fail,
 )
-from assertpy2 import assertpy as _assertpy
-from assertpy2._engine._introspection import caller_stacklevel
-from assertpy2._hints import _SIDE as _SIDES
+from assertpy import assertpy as _assertpy
+from assertpy._engine._introspection import caller_stacklevel
+from assertpy._hints import _SIDE as _SIDES
 
 _FILE = os.path.basename(__file__)
 
@@ -89,16 +89,16 @@ def _says(about, written, exact):
 
 class TestAPassIsOneLine:
     def test_the_default_logger_takes_it_at_info(self, caplog):
-        with caplog.at_level(logging.INFO, logger="assertpy2.passes"), log_passes():
+        with caplog.at_level(logging.INFO, logger="assertpy.passes"), log_passes():
             line = _here() + 1
             assert_that(1).is_equal_to(1)
 
         assert_that(caplog.record_tuples).is_equal_to(
-            [("assertpy2.passes", logging.INFO, f"[{_FILE}:{line}]: is_equal_to(1) passed for <1>")]
+            [("assertpy.passes", logging.INFO, f"[{_FILE}:{line}]: is_equal_to(1) passed for <1>")]
         )
 
     def test_nothing_is_said_outside_a_block(self, caplog):
-        with caplog.at_level(logging.DEBUG, logger="assertpy2.passes"):
+        with caplog.at_level(logging.DEBUG, logger="assertpy.passes"):
             assert_that(1).is_equal_to(1)
 
         assert_that(caplog.records).is_empty()
@@ -204,7 +204,7 @@ class TestAPassIsOneLine:
 class TestTheGuideShowsTheLinesABlockWrites:
     def test_its_example_writes_the_lines_it_shows(self):
         guide = pathlib.Path(__file__).parent.parent.joinpath("docs", "guides", "errors.md").read_text(encoding="utf-8")
-        shown = guide.split("Each line goes to the `assertpy2.passes` logger at `INFO`:\n\n```\n", 1)[1].split("```")[0]
+        shown = guide.split("Each line goes to the `assertpy.passes` logger at `INFO`:\n\n```\n", 1)[1].split("```")[0]
         lines = _Lines()
         latency, status = 0.42, 200
         with log_passes(lines):
@@ -1060,7 +1060,7 @@ class TestAPollReportsTheAttemptThatPassed:
             copied[-1].run(lambda: assert_that("later").is_equal_to("later"))
 
         monkeypatch.setattr(
-            "assertpy2.async_assertions.time", types.SimpleNamespace(monotonic=time.monotonic, sleep=backoff)
+            "assertpy.async_assertions.time", types.SimpleNamespace(monotonic=time.monotonic, sleep=backoff)
         )
         kept, block = _outcomes()
         with block:
@@ -1692,7 +1692,7 @@ class TestTheMarginOfABound:
             "decimal.DefaultContext.rounding = decimal.ROUND_DOWN\n"
             "decimal.DefaultContext.Emax = 10\n"
             "decimal.DefaultContext.capitals = 0\n"
-            "from assertpy2 import assert_that, log_passes\n"
+            "from assertpy import assert_that, log_passes\n"
             "kept = []\n"
             "with log_passes(on_pass=kept.append):\n"
             "    assert_that(0.42).is_less_than(0.5)\n"

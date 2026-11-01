@@ -17,8 +17,8 @@ import re
 
 import pytest
 
-from assertpy2 import BaseMatcher, assert_that, match, register_matcher, unregister_matcher
-from assertpy2._engine import _ordering, _require
+from assertpy import BaseMatcher, assert_that, match, register_matcher, unregister_matcher
+from assertpy._engine import _ordering, _require
 
 _HERE = pathlib.Path(__file__)
 
@@ -66,7 +66,7 @@ def _marks(statement: ast.stmt) -> bool:
     return (
         isinstance(statement, ast.Assign)
         and statement.col_offset > 0
-        and [ast.unparse(target) for target in statement.targets] == ["_assertpy2_refusal"]
+        and [ast.unparse(target) for target in statement.targets] == ["_assertpy_refusal"]
         and ast.unparse(statement.value) == "True"
     )
 
@@ -225,7 +225,7 @@ class TestADefectOfTheLibrarysOwnKeepsItsFrames:
 
     @pytest.mark.parametrize("raised", [TypeError, ValueError, KeyError, AttributeError, NotImplementedError])
     def test_what_a_frame_marked_as_a_refusal_raises_is_hidden(self, raised):
-        body = f'_assertpy2_refusal = True\n    raise {raised.__name__}("a refusal")'
+        body = f'_assertpy_refusal = True\n    raise {raised.__name__}("a refusal")'
 
         with pytest.raises(raised) as caught:
             _born_in_the_package(body)()
@@ -233,7 +233,7 @@ class TestADefectOfTheLibrarysOwnKeepsItsFrames:
         assert_that([entry.name for entry in caught.traceback.filter(caught)]).does_not_contain("born")
 
     def test_a_mark_set_after_the_message_is_built_leaves_a_defect_in_building_it_shown(self):
-        body = 'message = "a" + 5\n    _assertpy2_refusal = True\n    raise TypeError(message)'
+        body = 'message = "a" + 5\n    _assertpy_refusal = True\n    raise TypeError(message)'
 
         with pytest.raises(TypeError, match="can only concatenate") as caught:
             _born_in_the_package(body)()
@@ -242,7 +242,7 @@ class TestADefectOfTheLibrarysOwnKeepsItsFrames:
 
     @pytest.mark.parametrize(
         "said",
-        ["_assertpy2_refusal = False", "__tracebackhide__ = True"],
+        ["_assertpy_refusal = False", "__tracebackhide__ = True"],
         ids=["the mark set to no", "the flag of pytest's own"],
     )
     def test_only_the_mark_of_the_library_set_to_yes_is_a_refusal(self, said):
@@ -278,7 +278,7 @@ class TestADefectOfTheLibrarysOwnKeepsItsFrames:
     @pytest.mark.parametrize("module", ["matchers.py", "_matcher_impls.py", "_engine/_require.py"])
     def test_nothing_is_evaluated_between_a_mark_and_its_raise(self, module):
         """A message is built before the mark, so a defect in building it is born in a frame not yet marked."""
-        tree = ast.parse((_HERE.parents[1] / "assertpy2" / module).read_text(encoding="utf-8"))
+        tree = ast.parse((_HERE.parents[1] / "assertpy" / module).read_text(encoding="utf-8"))
         blocks = [block for node in ast.walk(tree) for block in _blocks(node)]
         under = [block[index + 1] for block in blocks for index in range(len(block) - 1) if _marks(block[index])]
         evaluated = [ast.unparse(statement) for statement in under if not _raises_what_is_in_hand(statement)]

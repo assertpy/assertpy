@@ -4,9 +4,9 @@ import pytest
 from hypothesis import example, given, settings
 from hypothesis import strategies as st
 
-from assertpy2 import AssertionFailure, DiffEntry, DiffResult, assert_that, errors, fail, soft_assertions
-from assertpy2.errors import _first_difference
-from assertpy2.outcome import MISSING
+from assertpy import AssertionFailure, DiffEntry, DiffResult, assert_that, errors, fail, soft_assertions
+from assertpy.errors import _first_difference
+from assertpy.outcome import MISSING
 
 
 class TestAssertionFailure:

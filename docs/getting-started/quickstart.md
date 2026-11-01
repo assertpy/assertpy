@@ -3,27 +3,27 @@
 ## Install
 
 ```bash
-pip install assertpy2
+pip install assertpy
 ```
 
 Optional extras:
 
-- `assertpy2[json]` - JSONPath, JSON Schema, and OpenAPI contracts
-- `assertpy2[inline]` - inline snapshots (`matches_inline()`)
-- `assertpy2[data]` - pandas, polars and numpy, or each under its own name
-- `assertpy2[allure]` - Allure reporting
-- `assertpy2[behave]` - Behave step matchers
+- `assertpy[json]` - JSONPath, JSON Schema, and OpenAPI contracts
+- `assertpy[inline]` - inline snapshots (`matches_inline()`)
+- `assertpy[data]` - pandas, polars and numpy, or each under its own name
+- `assertpy[allure]` - Allure reporting
+- `assertpy[behave]` - Behave step matchers
 
-!!! tip "Coming from the original assertpy?"
-    assertpy2 is a drop-in replacement on Python 3.10+. See [Migrating from assertpy](migration.md) for
-    the one-line switch and what you gain.
+!!! tip "Coming from assertpy 1.x?"
+    2.x continues assertpy 1.1 on Python 3.10+. See [Upgrading from assertpy 1.x](migration.md) for what
+    changes and what you gain.
 
 ## Your first assertion
 
 Wrap a value in `assert_that()` and chain assertions that read like a sentence:
 
 ```python
-from assertpy2 import assert_that
+from assertpy import assert_that
 
 assert_that("foobar").is_length(6).starts_with("foo").ends_with("bar")
 assert_that([1, 2, 3]).contains(1).does_not_contain(9).is_subset_of([1, 2, 3, 4])
@@ -49,7 +49,7 @@ so `pytest.raises(AssertionError)` and any existing `except AssertionError` keep
 <!-- docs-guard: raises -->
 ```python
 assert_that(5).is_greater_than(10)
-# assertpy2.AssertionFailure: Expected <5> to be greater than <10>, but was not.
+# assertpy.AssertionFailure: Expected <5> to be greater than <10>, but was not.
 ```
 
 For dicts, dataclasses, and other structures, the pytest plugin renders a path-level diff that points
@@ -71,7 +71,7 @@ Use soft assertions to report every failure at once instead of stopping at the f
 
 <!-- docs-guard: raises -->
 ```python
-from assertpy2 import assert_that, soft_assertions
+from assertpy import assert_that, soft_assertions
 
 with soft_assertions():
     assert_that("foo").is_length(3)

@@ -6,7 +6,7 @@ A failing assertion raises `AssertionFailure`, a subclass of `AssertionError` th
 data. Existing `except AssertionError` handlers keep working unchanged.
 
 ```python
-from assertpy2 import AssertionFailure, assert_that
+from assertpy import AssertionFailure, assert_that
 
 try:
     assert_that(1).is_equal_to(2)
@@ -34,7 +34,7 @@ except AssertionFailure as e:
 `entry.path` is for people and cannot be read back. Keys pass through `str()`, so `{3: "a"}` and
 `{"3": "a"}` give the same path, and a key holding a dot or a bracket cannot be parsed.
 
-`entry.steps` is the same location for a program: a tuple of [`Step`][assertpy2.errors.Step], each holding
+`entry.steps` is the same location for a program: a tuple of [`Step`][assertpy.errors.Step], each holding
 the key, index, field name, set member or line number itself.
 
 ```python
@@ -265,7 +265,7 @@ the actual value in red:
 `strict_types` get a line of their own:
 
 ```python
-from assertpy2 import assert_that
+from assertpy import assert_that
 
 try:
     assert_that({"price": 1.0}).is_equal_to({"price": 9.0}, tolerance=0.001, strict_types=True)
@@ -283,7 +283,7 @@ A diff says what differs, not why: two strings differing only in a trailing spac
 made impossible. Where the whole difference has one explanation, it gets a line:
 
 ```python
-from assertpy2 import assert_that
+from assertpy import assert_that
 
 try:
     assert_that({"user": {"name": "bob "}}).is_equal_to({"user": {"name": "bob"}})
@@ -299,7 +299,7 @@ The one a JSON payload produces more than any other is a field that came back as
 `- 7` against `+ '7'` on every row, and the line says it once:
 
 ```python
-from assertpy2 import assert_that
+from assertpy import assert_that
 
 payload = {"id": 7, "quantity": 3}
 
@@ -317,7 +317,7 @@ A single value compared on its own says it in the sentence instead, tagging each
 comparison pass:
 
 ```python
-from assertpy2 import assert_that
+from assertpy import assert_that
 
 try:
     assert_that(float("nan")).is_equal_to(float("nan"))
@@ -330,7 +330,7 @@ Two values that print the same yet are not equal: a class without `__eq__` compa
 expected value your test built never equals the returned one:
 
 ```python
-from assertpy2 import assert_that
+from assertpy import assert_that
 
 
 class Order:
@@ -354,7 +354,7 @@ One level down, a diff row whose sides print the same is never left alone. Two c
 with the class, and with the module where the names clash:
 
 ```python
-from assertpy2 import assert_that
+from assertpy import assert_that
 
 
 class Kept(dict):
@@ -376,7 +376,7 @@ Two sides of one class that print the same get a line instead:
 - Otherwise: the repr does not show the difference, and the attributes that differ are listed.
 
 ```python
-from assertpy2 import assert_that
+from assertpy import assert_that
 
 
 class Money:
@@ -401,7 +401,7 @@ Where differences repeat down a sequence, a line says where, with positions writ
 counts, including those past the fiftieth that are not printed:
 
 ```python
-from assertpy2 import assert_that
+from assertpy import assert_that
 
 rows = [{"id": n, "name": f"user{n}", "updated_at": f"10:00:{n:02d}"} for n in range(51)]
 other = [dict(row, updated_at=f"11:00:{n:02d}") for n, row in enumerate(rows)]
@@ -471,7 +471,7 @@ no other key ever was.
 ```python
 import json
 
-from assertpy2 import assert_that
+from assertpy import assert_that
 
 payload = json.loads('{"ids": [7, 8]}')
 
@@ -581,7 +581,7 @@ message keeps working.
 ### Polling failures carry a trace
 
 An [`eventually()`](testing.md#async-assertions) timeout carries `failure.trace`: a
-[`PollTrace`][assertpy2.errors.PollTrace] with a [`PollSample`][assertpy2.errors.PollSample] per poll and a
+[`PollTrace`][assertpy.errors.PollTrace] with a [`PollSample`][assertpy.errors.PollSample] per poll and a
 one-line trend. See [Polling trace](testing.md#polling-trace).
 
 ### The comparison window of an IDE
@@ -630,7 +630,7 @@ Who hears the hook:
   the pair when the report is logged hears it, which is how PyCharm's runner reads.
 - Under `pytest-xdist` it is called in the worker, and a runner that reports from the controller does
   not hear it.
-- `assertpy2_comparison = "off"` turns the hand-over off.
+- `assertpy_comparison = "off"` turns the hand-over off.
 
 ### Catching failures with their types intact
 
@@ -640,7 +640,7 @@ and `fail()` included:
 
 ```python
 import pytest
-from assertpy2 import AssertionFailure, assert_that
+from assertpy import AssertionFailure, assert_that
 
 def test_diff_is_machine_readable():
     with pytest.raises(AssertionFailure) as exc_info:
@@ -662,7 +662,7 @@ Forty failing tests are usually not forty problems. Where three or more of them 
 place, the run ends with a line saying where:
 
 ```text
-assertpy2 failure clusters:
+assertpy failure clusters:
   37 of 40 failing tests differ at user.role
       actual:   'superadmin'
       expected: 'admin'
@@ -673,7 +673,7 @@ You get that without configuring anything. Three is the floor rather than a rule
 
 ```toml
 [tool.pytest.ini_options]
-assertpy2_failure_clusters = "5"   # failing tests a cluster must hold before it is printed, or "off"
+assertpy_failure_clusters = "5"   # failing tests a cluster must hold before it is printed, or "off"
 ```
 
 Two failures share a cluster only when their difference is *equal*, never merely similar. Without a place
@@ -711,7 +711,7 @@ What the summary will and will not claim:
   can ship something unreadable. The summary says so:
 
 ```text
-assertpy2 failure clusters:
+assertpy failure clusters:
   1 worker died, so these counts cover only what was reported
   6 of 6 failing tests differ at user.role
 ```
@@ -740,11 +740,11 @@ turns both on in one line:
 
 ```toml
 [tool.pytest.ini_options]
-assertpy2_profile = "safe"   # dangling on, vacuous on (default "compatible": both off)
+assertpy_profile = "safe"   # dangling on, vacuous on (default "compatible": both off)
 ```
 
-- A setting you name wins over the profile: `safe` plus `assertpy2_dangling = "off"` keeps only the other.
-- Failure clustering needs no profile: it reads only red runs. `assertpy2_failure_clusters = "off"` turns it
+- A setting you name wins over the profile: `safe` plus `assertpy_dangling = "off"` keeps only the other.
+- Failure clustering needs no profile: it reads only red runs. `assertpy_failure_clusters = "off"` turns it
   off.
 
 ### Seeing them, and being stopped by them
@@ -754,7 +754,7 @@ assertpy2_profile = "safe"   # dangling on, vacuous on (default "compatible": bo
 
 ```toml
 [tool.pytest.ini_options]
-assertpy2_profile = "strict"
+assertpy_profile = "strict"
 ```
 
 The two read differently in the report, because they are found at different moments:
@@ -771,36 +771,36 @@ FAILED test_orders.py::test_every_item  VacuousAssertionWarning
 
 ```toml
 [tool.pytest.ini_options]
-assertpy2_diff = "off"              # disable structured diff sections entirely
-assertpy2_diff_max_entries = "100"  # max entries to show (default 50, 0 = unlimited)
-assertpy2_comparison = "off"        # do not hand a failed equality to comparison listeners
-assertpy2_poll_report = "off"       # silence the near-timeout poll report (default 0.7)
-assertpy2_failure_clusters = "off"  # stop grouping failures that share one difference (default 3)
-assertpy2_dangling = "on"           # warn about assert_that() statements that assert nothing
-assertpy2_dangling_entries = "check"  # your own assert_that wrappers, for the check above
-assertpy2_vacuous = "on"            # warn when a universal assertion passes over an empty value
+assertpy_diff = "off"              # disable structured diff sections entirely
+assertpy_diff_max_entries = "100"  # max entries to show (default 50, 0 = unlimited)
+assertpy_comparison = "off"        # do not hand a failed equality to comparison listeners
+assertpy_poll_report = "off"       # silence the near-timeout poll report (default 0.7)
+assertpy_failure_clusters = "off"  # stop grouping failures that share one difference (default 3)
+assertpy_dangling = "on"           # warn about assert_that() statements that assert nothing
+assertpy_dangling_entries = "check"  # your own assert_that wrappers, for the check above
+assertpy_vacuous = "on"            # warn when a universal assertion passes over an empty value
 ```
 
 - In a color terminal or with `--color=yes`, diffs are colored: red removals, green additions, cyan headers.
   Every other reader gets plain text.
 - Entries past the limit become `... and N more entries`.
 
-The plugin also adds `assertpy2_allure` (see [Allure](../extending/integrations.md#allure)) and these flags:
+The plugin also adds `assertpy_allure` (see [Allure](../extending/integrations.md#allure)) and these flags:
 
 | Flag | What it does |
 |---|---|
-| [`--assertpy2-vacuous`](assertions.md#assertions-that-checked-nothing) | Warn when a universal assertion passes over an empty value, or `is_equal_to` compares nothing |
-| [`--assertpy2-dangling`](assertions.md#assertions-that-never-ran) | Warn when `assert_that()` is written as a statement that asserts nothing |
-| [`--assertpy2-snapshot-update`](testing.md#snapshot-testing) | Overwrite failing snapshots with the current values |
-| [`--assertpy2-snapshot-ci`](testing.md#snapshot-testing) | Fail instead of creating a missing snapshot (auto-enabled on CI) |
-| `--assertpy2-snapshot-no-ci` | Disable CI mode and its autodetection |
+| [`--assertpy-vacuous`](assertions.md#assertions-that-checked-nothing) | Warn when a universal assertion passes over an empty value, or `is_equal_to` compares nothing |
+| [`--assertpy-dangling`](assertions.md#assertions-that-never-ran) | Warn when `assert_that()` is written as a statement that asserts nothing |
+| [`--assertpy-snapshot-update`](testing.md#snapshot-testing) | Overwrite failing snapshots with the current values |
+| [`--assertpy-snapshot-ci`](testing.md#snapshot-testing) | Fail instead of creating a missing snapshot (auto-enabled on CI) |
+| `--assertpy-snapshot-no-ci` | Disable CI mode and its autodetection |
 
 ## What a failure exposes
 
 A failing assertion shows the values it compared, and that output reaches CI logs, report attachments and,
 for snapshots, committed files. Below is what travels where.
 
-**assertpy2 caps size. It never redacts.** Nothing guesses whether a value looks like a credential: a
+**assertpy caps size. It never redacts.** Nothing guesses whether a value looks like a credential: a
 wrong guess either hides the difference you are debugging or leaks what you thought was masked.
 
 ### The channels
@@ -840,7 +840,7 @@ A diff has caps of its own:
 Excluding a key from the comparison also excludes it from the message and the diff:
 
 ```python
-from assertpy2 import AssertionFailure, assert_that
+from assertpy import AssertionFailure, assert_that
 
 payload = {"user": "alice", "api_key": "sk-live-9f3b2a7c", "n": 1}
 expected = {"user": "alice", "api_key": "sk-live-different", "n": 2}
@@ -859,7 +859,7 @@ except AssertionFailure as failure:
 
 ### Turning channels off
 
-`assertpy2_diff = "off"` drops the diff section from pytest reports, and `assertpy2_allure = "off"` stops
+`assertpy_diff = "off"` drops the diff section from pytest reports, and `assertpy_allure = "off"` stops
 attaching values to Allure. The message stays intact, so neither replaces not passing the value in.
 
 ## Failure and expected exceptions
@@ -870,7 +870,7 @@ Force a test failure explicitly:
 
 <!-- docs-guard: skip -->
 ```python
-from assertpy2 import fail
+from assertpy import fail
 
 fail("forced failure")
 ```
@@ -1054,10 +1054,10 @@ assert_that(1 + 2).described_as("adding stuff").is_equal_to(2)
 
 A [`soft_assertions()`](testing.md#soft-assertions) block renders its failures into one numbered message.
 The raised `AssertionFailure` also carries `failures`: one
-[`AssertionOutcome`][assertpy2.outcome.AssertionOutcome] per failure, in the order collected.
+[`AssertionOutcome`][assertpy.outcome.AssertionOutcome] per failure, in the order collected.
 
 ```python
-from assertpy2 import AssertionFailure, assert_that, soft_assertions
+from assertpy import AssertionFailure, assert_that, soft_assertions
 
 try:
     with soft_assertions():
@@ -1118,7 +1118,7 @@ In the compact form, what each kind of value adds:
 
 ### Asking instead of asserting
 
-`check()` returns the next assertion's verdict as an [`AssertionOutcome`][assertpy2.outcome.AssertionOutcome]
+`check()` returns the next assertion's verdict as an [`AssertionOutcome`][assertpy.outcome.AssertionOutcome]
 instead of raising: truthy when it held, with the message, values and diff when it did not.
 
 ```python
@@ -1162,7 +1162,7 @@ print(outcome.requirement.parameters)   # {'other': 9, 'tolerance': 0.1, 'rel': 
 print(outcome.requirement.negated)      # False
 ```
 
-The same three fields are on the raised [`AssertionFailure`][assertpy2.errors.AssertionFailure], on each
+The same three fields are on the raised [`AssertionFailure`][assertpy.errors.AssertionFailure], on each
 entry of a soft block's `failures` and in the Allure attachment. A report can group failures without
 parsing messages: every `is_close_to` failure carries the same operation, and a negated one is marked.
 
@@ -1217,12 +1217,12 @@ assert_warn("foo").is_length(4)   # logs a warning, does not raise
     assert_warn("foo", logger=my_logger).is_length(4)
     ```
 
-    The `assertpy2` logger carries its own handler and also propagates, so if your suite calls
+    The `assertpy` logger carries its own handler and also propagates, so if your suite calls
     `logging.basicConfig()` each warning is printed twice. Turning propagation off silences the
     duplicate:
 
     ```python
-    logging.getLogger("assertpy2").propagate = False
+    logging.getLogger("assertpy").propagate = False
     ```
 
     That trade is yours to make: propagation is also how pytest's `caplog` fixture receives these
@@ -1231,21 +1231,21 @@ assert_warn("foo").is_length(4)   # logs a warning, does not raise
 #### Handing each failure to your own code
 
 `on_failure` takes a callable instead of a logger. It gets each failure as an
-[`AssertionOutcome`][assertpy2.outcome.AssertionOutcome]: the message, the values, the diff, the
+[`AssertionOutcome`][assertpy.outcome.AssertionOutcome]: the message, the values, the diff, the
 [`requirement`](#what-was-asked-as-data) and the `(file, line)`. A logger that should carry the record
 takes it from there:
 
 ```python
 import logging
 
-from assertpy2 import assert_warn
+from assertpy import assert_warn
 
 log = logging.getLogger("checks")
 
 
 def report(outcome):
     text = outcome.message if outcome.diff is None else f"{outcome.message}\n{outcome.diff}"
-    log.warning(text, extra={"assertpy2_outcome": outcome})
+    log.warning(text, extra={"assertpy_outcome": outcome})
 
 
 assert_warn({"status": 500}, on_failure=report).is_equal_to({"status": 200})
@@ -1260,12 +1260,12 @@ assert_warn({"status": 500}, on_failure=report).is_equal_to({"status": 200})
 
 ### Logging the assertions that pass
 
-Inside a [`log_passes()`][assertpy2.assertpy.log_passes] block, every assertion that holds logs one line: the
+Inside a [`log_passes()`][assertpy.assertpy.log_passes] block, every assertion that holds logs one line: the
 call, the value, where it was asked and, for a threshold, how far the value was from it. Failures behave as they
 do outside.
 
 ```python
-from assertpy2 import assert_that, log_passes
+from assertpy import assert_that, log_passes
 
 latency, status = 0.42, 200
 with log_passes():
@@ -1274,7 +1274,7 @@ with log_passes():
     assert_that(98.7).is_close_to(100, 2)
 ```
 
-Each line goes to the `assertpy2.passes` logger at `INFO`:
+Each line goes to the `assertpy.passes` logger at `INFO`:
 
 ```
 [test_api.py:5]: is_less_than(0.5) passed for <0.42>, the value is about 0.08 below the number given
@@ -1292,7 +1292,7 @@ log_cli_level = "INFO"
 ```
 
 Outside pytest, configure a handler: `logging.basicConfig(level=logging.INFO)` for a script. `logger=` and
-`level=` send the lines elsewhere. The default logger is a child of `assertpy2`, so turning off that one's
+`level=` send the lines elsewhere. The default logger is a child of `assertpy`, so turning off that one's
 propagation, as the section above suggests for warnings, keeps these lines from your handlers as well.
 
 **Where the distance is given.**
@@ -1333,12 +1333,12 @@ kept past its block still runs through the observation, reporting nothing.
 #### Handing each pass to your own code
 
 `on_pass` takes a callable instead of a logger. It gets each pass as an
-[`AssertionOutcome`][assertpy2.outcome.AssertionOutcome]: `passed` set, the value, the
+[`AssertionOutcome`][assertpy.outcome.AssertionOutcome]: `passed` set, the value, the
 [`requirement`](#what-was-asked-as-data), the `(file, line)` and the distance as `hint`. `message` is empty, as
 on every passing outcome.
 
 ```python
-from assertpy2 import AssertionOutcome, assert_that, log_passes
+from assertpy import AssertionOutcome, assert_that, log_passes
 
 checked: list[AssertionOutcome] = []
 with log_passes(on_pass=checked.append):

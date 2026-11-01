@@ -1,6 +1,6 @@
 import pytest
 
-from assertpy2 import assert_that, soft_assertions, soft_fail
+from assertpy import assert_that, soft_assertions, soft_fail
 
 
 def test_soft_fail_without_context():

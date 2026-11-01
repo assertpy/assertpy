@@ -1,7 +1,7 @@
-"""The exception-group classes, taken the way assertpy2 itself takes them.
+"""The exception-group classes, taken the way assertpy itself takes them.
 
 Groups are a 3.11+ builtin, and below that the library falls back to the ``exceptiongroup`` backport
-(``assertpy2/_engine/_compat.py``).  The group tests used to skip on 3.10 outright, which left the
+(``assertpy/_engine/_compat.py``).  The group tests used to skip on 3.10 outright, which left the
 fallback path that ships there unexercised.  Resolving the classes here once keeps both the example-based
 and the property-based suite pointed at whatever the interpreter under test actually has.
 

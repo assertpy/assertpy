@@ -16,8 +16,8 @@ from types import SimpleNamespace
 
 import pytest
 
-from assertpy2 import AssertionFailure, assert_that, match, pytest_plugin
-from assertpy2._clustering import (
+from assertpy import AssertionFailure, assert_that, match, pytest_plugin
+from assertpy._clustering import (
     _EXAMPLE_LIMIT,
     _VALUE_LIMIT,
     MINIMUM_SIZE,
@@ -36,8 +36,8 @@ from assertpy2._clustering import (
     signature,
     stable_repr,
 )
-from assertpy2.errors import DiffEntry, DiffResult, Step
-from assertpy2.pytest_plugin import (
+from assertpy.errors import DiffEntry, DiffResult, Step
+from assertpy.pytest_plugin import (
     _cluster_minimum,
     _observation_from_wire,
     _observation_to_wire,
@@ -498,8 +498,8 @@ class TestTheSummaryText:
 class TestThePluginWiring:
     @staticmethod
     def _config(setting="3"):
-        config = SimpleNamespace(_assertpy2_failures=[], _assertpy2_failure_count=0)
-        config._assertpy2_cluster_minimum = _cluster_minimum(setting)
+        config = SimpleNamespace(_assertpy_failures=[], _assertpy_failure_count=0)
+        config._assertpy_cluster_minimum = _cluster_minimum(setting)
         return config
 
     def test_the_summary_can_be_turned_off(self):
@@ -521,7 +521,7 @@ class TestThePluginWiring:
     def test_off_records_nothing(self):
         config = self._config("off")
         _record_for_clustering(config, "t.py::test_x", diff_of(lambda: assert_that(1).is_equal_to(2)))
-        assert_that(config._assertpy2_failure_count).is_zero()
+        assert_that(config._assertpy_failure_count).is_zero()
 
     def test_a_failure_that_is_not_an_assertion_at_all_still_counts(self):
         """A live suite fails on timeouts and transport errors far more often than on assertions.
@@ -533,14 +533,14 @@ class TestThePluginWiring:
         config = self._config()
         for index in range(3):
             _record_for_clustering(config, f"t.py::test_{index}", TimeoutError("waiting for locator"))
-        assert_that(config._assertpy2_failure_count).is_equal_to(3)
-        assert_that(config._assertpy2_failures).described_as("nothing to cluster on").is_empty()
+        assert_that(config._assertpy_failure_count).is_equal_to(3)
+        assert_that(config._assertpy_failures).described_as("nothing to cluster on").is_empty()
 
     def test_a_failure_without_a_diff_still_counts_toward_the_whole(self):
         config = self._config()
         _record_for_clustering(config, "t.py::test_x", AssertionFailure("no diff here"))
-        assert_that(config._assertpy2_failure_count).is_equal_to(1)
-        assert_that(config._assertpy2_failures).is_empty()
+        assert_that(config._assertpy_failure_count).is_equal_to(1)
+        assert_that(config._assertpy_failures).is_empty()
 
     def test_the_failures_own_diagnostic_reaches_the_key(self):
         config = self._config()
@@ -548,7 +548,7 @@ class TestThePluginWiring:
             with pytest.raises(AssertionFailure) as failure:
                 assert_that(f"payload-{index}\n".encode()).is_equal_to(f"payload-{index}".encode())
             _record_for_clustering(config, f"t.py::test_{index}", failure.value)
-        found = clusters(config._assertpy2_failures, 3)
+        found = clusters(config._assertpy_failures, 3)
         assert_that(found).described_as("three different payloads, one difference").is_length(1)
         assert_that(found[0].signature.label).contains("surrounding whitespace")
 
@@ -576,7 +576,7 @@ class TestThePluginWiring:
             _record_for_clustering(config, f"t.py::test_{index}", failure.value)
         reporter = SimpleNamespace(write_line=print)
         pytest_terminal_summary(reporter, 1, config)
-        assert_that(capsys.readouterr().out).contains("assertpy2 failure clusters:").contains("role")
+        assert_that(capsys.readouterr().out).contains("assertpy failure clusters:").contains("role")
 
     def test_a_run_too_small_to_cluster_says_nothing(self, capsys):
         config = self._config()
@@ -622,7 +622,7 @@ class TestThePluginWiring:
         summary reported half the run as unexplained when none of it was.  Measured on a live run: 26
         failures over two workers read as `6 of 26` with `17 of 26 not clustered`.
         """
-        from assertpy2 import pytest_plugin
+        from assertpy import pytest_plugin
 
         pytest_plugin._controller_failures.clear()
         pytest_plugin._controller_failure_count[0] = 0
@@ -632,8 +632,8 @@ class TestThePluginWiring:
             node = SimpleNamespace(
                 gateway=SimpleNamespace(id=worker),
                 workeroutput={
-                    "assertpy2_failures": [[f"t.py::test_{index}", shipped] for index in range(3)],
-                    "assertpy2_failure_count": 3,
+                    "assertpy_failures": [[f"t.py::test_{index}", shipped] for index in range(3)],
+                    "assertpy_failure_count": 3,
                 },
             )
             pytest_plugin._collect_worker_failures(node)
@@ -647,101 +647,101 @@ class TestThePluginWiring:
     @pytest.mark.parametrize(
         "output",
         [
-            pytest.param({"assertpy2_failures": [["t.py::test_x", [["not", "an", "observation"]]]]}, id="broken-row"),
-            pytest.param({"assertpy2_failures": [["t.py::test_x", []]]}, id="rows-without-a-count"),
-            pytest.param({"assertpy2_failure_count": "many"}, id="count-that-is-not-a-number"),
-            pytest.param({"assertpy2_failures": []}, id="one-half-of-the-payload"),
-            pytest.param({"assertpy2_failure_count": 4}, id="the-other-half-of-the-payload"),
+            pytest.param({"assertpy_failures": [["t.py::test_x", [["not", "an", "observation"]]]]}, id="broken-row"),
+            pytest.param({"assertpy_failures": [["t.py::test_x", []]]}, id="rows-without-a-count"),
+            pytest.param({"assertpy_failure_count": "many"}, id="count-that-is-not-a-number"),
+            pytest.param({"assertpy_failures": []}, id="one-half-of-the-payload"),
+            pytest.param({"assertpy_failure_count": 4}, id="the-other-half-of-the-payload"),
             pytest.param(
                 {
-                    "assertpy2_failures": [
+                    "assertpy_failures": [
                         ["t.py::test_x", [[True, "role", [["key", "'role'"]], "", [], ["a"], "'b'"]]]
                     ],
-                    "assertpy2_failure_count": 3,
+                    "assertpy_failure_count": 3,
                 },
                 id="a-row-of-the-right-length-holding-the-wrong-thing",
             ),
             pytest.param(
-                {"assertpy2_failures": [[7, []]], "assertpy2_failure_count": 3},
+                {"assertpy_failures": [[7, []]], "assertpy_failure_count": 3},
                 id="a-node-id-that-is-not-a-name",
             ),
             pytest.param(
-                {"assertpy2_failures": [], "assertpy2_failure_count": 3.9},
+                {"assertpy_failures": [], "assertpy_failure_count": 3.9},
                 id="a-count-that-is-not-whole",
             ),
             pytest.param(
-                {"assertpy2_failures": [], "assertpy2_failure_count": True},
+                {"assertpy_failures": [], "assertpy_failure_count": True},
                 id="a-count-that-is-a-flag",
             ),
             pytest.param({}, id="a-worker-that-does-not-speak-this-protocol"),
             pytest.param(
                 {
-                    "assertpy2_failures": [["t.py::test_x", [[True, "role", [], "", [], "'a'", "'b'"]]]],
-                    "assertpy2_failure_count": 3,
+                    "assertpy_failures": [["t.py::test_x", [[True, "role", [], "", [], "'a'", "'b'"]]]],
+                    "assertpy_failure_count": 3,
                 },
                 id="a-place-with-nowhere-in-it",
             ),
             pytest.param(
                 {
-                    "assertpy2_failures": [["t.py::test_x", [[True, "", [], "", [], "'a'", "'b'"]]]],
-                    "assertpy2_failure_count": 3,
+                    "assertpy_failures": [["t.py::test_x", [[True, "", [], "", [], "'a'", "'b'"]]]],
+                    "assertpy_failure_count": 3,
                 },
                 id="a-place-with-nowhere-in-it-and-nothing-to-say",
             ),
             pytest.param(
                 {
-                    "assertpy2_failures": [
+                    "assertpy_failures": [
                         ["t.py::test_x", [[True, "role", [["key", "'role'"]], "a diagnostic", [], "'a'", "'b'"]]]
                     ],
-                    "assertpy2_failure_count": 3,
+                    "assertpy_failure_count": 3,
                 },
                 id="a-place-that-also-carries-a-diagnostic",
             ),
             pytest.param(
                 {
-                    "assertpy2_failures": [
+                    "assertpy_failures": [
                         ["t.py::test_x", [[True, "elsewhere", [["key", "'role'"]], "", [], "1", "2"]]]
                     ],
-                    "assertpy2_failure_count": 3,
+                    "assertpy_failure_count": 3,
                 },
                 id="a-heading-that-is-not-what-its-steps-render-to",
             ),
             pytest.param(
                 {
-                    "assertpy2_failures": [["t.py::test_x", [[False, "scalar", [], "", [], "'a'", "'b'"]]]],
-                    "assertpy2_failure_count": 3,
+                    "assertpy_failures": [["t.py::test_x", [[False, "scalar", [], "", [], "'a'", "'b'"]]]],
+                    "assertpy_failure_count": 3,
                 },
                 id="a-difference-with-neither-a-diagnostic-nor-values",
             ),
             pytest.param(
                 {
-                    "assertpy2_failures": [
+                    "assertpy_failures": [
                         ["t.py::test_x", [[False, "scalar", [], "a diagnostic", ["1", "2"], "'a'", "'b'"]]]
                     ],
-                    "assertpy2_failure_count": 3,
+                    "assertpy_failure_count": 3,
                 },
                 id="a-difference-with-both",
             ),
             pytest.param(
                 {
-                    "assertpy2_failures": [
+                    "assertpy_failures": [
                         ["t.py::test_x", [[False, "scalar", [["key", "'role'"]], "", ["1", "2"], "'a'", "'b'"]]]
                     ],
-                    "assertpy2_failure_count": 3,
+                    "assertpy_failure_count": 3,
                 },
                 id="a-difference-with-no-place-that-brought-one-anyway",
             ),
             pytest.param(
                 {
-                    "assertpy2_failures": [["t.py::test_x", [[True, "role", [["item", "'role'"]], "", [], "1", "2"]]]],
-                    "assertpy2_failure_count": 3,
+                    "assertpy_failures": [["t.py::test_x", [[True, "role", [["item", "'role'"]], "", [], "1", "2"]]]],
+                    "assertpy_failure_count": 3,
                 },
                 id="a-place-built-from-a-step-that-names-no-place",
             ),
             pytest.param(
                 {
-                    "assertpy2_failures": [["t.py::test_x", []], ["t.py::test_y", []]],
-                    "assertpy2_failure_count": 1,
+                    "assertpy_failures": [["t.py::test_x", []], ["t.py::test_y", []]],
+                    "assertpy_failure_count": 1,
                 },
                 id="count-smaller-than-the-tests-it-shipped",
             ),
@@ -759,7 +759,7 @@ class TestThePluginWiring:
         raises out of the grouping, past the point where the worker could still be reported: the summary
         vanished and the run said nothing about why.
         """
-        from assertpy2 import pytest_plugin
+        from assertpy import pytest_plugin
 
         pytest_plugin._controller_unreadable_workers[0] = 0
         node = SimpleNamespace(gateway=SimpleNamespace(id="gw0"), workeroutput=output)
@@ -768,7 +768,7 @@ class TestThePluginWiring:
         assert_that(pytest_plugin._controller_failures).is_empty()
         assert_that(pytest_plugin._controller_failure_count[0]).is_zero()
 
-        config = SimpleNamespace(_assertpy2_failures=[], _assertpy2_failure_count=0, _assertpy2_cluster_minimum=3)
+        config = SimpleNamespace(_assertpy_failures=[], _assertpy_failure_count=0, _assertpy_cluster_minimum=3)
         for index in range(4):
             with pytest.raises(AssertionFailure) as failure:
                 assert_that({"role": "super"}).is_equal_to({"role": "admin"})
@@ -782,15 +782,15 @@ class TestThePluginWiring:
         pytest_plugin._controller_unreadable_workers[0] = 0
 
     def test_a_worker_that_died_is_not_also_called_unreadable(self):
-        from assertpy2 import pytest_plugin
+        from assertpy import pytest_plugin
 
         pytest_plugin._controller_unreadable_workers[0] = 0
-        node = SimpleNamespace(gateway=SimpleNamespace(id="gw0"), workeroutput={"assertpy2_failure_count": "many"})
+        node = SimpleNamespace(gateway=SimpleNamespace(id="gw0"), workeroutput={"assertpy_failure_count": "many"})
         pytest_plugin._collect_worker_failures(node, died=True)
         assert_that(pytest_plugin._controller_unreadable_workers[0]).is_zero()
 
     def test_a_worker_that_shipped_nothing_about_clusters_is_never_called_dead(self):
-        from assertpy2 import pytest_plugin
+        from assertpy import pytest_plugin
 
         pytest_plugin._controller_lost_workers[0] = 0
         pytest_plugin._controller_unreadable_workers[0] = 0
@@ -806,7 +806,7 @@ class TestThePluginWiring:
         worker that shipped neither is one that does not speak this protocol.  Its failures are missing
         from the denominator, and saying nothing about that is how a run of twelve prints `6 of 6`.
         """
-        from assertpy2 import pytest_plugin
+        from assertpy import pytest_plugin
 
         pytest_plugin._controller_failures.clear()
         pytest_plugin._controller_failure_count[0] = 0
@@ -816,15 +816,15 @@ class TestThePluginWiring:
         speaking = SimpleNamespace(
             gateway=SimpleNamespace(id="gw0"),
             workeroutput={
-                "assertpy2_failures": [[f"t.py::test_{index}", shipped] for index in range(6)],
-                "assertpy2_failure_count": 6,
+                "assertpy_failures": [[f"t.py::test_{index}", shipped] for index in range(6)],
+                "assertpy_failure_count": 6,
             },
         )
         silent = SimpleNamespace(gateway=SimpleNamespace(id="gw1"), workeroutput={})
         pytest_plugin.pytest_testnodedown(speaking, None)
         pytest_plugin.pytest_testnodedown(silent, None)
 
-        config = SimpleNamespace(_assertpy2_failures=[], _assertpy2_failure_count=0, _assertpy2_cluster_minimum=3)
+        config = SimpleNamespace(_assertpy_failures=[], _assertpy_failure_count=0, _assertpy_cluster_minimum=3)
         printed: list[str] = []
         pytest_terminal_summary(SimpleNamespace(write_line=printed.append), 1, config)
         assert_that(printed).contains(
@@ -842,10 +842,10 @@ class TestThePluginWiring:
         Reproduced before the fix: two sessions gave 10 failures and two records where one session had
         produced 5 and one.
         """
-        from assertpy2 import pytest_plugin
+        from assertpy import pytest_plugin
 
         wire = [["t.py::test_x", [[True, "user.role", [["key", "'user'"], ["key", "'role'"]], "", [], "'s'", "'a'"]]]]
-        node = SimpleNamespace(workeroutput={"assertpy2_failures": wire, "assertpy2_failure_count": 5})
+        node = SimpleNamespace(workeroutput={"assertpy_failures": wire, "assertpy_failure_count": 5})
         released = SimpleNamespace(getoption=lambda name: False)
 
         pytest_plugin.pytest_testnodedown(node, None)
@@ -879,10 +879,10 @@ class TestTheDenominatorCountsEveryRedResult:
         return SimpleNamespace(config=config, nodeid="t.py::test_x")
 
     def _run(self, when, exc):
-        from assertpy2 import pytest_plugin
+        from assertpy import pytest_plugin
 
-        config = SimpleNamespace(_assertpy2_failures=[], _assertpy2_failure_count=0)
-        config._assertpy2_cluster_minimum = 3
+        config = SimpleNamespace(_assertpy_failures=[], _assertpy_failure_count=0)
+        config._assertpy_cluster_minimum = 3
         outcome = SimpleNamespace(get_result=lambda: self._report(when))
         call = SimpleNamespace(excinfo=SimpleNamespace(value=exc), when=when)
         hook = pytest_plugin.pytest_runtest_makereport(self._item(config), call)
@@ -894,7 +894,7 @@ class TestTheDenominatorCountsEveryRedResult:
     @pytest.mark.parametrize("when", ["setup", "call", "teardown"])
     def test_a_failure_in_any_phase_counts(self, when):
         config = self._run(when, RuntimeError("service did not come up"))
-        assert_that(config._assertpy2_failure_count).is_equal_to(1)
+        assert_that(config._assertpy_failure_count).is_equal_to(1)
 
     def test_a_red_report_with_no_exception_at_all_counts(self):
         """A test that passes under `xfail(strict=True)` is a failed report with no exception.
@@ -903,31 +903,31 @@ class TestTheDenominatorCountsEveryRedResult:
         report is red.  Counting only failures that carry an exception printed `3 of 3 failing tests`
         on a run pytest called `4 failed`.
         """
-        from assertpy2 import pytest_plugin
+        from assertpy import pytest_plugin
 
-        config = SimpleNamespace(_assertpy2_failures=[], _assertpy2_failure_count=0)
-        config._assertpy2_cluster_minimum = 3
+        config = SimpleNamespace(_assertpy_failures=[], _assertpy_failure_count=0)
+        config._assertpy_cluster_minimum = 3
         outcome = SimpleNamespace(get_result=lambda: self._report("call"))
         call = SimpleNamespace(excinfo=None, when="call")
         hook = pytest_plugin.pytest_runtest_makereport(self._item(config), call)
         next(hook)
         with pytest.raises(StopIteration):
             hook.send(outcome)
-        assert_that(config._assertpy2_failure_count).is_equal_to(1)
-        assert_that(config._assertpy2_failures).described_as("nothing to cluster on").is_empty()
+        assert_that(config._assertpy_failure_count).is_equal_to(1)
+        assert_that(config._assertpy_failures).described_as("nothing to cluster on").is_empty()
 
     def test_a_passing_report_counts_nothing(self):
-        from assertpy2 import pytest_plugin
+        from assertpy import pytest_plugin
 
-        config = SimpleNamespace(_assertpy2_failures=[], _assertpy2_failure_count=0)
-        config._assertpy2_cluster_minimum = 3
+        config = SimpleNamespace(_assertpy_failures=[], _assertpy_failure_count=0)
+        config._assertpy_cluster_minimum = 3
         outcome = SimpleNamespace(get_result=lambda: self._report("call", failed=False))
         call = SimpleNamespace(excinfo=None, when="call")
         hook = pytest_plugin.pytest_runtest_makereport(self._item(config), call)
         next(hook)
         with pytest.raises(StopIteration):
             hook.send(outcome)
-        assert_that(config._assertpy2_failure_count).is_zero()
+        assert_that(config._assertpy_failure_count).is_zero()
 
     def test_one_test_going_red_twice_is_one_test(self):
         """pytest counts a failed call and a broken teardown as a failure and an error, and it is right.
@@ -936,10 +936,10 @@ class TestTheDenominatorCountsEveryRedResult:
         whose teardown also blew up is one broken test rather than two.  The lines say `failing tests`
         so the two readings cannot be confused for each other.
         """
-        from assertpy2 import pytest_plugin
+        from assertpy import pytest_plugin
 
-        config = SimpleNamespace(_assertpy2_failures=[], _assertpy2_failure_count=0)
-        config._assertpy2_cluster_minimum = 3
+        config = SimpleNamespace(_assertpy_failures=[], _assertpy_failure_count=0)
+        config._assertpy_cluster_minimum = 3
         for when, exc in (("call", AssertionError("call")), ("teardown", RuntimeError("teardown"))):
             outcome = SimpleNamespace(get_result=lambda when=when: self._report(when))
             call = SimpleNamespace(excinfo=SimpleNamespace(value=exc), when=when)
@@ -947,7 +947,7 @@ class TestTheDenominatorCountsEveryRedResult:
             next(hook)
             with pytest.raises(StopIteration):
                 hook.send(outcome)
-        assert_that(config._assertpy2_failure_count).described_as("one test, two red reports").is_equal_to(1)
+        assert_that(config._assertpy_failure_count).described_as("one test, two red reports").is_equal_to(1)
 
     @pytest.mark.parametrize("base", [RuntimeError, AssertionError], ids=["someone-elses", "one-of-ours"])
     def test_an_exception_that_fights_back_is_still_only_a_failure(self, base):
@@ -960,7 +960,7 @@ class TestTheDenominatorCountsEveryRedResult:
         where the report sections are built from those same attributes, and that second set of reads was
         outside its own barrier until this test went looking for it.
         """
-        from assertpy2 import pytest_plugin
+        from assertpy import pytest_plugin
 
         class HostileError(base):
             @property
@@ -972,11 +972,11 @@ class TestTheDenominatorCountsEveryRedResult:
                 raise ValueError("this one too")
 
         config = SimpleNamespace(
-            _assertpy2_failures=[],
-            _assertpy2_failure_count=0,
-            _assertpy2_cluster_minimum=3,
-            _assertpy2_diff_enabled=True,
-            _assertpy2_diff_max=50,
+            _assertpy_failures=[],
+            _assertpy_failure_count=0,
+            _assertpy_cluster_minimum=3,
+            _assertpy_diff_enabled=True,
+            _assertpy_diff_max=50,
             option=SimpleNamespace(color="no"),
         )
         report = self._report("call")
@@ -987,8 +987,8 @@ class TestTheDenominatorCountsEveryRedResult:
         next(hook)
         with pytest.raises(StopIteration):
             hook.send(outcome)
-        assert_that(config._assertpy2_failure_count).described_as("counted like any other red result").is_equal_to(1)
-        assert_that(config._assertpy2_failures).described_as("and clustered on nothing").is_empty()
+        assert_that(config._assertpy_failure_count).described_as("counted like any other red result").is_equal_to(1)
+        assert_that(config._assertpy_failures).described_as("and clustered on nothing").is_empty()
         assert_that(report.sections).described_as("nothing decorated, and nothing raised").is_empty()
 
     def test_a_failed_collection_is_counted_apart_from_the_tests(self):
@@ -999,21 +999,21 @@ class TestTheDenominatorCountsEveryRedResult:
         added to the denominator, because `3 of 4 failing tests` would name a fourth test that never
         existed. Without that flag the run stops and no summary is written at all.
         """
-        from assertpy2 import pytest_plugin
+        from assertpy import pytest_plugin
 
-        config = SimpleNamespace(_assertpy2_failures=[], _assertpy2_failure_count=0, _assertpy2_cluster_minimum=3)
+        config = SimpleNamespace(_assertpy_failures=[], _assertpy_failure_count=0, _assertpy_cluster_minimum=3)
         pytest_plugin._session_config[0] = config
         pytest_plugin._controller_collect_errors[0] = 0
         pytest_plugin.pytest_collectreport(SimpleNamespace(failed=True, nodeid="broken.py"))
         assert_that(pytest_plugin._controller_collect_errors[0]).is_equal_to(1)
-        assert_that(config._assertpy2_failure_count).described_as("a module is not a test").is_zero()
+        assert_that(config._assertpy_failure_count).described_as("a module is not a test").is_zero()
         pytest_plugin._controller_collect_errors[0] = 0
         pytest_plugin._session_config[0] = None
 
     def test_a_collection_that_worked_counts_nothing(self):
-        from assertpy2 import pytest_plugin
+        from assertpy import pytest_plugin
 
-        config = SimpleNamespace(_assertpy2_failures=[], _assertpy2_failure_count=0, _assertpy2_cluster_minimum=3)
+        config = SimpleNamespace(_assertpy_failures=[], _assertpy_failure_count=0, _assertpy_cluster_minimum=3)
         pytest_plugin._session_config[0] = config
         pytest_plugin._controller_collect_errors[0] = 0
         pytest_plugin.pytest_collectreport(SimpleNamespace(failed=False, nodeid="fine.py"))
@@ -1021,9 +1021,9 @@ class TestTheDenominatorCountsEveryRedResult:
         pytest_plugin._session_config[0] = None
 
     def test_a_run_with_the_summary_off_does_not_count_collections_either(self):
-        from assertpy2 import pytest_plugin
+        from assertpy import pytest_plugin
 
-        config = SimpleNamespace(_assertpy2_failures=[], _assertpy2_failure_count=0, _assertpy2_cluster_minimum=None)
+        config = SimpleNamespace(_assertpy_failures=[], _assertpy_failure_count=0, _assertpy_cluster_minimum=None)
         pytest_plugin._session_config[0] = config
         pytest_plugin._controller_collect_errors[0] = 0
         pytest_plugin.pytest_collectreport(SimpleNamespace(failed=True, nodeid="broken.py"))
@@ -1032,10 +1032,10 @@ class TestTheDenominatorCountsEveryRedResult:
 
     def test_a_worker_does_not_count_the_collection_every_worker_repeats(self):
         # under xdist each worker collects the whole suite: `3 of 6` on a run pytest called `3 failed, 1 error`
-        from assertpy2 import pytest_plugin
+        from assertpy import pytest_plugin
 
         worker = SimpleNamespace(
-            _assertpy2_failures=[], _assertpy2_failure_count=0, _assertpy2_cluster_minimum=3, workeroutput={}
+            _assertpy_failures=[], _assertpy_failure_count=0, _assertpy_cluster_minimum=3, workeroutput={}
         )
         pytest_plugin._session_config[0] = worker
         pytest_plugin._controller_collect_errors[0] = 0
@@ -1044,14 +1044,14 @@ class TestTheDenominatorCountsEveryRedResult:
         pytest_plugin._session_config[0] = None
 
     def test_a_collection_failure_outside_a_session_is_ignored(self):
-        from assertpy2 import pytest_plugin
+        from assertpy import pytest_plugin
 
         pytest_plugin._session_config[0] = None
         pytest_plugin.pytest_collectreport(SimpleNamespace(failed=True, nodeid="broken.py"))
 
     def test_a_setup_error_is_counted_but_never_clustered(self):
         config = self._run("setup", RuntimeError("service did not come up"))
-        assert_that(config._assertpy2_failures).is_empty()
+        assert_that(config._assertpy_failures).is_empty()
 
 
 class TestAWorkerThatDiedIsNotSilentlyIgnored:
@@ -1104,14 +1104,14 @@ class TestAWorkerThatDiedIsNotSilentlyIgnored:
         assert_that(render(self._cluster(), 6)[0]).does_not_contain("worker")
 
     def test_a_worker_that_finished_normally_is_not_counted_as_lost(self):
-        from assertpy2 import pytest_plugin
+        from assertpy import pytest_plugin
 
         pytest_plugin._controller_lost_workers[0] = 0
         pytest_plugin.pytest_testnodedown(SimpleNamespace(workeroutput={}), None)
         assert_that(pytest_plugin._controller_lost_workers[0]).is_zero()
 
     def test_a_worker_that_died_is(self):
-        from assertpy2 import pytest_plugin
+        from assertpy import pytest_plugin
 
         pytest_plugin._controller_lost_workers[0] = 0
         pytest_plugin.pytest_testnodedown(SimpleNamespace(workeroutput={}), "Node crashed")
@@ -1120,10 +1120,10 @@ class TestAWorkerThatDiedIsNotSilentlyIgnored:
         assert_that(pytest_plugin._controller_lost_workers[0]).described_as("released with the rest").is_zero()
 
     def test_the_note_reaches_the_terminal(self, capsys):
-        from assertpy2 import pytest_plugin
+        from assertpy import pytest_plugin
 
-        config = SimpleNamespace(_assertpy2_failures=[], _assertpy2_failure_count=0)
-        config._assertpy2_cluster_minimum = 3
+        config = SimpleNamespace(_assertpy_failures=[], _assertpy_failure_count=0)
+        config._assertpy_cluster_minimum = 3
         for index in range(4):
             with pytest.raises(AssertionFailure) as failure:
                 assert_that({"role": "super"}).is_equal_to({"role": "admin"})
@@ -1193,8 +1193,8 @@ class TestTheSummaryNeverTakesTheRunDown:
     """
 
     def test_a_broken_reporter_warns_instead_of_raising(self):
-        config = SimpleNamespace(_assertpy2_failures=[], _assertpy2_failure_count=0)
-        config._assertpy2_cluster_minimum = 3
+        config = SimpleNamespace(_assertpy_failures=[], _assertpy_failure_count=0)
+        config._assertpy_cluster_minimum = 3
         for index in range(4):
             with pytest.raises(AssertionFailure) as failure:
                 assert_that({"role": "super"}).is_equal_to({"role": "admin"})
@@ -1212,8 +1212,8 @@ class TestTheSummaryNeverTakesTheRunDown:
 
     def test_the_notice_itself_cannot_raise_under_warnings_as_errors(self):
         # under `-W error` the barrier's own notice becomes an exception, replacing the failure it was catching
-        config = SimpleNamespace(_assertpy2_failures=[], _assertpy2_failure_count=0)
-        config._assertpy2_cluster_minimum = 3
+        config = SimpleNamespace(_assertpy_failures=[], _assertpy_failure_count=0)
+        config._assertpy_cluster_minimum = 3
         for index in range(4):
             with pytest.raises(AssertionFailure) as failure:
                 assert_that({"role": "super"}).is_equal_to({"role": "admin"})
@@ -1475,10 +1475,10 @@ class TestTheSummaryOnAControllerThatRanNothingItself:
         self._shipped(3)
         printed: list[str] = []
         pytest_plugin._write_cluster_summary(
-            SimpleNamespace(write_line=printed.append), SimpleNamespace(_assertpy2_cluster_minimum=3)
+            SimpleNamespace(write_line=printed.append), SimpleNamespace(_assertpy_cluster_minimum=3)
         )
         assert_that(printed[0]).described_as("held off the run's output by a blank line").is_empty()
-        assert_that(printed).contains("assertpy2 failure clusters:")
+        assert_that(printed).contains("assertpy failure clusters:")
         assert_that(printed).contains("  3 of 3 failing tests differ at u.role")
 
     def test_a_run_of_exactly_the_configured_size_is_a_cluster(self):
@@ -1486,7 +1486,7 @@ class TestTheSummaryOnAControllerThatRanNothingItself:
         pytest_plugin._controller_collect_errors[0] = 1
         printed: list[str] = []
         pytest_plugin._write_cluster_summary(
-            SimpleNamespace(write_line=printed.append), SimpleNamespace(_assertpy2_cluster_minimum=2)
+            SimpleNamespace(write_line=printed.append), SimpleNamespace(_assertpy_cluster_minimum=2)
         )
         assert_that(printed).contains("  2 of 2 failing tests differ at u.role")
         assert_that(printed).contains("  1 collection error, not counted below")
@@ -1510,7 +1510,7 @@ class TestWhatTheSummaryDoesNotExplain:
         pytest_plugin._controller_failure_count[0] = 3
         printed: list[str] = []
         pytest_plugin._write_cluster_summary(
-            SimpleNamespace(write_line=printed.append), SimpleNamespace(_assertpy2_cluster_minimum=2)
+            SimpleNamespace(write_line=printed.append), SimpleNamespace(_assertpy_cluster_minimum=2)
         )
         assert_that(printed).contains("  1 of 3 outside any cluster of 2")
 
@@ -1545,12 +1545,12 @@ class TestTheControllerSideBookkeeping:
     def test_a_node_with_no_name_of_its_own_prefixes_with_nothing(self):
         # the prefix tells two workers running one test apart, and an invented one makes a node id nobody can look up
         wire = [["t.py::test_x", [[True, "user.role", [["key", "'user'"], ["key", "'role'"]], "", [], "'s'", "'a'"]]]]
-        node = SimpleNamespace(workeroutput={"assertpy2_failures": wire, "assertpy2_failure_count": 1})
+        node = SimpleNamespace(workeroutput={"assertpy_failures": wire, "assertpy_failure_count": 1})
         pytest_plugin._collect_worker_failures(node)
         assert_that([nodeid for nodeid, _ in pytest_plugin._controller_failures]).is_equal_to(["::t.py::test_x"])
 
     def test_two_failed_collections_are_two(self):
-        pytest_plugin._session_config[0] = SimpleNamespace(_assertpy2_cluster_minimum=3)
+        pytest_plugin._session_config[0] = SimpleNamespace(_assertpy_cluster_minimum=3)
         for name in ("broken.py", "also-broken.py"):
             pytest_plugin.pytest_collectreport(SimpleNamespace(failed=True, nodeid=name))
         assert_that(pytest_plugin._controller_collect_errors[0]).is_equal_to(2)
@@ -1561,11 +1561,11 @@ class TestTheControllerSideBookkeeping:
         assert_that(pytest_plugin._controller_collect_errors[0]).is_zero()
 
     def test_a_failure_with_a_diff_but_no_record_behind_it_is_still_grouped(self):
-        config = SimpleNamespace(_assertpy2_failures=[], _assertpy2_failure_count=0, _assertpy2_cluster_minimum=3)
+        config = SimpleNamespace(_assertpy_failures=[], _assertpy_failure_count=0, _assertpy_cluster_minimum=3)
         failure = AssertionError("re-wrapped")
         failure.diff = diff_of(lambda: assert_that({"u": {"role": "s"}}).is_equal_to({"u": {"role": "a"}}))
         _record_for_clustering(config, "t.py::test_x", failure)
-        assert_that(config._assertpy2_failures).is_length(1)
+        assert_that(config._assertpy_failures).is_length(1)
 
     def test_a_config_the_hook_was_handed_without_configure_records_nothing(self):
         config = SimpleNamespace()

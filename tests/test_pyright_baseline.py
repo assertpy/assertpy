@@ -23,7 +23,7 @@ pytest.importorskip("pyright", reason="the lint job installs the typecheck group
 
 from typing import Final
 
-from assertpy2 import assert_that
+from assertpy import assert_that
 from tests import typing_harness
 from tests.pyright_baseline import BASELINE, LADDER_OVERLAP
 
@@ -32,18 +32,18 @@ _ROOT = pathlib.Path(__file__).resolve().parent.parent
 # Named rather than counted: a count of two stays green when one is replaced by an unrelated
 # diagnostic of the same rule, and each refusal is about its TypeVar rather than about a number.
 _REFUSED_VARIANCE: tuple[tuple[str, str, str, str], ...] = (
-    ("assertpy2/_engine/_typing.py", "_RepeatableAssertion", "_E", "contravariant"),
+    ("assertpy/_engine/_typing.py", "_RepeatableAssertion", "_E", "contravariant"),
     # `returned()` hands back the invariant builder over it. Invariant, the covariant views that lead here would
     # be asked to follow, down to the callable one, whose rungs a subclass value reaches only through covariance
-    ("assertpy2/_engine/_typing.py", "_WarnedAssertion", "_P_co", "invariant"),
+    ("assertpy/_engine/_typing.py", "_WarnedAssertion", "_P_co", "invariant"),
     # `_NumericAssertion` is out because `check()` reads `_N` back in a return position, answering the
     # suggestion. `_CheckDictAssertion` gains one: dropping the chaining return leaves `_V` read-only
-    ("assertpy2/_engine/_check_typing.py", "_CheckRepeatableAssertion", "_E", "contravariant"),
-    ("assertpy2/_engine/_check_typing.py", "_CheckNumericAssertion", "_N", "covariant"),
-    ("assertpy2/_engine/_check_typing.py", "_CheckDictAssertion", "_V", "contravariant"),
+    ("assertpy/_engine/_check_typing.py", "_CheckRepeatableAssertion", "_E", "contravariant"),
+    ("assertpy/_engine/_check_typing.py", "_CheckNumericAssertion", "_N", "covariant"),
+    ("assertpy/_engine/_check_typing.py", "_CheckDictAssertion", "_V", "contravariant"),
     # invariant, a subclass value misses the rung written for its base on all three checkers. Refused
-    ("assertpy2/_engine/_poll_typing.py", "_AsyncPoll", "_P_co", "invariant"),
-    ("assertpy2/_engine/_poll_typing.py", "_NegatedAsyncPoll", "_P_co", "invariant"),
+    ("assertpy/_engine/_poll_typing.py", "_AsyncPoll", "_P_co", "invariant"),
+    ("assertpy/_engine/_poll_typing.py", "_NegatedAsyncPoll", "_P_co", "invariant"),
 )
 
 
@@ -56,7 +56,7 @@ _TARGET: Final = "3.14"
 def _diagnostics() -> tuple[dict[str, str], ...]:
     """Every pyright diagnostic over the package, as ``{file, rule, message}``, run once for the module."""
     result = subprocess.run(
-        [sys.executable, "-m", "pyright", "--outputjson", "--pythonversion", _TARGET, "assertpy2/"],
+        [sys.executable, "-m", "pyright", "--outputjson", "--pythonversion", _TARGET, "assertpy/"],
         capture_output=True,
         text=True,
         check=False,

@@ -14,11 +14,11 @@ import enum
 
 import pytest
 
-from assertpy2 import assert_that
-from assertpy2._engine._introspection import definition_of
-from assertpy2._engine._path import _ROOT
-from assertpy2._hints import _STEPS, _UNSEEN_FACT, _accounted, _explains, diagnose, identity_candidate
-from assertpy2.errors import AssertionFailure, DiffEntry, DiffResult
+from assertpy import assert_that
+from assertpy._engine._introspection import definition_of
+from assertpy._engine._path import _ROOT
+from assertpy._hints import _STEPS, _UNSEEN_FACT, _accounted, _explains, diagnose, identity_candidate
+from assertpy.errors import AssertionFailure, DiffEntry, DiffResult
 
 
 @dataclasses.dataclass

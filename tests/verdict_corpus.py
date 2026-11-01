@@ -13,7 +13,7 @@ What a case is worth: an input whose answer a reasonable change could move witho
 Assertions are covered by the suite; what is covered here is the *decision* -- which of verdict, refusal
 and error a value gets, and what the first line tells the reader.
 
-Re-record with `ASSERTPY2_UPDATE_VERDICTS=1 pytest tests/test_verdict_corpus.py`, the way the API
+Re-record with `ASSERTPY_UPDATE_VERDICTS=1 pytest tests/test_verdict_corpus.py`, the way the API
 snapshot is re-recorded, and read the diff before committing it.
 """
 
@@ -30,7 +30,7 @@ import re
 import warnings
 from typing import TYPE_CHECKING, Any, NamedTuple
 
-from assertpy2 import assert_all, assert_that, assert_warn, match, soft_assertions
+from assertpy import assert_all, assert_that, assert_warn, match, soft_assertions
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -381,7 +381,7 @@ def _modes() -> dict[str, Case]:
 
 
 def _contents_of(path: object) -> object:
-    from assertpy2 import contents_of
+    from assertpy import contents_of
 
     return contents_of(path)  # type: ignore[arg-type]
 
@@ -498,7 +498,7 @@ def _extensions() -> dict[str, Case]:
     """Registration, where a decorated pair looked alike and the second replaced the first in silence."""
     import functools
 
-    from assertpy2 import add_extension, remove_extension
+    from assertpy import add_extension, remove_extension
 
     def traced(func: Any) -> Any:
         @functools.wraps(func)
@@ -605,7 +605,7 @@ def answer(case: Case) -> str:
         return f"{type(error).__name__} | {_normalised(error)}"
     finally:
         logging.disable(logging.NOTSET)
-    if outcome is None or type(outcome).__module__.startswith("assertpy2"):
+    if outcome is None or type(outcome).__module__.startswith("assertpy"):
         return "passed"
     return f"passed -> {_scrub(repr(outcome))[:70]}"
 

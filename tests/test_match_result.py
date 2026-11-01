@@ -8,8 +8,8 @@ one-shot iterator used to name the wrong element.
 
 import pytest
 
-from assertpy2 import AssertionFailure, BaseMatcher, MatchResult, assert_that, match
-from assertpy2.matchers import _evaluate_matcher
+from assertpy import AssertionFailure, BaseMatcher, MatchResult, assert_that, match
+from assertpy.matchers import _evaluate_matcher
 
 
 class TestOneLookInsteadOfThree:

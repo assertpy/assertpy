@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 import pytest
 
-from assertpy2 import assert_that, match
+from assertpy import assert_that, match
 
 
 @dataclass

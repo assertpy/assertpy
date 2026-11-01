@@ -19,7 +19,7 @@ import pytest
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
-from assertpy2 import AssertionFailure, assert_that, json_mixin
+from assertpy import AssertionFailure, assert_that, json_mixin
 
 pytest.importorskip("jsonschema", reason="jsonschema not installed")
 

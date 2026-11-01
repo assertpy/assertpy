@@ -17,10 +17,10 @@ from typing import Any
 
 import pytest
 
-import assertpy2
-from assertpy2 import AssertionFailure, BaseMatcher, assert_that, match, soft_assertions
-from assertpy2._engine._introspection import Replay
-from assertpy2.assertpy import AssertionBuilder
+import assertpy
+from assertpy import AssertionFailure, BaseMatcher, assert_that, match, soft_assertions
+from assertpy._engine._introspection import Replay
+from assertpy.assertpy import AssertionBuilder
 
 
 class _Counting:
@@ -371,7 +371,7 @@ def test_no_assertion_walks_the_value_itself_but_the_ones_named():
 
     A walk through a name the value was bound to first is beyond it, and is the first half's to catch.
     """
-    package = pathlib.Path(assertpy2.__file__).parent
+    package = pathlib.Path(assertpy.__file__).parent
     modules = sorted(package.rglob("*.py"))
     assert_that([module.name for module in modules]).contains("_mixin_base.py", "contains.py")
     found = {

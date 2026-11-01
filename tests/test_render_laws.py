@@ -27,10 +27,10 @@ import pytest
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
-from assertpy2 import AssertionFailure, assert_that, soft_assertions
-from assertpy2._engine._introspection import TakenApart, class_name, kind_of
-from assertpy2._engine._ordering import nan_operand
-from assertpy2._hints import (
+from assertpy import AssertionFailure, assert_that, soft_assertions
+from assertpy._engine._introspection import TakenApart, class_name, kind_of
+from assertpy._engine._ordering import nan_operand
+from assertpy._hints import (
     _IDENTITY_FACT,
     _NAN_FACT,
     _ORDER_FACT,
@@ -39,8 +39,8 @@ from assertpy2._hints import (
     _UNSEEN_ORDER_FACT,
     _unseen,
 )
-from assertpy2.assertpy import _indented_diff
-from assertpy2.errors import DiffEntry, DiffResult, _class_names, _diff_sides, _render_diff, _safe_repr, _told_apart
+from assertpy.assertpy import _indented_diff
+from assertpy.errors import DiffEntry, DiffResult, _class_names, _diff_sides, _render_diff, _safe_repr, _told_apart
 from tests.test_diff_laws import _KEY_OPTIONS, _OPTIONS, _ROWS, _built, _graph_pairs, _outcome
 from tests.test_duality import _PAIRS, Case
 

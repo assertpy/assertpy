@@ -127,7 +127,7 @@ rows it did not find and the rows nobody asked for, whole, and does not point in
 ## Choose a snapshot style
 
 Store the expected value in a **file** with `snapshot()`, or **inline** in the test source with
-`matches_inline()`. Both are recorded with `pytest --assertpy2-snapshot-update`, and both honor the same
+`matches_inline()`. Both are recorded with `pytest --assertpy-snapshot-update`, and both honor the same
 selective knobs and CI mode:
 
 <!-- docs-guard: skip -->
@@ -140,7 +140,7 @@ def test_report():
 ```
 
 - Inline suits small, literal-able values you want to read next to the test. It needs the `[inline]`
-  extra (`pip install assertpy2[inline]`).
+  extra (`pip install assertpy[inline]`).
 - A file suits large payloads and values that need a custom serializer (`datetime`, `Decimal`, a domain
   object).
 
@@ -171,7 +171,7 @@ A soft-assertion block reports all failures at once instead of stopping at the f
 for each - ideal for validating many fields of one object:
 
 ```python
-from assertpy2 import soft_assertions
+from assertpy import soft_assertions
 
 user = {"name": "Alice", "age": 30, "email": "alice@example.com"}
 with soft_assertions():
@@ -260,7 +260,7 @@ narrowed type. See [Typed narrowing](concepts/type-safety.md#typed-narrowing-wit
 Register a reusable matcher for a domain rule once, then use it everywhere via `match.*` or `satisfies()`:
 
 ```python
-from assertpy2 import assert_that, match, register_matcher
+from assertpy import assert_that, match, register_matcher
 
 @register_matcher("is_valid_sku")
 def is_valid_sku():
@@ -291,7 +291,7 @@ assert_that(response["meta"]["total"]).is_equal_to(2)
 
 `extracting()` pulls a key or an attribute off every element of a collection. `has_json_path()` and
 `at_json_path()` navigate into a nested payload, and need the JSON extra
-(`pip install assertpy2[json]`). This keeps the failure focused on the field that broke.
+(`pip install assertpy[json]`). This keeps the failure focused on the field that broke.
 
 What a failed comparison costs follows the two values, not the message:
 
@@ -320,5 +320,5 @@ assert "admin" in items
 assert_that(items).is_instance_of(list).is_length(3).contains("admin")
 ```
 
-Coming from the original `assertpy`, the switch is one import: see the
-[Migration page](getting-started/migration.md).
+Coming from `assertpy` 1.x, see [Upgrading from assertpy 1.x](getting-started/migration.md) for what
+changes.

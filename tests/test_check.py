@@ -10,7 +10,7 @@ import logging
 
 import pytest
 
-from assertpy2 import (
+from assertpy import (
     AssertionFailure,
     AssertionOutcome,
     add_extension,
@@ -95,7 +95,7 @@ class TestCheckInsideTheOtherModes:
         assert_that(str(failure.value)).contains("to be greater than <0>")
 
     def test_a_check_in_warn_mode_answers_instead_of_logging(self, caplog):
-        with caplog.at_level(logging.WARNING, logger="assertpy2"):
+        with caplog.at_level(logging.WARNING, logger="assertpy"):
             outcome = assert_warn(-5).check().is_positive()
         assert_that(outcome.passed).is_false()
         assert_that(caplog.text).is_empty()

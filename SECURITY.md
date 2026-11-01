@@ -12,7 +12,7 @@
 If you discover a security vulnerability, please report it responsibly:
 
 1. **Email**: [solganis.dev@gmail.com](mailto:solganis.dev@gmail.com)
-2. **Subject**: `[assertpy2] Security: <brief description>`
+2. **Subject**: `[assertpy] Security: <brief description>`
 3. Include steps to reproduce, affected versions, and potential impact
 
 Please do **not** open a public GitHub issue for security vulnerabilities.

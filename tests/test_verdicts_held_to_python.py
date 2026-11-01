@@ -15,9 +15,9 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from assertpy2 import AssertionFailure, assert_that, match
-from assertpy2._engine._equality import key_specs_given, normalize_key_specs
-from assertpy2.contains import _sequence_break
+from assertpy import AssertionFailure, assert_that, match
+from assertpy._engine._equality import key_specs_given, normalize_key_specs
+from assertpy.contains import _sequence_break
 
 if TYPE_CHECKING:
     import pathlib

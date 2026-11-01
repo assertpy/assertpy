@@ -3,8 +3,8 @@ from dataclasses import dataclass
 
 import pytest
 
-from assertpy2 import AssertionFailure, assert_that, match
-from assertpy2._engine._diff import _walk_leaves
+from assertpy import AssertionFailure, assert_that, match
+from assertpy._engine._diff import _walk_leaves
 
 Pair = namedtuple("Pair", ["a", "b"])
 

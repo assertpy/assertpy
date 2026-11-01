@@ -21,10 +21,10 @@ from hypothesis import strategies as st
 pytest.importorskip("executing", reason="executing not installed")
 pytest.importorskip("asttokens", reason="asttokens not installed")
 
-import assertpy2._inline as _inline
-import assertpy2.pytest_plugin as _plugin
-import assertpy2.snapshot as _snap
-from assertpy2 import AssertionFailure, assert_that, match, soft_assertions
+import assertpy._inline as _inline
+import assertpy.pytest_plugin as _plugin
+import assertpy.snapshot as _snap
+from assertpy import AssertionFailure, assert_that, match, soft_assertions
 
 
 def _now(filename):
@@ -139,14 +139,14 @@ class TestXdist:
         monkeypatch.setattr(_inline, "_SEEN", {("/x/test_a.py", 5, 5): [run]})
         config = SimpleNamespace(workeroutput={})
         _plugin.pytest_sessionfinish(SimpleNamespace(config=config), 0)
-        assert_that(config.workeroutput["assertpy2_inline"]).is_equal_to(
+        assert_that(config.workeroutput["assertpy_inline"]).is_equal_to(
             [["/x/test_a.py", 5, 5, "{'a': 1}", True, ["{'a': 1}"], ["d"], "{'a': 1}"]]
         )
 
     def test_controller_collects_worker_inline(self):
         _plugin._controller_inline.clear()
         node = SimpleNamespace(
-            workeroutput={"assertpy2_inline": [list(_written("/x/test_a.py", 5, 5, "{'a': 1}", ["d"]))]}
+            workeroutput={"assertpy_inline": [list(_written("/x/test_a.py", 5, 5, "{'a': 1}", ["d"]))]}
         )
         _plugin.pytest_testnodedown(node, None)
         assert_that(_plugin._controller_inline).contains(_written("/x/test_a.py", 5, 5, "{'a': 1}", ["d"]))
@@ -219,7 +219,7 @@ class TestGuards:
         assert_that(_inline._is_literal(ast.parse(source, mode="eval").body)).is_equal_to(literal)
 
     def test_missing_tooling(self):
-        with patch.dict(sys.modules, {"executing": None}), pytest.raises(ImportError, match=r"assertpy2\[inline\]"):
+        with patch.dict(sys.modules, {"executing": None}), pytest.raises(ImportError, match=r"assertpy\[inline\]"):
             _inline._ensure_inline_tooling()
 
 
@@ -947,21 +947,21 @@ class TestARealUpdateRun:
             capture_output=True,
             text=True,
             timeout=180,
-            env={**os.environ, "PYTHONPATH": _CHECKOUT, "ASSERTPY2_SNAPSHOT_CI": "0"},
+            env={**os.environ, "PYTHONPATH": _CHECKOUT, "ASSERTPY_SNAPSHOT_CI": "0"},
         )
 
     @staticmethod
     def _package():
-        return {path.name: path.read_bytes() for path in pathlib.Path(_CHECKOUT, "assertpy2").glob("*.py")}
+        return {path.name: path.read_bytes() for path in pathlib.Path(_CHECKOUT, "assertpy").glob("*.py")}
 
     def _recorded(self, tmp_path, tests):
         (tmp_path / "pytest.ini").write_text("[pytest]\n", encoding="utf-8")
-        source = "from assertpy2 import assert_that, assert_warn, soft_assertions\n" + "".join(
+        source = "from assertpy import assert_that, assert_warn, soft_assertions\n" + "".join(
             f"\n\ndef test_{name}():\n    {body}\n" for name, body in tests.items()
         )
         (tmp_path / "test_case.py").write_text(source, encoding="utf-8", newline="")
         package = self._package()
-        update = self._run(tmp_path, "--assertpy2-snapshot-update")
+        update = self._run(tmp_path, "--assertpy-snapshot-update")
         assert_that(self._package()).described_as("the package after the update run").is_equal_to(package)
         return update, (tmp_path / "test_case.py").read_text(encoding="utf-8"), source
 
@@ -1027,7 +1027,7 @@ class TestARealUpdateRun:
             assert_that(written).contains(f"matches_inline({first})")
             written = written.replace(f"value = {first}\n", f"value = {second}\n")
         (tmp_path / "test_case.py").write_text(written, encoding="utf-8", newline="")
-        updated = self._run(tmp_path, "--assertpy2-snapshot-update")
+        updated = self._run(tmp_path, "--assertpy-snapshot-update")
         assert_that(updated.returncode).described_as(updated.stdout + updated.stderr).is_equal_to(0)
         rewritten = (tmp_path / "test_case.py").read_text(encoding="utf-8")
         assert_that(rewritten).contains(*(f"matches_inline({second})" for _, second in kinds.values()))

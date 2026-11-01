@@ -6,7 +6,7 @@ import pytest
 from hypothesis import example, given, settings
 from hypothesis import strategies as st
 
-from assertpy2 import AssertionFailure, BaseMatcher, assert_that, match
+from assertpy import AssertionFailure, BaseMatcher, assert_that, match
 
 
 def test_is_length():
@@ -914,7 +914,7 @@ class TestContainsOnAOneShotIterator:
         assert_that(values).is_equal_to([1, 2, 3])
 
     def test_a_matcher_argument_works_on_a_generator_too(self):
-        from assertpy2 import match
+        from assertpy import match
 
         assert_that(x for x in [1, 2, 3]).contains(match.greater_than(2), match.less_than(2))
 
@@ -963,18 +963,18 @@ class TestDoesNotContainAcceptsMatchers:
     handed here was compared with `in` and the assertion answered a different question."""
 
     def test_a_matcher_no_item_satisfies_passes(self):
-        from assertpy2 import match
+        from assertpy import match
 
         assert_that([1, 2, 3]).does_not_contain(match.greater_than(99))
 
     def test_a_matcher_some_item_satisfies_fails(self):
-        from assertpy2 import match
+        from assertpy import match
 
         with pytest.raises(AssertionError, match="a value greater than <2>"):
             assert_that([1, 2, 3]).does_not_contain(match.greater_than(2))
 
     def test_matchers_and_plain_values_mix(self):
-        from assertpy2 import match
+        from assertpy import match
 
         assert_that([1, 2, 3]).does_not_contain(9, match.greater_than(99))
         with pytest.raises(AssertionError) as exc_info:
@@ -982,7 +982,7 @@ class TestDoesNotContainAcceptsMatchers:
         assert_that(str(exc_info.value)).contains("a value greater than <2>").does_not_contain("<9>, but")
 
     def test_it_works_on_a_one_shot_iterator_too(self):
-        from assertpy2 import match
+        from assertpy import match
 
         assert_that(x for x in [1, 2, 3]).does_not_contain(match.greater_than(99), 9)
 

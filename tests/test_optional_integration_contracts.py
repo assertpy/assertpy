@@ -1,7 +1,7 @@
 """Exercise the allure and behave integrations against the real libraries.
 
 Everywhere else these two are tested against stand-ins: `test_pytest_plugin.py` patches
-`assertpy2.pytest_plugin.allure` with a `MagicMock`, and `test_behave_matchers.py` puts a mock in
+`assertpy.pytest_plugin.allure` with a `MagicMock`, and `test_behave_matchers.py` puts a mock in
 `sys.modules`. That verifies our branching and nothing about the libraries. A mock accepts any call,
 so a renamed parameter or a moved attribute in either package passes those tests untouched, and
 Dependabot is configured to propose exactly such bumps.
@@ -16,10 +16,10 @@ from __future__ import annotations
 
 import pytest
 
-from assertpy2 import assert_that
-from assertpy2._engine._diff import _build_equality_diff
-from assertpy2.behave_matchers import ASSERTPY_TYPES, register_assertpy_types
-from assertpy2.errors import PollSample, PollTrace
+from assertpy import assert_that
+from assertpy._engine._diff import _build_equality_diff
+from assertpy.behave_matchers import ASSERTPY_TYPES, register_assertpy_types
+from assertpy.errors import PollSample, PollTrace
 
 
 class TestAllureContract:
@@ -30,7 +30,7 @@ class TestAllureContract:
         pytest.importorskip("allure", reason="allure-pytest is an optional extra")
 
     def test_the_plugin_sees_allure_as_present(self):
-        from assertpy2 import pytest_plugin
+        from assertpy import pytest_plugin
 
         assert_that(pytest_plugin._HAS_ALLURE).is_true()
 
@@ -42,13 +42,13 @@ class TestAllureContract:
     @pytest.mark.parametrize("mode", ["full", "diff", "off"])
     def test_attaching_a_real_diff_does_not_raise(self, mode):
         # `allure.attach` outside a listener is a no-op, so this reaches the real function with real arguments
-        from assertpy2.pytest_plugin import _attach_allure
+        from assertpy.pytest_plugin import _attach_allure
 
         diff = _build_equality_diff({"name": "alice", "age": 30}, {"name": "alice", "age": 31})
         _attach_allure({"age": 30}, {"age": 31}, diff, named_actual=True, named_expected=True, mode=mode)
 
     def test_attaching_a_polling_trace_does_not_raise(self):
-        from assertpy2.pytest_plugin import _attach_allure
+        from assertpy.pytest_plugin import _attach_allure
 
         trace = PollTrace(
             samples=[

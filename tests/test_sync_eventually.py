@@ -5,14 +5,14 @@ from io import StringIO
 
 import pytest
 
-from assertpy2 import (
+from assertpy import (
     AssertionFailure,
     WarningLoggingAdapter,
     assert_that,
     assert_warn,
     soft_assertions,
 )
-from assertpy2.async_assertions import SyncAssertionBuilder
+from assertpy.async_assertions import SyncAssertionBuilder
 
 
 def _unreachable():

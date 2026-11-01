@@ -22,8 +22,9 @@ from _pytest.config.argparsing import Parser
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
-from assertpy2 import (
+from assertpy import (
     _clustering,
+    _renamed,
     add_extension,
     assert_that,
     async_assertions,
@@ -31,17 +32,17 @@ from assertpy2 import (
     remove_extension,
     soft_assertions,
 )
-from assertpy2 import _satisfies as _satisfies_module
-from assertpy2 import errors as errors_module
-from assertpy2 import pytest_plugin as pytest_plugin
-from assertpy2 import snapshot as snapshot_module
-from assertpy2._clustering import Observation, Signature
-from assertpy2._engine._diff import _sub_diff_entries
-from assertpy2._engine._introspection import TakenApart, laid_out
-from assertpy2._engine._path import _ROOT
-from assertpy2.errors import AssertionFailure, DiffEntry, DiffResult, PollSample, PollTrace
-from assertpy2.outcome import AssertionOutcome
-from assertpy2.pytest_plugin import (
+from assertpy import _satisfies as _satisfies_module
+from assertpy import errors as errors_module
+from assertpy import pytest_plugin as pytest_plugin
+from assertpy import snapshot as snapshot_module
+from assertpy._clustering import Observation, Signature
+from assertpy._engine._diff import _sub_diff_entries
+from assertpy._engine._introspection import TakenApart, laid_out
+from assertpy._engine._path import _ROOT
+from assertpy.errors import AssertionFailure, DiffEntry, DiffResult, PollSample, PollTrace
+from assertpy.outcome import AssertionOutcome
+from assertpy.pytest_plugin import (
     _COLORED,
     _PROFILES,
     _diff_to_json,
@@ -111,10 +112,10 @@ def _make_call(*, exc=None):
 
 def _make_item(*, allure_mode="diff"):
     item = MagicMock()
-    item.config._assertpy2_allure_mode = allure_mode
-    item.config._assertpy2_diff_enabled = True
-    item.config._assertpy2_diff_max = 50
-    item.config._assertpy2_comparison_enabled = True
+    item.config._assertpy_allure_mode = allure_mode
+    item.config._assertpy_diff_enabled = True
+    item.config._assertpy_diff_max = 50
+    item.config._assertpy_comparison_enabled = True
     return item
 
 
@@ -130,29 +131,32 @@ def _run_hook(report, call, *, item=None):
 
 class TestPluginLoaded:
     def test_plugin_is_registered(self):
-        pm = pytest.importorskip("assertpy2.pytest_plugin")
+        pm = pytest.importorskip("assertpy.pytest_plugin")
         assert_that(hasattr(pm, "pytest_runtest_makereport")).is_true()
 
     def test_addoption_registers_ini(self):
         parser = MagicMock()
         pytest_addoption(parser)
-        assert_that(parser.addini.call_count).is_equal_to(10)
+        assert_that(parser.addini.call_count).described_as(
+            "each setting under its name and its assertpy2 one"
+        ).is_equal_to(20)
         names = [call[0][0] for call in parser.addini.call_args_list]
-        assert_that(names).contains("assertpy2_allure")
-        assert_that(names).contains("assertpy2_diff")
-        assert_that(names).contains("assertpy2_diff_max_entries")
-        assert_that(names).contains("assertpy2_failure_clusters")
-        assert_that(names).contains("assertpy2_dangling")
-        assert_that(names).contains("assertpy2_dangling_entries")
-        assert_that(names).contains("assertpy2_profile")
-        assert_that(names).contains("assertpy2_vacuous")
-        # the two a profile answers for carry no default, so `_setting` tells "wrote off" from "wrote nothing"
+        assert_that(names).contains("assertpy2_diff", "assertpy2_dangling_entries")
+        assert_that(names).contains("assertpy_allure")
+        assert_that(names).contains("assertpy_diff")
+        assert_that(names).contains("assertpy_diff_max_entries")
+        assert_that(names).contains("assertpy_failure_clusters")
+        assert_that(names).contains("assertpy_dangling")
+        assert_that(names).contains("assertpy_dangling_entries")
+        assert_that(names).contains("assertpy_profile")
+        assert_that(names).contains("assertpy_vacuous")
         defaults = {call[0][0]: call[1].get("default") for call in parser.addini.call_args_list}
-        assert_that([defaults[name] for name in ("assertpy2_dangling", "assertpy2_vacuous")]).is_equal_to(["", ""])
-        assert_that(defaults["assertpy2_failure_clusters"]).described_as(
-            "clustering answers for itself, so it carries a real default rather than a profile's"
-        ).is_equal_to(str(_clustering.MINIMUM_SIZE))
-        assert_that(defaults["assertpy2_profile"]).is_equal_to("compatible")
+        assert_that([name for name in pytest_plugin._SETTINGS if defaults[name] not in ("", [])]).described_as(
+            "registered blank, so a suite that wrote nothing is told from one that wrote the assertpy2 name"
+        ).is_empty()
+        assert_that(pytest_plugin._cluster_minimum("")).described_as(
+            "clustering answers for itself, so a blank setting reads as its own default rather than a profile's"
+        ).is_equal_to(_clustering.MINIMUM_SIZE)
 
 
 class TestTheProfileAnswersForWhatTheSuiteDidNotName:
@@ -171,10 +175,10 @@ class TestTheProfileAnswersForWhatTheSuiteDidNotName:
         return SimpleNamespace(getini=lambda name: written.get(name, ""), getoption=lambda name: False)
 
     def test_an_unnamed_setting_takes_its_profile_answer(self):
-        compatible, safe = self._config(), self._config(assertpy2_profile="safe")
-        assert_that(_setting(compatible, "assertpy2_dangling")).is_equal_to("off")
-        assert_that(_setting(safe, "assertpy2_dangling")).is_equal_to("on")
-        assert_that(_setting(safe, "assertpy2_vacuous")).is_equal_to("on")
+        compatible, safe = self._config(), self._config(assertpy_profile="safe")
+        assert_that(_setting(compatible, "assertpy_dangling")).is_equal_to("off")
+        assert_that(_setting(safe, "assertpy_dangling")).is_equal_to("on")
+        assert_that(_setting(safe, "assertpy_vacuous")).is_equal_to("on")
 
     def test_no_profile_answers_for_failure_clustering(self):
         """The separation itself, which a table with a third key would quietly undo.
@@ -184,14 +188,14 @@ class TestTheProfileAnswersForWhatTheSuiteDidNotName:
         for what a guard costs a passing suite, and clustering costs one nothing.
         """
         for profile in _PROFILES.values():
-            assert_that(profile).does_not_contain_key("assertpy2_failure_clusters")
+            assert_that(profile).does_not_contain_key("assertpy_failure_clusters")
 
     def test_a_named_setting_wins_over_the_profile(self):
-        config = self._config(assertpy2_profile="safe", assertpy2_dangling="off")
-        assert_that(_setting(config, "assertpy2_dangling")).described_as(
+        config = self._config(assertpy_profile="safe", assertpy_dangling="off")
+        assert_that(_setting(config, "assertpy_dangling")).described_as(
             "a suite that named a setting has said what it wants, whatever profile it picked"
         ).is_equal_to("off")
-        assert_that(_setting(config, "assertpy2_vacuous")).is_equal_to("on")
+        assert_that(_setting(config, "assertpy_vacuous")).is_equal_to("on")
 
     def test_only_strict_writes_the_two_filters(self):
         """The wiring itself, called directly.
@@ -202,35 +206,35 @@ class TestTheProfileAnswersForWhatTheSuiteDidNotName:
         written = []
         for profile in ("compatible", "safe", "strict"):
             config = SimpleNamespace(
-                getini=lambda name, profile=profile: {"assertpy2_profile": profile}.get(name, ""),
+                getini=lambda name, profile=profile: {"assertpy_profile": profile}.get(name, ""),
                 getoption=lambda name: False,
                 addinivalue_line=lambda name, value: written.append((name, value)),
             )
             _escalate(config)
         assert_that(written).described_as("only `strict` escalates, and only its own two").is_equal_to(
             [
-                ("filterwarnings", "error::assertpy2.errors.DanglingAssertionWarning"),
-                ("filterwarnings", "error::assertpy2.errors.VacuousAssertionWarning"),
+                ("filterwarnings", "error::assertpy.errors.DanglingAssertionWarning"),
+                ("filterwarnings", "error::assertpy.errors.VacuousAssertionWarning"),
             ]
         )
 
     def test_a_profile_nobody_declared_is_refused_and_named(self):
-        config = self._config(assertpy2_profile="paranoid")
-        with pytest.warns(UserWarning, match="assertpy2_profile='paranoid' is not one of"):
-            assert_that(_setting(config, "assertpy2_dangling")).is_equal_to("off")
+        config = self._config(assertpy_profile="paranoid")
+        with pytest.warns(UserWarning, match="assertpy_profile='paranoid' is not one of"):
+            assert_that(_setting(config, "assertpy_dangling")).is_equal_to("off")
 
     def test_a_mistyped_guard_setting_falls_back_to_the_profile_rather_than_to_off(self):
         """`off` is the answer that hides a mistake, so a value nobody declared must not read as one."""
-        config = self._config(assertpy2_profile="safe", assertpy2_vacuous="onn")
-        with pytest.warns(UserWarning, match="assertpy2_vacuous='onn' is not 'on' or 'off'"):
+        config = self._config(assertpy_profile="safe", assertpy_vacuous="onn")
+        with pytest.warns(UserWarning, match="assertpy_vacuous='onn' is not 'on' or 'off'"):
             assert_that(_vacuous_guard(config)).is_true()
 
     def test_a_profile_nobody_declared_is_named_once_rather_than_per_question(self):
         """Both settings ask, and one mistake is one mistake however many of them looked."""
-        config = self._config(assertpy2_profile="paranoid")
+        config = self._config(assertpy_profile="paranoid")
         with warnings.catch_warnings(record=True) as caught:
             warnings.simplefilter("always")
-            for name in ("assertpy2_dangling", "assertpy2_vacuous"):
+            for name in ("assertpy_dangling", "assertpy_vacuous"):
                 _setting(config, name)
         assert_that([str(one.message) for one in caught]).is_length(1)
 
@@ -244,7 +248,7 @@ class TestTheProfileFromAConfigFile:
     """
 
     _SUITE = (
-        "from assertpy2 import assert_that\n\n\n"
+        "from assertpy import assert_that\n\n\n"
         "def test_dangling_statement():\n    assert_that(1)\n\n\n"
         "def test_vacuous_quantifier():\n    assert_that([]).all_satisfy(lambda item: False)\n"
     )
@@ -262,7 +266,7 @@ class TestTheProfileFromAConfigFile:
             timeout=180,
             # one of the three ways to ask for the vacuous guard, so a machine carrying it would answer for the suite
             env={
-                **{key: value for key, value in os.environ.items() if key != "ASSERTPY2_VACUOUS"},
+                **{key: value for key, value in os.environ.items() if key != "ASSERTPY_VACUOUS"},
                 "PYTHONPATH": _CHECKOUT,
                 **environment,
             },
@@ -285,16 +289,16 @@ class TestTheProfileFromAConfigFile:
         self._reported(result).does_not_contain("DanglingAssertionWarning", "VacuousAssertionWarning")
 
     def test_the_safe_profile_turns_both_warnings_on(self, tmp_path):
-        result = self._run(tmp_path, "assertpy2_profile = safe")
+        result = self._run(tmp_path, "assertpy_profile = safe")
         self._reported(result).contains("DanglingAssertionWarning", "VacuousAssertionWarning")
 
     def test_a_comment_that_is_not_utf8_leaves_the_run_standing(self, tmp_path):
         # a cp1251 comment and no declared encoding: 3.10 to 3.13 import it, and a strict read aborted the whole run
         suite = (
             b"# \xcf\xf0\xe8\xec\xe5\xf0\n"
-            b"from assertpy2 import assert_that\n\n\ndef test_dangling():\n    assert_that(1)\n"
+            b"from assertpy import assert_that\n\n\ndef test_dangling():\n    assert_that(1)\n"
         )
-        result = self._run(tmp_path, "assertpy2_profile = safe", suite=suite)
+        result = self._run(tmp_path, "assertpy_profile = safe", suite=suite)
         assert_that(result.stdout + result.stderr).does_not_contain("INTERNALERROR")
         try:
             compile(suite, "test_guards.py", "exec")
@@ -307,14 +311,14 @@ class TestTheProfileFromAConfigFile:
     def test_a_module_in_its_declared_encoding_is_read_in_it(self, tmp_path):
         # replacing what UTF-8 cannot decode would turn the identifier into U+FFFD, which does not parse
         suite = (
-            "# coding: cp1251\nfrom assertpy2 import assert_that\n\n\n"
+            "# coding: cp1251\nfrom assertpy import assert_that\n\n\n"
             "def test_dangling():\n    значение = 1\n    assert_that(значение)\n"
         ).encode("cp1251")
-        result = self._run(tmp_path, "assertpy2_profile = safe", suite=suite)
+        result = self._run(tmp_path, "assertpy_profile = safe", suite=suite)
         self._reported(result).contains("DanglingAssertionWarning")
 
     def test_a_named_setting_wins_over_the_profile_in_a_real_run(self, tmp_path):
-        result = self._run(tmp_path, "assertpy2_profile = safe", "assertpy2_dangling = off")
+        result = self._run(tmp_path, "assertpy_profile = safe", "assertpy_dangling = off")
         self._reported(result).does_not_contain("DanglingAssertionWarning")
         self._reported(result).contains("VacuousAssertionWarning")
 
@@ -324,11 +328,11 @@ class TestTheProfileFromAConfigFile:
         `safe` shows a suite what it has.  A run full of findings still exits zero, which is a fair
         first look and a poor gate.
         """
-        result = self._run(tmp_path, "assertpy2_profile = safe")
+        result = self._run(tmp_path, "assertpy_profile = safe")
         assert_that(result.returncode).described_as("warnings alone do not fail a run").is_equal_to(0)
 
     def test_the_strict_profile_fails_the_run(self, tmp_path):
-        result = self._run(tmp_path, "assertpy2_profile = strict")
+        result = self._run(tmp_path, "assertpy_profile = strict")
         assert_that(result.returncode).described_as(f"strict left the run green: {result.stdout}").is_not_equal_to(0)
 
     def test_strict_reports_each_finding_where_it_arrives(self, tmp_path):
@@ -339,7 +343,7 @@ class TestTheProfileFromAConfigFile:
         Pinned because a reader who expects two failures and is shown one of each will think the plugin
         broke.
         """
-        result = self._run(tmp_path, "assertpy2_profile = strict")
+        result = self._run(tmp_path, "assertpy_profile = strict")
         assert_that(result.stdout).described_as("the dangling one, found at collection").contains(
             "ERROR test_guards.py::test_dangling_statement"
         )
@@ -349,7 +353,7 @@ class TestTheProfileFromAConfigFile:
 
     def test_a_named_setting_still_wins_under_strict(self, tmp_path):
         """`strict` escalates the guards that are on, not the ones the suite turned off."""
-        result = self._run(tmp_path, "assertpy2_profile = strict", "assertpy2_dangling = off")
+        result = self._run(tmp_path, "assertpy_profile = strict", "assertpy_dangling = off")
         assert_that(result.stdout).does_not_contain("ERROR test_guards.py::test_dangling_statement")
         assert_that(result.stdout).contains("FAILED test_guards.py::test_vacuous_quantifier")
 
@@ -365,7 +369,7 @@ class TestTheProfileFromAConfigFile:
             "    warnings.warn('unrelated', DeprecationWarning, stacklevel=1)\n",
             encoding="utf-8",
         )
-        result = self._run(tmp_path, "assertpy2_profile = strict")
+        result = self._run(tmp_path, "assertpy_profile = strict")
         assert_that(result.stdout).does_not_contain("FAILED test_neighbour.py")
 
     def test_a_value_the_setting_does_not_know_is_refused_rather_than_read_as_off(self, tmp_path):
@@ -374,15 +378,15 @@ class TestTheProfileFromAConfigFile:
         The refusal is written at configure time, which is before pytest owns the streams, so it lands
         on stderr while the guard's own warning reaches the report.
         """
-        result = self._run(tmp_path, "assertpy2_profile = safe", "assertpy2_vacuous = onn")
+        result = self._run(tmp_path, "assertpy_profile = safe", "assertpy_vacuous = onn")
         self._reported(result).contains("VacuousAssertionWarning")
         assert_that(result.stderr).described_as("the mistyped setting, refused by name").contains(
-            "assertpy2_vacuous='onn' is not 'on' or 'off'"
+            "assertpy_vacuous='onn' is not 'on' or 'off'"
         )
 
     def test_the_environment_cannot_outrank_a_suite_that_said_off(self, tmp_path):
         """The variable asks for the guard away from pytest, and a config file is the louder voice."""
-        result = self._run(tmp_path, "assertpy2_vacuous = off", ASSERTPY2_VACUOUS="1")
+        result = self._run(tmp_path, "assertpy_vacuous = off", ASSERTPY_VACUOUS="1")
         self._reported(result).does_not_contain("VacuousAssertionWarning")
 
 
@@ -696,7 +700,7 @@ class TestEachFailureASoftBlockCollectedGetsItsOwn:
         failure = _collected_from(
             _wide(1), _wide(2), *[_wide(3) for _ in range(18)], lambda: assert_that([1]).contains(3)
         )
-        with patch("assertpy2.pytest_plugin._format_diff", wraps=_format_diff) as drawn:
+        with patch("assertpy.pytest_plugin._format_diff", wraps=_format_diff) as drawn:
             report = _run_hook(_make_report(), _make_call(exc=failure))
         assert_that(drawn.call_count).is_equal_to(2 * 20)
         assert_that(self._titles(report)[-1]).is_equal_to("Left Out (failures 3 to 21)")
@@ -819,7 +823,7 @@ class TestEachFailureASoftBlockCollectedGetsItsOwn:
 
     def test_past_twenty_the_rest_are_not_drawn(self):
         failure = _collected_from(*[lambda n=n: assert_that([n]).contains(-1) for n in range(25)])
-        with patch("assertpy2.pytest_plugin._format_diff", wraps=_format_diff) as drawn:
+        with patch("assertpy.pytest_plugin._format_diff", wraps=_format_diff) as drawn:
             report = _run_hook(_make_report(), _make_call(exc=failure))
         assert_that(drawn.call_count).is_equal_to(40)
         assert_that(self._titles(report)[-1]).is_equal_to("Left Out (failures 21 to 25)")
@@ -859,7 +863,7 @@ class TestEachFailureASoftBlockCollectedGetsItsOwn:
             *[lambda n=n: assert_that(n).is_equal_to(-1) for n in range(20)], lambda: assert_that([1]).contains(3)
         )
         item = _make_item()
-        item.config._assertpy2_diff_enabled = False
+        item.config._assertpy_diff_enabled = False
         report = _run_hook(_make_report(), _make_call(exc=failure), item=item)
         titles = self._titles(report)
         assert_that(titles).is_length(20)
@@ -1072,7 +1076,7 @@ class TestEachFailureASoftBlockCollectedGetsItsOwn:
 
     def test_values_that_cannot_be_drawn_cost_the_diff_nothing(self):
         diff = DiffResult(kind="dict", entries=[DiffEntry(path="k", actual=1, expected=2)])
-        with patch("assertpy2.pytest_plugin._value_rows", side_effect=RuntimeError("cannot draw")):
+        with patch("assertpy.pytest_plugin._value_rows", side_effect=RuntimeError("cannot draw")):
             report = _run_hook(
                 _make_report(), _make_call(exc=AssertionFailure("fail", actual=1, expected=2, diff=diff))
             )
@@ -1097,7 +1101,7 @@ class TestEachFailureASoftBlockCollectedGetsItsOwn:
 
         diff = DiffResult(kind="dict", entries=[DiffEntry(path="k", actual=1, expected=2)])
         report = _make_report()
-        with patch("assertpy2.pytest_plugin._format_diff", side_effect=plain_only):
+        with patch("assertpy.pytest_plugin._format_diff", side_effect=plain_only):
             _run_hook(report, _make_call(exc=AssertionFailure("fail", diff=diff)))
         assert_that(_sections(report)).is_equal_to([("Structured Diff", "diff (dict):\n  k:\n    - 1\n    + 2")])
         assert_that(vars(report).get(_COLORED, {})).is_empty()
@@ -1135,7 +1139,7 @@ class TestEachFailureASoftBlockCollectedGetsItsOwn:
     )
     def test_something_else_under_the_carried_name_is_left_alone(self, carried):
         escaping = RuntimeError("boom")
-        vars(escaping)["_assertpy2_collected"] = carried
+        vars(escaping)["_assertpy_collected"] = carried
         report = _make_report()
         try:
             _run_hook(report, _make_call(exc=escaping))
@@ -1843,8 +1847,8 @@ def _mock_allure():
 def _run_hook_with_allure(report, call_obj, mock_allure, *, allure_mode="diff"):
     item = _make_item(allure_mode=allure_mode)
     with (
-        patch("assertpy2.pytest_plugin._HAS_ALLURE", True),
-        patch("assertpy2.pytest_plugin.allure", mock_allure, create=True),
+        patch("assertpy.pytest_plugin._HAS_ALLURE", True),
+        patch("assertpy.pytest_plugin.allure", mock_allure, create=True),
     ):
         _run_hook(report, call_obj, item=item)
 
@@ -2047,17 +2051,18 @@ def _make_config(
     # every key answered by name: a catch-all fed the allure mode to every other reader, and a guard was
     # handed `diff` for its own setting and refused it as a value it does not know
     per_key = {
-        "assertpy2_allure": ini,
-        "assertpy2_diff": "on",
-        "assertpy2_comparison": comparison,
-        "assertpy2_diff_max_entries": "50",
-        "assertpy2_poll_report": poll_report,
-        "assertpy2_failure_clusters": clusters,
-        "assertpy2_dangling": dangling,
-        "assertpy2_dangling_entries": entries,
-        "assertpy2_profile": profile,
-        "assertpy2_vacuous": vacuous,
+        "assertpy_allure": ini,
+        "assertpy_diff": "on",
+        "assertpy_comparison": comparison,
+        "assertpy_diff_max_entries": "50",
+        "assertpy_poll_report": poll_report,
+        "assertpy_failure_clusters": clusters,
+        "assertpy_dangling": dangling,
+        "assertpy_dangling_entries": entries,
+        "assertpy_profile": profile,
+        "assertpy_vacuous": vacuous,
     }
+    per_key |= {_renamed.old_name(name): [] if name == "assertpy_dangling_entries" else "" for name in per_key}
 
     def answer(name):
         if name not in per_key:
@@ -2067,7 +2072,7 @@ def _make_config(
     config.getini.side_effect = answer
     config.getoption.return_value = snapshot_update
     # the profile is cached here, and a mock answers an unset attribute with a mock, reading as a profile
-    config._assertpy2_profile = None
+    config._assertpy_profile = None
     return config
 
 
@@ -2075,19 +2080,19 @@ class TestPytestConfigure:
     def test_valid_mode_stored(self):
         config = _make_config(ini="full")
         pytest_configure(config)
-        assert_that(config._assertpy2_allure_mode).is_equal_to("full")
+        assert_that(config._assertpy_allure_mode).is_equal_to("full")
 
     def test_default_diff_mode_stored(self):
         config = _make_config(ini="diff")
         pytest_configure(config)
-        assert_that(config._assertpy2_allure_mode).is_equal_to("diff")
+        assert_that(config._assertpy_allure_mode).is_equal_to("diff")
 
     def test_invalid_mode_warns_and_falls_back(self):
         config = _make_config(ini="unknown")
         with warnings.catch_warnings(record=True) as caught:
             warnings.simplefilter("always")
             pytest_configure(config)
-        assert_that(config._assertpy2_allure_mode).is_equal_to("diff")
+        assert_that(config._assertpy_allure_mode).is_equal_to("diff")
         assert_that(caught).is_length(1)
         assert_that(str(caught[0].message)).contains("unknown").contains("(diff, full, off)")
 
@@ -2250,17 +2255,17 @@ class TestSnapshotUpdateOption:
         parser = MagicMock()
         pytest_addoption(parser)
         names = [call[0][0] for call in parser.addoption.call_args_list]
-        assert_that(names).contains("--assertpy2-snapshot-update")
+        assert_that(names).contains("--assertpy-snapshot-update")
 
     def test_the_boolean_flags_are_opt_in(self):
         parser = MagicMock()
         pytest_addoption(parser)
         registered = {call[0][0]: call[1] for call in parser.addoption.call_args_list}
         for name in (
-            "--assertpy2-snapshot-update",
-            "--assertpy2-vacuous",
-            "--assertpy2-snapshot-ci",
-            "--assertpy2-snapshot-no-ci",
+            "--assertpy-snapshot-update",
+            "--assertpy-vacuous",
+            "--assertpy-snapshot-ci",
+            "--assertpy-snapshot-no-ci",
         ):
             assert_that(registered).contains_key(name)
             assert_that(registered[name]).described_as(name).contains_entry(
@@ -2286,7 +2291,7 @@ class TestSnapshotUpdateOption:
     def test_ci_flag_sets_mode_true_and_unconfigure_resets(self, monkeypatch):
         monkeypatch.setattr(snapshot_module, "_CI_MODE", None)
         config = _make_config()
-        config.getoption.side_effect = lambda name: name == "assertpy2_snapshot_ci"
+        config.getoption.side_effect = lambda name: name == "assertpy_snapshot_ci"
         pytest_configure(config)
         assert_that(snapshot_module._CI_MODE).is_true()
         pytest_unconfigure(config)
@@ -2295,7 +2300,7 @@ class TestSnapshotUpdateOption:
     def test_no_ci_flag_sets_mode_false_and_unconfigure_resets(self, monkeypatch):
         monkeypatch.setattr(snapshot_module, "_CI_MODE", True)
         config = _make_config()
-        config.getoption.side_effect = lambda name: name == "assertpy2_snapshot_no_ci"
+        config.getoption.side_effect = lambda name: name == "assertpy_snapshot_no_ci"
         pytest_configure(config)
         assert_that(snapshot_module._CI_MODE).is_false()
         pytest_unconfigure(config)
@@ -2313,11 +2318,11 @@ class TestSnapshotOrphans:
         monkeypatch.setattr(snapshot_module, "_TOUCHED", {("/x/snap-a.json", "10")})
         config = SimpleNamespace(workeroutput={})
         pytest_sessionfinish(SimpleNamespace(config=config), 0)
-        assert_that(config.workeroutput["assertpy2_touched"]).is_equal_to([["/x/snap-a.json", "10"]])
+        assert_that(config.workeroutput["assertpy_touched"]).is_equal_to([["/x/snap-a.json", "10"]])
 
     def test_testnodedown_collects_worker_touches(self):
         pytest_plugin._controller_touched.clear()
-        node = SimpleNamespace(workeroutput={"assertpy2_touched": [["/x/snap-a.json", "10"]]})
+        node = SimpleNamespace(workeroutput={"assertpy_touched": [["/x/snap-a.json", "10"]]})
         pytest_testnodedown(node, None)
         assert_that(pytest_plugin._controller_touched).contains(("/x/snap-a.json", "10"))
         pytest_plugin._controller_touched.clear()
@@ -2328,13 +2333,13 @@ class TestSnapshotOrphans:
         node = SimpleNamespace(
             gateway=SimpleNamespace(id="gw3"),
             workeroutput={
-                "assertpy2_failures": [
+                "assertpy_failures": [
                     [
                         "t.py::test_x",
                         [[True, "user.role", [["key", "'user'"], ["key", "'role'"]], "", [], "'s'", "'a'"]],
                     ]
                 ],
-                "assertpy2_failure_count": 7,
+                "assertpy_failure_count": 7,
             },
         )
         pytest_testnodedown(node, None)
@@ -2349,12 +2354,12 @@ class TestSnapshotOrphans:
     def test_sessionfinish_ships_the_failures_a_worker_recorded(self):
         config = SimpleNamespace(
             workeroutput={},
-            _assertpy2_failures=[("t.py::test_x", [Observation(Signature(True, "a.b", (("key", "'a'"),)), "1", "2")])],
-            _assertpy2_failure_count=4,
+            _assertpy_failures=[("t.py::test_x", [Observation(Signature(True, "a.b", (("key", "'a'"),)), "1", "2")])],
+            _assertpy_failure_count=4,
         )
         pytest_sessionfinish(SimpleNamespace(config=config), 0)
-        assert_that(config.workeroutput["assertpy2_failure_count"]).is_equal_to(4)
-        assert_that(config.workeroutput["assertpy2_failures"][0][0]).is_equal_to("t.py::test_x")
+        assert_that(config.workeroutput["assertpy_failure_count"]).is_equal_to(4)
+        assert_that(config.workeroutput["assertpy_failures"][0][0]).is_equal_to("t.py::test_x")
 
     def test_testnodedown_ignores_node_without_touches(self):
         pytest_plugin._controller_touched.clear()
@@ -2408,7 +2413,7 @@ class TestSnapshotOrphans:
             json.dump({"10": 1, "30": 3}, handle)
         monkeypatch.setattr(snapshot_module, "_TOUCHED", {(snapname, "10")})
         monkeypatch.setattr(snapshot_module, "_UPDATE_ALL", False)
-        monkeypatch.delenv("ASSERTPY2_SNAPSHOT_UPDATE", raising=False)
+        monkeypatch.delenv("ASSERTPY_SNAPSHOT_UPDATE", raising=False)
         reporter = MagicMock()
         pytest_sessionfinish(SimpleNamespace(config=_controller_config(reporter)), 0)
         text = " ".join(str(call) for call in reporter.write_line.call_args_list)
@@ -2478,7 +2483,7 @@ class TestTheDiffTravelsWithTheFailure:
     _SUITE = (
         "import sys\n\n"
         "import pytest\n"
-        "from assertpy2 import assert_that\n\n"
+        "from assertpy import assert_that\n\n"
         "if sys.version_info < (3, 11):\n"
         "    from exceptiongroup import ExceptionGroup\n\n\n"
         "@pytest.fixture\n"
@@ -2509,9 +2514,9 @@ class TestTheDiffTravelsWithTheFailure:
 
     _DUMP = (
         "import pytest\n\n"
-        "import assertpy2.pytest_plugin\n\n"
+        "import assertpy.pytest_plugin\n\n"
         "with open('plugin.txt', 'w', encoding='utf-8') as sink:\n"
-        "    sink.write(assertpy2.pytest_plugin.__file__)\n\n\n"
+        "    sink.write(assertpy.pytest_plugin.__file__)\n\n\n"
         "@pytest.hookimpl(trylast=True)\n"
         "def pytest_runtest_logreport(report):\n"
         "    if report.failed:\n"
@@ -2628,7 +2633,7 @@ class TestASoftBlocksSectionsReachEveryReader:
     """The sections of a soft block's failures, read out of real runs: the terminal in colour, JUnit in plain text."""
 
     _SUITE = (
-        "from assertpy2 import assert_that, soft_assertions\n\n\n"
+        "from assertpy import assert_that, soft_assertions\n\n\n"
         "def test_block():\n"
         "    with soft_assertions():\n"
         "        assert_that({'k': 0}).is_equal_to({'k': 1})\n"
@@ -2684,8 +2689,8 @@ class TestAllureNotAvailable:
         exc = AssertionFailure("fail", actual=1, expected=2)
         report = _make_report()
         with (
-            patch("assertpy2.pytest_plugin._HAS_ALLURE", False),
-            patch("assertpy2.pytest_plugin.allure", mock, create=True),
+            patch("assertpy.pytest_plugin._HAS_ALLURE", False),
+            patch("assertpy.pytest_plugin.allure", mock, create=True),
         ):
             _run_hook(report, _make_call(exc=exc))
         mock.attach.assert_not_called()
@@ -2746,10 +2751,10 @@ class TestNearTimeoutReport:
         pytest_plugin._retried.append(("t.py::test_x", 41, 0.81, 1.0))
         config = SimpleNamespace(workeroutput={})
         pytest_sessionfinish(SimpleNamespace(config=config), 0)
-        assert_that(config.workeroutput["assertpy2_retried"]).is_equal_to([["t.py::test_x", 41, 0.81, 1.0]])
+        assert_that(config.workeroutput["assertpy_retried"]).is_equal_to([["t.py::test_x", 41, 0.81, 1.0]])
 
     def test_testnodedown_collects_worker_retries(self):
-        node = SimpleNamespace(workeroutput={"assertpy2_retried": [["t.py::test_x", 41, 0.81, 1.0]]})
+        node = SimpleNamespace(workeroutput={"assertpy_retried": [["t.py::test_x", 41, 0.81, 1.0]]})
         pytest_testnodedown(node, None)
         assert_that(pytest_plugin._retried).contains(("t.py::test_x", 41, 0.81, 1.0))
 
@@ -2769,7 +2774,7 @@ class TestPollReportIni:
         reporter = MagicMock()
         config = SimpleNamespace(
             pluginmanager=SimpleNamespace(get_plugin=lambda name: reporter),
-            _assertpy2_poll_threshold=threshold,
+            _assertpy_poll_threshold=threshold,
         )
         pytest_plugin._report_retries(config)
         return [call.args[0] for call in reporter.write_line.call_args_list]
@@ -2777,7 +2782,7 @@ class TestPollReportIni:
     def test_addini_registers_the_key(self):
         parser = MagicMock()
         pytest_addoption(parser)
-        assert_that([call[0][0] for call in parser.addini.call_args_list]).contains("assertpy2_poll_report")
+        assert_that([call[0][0] for call in parser.addini.call_args_list]).contains("assertpy_poll_report")
 
     def test_off_silences_the_report(self):
         assert_that(self._lines([("t.py::test_x", 41, 0.81, 1.0)], None)).is_empty()
@@ -2786,7 +2791,7 @@ class TestPollReportIni:
         config = _make_config(poll_report="off")
         try:
             pytest_configure(config)
-            assert_that(config._assertpy2_poll_threshold).is_none()
+            assert_that(config._assertpy_poll_threshold).is_none()
             assert_that(async_assertions._COLLECT_RETRIES).is_false()
         finally:
             pytest_unconfigure(config)
@@ -2801,7 +2806,7 @@ class TestPollReportIni:
         config = _make_config(poll_report="0.95")
         try:
             pytest_configure(config)
-            assert_that(config._assertpy2_poll_threshold).is_equal_to(0.95)
+            assert_that(config._assertpy_poll_threshold).is_equal_to(0.95)
             assert_that(async_assertions._COLLECT_RETRIES).is_true()
         finally:
             pytest_unconfigure(config)
@@ -2820,19 +2825,19 @@ class TestVacuityGuardSwitch:
 
     def test_env_switch_reads_truthy_spellings(self, monkeypatch):
         for raw in ("1", "true", "YES", " on "):
-            monkeypatch.setenv("ASSERTPY2_VACUOUS", raw)
+            monkeypatch.setenv("ASSERTPY_VACUOUS", raw)
             assert_that(_satisfies_module._env_enabled()).described_as(raw).is_true()
 
     def test_env_switch_rejects_anything_else(self, monkeypatch):
-        monkeypatch.setenv("ASSERTPY2_VACUOUS", "maybe")
+        monkeypatch.setenv("ASSERTPY_VACUOUS", "maybe")
         assert_that(_satisfies_module._env_enabled()).is_false()
-        monkeypatch.delenv("ASSERTPY2_VACUOUS")
+        monkeypatch.delenv("ASSERTPY_VACUOUS")
         assert_that(_satisfies_module._env_enabled()).is_false()
 
     def test_flag_sets_the_guard_and_unconfigure_restores_it(self, monkeypatch):
         monkeypatch.setattr(_satisfies_module, "_VACUOUS_GUARD", False)
         config = _make_config()
-        config.getoption.side_effect = lambda name: name == "assertpy2_vacuous"
+        config.getoption.side_effect = lambda name: name == "assertpy_vacuous"
         pytest_configure(config)
         assert_that(_satisfies_module._VACUOUS_GUARD).is_true()
         pytest_unconfigure(config)
@@ -2847,7 +2852,7 @@ class TestVacuityGuardSwitch:
 
     def test_unconfigure_without_configure_falls_back_to_the_environment(self, monkeypatch):
         monkeypatch.setattr(_satisfies_module, "_VACUOUS_GUARD", True)
-        monkeypatch.delenv("ASSERTPY2_VACUOUS", raising=False)
+        monkeypatch.delenv("ASSERTPY_VACUOUS", raising=False)
         pytest_unconfigure(SimpleNamespace(getoption=lambda name: False))
         assert_that(_satisfies_module._VACUOUS_GUARD).is_false()
 
@@ -2935,12 +2940,12 @@ class TestSnapshotKeyReuseWarning:
         config = SimpleNamespace(workeroutput={})
         snapshot_module._record_access("/x/snap.json", "17", "test_mod.py:17")
         pytest_sessionfinish(SimpleNamespace(config=config), 0)
-        assert_that(config.workeroutput["assertpy2_accesses"]).is_equal_to(
+        assert_that(config.workeroutput["assertpy_accesses"]).is_equal_to(
             [["/x/snap.json", "17", ["test_mod.py::test_a"], "test_mod.py:17"]]
         )
         for node in ("test_mod.py::test_a", "test_mod.py::test_b"):
             pytest_testnodedown(
-                SimpleNamespace(workeroutput={"assertpy2_accesses": [["/x/s.json", "9", [node], "s:9"]]}), None
+                SimpleNamespace(workeroutput={"assertpy_accesses": [["/x/s.json", "9", [node], "s:9"]]}), None
             )
         assert_that(pytest_plugin._controller_accesses["/x/s.json", "9"]).is_length(2)
 
@@ -3009,7 +3014,7 @@ _SHARED_KEY_MODULE = """\
 import pathlib
 
 import pytest
-from assertpy2 import assert_that
+from assertpy import assert_that
 
 SNAPS = pathlib.Path(__file__).parent / "snaps"
 
@@ -3072,7 +3077,7 @@ class TestSnapshotKeyReuseUnderXdist:
                 str(tmp_path),
                 "--confcutdir",
                 str(tmp_path),
-                "--assertpy2-snapshot-no-ci",
+                "--assertpy-snapshot-no-ci",
                 "-n",
                 "3",
                 "--dist",
@@ -3109,7 +3114,7 @@ class TestSnapshotKeyReuseUnderXdist:
         report.does_not_contain("SnapshotKeyReusedWarning")
 
     def test_the_filters_turning_it_into_an_error_fail_the_run_not_the_hook(self, tmp_path):
-        result = self._run(tmp_path, '"one-key"', "-W", "error::assertpy2.SnapshotKeyReusedWarning")
+        result = self._run(tmp_path, '"one-key"', "-W", "error::assertpy.SnapshotKeyReusedWarning")
         report = self._report(result)
         report.does_not_contain("INTERNALERROR")
         report.contains("ERROR: snapshot key").contains("shared by 3 tests")
@@ -3174,9 +3179,9 @@ class TestTheOptionsRegisterWithPytestItself:
     """Every switch and ini key has to survive the parser pytest builds, not only a recording mock."""
 
     def test_the_switches_are_flags_the_parser_accepts_bare(self):
-        options = _registered_parser().parse(["--assertpy2-dangling", "--assertpy2-snapshot-update"])
-        assert_that(options.assertpy2_dangling).is_true()
-        assert_that(options.assertpy2_snapshot_update).is_true()
+        options = _registered_parser().parse(["--assertpy-dangling", "--assertpy-snapshot-update"])
+        assert_that(options.assertpy_dangling).is_true()
+        assert_that(options.assertpy_snapshot_update).is_true()
 
     def test_every_switch_and_key_documents_itself(self):
         parser = _registered_parser()
@@ -3185,12 +3190,12 @@ class TestTheOptionsRegisterWithPytestItself:
         assert_that([name for name, help_text in documented if not help_text]).is_empty()
 
     def test_the_wrapper_names_key_is_shell_split_rather_than_one_string(self):
-        assert_that(_registered_parser()._inidict["assertpy2_dangling_entries"][1]).is_equal_to("args")
+        assert_that(_registered_parser()._inidict["assertpy_dangling_entries"][1]).is_equal_to("args")
 
     def test_the_dangling_switch_is_opt_in_like_the_others(self):
         registered = {call[0][0]: call[1] for call in _addoption_calls()}
-        assert_that(registered).contains_key("--assertpy2-dangling")
-        assert_that(registered["--assertpy2-dangling"]).contains_entry({"action": "store_true"}, {"default": False})
+        assert_that(registered).contains_key("--assertpy-dangling")
+        assert_that(registered["--assertpy-dangling"]).contains_entry({"action": "store_true"}, {"default": False})
 
 
 class TestTheSettingsAProjectGets:
@@ -3202,15 +3207,15 @@ class TestTheSettingsAProjectGets:
             warnings.simplefilter("error")
             pytest_configure(config)
         try:
-            assert_that(config._assertpy2_allure_mode).is_equal_to("diff")
-            assert_that(config._assertpy2_dangling_enabled).is_equal_to(False)
-            assert_that(config._assertpy2_dangling_entries).is_equal_to(frozenset())
-            assert_that(config._assertpy2_diff_enabled).is_equal_to(True)
-            assert_that(config._assertpy2_diff_max).is_equal_to(50)
-            assert_that(config._assertpy2_cluster_minimum).described_as(
+            assert_that(config._assertpy_allure_mode).is_equal_to("diff")
+            assert_that(config._assertpy_dangling_enabled).is_equal_to(False)
+            assert_that(config._assertpy_dangling_entries).is_equal_to(frozenset())
+            assert_that(config._assertpy_diff_enabled).is_equal_to(True)
+            assert_that(config._assertpy_diff_max).is_equal_to(50)
+            assert_that(config._assertpy_cluster_minimum).described_as(
                 "clustering is the one report a project gets without configuring it"
             ).is_equal_to(_clustering.MINIMUM_SIZE)
-            assert_that(config._assertpy2_poll_threshold).is_equal_to(0.7)
+            assert_that(config._assertpy_poll_threshold).is_equal_to(0.7)
         finally:
             pytest_unconfigure(config)
 
@@ -3247,41 +3252,41 @@ class TestTheSettingsAProjectGets:
             warnings.simplefilter("error")
             pytest_configure(config)
         try:
-            return {name: value for name, value in vars(config).items() if name.startswith("_assertpy2_")}
+            return {name: value for name, value in vars(config).items() if name.startswith("_assertpy_")}
         finally:
             pytest_unconfigure(config)
 
     def test_every_key_reaches_the_setting_it_names(self):
         config = _RegisteredConfig(
             ini={
-                "assertpy2_allure": "full",
-                "assertpy2_dangling": "on",
-                "assertpy2_dangling_entries": ["check_that"],
-                "assertpy2_diff": "off",
-                "assertpy2_diff_max_entries": "5",
-                "assertpy2_failure_clusters": "4",
-                "assertpy2_poll_report": "0.9",
+                "assertpy_allure": "full",
+                "assertpy_dangling": "on",
+                "assertpy_dangling_entries": ["check_that"],
+                "assertpy_diff": "off",
+                "assertpy_diff_max_entries": "5",
+                "assertpy_failure_clusters": "4",
+                "assertpy_poll_report": "0.9",
             }
         )
         with warnings.catch_warnings():
             warnings.simplefilter("error")
             pytest_configure(config)
         try:
-            assert_that(config._assertpy2_allure_mode).is_equal_to("full")
-            assert_that(config._assertpy2_dangling_enabled).is_equal_to(True)
-            assert_that(config._assertpy2_dangling_entries).is_equal_to(frozenset({"check_that"}))
-            assert_that(config._assertpy2_diff_enabled).is_equal_to(False)
-            assert_that(config._assertpy2_diff_max).is_equal_to(5)
-            assert_that(config._assertpy2_cluster_minimum).is_equal_to(4)
-            assert_that(config._assertpy2_poll_threshold).is_equal_to(0.9)
+            assert_that(config._assertpy_allure_mode).is_equal_to("full")
+            assert_that(config._assertpy_dangling_enabled).is_equal_to(True)
+            assert_that(config._assertpy_dangling_entries).is_equal_to(frozenset({"check_that"}))
+            assert_that(config._assertpy_diff_enabled).is_equal_to(False)
+            assert_that(config._assertpy_diff_max).is_equal_to(5)
+            assert_that(config._assertpy_cluster_minimum).is_equal_to(4)
+            assert_that(config._assertpy_poll_threshold).is_equal_to(0.9)
         finally:
             pytest_unconfigure(config)
 
     def test_an_unusable_entry_cap_falls_back_to_the_documented_fifty(self):
-        config = _RegisteredConfig(ini={"assertpy2_diff_max_entries": "lots"})
+        config = _RegisteredConfig(ini={"assertpy_diff_max_entries": "lots"})
         try:
             pytest_configure(config)
-            assert_that(config._assertpy2_diff_max).is_equal_to(50)
+            assert_that(config._assertpy_diff_max).is_equal_to(50)
         finally:
             pytest_unconfigure(config)
 
@@ -3289,15 +3294,15 @@ class TestTheSettingsAProjectGets:
         config = _RegisteredConfig()
         try:
             pytest_configure(config)
-            assert_that(config._assertpy2_failures).is_equal_to([])
-            assert_that(config._assertpy2_failure_count).is_equal_to(0)
+            assert_that(config._assertpy_failures).is_equal_to([])
+            assert_that(config._assertpy_failure_count).is_equal_to(0)
             assert_that(pytest_plugin._session_config[0]).is_same_as(config)
         finally:
             pytest_unconfigure(config)
 
     def test_the_no_ci_switch_forces_ci_mode_off_rather_than_back_to_autodetection(self, monkeypatch):
         monkeypatch.setattr(snapshot_module, "_CI_MODE", True)
-        config = _RegisteredConfig(options={"assertpy2_snapshot_no_ci": True})
+        config = _RegisteredConfig(options={"assertpy_snapshot_no_ci": True})
         try:
             pytest_configure(config)
             assert_that(snapshot_module._CI_MODE).is_equal_to(False)
@@ -3344,7 +3349,7 @@ class TestUnconfigureLeavesTheProcessAsItFoundIt:
         ).is_equal_to([0, 0, 0, 0])
 
     def test_without_a_saved_value_the_vacuous_guard_comes_back_from_the_environment(self, monkeypatch):
-        monkeypatch.setenv("ASSERTPY2_VACUOUS", "1")
+        monkeypatch.setenv("ASSERTPY_VACUOUS", "1")
         monkeypatch.setattr(_satisfies_module, "_VACUOUS_GUARD", False)
         pytest_unconfigure(SimpleNamespace(getoption=lambda name: False))
         assert_that(_satisfies_module._VACUOUS_GUARD).is_true()
@@ -3380,7 +3385,7 @@ class TestTheNearTimeoutReportReachesTheTerminal:
         reporter = MagicMock()
         config = SimpleNamespace(
             pluginmanager=SimpleNamespace(get_plugin=lambda name: reporter if name == "terminalreporter" else None),
-            _assertpy2_poll_threshold=threshold,
+            _assertpy_poll_threshold=threshold,
         )
         pytest_plugin._report_retries(config)
         return [call.args[0] for call in reporter.write_line.call_args_list]
@@ -3388,7 +3393,7 @@ class TestTheNearTimeoutReportReachesTheTerminal:
     def test_the_report_names_itself_and_the_share_of_the_budget_the_poll_used(self, monkeypatch):
         lines = self._lines(monkeypatch, [("t.py::test_x", 7, 1.8, 2.0)])
         assert_that(lines[0]).described_as("held off the run's output by a blank line").is_empty()
-        assert_that(lines).contains("assertpy2 polls that nearly timed out:")
+        assert_that(lines).contains("assertpy polls that nearly timed out:")
         assert_that("\n".join(lines)).contains("90% of the budget")
 
     def test_a_poll_measured_against_its_own_budget_not_against_the_product(self, monkeypatch):
@@ -3405,13 +3410,13 @@ class TestTheDiffSectionReadsItsSettingsOffTheConfig:
 
     def test_the_entry_cap_the_ini_set_reaches_the_section(self):
         report = _make_report()
-        item = _configured_item(_assertpy2_diff_enabled=True, _assertpy2_diff_max=2)
+        item = _configured_item(_assertpy_diff_enabled=True, _assertpy_diff_max=2)
         _run_hook(report, _make_call(exc=AssertionFailure("fail", diff=_diff_of(5))), item=item)
         assert_that(dict(_sections(report))["Structured Diff"]).contains("and 3 more entries")
 
     def test_turning_the_sections_off_drops_both_the_diff_and_the_trace(self):
         report = _make_report()
-        item = _configured_item(_assertpy2_diff_enabled=False, _assertpy2_diff_max=50)
+        item = _configured_item(_assertpy_diff_enabled=False, _assertpy_diff_max=50)
         exc = AssertionFailure("fail", diff=_diff_of(5), trace=_make_trace())
         _run_hook(report, _make_call(exc=exc), item=item)
         assert_that([title for title, _ in _sections(report)]).does_not_contain("Structured Diff", "Polling Trace")
@@ -3426,10 +3431,10 @@ class TestTheDiffSectionReadsItsSettingsOffTheConfig:
 
     def test_the_failure_carries_plain_text_and_a_coloured_copy_beside_it(self):
         report = _make_report()
-        item = _configured_item(_assertpy2_diff_enabled=True, _assertpy2_diff_max=2)
+        item = _configured_item(_assertpy_diff_enabled=True, _assertpy_diff_max=2)
         _run_hook(report, _make_call(exc=AssertionFailure("fail", diff=_diff_of(5))), item=item)
         assert_that(dict(_sections(report))["Structured Diff"]).does_not_contain("\x1b[")
-        assert_that(vars(report)["_assertpy2_colored"]["Structured Diff"]).contains("\x1b[", "and 3 more entries")
+        assert_that(vars(report)["_assertpy_colored"]["Structured Diff"]).contains("\x1b[", "and 3 more entries")
 
 
 class TestTheDiffIsColouredAsItIsDrawn:
@@ -3445,7 +3450,7 @@ class TestTheDiffIsColouredAsItIsDrawn:
         longrepr.addsection("Structured Diff", "plain")
         report = SimpleNamespace(longrepr=longrepr)
         if colored:
-            report._assertpy2_colored = {"Structured Diff": "\x1b[31mcoloured\x1b[0m"}
+            report._assertpy_colored = {"Structured Diff": "\x1b[31mcoloured\x1b[0m"}
         pytest_plugin.pytest_runtest_logreport(report)
         return longrepr
 
@@ -3498,7 +3503,7 @@ class TestTheDiffIsColouredAsItIsDrawn:
         assert_that(self._drawn(copied, markup=True)).contains("\x1b[31mcoloured", "only on the copy")
 
     def test_a_failure_carried_as_text_is_left_alone(self):
-        report = SimpleNamespace(longrepr="rendered as text", _assertpy2_colored={"Structured Diff": "\x1b[31m"})
+        report = SimpleNamespace(longrepr="rendered as text", _assertpy_colored={"Structured Diff": "\x1b[31m"})
         pytest_plugin.pytest_runtest_logreport(report)
         assert_that(report.longrepr).is_equal_to("rendered as text")
 
@@ -3511,8 +3516,8 @@ class TestTheAllureAttachmentReadsItsSettingsOffTheConfig:
         item = _configured_item()
         exc = AssertionFailure("fail", actual=1, expected=2, diff=_diff_of(51))
         with (
-            patch("assertpy2.pytest_plugin._HAS_ALLURE", True),
-            patch("assertpy2.pytest_plugin.allure", mock, create=True),
+            patch("assertpy.pytest_plugin._HAS_ALLURE", True),
+            patch("assertpy.pytest_plugin.allure", mock, create=True),
         ):
             _run_hook(_make_report(), _make_call(exc=exc), item=item)
         names = [call.kwargs["name"] for call in mock.attach.call_args_list]
@@ -3521,11 +3526,11 @@ class TestTheAllureAttachmentReadsItsSettingsOffTheConfig:
 
     def test_the_entry_cap_the_ini_set_reaches_the_attachment(self):
         mock = _mock_allure()
-        item = _configured_item(_assertpy2_allure_mode="diff", _assertpy2_diff_max=2)
+        item = _configured_item(_assertpy_allure_mode="diff", _assertpy_diff_max=2)
         exc = AssertionFailure("fail", diff=_diff_of(5))
         with (
-            patch("assertpy2.pytest_plugin._HAS_ALLURE", True),
-            patch("assertpy2.pytest_plugin.allure", mock, create=True),
+            patch("assertpy.pytest_plugin._HAS_ALLURE", True),
+            patch("assertpy.pytest_plugin.allure", mock, create=True),
         ):
             _run_hook(_make_report(), _make_call(exc=exc), item=item)
         body = json.loads(mock.attach.call_args_list[0].kwargs["body"])
@@ -3537,8 +3542,8 @@ class TestTheAllureAttachmentReadsItsSettingsOffTheConfig:
         mock.attach.side_effect = RuntimeError("allure broken")
         report = _make_report()
         with (
-            patch("assertpy2.pytest_plugin._HAS_ALLURE", True),
-            patch("assertpy2.pytest_plugin.allure", mock, create=True),
+            patch("assertpy.pytest_plugin._HAS_ALLURE", True),
+            patch("assertpy.pytest_plugin.allure", mock, create=True),
         ):
             exc = AssertionFailure("f", actual=1, expected=2, diff=_diff_of(5))
             pytest_plugin._attach_report_sections(_make_item(), report, exc)
@@ -3735,14 +3740,14 @@ class TestWhatAWorkerShipsWhenItRecordedNothing:
     def test_a_worker_that_never_configured_ships_a_count_of_zero(self):
         config = SimpleNamespace(workeroutput={})
         pytest_sessionfinish(SimpleNamespace(config=config), 0)
-        assert_that(config.workeroutput["assertpy2_failure_count"]).is_equal_to(0)
+        assert_that(config.workeroutput["assertpy_failure_count"]).is_equal_to(0)
 
     def test_an_access_whose_site_was_never_recorded_ships_an_empty_one(self, monkeypatch):
         monkeypatch.setattr(snapshot_module, "_ACCESS_NODES", {("/x/s.json", "9"): {"t.py::test_a"}})
         monkeypatch.setattr(snapshot_module, "_ACCESS_SITES", {})
         config = SimpleNamespace(workeroutput={})
         pytest_sessionfinish(SimpleNamespace(config=config), 0)
-        assert_that(config.workeroutput["assertpy2_accesses"]).is_equal_to([["/x/s.json", "9", ["t.py::test_a"], ""]])
+        assert_that(config.workeroutput["assertpy_accesses"]).is_equal_to([["/x/s.json", "9", ["t.py::test_a"], ""]])
 
 
 @pytest.mark.usefixtures("_clean_registries")
@@ -3755,12 +3760,12 @@ class TestTheSnapshotReportNamesItself:
             json.dump({"10": 1, "30": 3}, handle)
         monkeypatch.setattr(snapshot_module, "_TOUCHED", {(snapname, "10")})
         monkeypatch.setattr(snapshot_module, "_UPDATE_ALL", False)
-        monkeypatch.delenv("ASSERTPY2_SNAPSHOT_UPDATE", raising=False)
+        monkeypatch.delenv("ASSERTPY_SNAPSHOT_UPDATE", raising=False)
         reporter = MagicMock()
         pytest_sessionfinish(SimpleNamespace(config=_controller_config(reporter)), 0)
         lines = [call.args[0] for call in reporter.write_line.call_args_list]
         assert_that(lines[0]).described_as("held off the run's output by a blank line").is_empty()
-        assert_that(lines).contains("assertpy2 snapshots:")
+        assert_that(lines).contains("assertpy snapshots:")
 
 
 class TestTheNearTimeoutReportIsPerSession:
@@ -4314,10 +4319,10 @@ class TestARecordTakenApartIsLaidOut:
     def test_turned_off_it_hands_nothing_and_the_diff_setting_is_not_asked(self):
         failure = _failure_of(lambda: assert_that([1]).is_equal_to([2]))
         item = _make_item()
-        item.config._assertpy2_comparison_enabled = False
+        item.config._assertpy_comparison_enabled = False
         assert_that(_handed(failure, item=item)).is_empty()
         item = _make_item()
-        item.config._assertpy2_diff_enabled = False
+        item.config._assertpy_diff_enabled = False
         assert_that(_handed(failure, item=item)).is_length(1)
 
     @pytest.mark.parametrize(("written", "enabled"), [("on", True), ("off", False), ("", True), ("yes", True)])
@@ -4325,7 +4330,7 @@ class TestARecordTakenApartIsLaidOut:
         config = _make_config(comparison=written)
         pytest_configure(config)
         try:
-            assert_that(config._assertpy2_comparison_enabled).is_equal_to(enabled)
+            assert_that(config._assertpy_comparison_enabled).is_equal_to(enabled)
         finally:
             pytest_unconfigure(config)
 
@@ -4342,7 +4347,7 @@ class TestTheHandoffInARealRun:
     """The hook as pytest dispatches it, heard by a plugin written as a runner's is."""
 
     _SUITE = (
-        "from assertpy2 import assert_that\n\n\n"
+        "from assertpy import assert_that\n\n\n"
         "ACTUAL = {'page': 1, 'items': [{'id': n, 'city': 'Oslo'} for n in range(3)]}\n"
         "EXPECTED = {'page': 2, 'items': [{'id': n, 'city': 'Oslo' if n != 1 else 'Paris'} for n in range(3)]}\n\n\n"
         "def test_plain():\n"
@@ -4364,9 +4369,9 @@ class TestTheHandoffInARealRun:
     _LISTENER = (
         "import json\n\n"
         "import pytest\n\n"
-        "import assertpy2.pytest_plugin\n\n"
+        "import assertpy.pytest_plugin\n\n"
         "with open('plugin.txt', 'w', encoding='utf-8') as sink:\n"
-        "    sink.write(assertpy2.pytest_plugin.__file__)\n\n"
+        "    sink.write(assertpy.pytest_plugin.__file__)\n\n"
         "kept = {}\n\n\n"
         "def pytest_assertrepr_compare(config, op, left, right):\n"
         "    kept['pair'] = (op, left, right)\n\n\n"
@@ -4414,8 +4419,8 @@ class TestTheHandoffInARealRun:
             }
         )
         # the failure is still this library's own, with what the plugin hangs on it
-        assert_that(result.stdout).contains("assertpy2.AssertionFailure: Expected <").contains("Structured Diff")
+        assert_that(result.stdout).contains("assertpy.AssertionFailure: Expected <").contains("Structured Diff")
 
     def test_turned_off_in_the_ini_nothing_is_heard(self, tmp_path):
-        _result, heard = self._run(tmp_path, "assertpy2_comparison = off")
+        _result, heard = self._run(tmp_path, "assertpy_comparison = off")
         assert_that({pair for _outcome, pair in heard.values()}).is_equal_to({None})

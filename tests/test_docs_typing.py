@@ -32,7 +32,7 @@ pytest.importorskip("pytest_examples")
 
 from pytest_examples import CodeExample, find_examples
 
-from assertpy2 import assert_that
+from assertpy import assert_that
 from tests.docs_fixtures import PAGE_FIXTURES, documented_pages
 
 # pages this guard does not read, with reasons; everything else is read, including a page added later
@@ -43,7 +43,7 @@ UNCHECKED_DOCS = {
 CHECKED_DOCS = documented_pages(UNCHECKED_DOCS)
 
 # the same namespace as the executing guard, so a block cannot pass one and fail the other over an import
-PREAMBLE = "import datetime, json, logging, re\nfrom pathlib import Path\nfrom assertpy2 import *  # noqa: F403\n"
+PREAMBLE = "import datetime, json, logging, re\nfrom pathlib import Path\nfrom assertpy import *  # noqa: F403\n"
 
 SKIP_MARKERS = ("docs-guard: skip", "docs-guard: untyped")
 TYPE_ERROR_MARKER = "docs-guard: type-error"

@@ -17,8 +17,8 @@ import pytest
 from hypothesis import assume, given
 from hypothesis import strategies as st
 
-from assertpy2 import AssertionFailure, assert_that, errors, match
-from assertpy2.matchers import BaseMatcher, StructureMatcher
+from assertpy import AssertionFailure, assert_that, errors, match
+from assertpy.matchers import BaseMatcher, StructureMatcher
 
 _RECORD = {
     "id": 7,

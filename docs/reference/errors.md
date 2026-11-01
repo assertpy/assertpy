@@ -5,49 +5,49 @@ The exception raised when an assertion fails, carrying the structured diff.
 ``AssertionFailure`` subclasses ``AssertionError``, so existing ``except AssertionError`` handlers keep
 working unchanged. See [Errors & reporting](../guides/errors.md) for usage.
 
-::: assertpy2.errors.AssertionFailure
+::: assertpy.errors.AssertionFailure
     options:
       show_root_heading: true
       show_root_full_path: false
       show_root_toc_entry: true
 
-::: assertpy2.errors.DiffResult
+::: assertpy.errors.DiffResult
     options:
       show_root_heading: true
       show_root_full_path: false
       show_root_toc_entry: true
 
-::: assertpy2.errors.Step
+::: assertpy.errors.Step
     options:
       show_root_heading: true
       show_root_full_path: false
       show_root_toc_entry: true
 
-::: assertpy2.errors.DiffEntry
+::: assertpy.errors.DiffEntry
     options:
       show_root_heading: true
       show_root_full_path: false
       show_root_toc_entry: true
 
-::: assertpy2.errors.PollTrace
+::: assertpy.errors.PollTrace
     options:
       show_root_heading: true
       show_root_full_path: false
       show_root_toc_entry: true
 
-::: assertpy2.errors.PollSample
+::: assertpy.errors.PollSample
     options:
       show_root_heading: true
       show_root_full_path: false
       show_root_toc_entry: true
 
-::: assertpy2.errors.DanglingAssertionWarning
+::: assertpy.errors.DanglingAssertionWarning
     options:
       show_root_heading: true
       show_root_full_path: false
       show_root_toc_entry: true
 
-::: assertpy2.errors.VacuousAssertionWarning
+::: assertpy.errors.VacuousAssertionWarning
     options:
       show_root_heading: true
       show_root_full_path: false

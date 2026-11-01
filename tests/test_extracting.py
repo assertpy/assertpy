@@ -5,7 +5,7 @@ from collections import namedtuple
 
 import pytest
 
-from assertpy2 import assert_that
+from assertpy import assert_that
 
 
 class Person:

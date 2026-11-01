@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from assertpy2 import add_extension, assert_that, remove_extension
+from assertpy import add_extension, assert_that, remove_extension
 
 
 def test_an_extension_adds_a_method_to_every_chain() -> None:

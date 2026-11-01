@@ -2,4 +2,4 @@
 
 Assertions for ``bytes`` and ``bytearray`` values.
 
-::: assertpy2.bytes_mixin.BytesMixin
+::: assertpy.bytes_mixin.BytesMixin

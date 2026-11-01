@@ -39,8 +39,8 @@ pytest.importorskip("pytest_examples")
 
 from pytest_examples import CodeExample, EvalExample, find_examples
 
-import assertpy2
-from assertpy2 import assert_that, errors, matchers
+import assertpy
+from assertpy import assert_that, errors, matchers
 from tests.docs_fixtures import PAGE_FIXTURES, documented_pages
 
 # pages this guard does not run, with reasons: a hand-kept list of pages to check stops growing quietly
@@ -55,9 +55,9 @@ GUARDED_DOCS = documented_pages(UNRUN_DOCS)
 
 # the public API minus submodules shadowing builtins, plus the stdlib names a later block assumes
 DOC_NAMESPACE = {
-    name: getattr(assertpy2, name)
-    for name in dir(assertpy2)
-    if not name.startswith("_") and not isinstance(getattr(assertpy2, name), types.ModuleType)
+    name: getattr(assertpy, name)
+    for name in dir(assertpy)
+    if not name.startswith("_") and not isinstance(getattr(assertpy, name), types.ModuleType)
 }
 DOC_NAMESPACE.update(datetime=datetime, re=re, json=json, logging=logging, Path=pathlib.Path)
 

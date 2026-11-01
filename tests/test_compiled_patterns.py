@@ -11,7 +11,7 @@ import pytest
 from hypothesis import example, given
 from hypothesis import strategies as st
 
-from assertpy2 import AssertionFailure, assert_that, match
+from assertpy import AssertionFailure, assert_that, match
 
 _TEXT = "first line\nSecond Line"
 

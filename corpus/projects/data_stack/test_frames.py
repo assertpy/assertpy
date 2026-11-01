@@ -9,7 +9,7 @@ from __future__ import annotations
 import numpy
 import pandas
 
-from assertpy2 import assert_that
+from assertpy import assert_that
 
 
 def frame() -> pandas.DataFrame:

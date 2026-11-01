@@ -3,9 +3,9 @@ from unittest import mock
 
 import pytest
 
-from assertpy2 import assert_that
-from assertpy2._engine._equality import _reachable_call, carries_callable, supports_subscript
-from assertpy2._engine._introspection import is_attrs_instance, is_model_dump_object, is_namedtuple
+from assertpy import assert_that
+from assertpy._engine._equality import _reachable_call, carries_callable, supports_subscript
+from assertpy._engine._introspection import is_attrs_instance, is_model_dump_object, is_namedtuple
 
 
 def test_custom_dict():

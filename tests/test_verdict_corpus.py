@@ -3,7 +3,7 @@
 A red run here is a decision, not a failure to paper over: read which case moved, decide whether the
 change is meant to ship, and re-record with
 
-    ASSERTPY2_UPDATE_VERDICTS=1 pytest tests/test_verdict_corpus.py
+    ASSERTPY_UPDATE_VERDICTS=1 pytest tests/test_verdict_corpus.py
 
 The diff of `verdict_golden.txt` is then the draft of the release's Behaviour changes section, which is
 the whole point: 2.27.0 shipped one note about a change nobody could see and three real changes that a
@@ -19,7 +19,7 @@ import re
 
 import pytest
 
-from assertpy2 import assert_that
+from assertpy import assert_that
 from tests.verdict_corpus import CASES, GROUPS, NAMED, answer
 
 _GOLDEN = pathlib.Path(__file__).resolve().parent / "verdict_golden.txt"
@@ -63,7 +63,7 @@ def test_no_case_name_is_used_twice() -> None:
     assert_that(len(CASES)).described_as("cases that survived the mapping").is_equal_to(len(NAMED))
 
 
-_RECORDING = bool(os.environ.get("ASSERTPY2_UPDATE_VERDICTS"))
+_RECORDING = bool(os.environ.get("ASSERTPY_UPDATE_VERDICTS"))
 _WHILE_RECORDING = pytest.mark.skipif(_RECORDING, reason="the record is being rewritten by this run")
 
 
@@ -106,7 +106,7 @@ def test_no_input_decides_differently(asked: dict[str, str]) -> None:
     recorded = _recorded()
     moved = {name: {"was": recorded[name], "now": said} for name, said in asked.items() if recorded.get(name) != said}
     assert_that(moved).described_as(
-        "an input decides differently. Meant to ship? Re-record with ASSERTPY2_UPDATE_VERDICTS=1"
+        "an input decides differently. Meant to ship? Re-record with ASSERTPY_UPDATE_VERDICTS=1"
     ).is_empty()
 
 

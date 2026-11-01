@@ -20,7 +20,7 @@ from unittest.mock import patch
 
 import pytest
 
-from assertpy2 import (
+from assertpy import (
     WarningLoggingAdapter,
     add_extension,
     assert_that,

@@ -38,9 +38,9 @@ import math
 import pathlib
 import textwrap
 
-from assertpy2 import assert_that
+from assertpy import assert_that
 
-_PACKAGE = pathlib.Path(__file__).resolve().parent.parent / "assertpy2"
+_PACKAGE = pathlib.Path(__file__).resolve().parent.parent / "assertpy"
 
 _HELPERS = frozenset(
     {
@@ -213,7 +213,7 @@ def _questions(package: pathlib.Path) -> tuple[tuple[str, str, int, str], ...]:
 
 def _unexcused(questions: tuple[tuple[str, str, int, str], ...]) -> list[str]:
     return [
-        f"assertpy2/{path}:{line} {function}: {text}"
+        f"assertpy/{path}:{line} {function}: {text}"
         for path, function, line, text in questions
         if (path, function) not in _HELPERS and (path, function, text) not in _EXCUSED
     ]

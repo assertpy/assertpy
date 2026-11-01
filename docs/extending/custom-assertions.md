@@ -1,13 +1,13 @@
 # Extending
 
-Add your own assertions to `assertpy2` with `add_extension()`.
+Add your own assertions to `assertpy` with `add_extension()`.
 
 ## A custom assertion
 
 <!-- docs-guard: untyped -->
 
 ```python
-from assertpy2 import add_extension, assert_that
+from assertpy import add_extension, assert_that
 
 def is_5(self):
     if self.val != 5:
@@ -35,7 +35,7 @@ Everything else gets its own protocol or the core surface. Why, and the ways rou
 leak into other tests:
 
 ```python
-from assertpy2 import remove_extension
+from assertpy import remove_extension
 
 remove_extension(is_5)
 ```
@@ -56,7 +56,7 @@ What is supported is writing the check as a matcher. It is typed end to end, it 
 accepts, and it imports nothing private:
 
 ```python
-from assertpy2 import Matcher, assert_that
+from assertpy import Matcher, assert_that
 
 
 class MultipleOf:
@@ -96,7 +96,7 @@ wherever a module happens to be imported, do it in a pytest fixture in `conftest
 
 ```python
 import pytest
-from assertpy2 import add_extension
+from assertpy import add_extension
 
 def is_5(self):
     if self.val != 5:
@@ -113,7 +113,7 @@ Then request the fixture in any test that needs the extensions:
 <!-- docs-guard: untyped -->
 
 ```python
-from assertpy2 import assert_that
+from assertpy import assert_that
 
 def test_foo(my_extensions):
     assert_that(5).is_5()

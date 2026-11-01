@@ -42,7 +42,7 @@ pytest.importorskip("pyright", reason="the lint job installs the typecheck group
 
 from typing import Any, Final
 
-from assertpy2 import assert_that
+from assertpy import assert_that
 from tests import typing_harness
 
 _ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -62,7 +62,7 @@ def _report() -> dict[str, Any]:
             "pyright",
             "--outputjson",
             "--verifytypes",
-            "assertpy2",
+            "assertpy",
             "--ignoreexternal",
             "--pythonversion",
             _TARGET,
@@ -88,7 +88,7 @@ def test_every_exported_symbol_has_a_type_a_checker_can_name() -> None:
 
     # a run resolving nothing would pass saying so, hence a name only the real walk produces, not a count
     walked = {symbol["name"] for symbol in symbols}
-    assert_that(walked).described_as("the verifytypes run did not reach the package").contains("assertpy2.assert_that")
+    assert_that(walked).described_as("the verifytypes run did not reach the package").contains("assertpy.assert_that")
 
     unresolved = sorted(
         symbol["name"]
@@ -99,7 +99,7 @@ def test_every_exported_symbol_has_a_type_a_checker_can_name() -> None:
 
 
 def test_the_package_it_read_is_this_checkout() -> None:
-    """Which `assertpy2` answered, rather than whether some `assertpy2` did.
+    """Which `assertpy` answered, rather than whether some `assertpy` did.
 
     An editable install is a `.pth` carrying an import hook, and static resolution cannot follow it, so a
     checker that does not find the package beside its working directory falls back to whatever is on the
@@ -111,7 +111,7 @@ def test_the_package_it_read_is_this_checkout() -> None:
     report = _report()["typeCompleteness"]
     for field in ("packageRootDirectory", "moduleRootDirectory", "pyTypedPath"):
         found = pathlib.Path(str(report[field])).resolve()
-        assert_that(str(found)).described_as(f"the {field} pyright read").starts_with(str(_ROOT / "assertpy2"))
+        assert_that(str(found)).described_as(f"the {field} pyright read").starts_with(str(_ROOT / "assertpy"))
 
 
 def test_the_engine_is_the_one_this_gate_was_recorded_against() -> None:

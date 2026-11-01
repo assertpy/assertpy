@@ -1,4 +1,4 @@
-# CodSpeed regression gate: micro-benchmarks of assertpy2's hot paths, measured commit-over-commit under
+# CodSpeed regression gate: micro-benchmarks of assertpy's hot paths, measured commit-over-commit under
 # CPU simulation.  Run with `uv run --group benchmark pytest benchmarks/ --codspeed --no-cov`, which is
 # what the CI job runs.  Not collected by the default suite, so machine noise never gates.
 #
@@ -11,10 +11,10 @@ from dataclasses import dataclass
 
 import pytest
 
-from assertpy2 import assert_that, match
-from assertpy2._clustering import clusters, observations_of, render
-from assertpy2._hints import diagnose
-from assertpy2.errors import AssertionFailure
+from assertpy import assert_that, match
+from assertpy._clustering import clusters, observations_of, render
+from assertpy._hints import diagnose
+from assertpy.errors import AssertionFailure
 
 
 def _records(count: int) -> list[dict]:

@@ -24,12 +24,12 @@ _STEPS: list[tuple[str, list[str], dict[str, str]]] = [
     (
         "the public surface snapshot",
         [sys.executable, "-m", "pytest", "tests/test_api_compatibility.py", "-q", "--no-cov", "-p", "no:randomly"],
-        {"ASSERTPY2_UPDATE_API": "1"},
+        {"ASSERTPY_UPDATE_API": "1"},
     ),
     (
         "the table of sizes in ARCHITECTURE.md",
         [sys.executable, "-m", "pytest", "tests/test_architecture_doc.py", "-q", "--no-cov", "-p", "no:randomly"],
-        {"ASSERTPY2_UPDATE_ARCHITECTURE": "1"},
+        {"ASSERTPY_UPDATE_ARCHITECTURE": "1"},
     ),
 ]
 

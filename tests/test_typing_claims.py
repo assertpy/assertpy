@@ -18,14 +18,14 @@ import re
 
 import pytest
 
-from assertpy2 import assert_that
+from assertpy import assert_that
 
 _ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 # every form the four checkers honour, so silencing any one of them trips this
 _SUPPRESSION = re.compile(r"#\s*(type:\s*ignore|ty:\s*ignore|pyright:\s*ignore|pyrefly:\s*ignore|mypy:)")
 
-_PACKAGE_FILES = sorted((_ROOT / "assertpy2").rglob("*.py"))
+_PACKAGE_FILES = sorted((_ROOT / "assertpy").rglob("*.py"))
 
 
 class TestThePinnedTypingSurfaceCarriesNoSuppressions:
@@ -103,7 +103,7 @@ _NOT_A_ROW = frozenset({"Value type", "---"})
 
 def _overloads():
     """`{type name: the view assert_that returns for it}`, read from the entry module."""
-    source = (_ROOT / "assertpy2" / "assertpy.py").read_text(encoding="utf-8")
+    source = (_ROOT / "assertpy" / "assertpy.py").read_text(encoding="utf-8")
     found = {}
     for node in ast.parse(source).body:
         if not isinstance(node, ast.FunctionDef) or node.name != "assert_that":
@@ -119,7 +119,7 @@ def _overloads():
 
 def _offers(view):
     """Every method name a view offers, its protocol bases included."""
-    source = (_ROOT / "assertpy2" / "_engine" / "_typing.py").read_text(encoding="utf-8")
+    source = (_ROOT / "assertpy" / "_engine" / "_typing.py").read_text(encoding="utf-8")
     declared = {node.name: node for node in ast.walk(ast.parse(source)) if isinstance(node, ast.ClassDef)}
     names, pending = set(), [view]
     while pending:

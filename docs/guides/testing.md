@@ -8,7 +8,7 @@ together at the end, so one run reports every problem.
 Each collected failure carries its `file:line`, so you can jump straight to the assertion that failed:
 
 ```python
-from assertpy2 import assert_that, soft_assertions
+from assertpy import assert_that, soft_assertions
 
 with soft_assertions():
     assert_that("foo").is_length(4)
@@ -18,7 +18,7 @@ with soft_assertions():
 
 ??? failure "Collected failures raised at the end of the block"
     ```
-    assertpy2.AssertionFailure: soft assertion failures:
+    assertpy.AssertionFailure: soft assertion failures:
     1. Expected <foo> to be of length <4>, but was <3>.  [test_str.py:12]
     2. Expected <foo> to be empty string, but was not.  [test_str.py:13]
     3. Expected <foo> to be equal to <bar>, but was not.  [test_str.py:14]
@@ -83,7 +83,7 @@ A convenience wrapper for inline soft assertions, equivalent to wrapping the cal
 `with soft_assertions():`:
 
 ```python
-from assertpy2 import assert_all, assert_that
+from assertpy import assert_all, assert_that
 
 assert_all(
     lambda: assert_that(x).is_positive(),
@@ -147,7 +147,7 @@ await assert_that(get_status).eventually(timeout=10).not_.is_equal_to("pending")
 
 - The `await` runs the chain: without it nothing is polled. A chain dropped without being awaited raises a
   `RuntimeWarning`, as a dropped coroutine does, and
-  [`--assertpy2-dangling`](assertions.md#assertions-that-never-ran) reports it from the source.
+  [`--assertpy-dangling`](assertions.md#assertions-that-never-ran) reports it from the source.
 - Awaiting returns the ordinary builder over the settled value, so assertions after it are plain
   assertions, not a new wait.
 
@@ -231,7 +231,7 @@ Counts in that line cover the whole run, not only the samples kept: a long poll 
 a value that moved on all of a thousand polls reads as a thousand. A line about the *shape* of what was
 kept says so: `value cycles between 2 states in the 25 polls kept`.
 
-The raised `AssertionFailure` carries the timeline as `.trace`, a [`PollTrace`][assertpy2.errors.PollTrace]
+The raised `AssertionFailure` carries the timeline as `.trace`, a [`PollTrace`][assertpy.errors.PollTrace]
 of per-poll samples, identical consecutive polls collapsed. The pytest report gets a `Polling Trace`
 section: the one-line summary (polls, elapsed time, how the value moved), then every distinct poll with
 its offset, repeat count and error or failure:
@@ -281,19 +281,19 @@ Burning most of the budget before converging says a great deal. That run passed,
 slower machine will not. Under pytest those are collected across the run and listed at the end:
 
 ```text
-assertpy2 polls that nearly timed out:
+assertpy polls that nearly timed out:
   tests/test_orders.py::test_status: converged on attempt 41 at 0.81s of 1.0s (81% of the budget)
 ```
 
 Only polls past 70% of their timeout are named, so a healthy suite prints nothing. The report is
 advisory and never fails a run.
 
-Move that bar or turn the report off with `assertpy2_poll_report`. A slow CI box converges late on
+Move that bar or turn the report off with `assertpy_poll_report`. A slow CI box converges late on
 every poll, where the default turns a signal into a line of noise per run.
 
 ```toml
 [tool.pytest.ini_options]
-assertpy2_poll_report = "0.9"  # only polls past 90% of their timeout, or "off" to say nothing
+assertpy_poll_report = "0.9"  # only polls past 90% of their timeout, or "off" to say nothing
 ```
 
 Setting it to `off` also stops the samples being collected, so nothing is measured at the poll site.
@@ -378,7 +378,7 @@ it. Raise it to an error if you would rather not rely on reading warnings:
 
 ```toml
 [tool.pytest.ini_options]
-filterwarnings = ["error::assertpy2.SnapshotKeyReusedWarning"]
+filterwarnings = ["error::assertpy.SnapshotKeyReusedWarning"]
 ```
 
 What counts is two *tests* on one key, not two calls. A helper snapshotting twice in one test asserts both
@@ -395,7 +395,7 @@ process sees the second one, so that split is caught by a sweep at the end of th
 
 ### Updating snapshots
 
-Run pytest with `--assertpy2-snapshot-update` and every failing snapshot comparison overwrites the
+Run pytest with `--assertpy-snapshot-update` and every failing snapshot comparison overwrites the
 stored value instead of failing.
 
 - Each overwrite emits a `SnapshotUpdatedWarning`, so the run reports which snapshots changed.
@@ -403,10 +403,10 @@ stored value instead of failing.
 - The comparison options (`ignore`, `tolerance`, ...) decide whether a snapshot is stale.
 
 ```bash
-pytest --assertpy2-snapshot-update
+pytest --assertpy-snapshot-update
 ```
 
-For runners other than pytest, set `ASSERTPY2_SNAPSHOT_UPDATE=1`. Deleting the snapshot files and
+For runners other than pytest, set `ASSERTPY_SNAPSHOT_UPDATE=1`. Deleting the snapshot files and
 re-running works too, each fresh capture emitting a `SnapshotCreatedWarning`.
 
 ### CI mode
@@ -417,20 +417,20 @@ created in the throwaway workspace, the test passes, and drift detection is sile
 Enable CI mode to make a missing snapshot a hard failure instead:
 
 ```bash
-pytest --assertpy2-snapshot-ci
+pytest --assertpy-snapshot-ci
 ```
 
-- It turns on by itself when a `CI` environment variable is set, or with `ASSERTPY2_SNAPSHOT_CI=1`.
-- `--assertpy2-snapshot-no-ci` or `ASSERTPY2_SNAPSHOT_CI=0` turns the autodetection off.
+- It turns on by itself when a `CI` environment variable is set, or with `ASSERTPY_SNAPSHOT_CI=1`.
+- `--assertpy-snapshot-no-ci` or `ASSERTPY_SNAPSHOT_CI=0` turns the autodetection off.
 - Local runs are unaffected.
 
 ### Obsolete snapshots
 
-When a test is deleted its stored snapshot lingers on disk. At the end of a run assertpy2 reports
+When a test is deleted its stored snapshot lingers on disk. At the end of a run assertpy reports
 snapshots it did not touch:
 
 ```text
-assertpy2 snapshots:
+assertpy snapshots:
   obsolete snapshot: __snapshots/snap-test_orders.json::42
   obsolete snapshot file: __snapshots/snap-test_legacy.json
 ```
@@ -449,13 +449,13 @@ Removal is conservative:
 ### Inline snapshots
 
 An inline snapshot keeps the expected value **in the test source**. Call `matches_inline()` empty, record
-once with `--assertpy2-snapshot-update`, and the literal is written into the call:
+once with `--assertpy-snapshot-update`, and the literal is written into the call:
 
 ```python
 # before recording
 assert_that(client.get("/orders/1").json()).matches_inline()
 
-# after `pytest --assertpy2-snapshot-update`
+# after `pytest --assertpy-snapshot-update`
 assert_that(client.get("/orders/1").json()).matches_inline(
     {"id": 1, "status": "paid"}
 )
@@ -473,7 +473,7 @@ assert_that(order).matches_inline(
 A recorded literal holds the value captured on that run, so a placeholder field shows the captured `id`
 rather than the `0` above. The placeholder governs the comparison, not what is written.
 
-Recording needs the `[inline]` extra (`pip install assertpy2[inline]`). The **comparison** does not.
+Recording needs the `[inline]` extra (`pip install assertpy[inline]`). The **comparison** does not.
 Below Python 3.11 a call written inside an `assert` statement, which pytest rewrites, cannot be found
 to record, and one given its value through `**` may not be found either, depending on the platform.
 Write `matches_inline()` on a line of its own there, with its literal in the call.
@@ -532,7 +532,7 @@ For a type beyond the built-in codec (`set`, `complex`, `datetime`/`date`/`time`
 `UUID`, `Enum`), register a serializer so `snapshot()` round-trips it instead of raising:
 
 ```python
-from assertpy2 import register_snapshot_serializer
+from assertpy import register_snapshot_serializer
 import pathlib
 
 register_snapshot_serializer(pathlib.PurePath, str, pathlib.PurePath)
@@ -563,7 +563,7 @@ freely. A real contract change fails with the drifted paths:
 Expected <{...}> to match contract snapshot, but the structure drifted:
   + promo_code
   ~ id number -> str
-Contract snapshot <...>; rerun with --assertpy2-snapshot-update to accept the new shape.
+Contract snapshot <...>; rerun with --assertpy-snapshot-update to accept the new shape.
 ```
 
 - No model is needed: the contract is inferred from the first response. Storage, update mode and CI mode
@@ -579,7 +579,7 @@ Contract snapshot <...>; rerun with --assertpy2-snapshot-update to accept the ne
 first run's value. `placeholders` stores a shape token instead, and asserts the shape on every run:
 
 ```python
-from assertpy2 import match
+from assertpy import match
 
 assert_that(response).snapshot(
     id="order",

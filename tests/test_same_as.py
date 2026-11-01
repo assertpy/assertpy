@@ -2,7 +2,7 @@ import sys
 
 import pytest
 
-from assertpy2 import assert_that
+from assertpy import assert_that
 
 
 def test_is_same_as():

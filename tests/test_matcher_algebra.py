@@ -22,8 +22,8 @@ import uuid
 from hypothesis import example, given, settings
 from hypothesis import strategies as st
 
-from assertpy2 import assert_that, match
-from assertpy2.errors import _safe_str
+from assertpy import assert_that, match
+from assertpy.errors import _safe_str
 
 _DAY = datetime.timedelta(days=1)
 _MOMENT = datetime.datetime(2026, 1, 1, 12)

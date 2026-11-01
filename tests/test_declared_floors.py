@@ -22,7 +22,7 @@ import re
 
 from packaging.requirements import Requirement
 
-from assertpy2 import assert_that
+from assertpy import assert_that
 
 _ROOT = pathlib.Path(__file__).resolve().parent.parent
 _WORKFLOW = _ROOT / ".github" / "workflows" / "ci.yml"
@@ -57,13 +57,13 @@ def _named(field: str) -> set[str]:
 
 def _published_extras() -> set[str]:
     """Read from the installed metadata rather than the file, which is what a user actually gets."""
-    return set(importlib.metadata.metadata("assertpy2").get_all("Provides-Extra") or ())
+    return set(importlib.metadata.metadata("assertpy").get_all("Provides-Extra") or ())
 
 
 def _dists_by_extra() -> dict[str, set[str]]:
     """What each published extra pulls in, already flattened: `data` arrives as its three."""
     by_extra: dict[str, set[str]] = {}
-    for line in importlib.metadata.requires("assertpy2") or ():
+    for line in importlib.metadata.requires("assertpy") or ():
         match = _PER_EXTRA.match(line)
         if match is not None:
             by_extra.setdefault(match["extra"], set()).add(match["dist"])
@@ -79,7 +79,7 @@ def _core_dists(python_version: str) -> set[str]:
     `packaging` is not declared anywhere here and does not need to be: pytest requires it, so it is
     present wherever this suite runs, and reading a marker by hand is the worse of the two.
     """
-    declared = importlib.metadata.requires("assertpy2") or ()
+    declared = importlib.metadata.requires("assertpy") or ()
     requirements = (Requirement(line) for line in declared if "extra ==" not in line)
     return {
         requirement.name

@@ -6,8 +6,8 @@ import os
 import sys
 from unittest.mock import patch
 
-from assertpy2 import AssertionOutcome, assert_that, assert_warn
-from assertpy2.assertpy import _Subscribed
+from assertpy import AssertionOutcome, assert_that, assert_warn
+from assertpy.assertpy import _Subscribed
 
 
 def test_a_failure_reaches_the_callback_as_its_record():

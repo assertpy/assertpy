@@ -1,18 +1,18 @@
-# assertpy2
+# assertpy
 
 Fluent, fully type-aware assertions for Python.
 
-A drop-in, fully typed fork of `assertpy` - the same fluent `assert_that(...)` chains, but the type
-checker follows every one, and each assertion hands back the value it checked, statically narrowed.
+The type checker follows every `assert_that(...)` chain to the end, and each assertion hands back the
+value it checked, statically narrowed.
 
 ```python
-from assertpy2 import assert_that
+from assertpy import assert_that
 
 # port is a typed int - the value the chain checked, narrowed
 port = assert_that(8080).is_instance_of(int).is_positive().value
 ```
 
-## Why assertpy2
+## Why assertpy
 
 <div class="grid cards" markdown>
 
@@ -21,7 +21,7 @@ port = assert_that(8080).is_instance_of(int).is_positive().value
     ---
 
     String methods on strings, numeric methods on numbers - the type checker rejects the wrong ones
-    before the test even runs. The core advantage over `assertpy` and most alternatives.
+    before the test even runs. The core advantage over assertpy 1.x and most alternatives.
 
     [:octicons-arrow-right-24: Type safety](concepts/type-safety.md)
 
@@ -147,21 +147,21 @@ port = assert_that(8080).is_instance_of(int).is_positive().value
 ## Install
 
 ```bash
-pip install assertpy2
+pip install assertpy
 ```
 
 Optional extras:
 
-- `assertpy2[json]` - JSONPath, JSON Schema, and OpenAPI contracts
-- `assertpy2[inline]` - inline snapshots (`matches_inline()`)
-- `assertpy2[data]` - pandas, polars and numpy, or each under its own name
-- `assertpy2[allure]` - Allure reporting
-- `assertpy2[behave]` - Behave step matchers
+- `assertpy[json]` - JSONPath, JSON Schema, and OpenAPI contracts
+- `assertpy[inline]` - inline snapshots (`matches_inline()`)
+- `assertpy[data]` - pandas, polars and numpy, or each under its own name
+- `assertpy[allure]` - Allure reporting
+- `assertpy[behave]` - Behave step matchers
 
 ## Quick example
 
 ```python
-from assertpy2 import assert_that, match
+from assertpy import assert_that, match
 
 assert_that("foobar").is_length(6).starts_with("foo").ends_with("bar")
 assert_that([1, 2, 3]).contains(1).is_subset_of([1, 2, 3, 4])

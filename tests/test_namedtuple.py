@@ -2,7 +2,7 @@ import collections
 
 import pytest
 
-from assertpy2 import assert_that
+from assertpy import assert_that
 
 Foo = collections.namedtuple("Foo", ["bar", "baz"])
 foo = Foo(bar="abc", baz=123)

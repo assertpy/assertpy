@@ -10,7 +10,7 @@ import subprocess
 
 import pytest
 
-from assertpy2 import assert_that
+from assertpy import assert_that
 from tests import typing_harness
 
 REPORT = '{"generalDiagnostics": [{"rule": "reportCallIssue", "range": {"start": {"line": 4}}}], "n": 1}'

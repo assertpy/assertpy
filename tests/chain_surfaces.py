@@ -12,8 +12,8 @@ import logging
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
-from assertpy2 import AssertionFailure, soft_assertions
-from assertpy2.outcome import AssertionOutcome
+from assertpy import AssertionFailure, soft_assertions
+from assertpy.outcome import AssertionOutcome
 
 if TYPE_CHECKING:
     import asyncio

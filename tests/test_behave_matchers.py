@@ -2,8 +2,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from assertpy2 import assert_that
-from assertpy2.behave_matchers import (
+from assertpy import assert_that
+from assertpy.behave_matchers import (
     ASSERTPY_TYPES,
     _bool_like,
     _non_empty_string,

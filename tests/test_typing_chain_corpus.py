@@ -20,7 +20,7 @@ import pytest
 pytest.importorskip("pyright", reason="the lint job installs the typecheck group and this cell does not")
 pytest.importorskip("mypy", reason="the lint job installs the typecheck group and this cell does not")
 
-from assertpy2 import assert_that
+from assertpy import assert_that
 from tests import chain_corpus
 
 

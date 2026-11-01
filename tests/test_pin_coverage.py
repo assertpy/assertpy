@@ -51,12 +51,12 @@ import sys
 
 import pytest
 
-from assertpy2 import assert_that
+from assertpy import assert_that
 
 _ROOT = pathlib.Path(__file__).resolve().parent.parent
-_SURFACE = _ROOT / "assertpy2" / "_engine" / "_typing.py"
-_FACADE = _ROOT / "assertpy2" / "_engine" / "_capable_typing.py"
-_LADDER = _ROOT / "assertpy2" / "assertpy.py"
+_SURFACE = _ROOT / "assertpy" / "_engine" / "_typing.py"
+_FACADE = _ROOT / "assertpy" / "_engine" / "_capable_typing.py"
+_LADDER = _ROOT / "assertpy" / "assertpy.py"
 _PINS = _ROOT / "tests" / "test_typing.py"
 _UNCHANGED = frozenset({"Self", "None"})
 _UNPINNABLE = {

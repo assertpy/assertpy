@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from pathlib import Path
     from typing import SupportsFloat, SupportsIndex
 
-    from assertpy2._engine._capable_typing import (
+    from assertpy._engine._capable_typing import (
         _Callable,
         _Indexed,
         _Keyed,
@@ -31,7 +31,7 @@ if TYPE_CHECKING:
         _Orderable,
         _PathLike,
     )
-    from assertpy2._engine._typing import _CapableT
+    from assertpy._engine._typing import _CapableT
 
 _T = TypeVar("_T")
 _U = TypeVar("_U")

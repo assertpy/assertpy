@@ -13,7 +13,7 @@ import difflib
 
 import pytest
 
-from assertpy2 import AssertionFailure, _hints, assert_that
+from assertpy import AssertionFailure, _hints, assert_that
 
 _PAYLOAD = {"user_id": 2, "Name": "ann", "email": "a@b", "created_at": 1, "items": []}
 

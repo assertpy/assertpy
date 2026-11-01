@@ -1,12 +1,12 @@
 # Comparison
 
-Where this library sits next to the four common alternatives: pytest's bare `assert`, PyHamcrest, the
-original assertpy, and dirty-equals.
+Where this library sits next to the three common alternatives: pytest's bare `assert`, PyHamcrest and
+dirty-equals. How 2.x differs from assertpy 1.x is on [Upgrading from assertpy 1.x](migration.md).
 
 The same check written each way, the same failure printed each way, and a rule for choosing at the end.
 
 !!! success "In short"
-    assertpy2 unifies the fluent, matcher, and `==` styles in one typed package, then adds thread-
+    assertpy unifies the fluent, matcher, and `==` styles in one typed package, then adds thread-
     and async-safe soft assertions, async polling, structured failures, and rich pytest diffs.
 
     Two things none of the alternatives below offer: the value you pass decides which assertions a
@@ -16,13 +16,13 @@ The same check written each way, the same failure printed each way, and a rule f
 
 ## All three styles, one import
 
-assertpy2's fluent, matcher, and `==` styles are not mutually exclusive. A single import gives you all
+assertpy's fluent, matcher, and `==` styles are not mutually exclusive. A single import gives you all
 three, mixable in the same test suite:
 
 ```python
-from assertpy2 import assert_that, match
+from assertpy import assert_that, match
 
-# fluent chaining (the assertpy heritage)
+# fluent chaining
 assert_that(value).is_positive().is_less_than(100)
 
 # matchers inside plain == (the dirty-equals style)
@@ -32,16 +32,16 @@ assert response == {"id": match.is_positive(), "name": match.is_non_empty_string
 assert_that(value).satisfies(match.greater_than(0) & match.less_than(100))
 ```
 
-## The same check, five ways
+## The same check, four ways
 
 That `id` is a positive number and `name` a non-empty string:
 
-=== "assertpy2"
+=== "assertpy"
 
     A typed fluent chain, composable matchers, and the `==` form, from one import.
 
     ```python
-    from assertpy2 import assert_that, match
+    from assertpy import assert_that, match
 
     assert_that(response).matches_structure({
         "id": match.is_positive(),
@@ -80,18 +80,6 @@ That `id` is a positive number and `name` a non-empty string:
     assert response == {"id": match_equality(greater_than(0))}
     ```
 
-=== "assertpy"
-
-    The original fluent chain this project is built on. See [Migrating from assertpy](migration.md).
-
-    <!-- docs-guard: skip -->
-    ```python
-    from assertpy import assert_that
-
-    assert_that(response["id"]).is_positive()
-    assert_that(response["name"]).is_not_empty()
-    ```
-
 === "dirty-equals"
 
     `__eq__` put to work, so the spec lives inside the literal.
@@ -107,7 +95,7 @@ That `id` is a positive number and `name` a non-empty string:
 
 A nested response, after `role` comes back as `"superadmin"`. What each library prints on failure:
 
-=== "assertpy2"
+=== "assertpy"
 
     ```text
     assert_that(response).matches_structure({...})
@@ -135,14 +123,6 @@ A nested response, after `role` comes back as `"superadmin"`. What each library 
     E        but: value for 'user' value for 'role' was 'superadmin'
     ```
 
-=== "assertpy"
-
-    ```text
-    assert_that(response["user"]).has_role("admin")
-    E   AssertionError: Expected <superadmin> to be equal to <admin>
-    E                   on key <role>, but was not.
-    ```
-
 === "dirty-equals"
 
     ```text
@@ -152,8 +132,8 @@ A nested response, after `role` comes back as `"superadmin"`. What each library 
     E   {'user': {'name': IsStr, 'role': IsOneOf('admin', 'user'), 'age': IsInt}}
     ```
 
-The split is two ways, not four. assertpy2 and PyHamcrest name the path and the predicate. The `==`
-styles hand rendering to pytest, which dumps both containers whole.
+The split is two ways. assertpy and PyHamcrest name the path and the predicate. The `==` styles hand
+rendering to pytest, which dumps both containers whole.
 
 Between the first two the difference is shape, not information: our diff is also readable as data, and
 it comes off a fluent chain rather than a nested matcher expression.
@@ -162,7 +142,7 @@ it comes off a fluent chain rather than a nested matcher expression.
 
 A model goes in as it is. No `.model_dump()`, no `attrs.asdict()`, and the failure keeps its path:
 
-=== "assertpy2"
+=== "assertpy"
 
     ```python
     assert_that(user).matches_structure({"role": match.is_in("admin", "user")})
@@ -191,9 +171,9 @@ A model goes in as it is. No `.model_dump()`, no `attrs.asdict()`, and the failu
     E   {'name': IsStr, 'role': IsOneOf('admin', 'user'), 'age': IsInt}
     ```
 
-## On snapshot testing, where assertpy2 does and does not lead
+## On snapshot testing, where assertpy does and does not lead
 
-assertpy2 ships snapshot testing, and the dedicated tools do it better. Three styles, one API:
+assertpy ships snapshot testing, and the dedicated tools do it better. Three styles, one API:
 
 <!-- docs-guard: skip -->
 ```python
@@ -208,7 +188,7 @@ changing total does not fail the test and a total that turns into a string does:
 ```text
 Expected <{...}> to match contract snapshot, but the structure drifted:
   ~ order.total number -> str
-Contract snapshot <...>; rerun with --assertpy2-snapshot-update to accept the new shape.
+Contract snapshot <...>; rerun with --assertpy-snapshot-update to accept the new shape.
 ```
 
 If snapshots are the workflow, the specialists lead that niche:
@@ -247,7 +227,7 @@ assert result == snapshot()
 assert response == {"id": IsPositiveInt}
 ```
 
-### assertpy2, when a suite keeps asking for the same things
+### assertpy, when a suite keeps asking for the same things
 
 ```python
 # a condition reused across tests

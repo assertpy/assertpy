@@ -8,9 +8,9 @@ import types
 
 import pytest
 
-from assertpy2 import assert_that, match
-from assertpy2._engine import _ordering
-from assertpy2._engine._compare import _difference_within
+from assertpy import assert_that, match
+from assertpy._engine import _ordering
+from assertpy._engine._compare import _difference_within
 
 
 def test_is_zero():

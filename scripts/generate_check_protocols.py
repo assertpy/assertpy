@@ -24,11 +24,11 @@ import subprocess
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-SOURCE = ROOT / "assertpy2" / "_engine" / "_typing.py"
-TARGET = ROOT / "assertpy2" / "_engine" / "_check_typing.py"
+SOURCE = ROOT / "assertpy" / "_engine" / "_typing.py"
+TARGET = ROOT / "assertpy" / "_engine" / "_check_typing.py"
 
 sys.path.insert(0, str(ROOT))
-from assertpy2._engine._operations import NOT_AN_OPERATION, WITHOUT_A_VERDICT  # noqa: E402 - needs the path above
+from assertpy._engine._operations import NOT_AN_OPERATION, WITHOUT_A_VERDICT  # noqa: E402 - needs the path above
 
 _SKIP = set(WITHOUT_A_VERDICT) | NOT_AN_OPERATION
 
@@ -39,7 +39,7 @@ a verdict is checked against the same value type it would be checked against nor
 `assert_that(1).check().starts_with("x")` is a type error rather than a runtime one.
 
 Only operations that reach a verdict appear.  A pivot or a configurer has none to report, and both
-proxies refuse them at runtime; see `assertpy2/_engine/_operations.py`.
+proxies refuse them at runtime; see `assertpy/_engine/_operations.py`.
 """
 
 from __future__ import annotations

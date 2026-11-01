@@ -17,8 +17,8 @@ from typing import Any
 
 from hypothesis import strategies as st
 
-from assertpy2 import match
-from assertpy2.assertpy import AssertionBuilder
+from assertpy import match
+from assertpy.assertpy import AssertionBuilder
 
 Draw = Callable[[st.SearchStrategy[Any]], Any]
 Arguments = tuple[tuple[Any, ...], dict[str, Any]]

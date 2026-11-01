@@ -3,7 +3,7 @@ name: Mutation
 # Coverage says a line ran; mutation testing asks whether anything would have NOTICED had it been
 # wrong. It is a review tool, not a gate: most survivors are equivalent mutants (message text no test
 # asserts on, formatting, `__repr__`), so the job stays green on survivors and publishes the list to
-# triage. Weekly, not nightly - the score only moves when assertpy2/ or tests/ move, and a recurring
+# triage. Weekly, not nightly - the score only moves when assertpy/ or tests/ move, and a recurring
 # red that means nothing is a red people learn to ignore.
 #
 # It does go red when the RUN itself is broken. mutmut runs the unmutated suite once to learn which

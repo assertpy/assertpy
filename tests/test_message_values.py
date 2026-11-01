@@ -23,9 +23,9 @@ import sys
 
 import pytest
 
-from assertpy2 import AssertionFailure, assert_that, errors, match, soft_assertions
+from assertpy import AssertionFailure, assert_that, errors, match, soft_assertions
 
-_PACKAGE = pathlib.Path(__file__).resolve().parent.parent / "assertpy2"
+_PACKAGE = pathlib.Path(__file__).resolve().parent.parent / "assertpy"
 _RAW = frozenset({"_safe_str", "_safe_repr", "str", "repr"})
 _CAP = 4000
 _ROWS = [{"id": index, "name": f"user{index}", "tags": ["a", "b"]} for index in range(300)]

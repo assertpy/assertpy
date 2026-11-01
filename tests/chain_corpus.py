@@ -255,8 +255,8 @@ import datetime
 from collections.abc import Callable
 from typing import Any, TypeVar, assert_type
 
-from assertpy2 import assert_that
-from assertpy2.outcome import AssertionOutcome
+from assertpy import assert_that
+from assertpy.outcome import AssertionOutcome
 
 _T = TypeVar("_T")
 

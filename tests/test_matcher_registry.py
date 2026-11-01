@@ -4,7 +4,7 @@ import functools
 
 import pytest
 
-from assertpy2 import assert_that, clear_custom_matchers, match, register_matcher, unregister_matcher
+from assertpy import assert_that, clear_custom_matchers, match, register_matcher, unregister_matcher
 
 
 class TestRegisterMatcher:
@@ -245,12 +245,12 @@ class TestBaseMatcherIsReachableFromThePackage:
     and until it was exported the only way to reach it was an import from a private module."""
 
     def test_it_is_importable_from_the_top_level(self):
-        from assertpy2 import BaseMatcher
+        from assertpy import BaseMatcher
 
         assert_that(BaseMatcher).is_not_none()
 
     def test_a_subclass_works_everywhere_a_matcher_is_accepted(self):
-        from assertpy2 import BaseMatcher
+        from assertpy import BaseMatcher
 
         class IsEven(BaseMatcher):
             def matches(self, value):
@@ -265,7 +265,7 @@ class TestBaseMatcherIsReachableFromThePackage:
         assert_that([1, 2]).contains(IsEven())
 
     def test_a_subclass_composes_with_the_operators(self):
-        from assertpy2 import BaseMatcher, match
+        from assertpy import BaseMatcher, match
 
         class IsEven(BaseMatcher):
             def matches(self, value):
@@ -279,7 +279,7 @@ class TestBaseMatcherIsReachableFromThePackage:
         assert_that(3).satisfies(~IsEven())
 
     def test_the_default_mismatch_description_is_enough_to_get_started(self):
-        from assertpy2 import BaseMatcher
+        from assertpy import BaseMatcher
 
         class IsEven(BaseMatcher):
             def matches(self, value):

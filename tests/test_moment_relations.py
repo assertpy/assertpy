@@ -18,8 +18,8 @@ import pytest
 from hypothesis import given
 from hypothesis import strategies as st
 
-from assertpy2 import AssertionFailure, _hints, assert_that
-from assertpy2.date import DateMixin
+from assertpy import AssertionFailure, _hints, assert_that
+from assertpy.date import DateMixin
 
 UTC = dt.timezone.utc
 PLUS_ONE = dt.timezone(dt.timedelta(hours=1))

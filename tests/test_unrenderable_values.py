@@ -3,7 +3,7 @@
 A failure message interpolates the value under test and the operands it was compared with.  Interpolated raw,
 a `__repr__`, `__str__` or `__format__` that raises replaced the verdict with the user's exception: the test
 reported a crash in the value instead of the difference it was asked about.  Every such site renders through
-the guarded renderers in `assertpy2.errors`, which name the value `<unreprable ...>` instead.
+the guarded renderers in `assertpy.errors`, which name the value `<unreprable ...>` instead.
 
 Parameters that configure an assertion rather than name a value (a length, a tolerance, a pattern, a key name)
 are not held to this: they have a declared type, and a string that cannot print itself is outside it.
@@ -13,7 +13,7 @@ import datetime
 
 import pytest
 
-from assertpy2 import assert_conforms, assert_that, match
+from assertpy import assert_conforms, assert_that, match
 
 
 class _UnrenderedError(Exception):

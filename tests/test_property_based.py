@@ -3,7 +3,7 @@
 These complement the example-based suite: 100% line coverage does not exercise the *space* of
 values, which is where recursive equality, ignore/include filtering, and matcher algebra hide bugs.
 Each test states an invariant and lets Hypothesis attack it with generated data; on failure the
-shrunk counterexample plus assertpy2's structured ``AssertionFailure`` pinpoint the mismatch.
+shrunk counterexample plus assertpy's structured ``AssertionFailure`` pinpoint the mismatch.
 """
 
 import ast
@@ -30,32 +30,32 @@ import pytest
 from hypothesis import assume, example, given, settings
 from hypothesis import strategies as st
 
-import assertpy2._engine._typing
-import assertpy2.assertpy
-from assertpy2 import assert_conforms, assert_that, match, soft_assertions
-from assertpy2._clustering import _VALUE_LIMIT, Observation, Signature, _shown, clusters, render, stable_repr
-from assertpy2._dangling import findings as dangling_findings
-from assertpy2._engine._compare import _EQ_ATOMIC, _within_tolerance, plainly_within
-from assertpy2._engine._contract import UncheckableDriftError, contract_drift, shape, shape_diff
-from assertpy2._engine._diff import _build_equality_diff, _ordered_keys, _sub_diff_entries
-from assertpy2._engine._equality import values_differ
-from assertpy2._engine._introspection import is_mapping_like
-from assertpy2._engine._membership import missing_items
-from assertpy2._engine._ordering import compare, holds
-from assertpy2._engine._path import _ROOT
-from assertpy2._engine._require import refuse
-from assertpy2._engine._size import length_of
-from assertpy2._engine._text import contains as text_contains
-from assertpy2._engine._text import ends_with as text_ends_with
-from assertpy2._engine._text import starts_with as text_starts_with
-from assertpy2._hints import diagnose
-from assertpy2._inline import _format_literal, is_literalable
-from assertpy2._snapshot_codec import _Decoder, _Encoder
-from assertpy2.assertpy import _format_soft_errors
-from assertpy2.errors import AssertionFailure, DiffEntry, DiffResult, _diff_sides, _disambiguated, _json_safe
-from assertpy2.exception import _matches_shape
-from assertpy2.outcome import AssertionOutcome
-from assertpy2.pytest_plugin import _format_diff
+import assertpy._engine._typing
+import assertpy.assertpy
+from assertpy import assert_conforms, assert_that, match, soft_assertions
+from assertpy._clustering import _VALUE_LIMIT, Observation, Signature, _shown, clusters, render, stable_repr
+from assertpy._dangling import findings as dangling_findings
+from assertpy._engine._compare import _EQ_ATOMIC, _within_tolerance, plainly_within
+from assertpy._engine._contract import UncheckableDriftError, contract_drift, shape, shape_diff
+from assertpy._engine._diff import _build_equality_diff, _ordered_keys, _sub_diff_entries
+from assertpy._engine._equality import values_differ
+from assertpy._engine._introspection import is_mapping_like
+from assertpy._engine._membership import missing_items
+from assertpy._engine._ordering import compare, holds
+from assertpy._engine._path import _ROOT
+from assertpy._engine._require import refuse
+from assertpy._engine._size import length_of
+from assertpy._engine._text import contains as text_contains
+from assertpy._engine._text import ends_with as text_ends_with
+from assertpy._engine._text import starts_with as text_starts_with
+from assertpy._hints import diagnose
+from assertpy._inline import _format_literal, is_literalable
+from assertpy._snapshot_codec import _Decoder, _Encoder
+from assertpy.assertpy import _format_soft_errors
+from assertpy.errors import AssertionFailure, DiffEntry, DiffResult, _diff_sides, _disambiguated, _json_safe
+from assertpy.exception import _matches_shape
+from assertpy.outcome import AssertionOutcome
+from assertpy.pytest_plugin import _format_diff
 from tests.group_compat import BaseExceptionGroup, ExceptionGroup, needs_groups
 
 try:
@@ -1497,7 +1497,7 @@ _leaky_items = st.recursive(
 @settings(deadline=None)
 @given(item=_leaky_items, name=st.text(alphabet="abc", min_size=1, max_size=4))
 def test_the_extracting_item_label_never_leaks_a_memory_address(item, name):
-    """Whatever the item's repr does, the label assertpy2 writes for it stays reproducible.
+    """Whatever the item's repr does, the label assertpy writes for it stays reproducible.
 
     A message that differs between runs cannot be asserted on, cannot be diffed in CI, and sends the
     reader chasing a number that means nothing.
@@ -1516,7 +1516,7 @@ def test_the_extracting_item_label_never_leaks_a_memory_address(item, name):
 def test_an_error_raised_by_user_code_reaches_the_caller_unchanged(error_type, message):
     """``extracting()`` annotates its own failures with an index, so it must not repackage anyone else's.
 
-    ``AttributeError`` is deliberately absent from the sample: that one assertpy2 does intercept, to
+    ``AttributeError`` is deliberately absent from the sample: that one assertpy does intercept, to
     tell a broken accessor from a missing name.
     """
 
@@ -1628,7 +1628,7 @@ def test_the_wide_lattice_reaches_a_value_the_nested_walker_cannot_decompose(sha
     """`test_a_value_is_strictly_equal_to_itself` earns its keep only while the lattice grows values
     the walkers cannot take apart, so the reach is asserted rather than assumed - once per ladder,
     because the two answer different questions and disagree (see the module docstring of
-    ``assertpy2._engine._diff``).
+    ``assertpy._engine._diff``).
 
     Asserted on the shape the lattice is built from rather than on one a search found: `find()` is a
     randomised search and answered `NoSuchExample` once on a full run, which is a guard that lies in
@@ -1894,8 +1894,8 @@ class TestTheDanglingScanCountsWhatWasWritten:
             [
                 ("    assert_that(1)\n", 1),
                 ("    assert_that(2).is_equal_to(2)\n", 0),
-                ("    assert_that(3)  # assertpy2: allow-dangling\n", 0),
-                ('    assert_that("# assertpy2: allow-dangling")\n', 1),
+                ("    assert_that(3)  # assertpy: allow-dangling\n", 0),
+                ('    assert_that("# assertpy: allow-dangling")\n', 1),
                 ("    builder = assert_that(4)\n", 0),
                 ("    assert_that(5).is_none\n", 1),
             ]
@@ -1908,7 +1908,7 @@ class TestTheDanglingScanCountsWhatWasWritten:
     @settings(deadline=None)
     def test_every_dangling_line_is_reported_and_no_other(self, statements):
         body = "".join(line for line, _ in statements)
-        source = "from assertpy2 import assert_that\n\n\ndef test_generated():\n" + body
+        source = "from assertpy import assert_that\n\n\ndef test_generated():\n" + body
         assert_that(dangling_findings(source, "generated.py")).is_length(sum(count for _, count in statements))
 
 
@@ -2148,7 +2148,7 @@ def _shape_bounds() -> dict[str, str]:
     subject through to `.value`.  Resolving the bound is what keeps the subject readable here, and
     `tests/test_overload_order.py` reads the same declarations for the order it holds.
     """
-    source = pathlib.Path(assertpy2._engine._typing.__file__).read_text(encoding="utf-8")
+    source = pathlib.Path(assertpy._engine._typing.__file__).read_text(encoding="utf-8")
     bounds = {}
     for node in ast.walk(ast.parse(source)):
         match node:
@@ -2170,7 +2170,7 @@ def _view_classes() -> dict[str, ast.ClassDef]:
     `_typing.py` dropped it from the reachable set while the code still named it, and the gate stopped
     asking anything about it at all.
     """
-    engine = pathlib.Path(__file__).resolve().parent.parent / "assertpy2" / "_engine"
+    engine = pathlib.Path(__file__).resolve().parent.parent / "assertpy" / "_engine"
     return {
         node.name: node
         for source in (engine / "_typing.py", engine / "_capable_typing.py")
@@ -2265,7 +2265,7 @@ def _dispatch_relation() -> dict[str, str]:
     A subject appearing twice with different views is an error rather than a last-one-wins: the point of
     reading this relation is to notice a change, and a silent overwrite is how a change goes unnoticed.
     """
-    source = pathlib.Path(assertpy2.assertpy.__file__).read_text(encoding="utf-8")
+    source = pathlib.Path(assertpy.assertpy.__file__).read_text(encoding="utf-8")
     relation: dict[str, str] = {}
     fallbacks: list[list[str]] = []
     umbrellas: list[list[str]] = []
@@ -2327,7 +2327,7 @@ def _annotated_types(annotation) -> list[str]:
 
 def _reachable_methods(protocol: str) -> set[str]:
     """Every method a protocol offers, inherited ones included."""
-    source = pathlib.Path(assertpy2._engine._typing.__file__).read_text(encoding="utf-8")
+    source = pathlib.Path(assertpy._engine._typing.__file__).read_text(encoding="utf-8")
     declared: dict[str, tuple[set[str], list[str]]] = {}
     for node in ast.walk(ast.parse(source)):
         if isinstance(node, ast.ClassDef) and node.name.endswith("Assertion"):

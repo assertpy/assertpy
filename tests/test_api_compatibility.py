@@ -15,7 +15,7 @@ move", because the four kinds of movement carry different obligations:
 * **typing** - annotations only, the runtime is unchanged. A minor, and the release notes say so.
 * **internal** - never reaches this file, because private names are not collected.
 
-Updating the snapshot is deliberate and visible: run with `ASSERTPY2_UPDATE_API=1`, and the diff of
+Updating the snapshot is deliberate and visible: run with `ASSERTPY_UPDATE_API=1`, and the diff of
 `api_snapshot.json` is what review reads.
 """
 
@@ -30,7 +30,7 @@ from typing import ClassVar
 import pytest
 from api_surface import collect
 
-from assertpy2 import assert_that
+from assertpy import assert_that
 
 SNAPSHOT = pathlib.Path(__file__).parent / "api_snapshot.json"
 
@@ -96,7 +96,7 @@ def _callable_changes(path: str, before: dict, after: dict) -> list[tuple[str, s
 
 def _owned(construction: str | None) -> bool:
     """Whether the package itself defines the call, rather than inheriting it from somewhere else."""
-    return construction is None or construction == "assertpy2" or construction.startswith("assertpy2.")
+    return construction is None or construction == "assertpy" or construction.startswith("assertpy.")
 
 
 def _need(parameter: dict) -> str:
@@ -234,11 +234,11 @@ class TestThePublicSurfaceHasNotMoved:
         """The gate itself. A red run here is a decision to make, not a failure to paper over.
 
         Read the classification below, decide whether the change is allowed to ship in this release,
-        then re-record with `ASSERTPY2_UPDATE_API=1 pytest tests/test_api_compatibility.py` and let the
+        then re-record with `ASSERTPY_UPDATE_API=1 pytest tests/test_api_compatibility.py` and let the
         snapshot diff carry the decision into review.
         """
         current = collect()
-        if os.environ.get("ASSERTPY2_UPDATE_API"):
+        if os.environ.get("ASSERTPY_UPDATE_API"):
             _write(current)
             pytest.skip("snapshot re-recorded on request")
         changes = differences(_stored(), current)

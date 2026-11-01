@@ -19,7 +19,7 @@ import pytest
 from hypothesis import example, given, settings
 from hypothesis import strategies as st
 
-from assertpy2 import (
+from assertpy import (
     AssertionFailure,
     VacuousAssertionWarning,
     _satisfies,
@@ -29,7 +29,7 @@ from assertpy2 import (
     remove_extension,
     soft_assertions,
 )
-from assertpy2.snapshot import SnapshotCreatedWarning
+from assertpy.snapshot import SnapshotCreatedWarning
 
 
 def _vararg_assertions() -> list[str]:

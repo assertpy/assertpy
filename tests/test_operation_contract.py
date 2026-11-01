@@ -5,7 +5,7 @@ through either.  Both used to take them: `assert_that(1).not_.check()` failed wi
 satisfy: check()", and `assert_that([1]).check().first()` answered `passed=True` for a pivot that had
 asserted nothing at all.  The second is the worse of the two, because it reads as a verdict.
 
-Two halves.  The register in `assertpy2/_engine/_operations.py` is re-derived from the source here, so
+Two halves.  The register in `assertpy/_engine/_operations.py` is re-derived from the source here, so
 an operation that stops asserting cannot quietly stay negatable.  And the refusals are exercised, so
 the register is not just a list that agrees with itself.
 """
@@ -17,8 +17,8 @@ import pathlib
 
 import pytest
 
-from assertpy2 import add_extension, assert_that, assert_warn, remove_extension, soft_assertions
-from assertpy2._engine._operations import (
+from assertpy import add_extension, assert_that, assert_warn, remove_extension, soft_assertions
+from assertpy._engine._operations import (
     ALSO_ASSERTS,
     CONFIGURES,
     DESCRIBES,
@@ -29,7 +29,7 @@ from assertpy2._engine._operations import (
     WITHOUT_A_VERDICT,
 )
 
-_PACKAGE = pathlib.Path(__file__).resolve().parent.parent / "assertpy2"
+_PACKAGE = pathlib.Path(__file__).resolve().parent.parent / "assertpy"
 
 
 def _self_calls(method: ast.FunctionDef) -> set[str]:

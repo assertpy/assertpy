@@ -1,6 +1,6 @@
 import pytest
 
-from assertpy2 import AssertionFailure, assert_that, soft_assertions
+from assertpy import AssertionFailure, assert_that, soft_assertions
 
 
 class TestIsValidUtf8:

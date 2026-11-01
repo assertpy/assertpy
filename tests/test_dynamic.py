@@ -3,9 +3,9 @@ import types
 
 import pytest
 
-from assertpy2 import AssertionFailure, assert_that, soft_assertions
-from assertpy2 import dynamic as dynamic_module
-from assertpy2._hints import _IDENTITY_FACT, _NAN_FACT, _UNSEEN_IDENTITY_FACT
+from assertpy import AssertionFailure, assert_that, soft_assertions
+from assertpy import dynamic as dynamic_module
+from assertpy._hints import _IDENTITY_FACT, _NAN_FACT, _UNSEEN_IDENTITY_FACT
 
 
 class Person:

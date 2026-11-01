@@ -23,10 +23,10 @@ import pytest
 if TYPE_CHECKING:
     from types import ModuleType
 
-from assertpy2 import assert_that
-from assertpy2._engine import _builder_check_typing, _poll_typing, _typing
-from assertpy2._engine._operations import NOT_AN_OPERATION, POLLS, WITHOUT_A_VERDICT
-from assertpy2.assertpy import AssertionBuilder
+from assertpy import assert_that
+from assertpy._engine import _builder_check_typing, _poll_typing, _typing
+from assertpy._engine._operations import NOT_AN_OPERATION, POLLS, WITHOUT_A_VERDICT
+from assertpy.assertpy import AssertionBuilder
 from tests.group_compat import ExceptionGroup, needs_groups
 
 _ROOT = pathlib.Path(__file__).resolve().parent.parent

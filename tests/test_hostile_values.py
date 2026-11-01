@@ -23,9 +23,9 @@ import pathlib
 
 import pytest
 
-from assertpy2 import assert_that
+from assertpy import assert_that
 
-_PACKAGE = pathlib.Path(__file__).resolve().parent.parent / "assertpy2"
+_PACKAGE = pathlib.Path(__file__).resolve().parent.parent / "assertpy"
 
 
 def _own_kind() -> frozenset[str]:

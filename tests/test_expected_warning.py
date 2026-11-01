@@ -5,7 +5,7 @@ from io import StringIO
 
 import pytest
 
-from assertpy2 import WarningLoggingAdapter, assert_that, assert_warn, soft_assertions
+from assertpy import WarningLoggingAdapter, assert_that, assert_warn, soft_assertions
 
 _calls = []
 

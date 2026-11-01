@@ -25,14 +25,14 @@ if TYPE_CHECKING:
 
 pytest.importorskip("mypy", reason="the lint job installs the typecheck group and this cell does not")
 
-from assertpy2 import assert_that
+from assertpy import assert_that
 from tests import typing_harness
 
 # no capability, so the answer names the narrowed view: a checker reading nothing would answer `Any`
 _CONSUMER = """from typing import assert_type
 
-from assertpy2 import assert_that
-from assertpy2._engine._typing import _ObjectAssertion, _StringAssertion
+from assertpy import assert_that
+from assertpy._engine._typing import _ObjectAssertion, _StringAssertion
 
 
 class Plain:

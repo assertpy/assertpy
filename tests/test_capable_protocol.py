@@ -32,11 +32,11 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
     from types import ModuleType
 
-import assertpy2.assertpy
-from assertpy2 import AssertionFailure, assert_that
-from assertpy2._engine import _capable_typing
-from assertpy2._engine._operations import ALSO_ASSERTS, CONFIGURES, TRANSFORMS, WITHOUT_A_VERDICT
-from assertpy2.assertpy import AssertionBuilder
+import assertpy.assertpy
+from assertpy import AssertionFailure, assert_that
+from assertpy._engine import _capable_typing
+from assertpy._engine._operations import ALSO_ASSERTS, CONFIGURES, TRANSFORMS, WITHOUT_A_VERDICT
+from assertpy.assertpy import AssertionBuilder
 
 _ROOT = pathlib.Path(__file__).resolve().parent.parent
 _SOURCE = pathlib.Path(_capable_typing.__file__).read_text(encoding="utf-8")
@@ -449,7 +449,7 @@ def _builder_ladders() -> dict[str, list[str]]:
     These live in a `TYPE_CHECKING` block inside the class, so they are reached through the `if` rather
     than off the class body, and they are the ones a mixin's own signature cannot stand in for.
     """
-    source = pathlib.Path(assertpy2.assertpy.__file__).read_text(encoding="utf-8")
+    source = pathlib.Path(assertpy.assertpy.__file__).read_text(encoding="utf-8")
     found: dict[str, list[str]] = {}
     for node in ast.walk(ast.parse(source)):
         if not isinstance(node, ast.ClassDef) or node.name != "AssertionBuilder":
@@ -669,7 +669,7 @@ _KEEPS_THE_SUBJECT = frozenset({"Self", "_CapableAssertion[_CapableT_co]"})
 _PIVOTS = {name for name, kind in WITHOUT_A_VERDICT.items() if kind == TRANSFORMS} | ALSO_ASSERTS
 """Every operation handing back another value, as `test_operation_contract.py` derives it from the source."""
 
-_VIEWS = _ROOT / "assertpy2" / "_engine" / "_typing.py"
+_VIEWS = _ROOT / "assertpy" / "_engine" / "_typing.py"
 
 
 def _written(path: pathlib.Path, protocol: str) -> ast.ClassDef:

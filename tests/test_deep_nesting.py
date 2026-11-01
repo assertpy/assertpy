@@ -15,10 +15,10 @@ import pytest
 from hypothesis import example, given, settings
 from hypothesis import strategies as st
 
-from assertpy2 import AssertionFailure, assert_that, match
-from assertpy2._engine._diff import _walk_leaves, run_nested
-from assertpy2._engine._path import _ROOT, _Path
-from assertpy2.errors import Step, _safe_str
+from assertpy import AssertionFailure, assert_that, match
+from assertpy._engine._diff import _walk_leaves, run_nested
+from assertpy._engine._path import _ROOT, _Path
+from assertpy.errors import Step, _safe_str
 
 _DEEP = sys.getrecursionlimit() * 3 // 5
 _ON_FLOATS = {float: lambda actual, expected: actual == expected}

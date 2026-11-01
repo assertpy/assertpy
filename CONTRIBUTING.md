@@ -14,7 +14,7 @@ Contributions of docs, tests, or code are welcome.
 7. Run the [verification pipeline](#verification-pipeline) and fix any issues
 8. Commit using [Conventional Commits](#commit-style)
 9. Push your branch (`git push origin my_branch`)
-10. Open a [Pull Request](http://github.com/Solganis/assertpy2/pulls)
+10. Open a [Pull Request](http://github.com/assertpy/assertpy/pulls)
 
 Read more about how pulls work on GitHub's [About pull requests](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-requests) page.
 
@@ -25,7 +25,7 @@ Read more about how pulls work on GitHub's [About pull requests](https://help.gi
 
 ## Before you change a public signature
 
-Read [ARCHITECTURE.md](ARCHITECTURE.md). Five files under `assertpy2/_engine/` are generated, the public
+Read [ARCHITECTURE.md](ARCHITECTURE.md). Five files under `assertpy/_engine/` are generated, the public
 surface is pinned by a recorded snapshot, and neither is discoverable from the files themselves.
 
 ## Verification pipeline
@@ -46,8 +46,8 @@ uv sync --extra json --extra data --extra inline --group integrations --group do
 ```bash
 uv run ruff check .
 uv run ruff format --check .
-uv run ty check assertpy2/ tests/test_typing.py
-uv run pytest --cov=assertpy2 --cov-fail-under=100 --ignore=tests/test_docs_examples.py tests
+uv run ty check assertpy/ tests/test_typing.py
+uv run pytest --cov=assertpy --cov-fail-under=100 --ignore=tests/test_docs_examples.py tests
 uv run pytest tests/test_docs_examples.py tests/test_typing_claims.py
 uv run --group docs mkdocs build --strict
 ```
@@ -121,8 +121,8 @@ and neither is a failure to paper over: read the diff, decide whether the change
 re-record it in the same commit so the diff carries the decision into review.
 
 ```bash
-ASSERTPY2_UPDATE_API=1 uv run pytest tests/test_api_compatibility.py      # the public surface
-ASSERTPY2_UPDATE_VERDICTS=1 uv run pytest tests/test_verdict_corpus.py    # what each input decides
+ASSERTPY_UPDATE_API=1 uv run pytest tests/test_api_compatibility.py      # the public surface
+ASSERTPY_UPDATE_VERDICTS=1 uv run pytest tests/test_verdict_corpus.py    # what each input decides
 ```
 
 The second one's diff is the draft of the release's Behaviour changes section, so read it before
@@ -134,7 +134,7 @@ Use [Conventional Commits](https://www.conventionalcommits.org/): `feat:`, `fix:
 
 ## Tests
 
-Write tests for every new feature or bug fix. Use `assertpy2` assertions in tests.
+Write tests for every new feature or bug fix. Use `assertpy` assertions in tests.
 
 ## Documentation examples
 

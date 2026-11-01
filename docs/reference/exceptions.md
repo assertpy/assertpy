@@ -2,4 +2,4 @@
 
 Assertions for callables: expected exceptions and the value returned by a call.
 
-::: assertpy2.exception.ExceptionMixin
+::: assertpy.exception.ExceptionMixin

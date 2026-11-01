@@ -26,7 +26,7 @@ import httpx
 import requests
 import starlette.responses
 
-from assertpy2 import assert_that
+from assertpy import assert_that
 from tests import typing_harness, typing_http
 
 _CASES = typing_harness.ROOT / "tests" / "typing_http.py"

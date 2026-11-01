@@ -21,10 +21,10 @@ import types
 
 import pytest
 
-from assertpy2 import assert_that, match
-from assertpy2._engine import _ordering, _require
-from assertpy2._engine._membership import occurrences
-from assertpy2._engine._ordering import (
+from assertpy import assert_that, match
+from assertpy._engine import _ordering, _require
+from assertpy._engine._membership import occurrences
+from assertpy._engine._ordering import (
     _holds_nan,
     broadcasts,
     held_key,
@@ -32,7 +32,7 @@ from assertpy2._engine._ordering import (
     member,
     mixes_broadcasting,
 )
-from assertpy2._engine._require import pure_decimal_code, raised_inside
+from assertpy._engine._require import pure_decimal_code, raised_inside
 
 _DECIMAL_REFUSES_A_NUMPY_INTEGER = r"argument must be an integer|Cannot convert (np\.int64\(5\)|5) to Decimal"
 """The C `decimal` and the one CPython runs in Python where built without it word this refusal differently."""
@@ -1118,8 +1118,8 @@ class TestADecimalWrittenInPython:
             "import sys\n"
             "sys.modules['_decimal'] = None\n"
             "import decimal\n"
-            "from assertpy2 import assert_that\n"
-            "from assertpy2._engine._require import pure_decimal_code\n"
+            "from assertpy import assert_that\n"
+            "from assertpy._engine._require import pure_decimal_code\n"
             "print(bool(pure_decimal_code()))\n"
             "print(assert_that([decimal.Decimal('sNaN'), 1]).check().contains(1).passed)\n"
             "print(assert_that(decimal.Decimal('sNaN')).check().is_equal_to(1).passed)\n"

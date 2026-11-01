@@ -21,8 +21,8 @@ import warnings
 
 import pytest
 
-from assertpy2 import assert_that, match
-from assertpy2.errors import AssertionFailure
+from assertpy import assert_that, match
+from assertpy.errors import AssertionFailure
 
 _STAMP = datetime.datetime(2026, 2, 1)
 _EARLIER = datetime.datetime(2026, 1, 1)
@@ -36,7 +36,7 @@ def _warn_user() -> None:
     warnings.warn("user warning", UserWarning, stacklevel=2)
 
 
-_PACKAGE = pathlib.Path(__file__).resolve().parent.parent / "assertpy2"
+_PACKAGE = pathlib.Path(__file__).resolve().parent.parent / "assertpy"
 
 # What the value must not be, which is not what it was expected to be
 _NEGATIONS = {

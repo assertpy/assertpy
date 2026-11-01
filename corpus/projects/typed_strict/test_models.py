@@ -13,7 +13,7 @@ from collections.abc import Sequence  # noqa: TC003  # consumer code, written pl
 import attrs
 import pydantic
 
-from assertpy2 import assert_that, match, soft_assertions
+from assertpy import assert_that, match, soft_assertions
 
 
 @dataclasses.dataclass

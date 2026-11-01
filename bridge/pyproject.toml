@@ -1,0 +1,39 @@
+[project]
+name = "assertpy2"
+version = "2.35.0"
+description = "assertpy2 is now assertpy: this release installs assertpy 2.x and hands out the same objects under the old name."
+readme = "README.md"
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
+requires-python = ">=3.10"
+maintainers = [
+    { name = "Solganis", email = "solganis.dev@gmail.com" },
+]
+classifiers = [
+    "Development Status :: 7 - Inactive",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Software Development :: Testing",
+]
+dependencies = ["assertpy>=2.35,<3"]
+
+[project.optional-dependencies]
+allure = ["assertpy[allure]>=2.35,<3"]
+behave = ["assertpy[behave]>=2.35,<3"]
+data = ["assertpy[data]>=2.35,<3"]
+inline = ["assertpy[inline]>=2.35,<3"]
+json = ["assertpy[json]>=2.35,<3"]
+numpy = ["assertpy[numpy]>=2.35,<3"]
+pandas = ["assertpy[pandas]>=2.35,<3"]
+polars = ["assertpy[polars]>=2.35,<3"]
+
+[project.urls]
+Homepage = "https://pypi.org/project/assertpy/"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.sdist]
+include = ["assertpy2", "README.md", "LICENSE"]

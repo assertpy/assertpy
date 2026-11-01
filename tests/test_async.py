@@ -20,9 +20,9 @@ from io import StringIO
 
 import pytest
 
-import assertpy2
-import assertpy2.async_assertions as aa
-from assertpy2 import (
+import assertpy
+import assertpy.async_assertions as aa
+from assertpy import (
     AssertionFailure,
     WarningLoggingAdapter,
     assert_that,
@@ -32,8 +32,8 @@ from assertpy2 import (
     soft_assertions,
     soft_fail,
 )
-from assertpy2.async_assertions import _RETRIES, AsyncAssertionBuilder, _change_key, _PollRecorder
-from assertpy2.errors import _json_safe
+from assertpy.async_assertions import _RETRIES, AsyncAssertionBuilder, _change_key, _PollRecorder
+from assertpy.errors import _json_safe
 
 
 class TestEventuallyBasic:
@@ -1509,7 +1509,7 @@ class TestAForgottenAwaitUnderErrorFilters:
     SUITE = textwrap.dedent("""
         import gc
 
-        from assertpy2 import assert_that
+        from assertpy import assert_that
 
 
         def test_a_forgotten_await():
@@ -1529,7 +1529,7 @@ class TestAForgottenAwaitUnderErrorFilters:
         (tmp_path / "pytest.ini").write_text(ini, encoding="utf-8")
         (tmp_path / "test_forgotten.py").write_text(TestAForgottenAwaitUnderErrorFilters.SUITE, encoding="utf-8")
         # the child runs from tmp_path, so it is told where the package is rather than left to find it
-        environment = {**os.environ, "PYTHONPATH": str(pathlib.Path(assertpy2.__file__).parent.parent)}
+        environment = {**os.environ, "PYTHONPATH": str(pathlib.Path(assertpy.__file__).parent.parent)}
         return subprocess.run(
             [sys.executable, "-m", "pytest", "-q", "--no-header", "-p", "no:randomly", "--rootdir", str(tmp_path)],
             capture_output=True,
@@ -1570,10 +1570,10 @@ class TestAPollDeliversItsOwnFailure:
 
     def test_check_after_a_sync_poll_is_refused(self):
         with pytest.raises(TypeError, match="check\\(\\) cannot follow a poll"):
-            assertpy2.assert_that(lambda: 1).eventually_sync(timeout=0.1, interval=0.01).check()
+            assertpy.assert_that(lambda: 1).eventually_sync(timeout=0.1, interval=0.01).check()
 
     def test_check_after_an_async_poll_is_refused(self):
-        chain = assertpy2.assert_that(lambda: 1).eventually(timeout=0.1, interval=0.01)
+        chain = assertpy.assert_that(lambda: 1).eventually(timeout=0.1, interval=0.01)
         with pytest.raises(TypeError, match="check\\(\\) cannot follow a poll"):
             chain.check()
         chain.close()
@@ -1584,25 +1584,25 @@ class TestAPollDeliversItsOwnFailure:
         The message there named a type (`'str' object is not callable`) rather than the mistake, which
         is reading the builder's accessor on a chain that hands its value back under `val`.
         """
-        chain = assertpy2.assert_that(lambda: "ready").eventually_sync(timeout=0.3, interval=0.01)
+        chain = assertpy.assert_that(lambda: "ready").eventually_sync(timeout=0.3, interval=0.01)
         with pytest.raises(TypeError, match="value cannot be read on a polling chain"):
             _ = chain.value
 
     def test_value_on_an_async_chain_points_at_the_builder_awaiting_it_returns(self):
-        chain = assertpy2.assert_that(lambda: "ready").eventually(timeout=0.3, interval=0.01)
+        chain = assertpy.assert_that(lambda: "ready").eventually(timeout=0.3, interval=0.01)
         with pytest.raises(AttributeError, match="value is available on the builder"):
             _ = chain.value
         chain.close()
 
     def test_a_timed_out_soft_chain_asserts_nothing_more(self):
         """It timed out without a value, so everything after it was asked about `None`."""
-        with pytest.raises(assertpy2.AssertionFailure) as caught, assertpy2.soft_assertions():
-            timed_out = assertpy2.assert_that(lambda: 1).eventually_sync(timeout=0.04, interval=0.01).is_equal_to(2)
+        with pytest.raises(assertpy.AssertionFailure) as caught, assertpy.soft_assertions():
+            timed_out = assertpy.assert_that(lambda: 1).eventually_sync(timeout=0.04, interval=0.01).is_equal_to(2)
             timed_out.is_none()
             timed_out.is_equal_to(7)
         report = str(caught.value)
-        assertpy2.assert_that(report.count("condition not met")).described_as("entries").is_equal_to(1)
-        assertpy2.assert_that(report).does_not_contain("<None>")
+        assertpy.assert_that(report.count("condition not met")).described_as("entries").is_equal_to(1)
+        assertpy.assert_that(report).does_not_contain("<None>")
 
     def test_a_timed_out_chain_carries_its_timeout_into_what_it_hands_back(self):
         """The failure a reader acts on is the timeout, so the inert chain has to carry it.
@@ -1614,57 +1614,57 @@ class TestAPollDeliversItsOwnFailure:
         outcome there cannot fail on what it found.
         """
         read = {}
-        with pytest.raises(assertpy2.AssertionFailure), assertpy2.soft_assertions():
-            timed_out = assertpy2.assert_that(lambda: 1).eventually_sync(timeout=0.04, interval=0.01).is_equal_to(2)
+        with pytest.raises(assertpy.AssertionFailure), assertpy.soft_assertions():
+            timed_out = assertpy.assert_that(lambda: 1).eventually_sync(timeout=0.04, interval=0.01).is_equal_to(2)
             read["outcome"] = timed_out.check().is_equal_to(7)
             read["refusal"] = _refusal_of(timed_out)
-        assertpy2.assert_that(read["outcome"].passed).described_as("a chain that timed out").is_false()
-        assertpy2.assert_that(read["outcome"].message).described_as("the verdict's message").contains(
+        assertpy.assert_that(read["outcome"].passed).described_as("a chain that timed out").is_false()
+        assertpy.assert_that(read["outcome"].message).described_as("the verdict's message").contains(
             "condition not met"
         )
-        assertpy2.assert_that(read["refusal"]).described_as("why .val refuses").contains("condition not met")
+        assertpy.assert_that(read["refusal"]).described_as("why .val refuses").contains("condition not met")
 
     def test_an_awaited_timed_out_chain_carries_its_timeout_too(self):
         """The same claim for the awaitable chain, asked rather than inferred from the shared path."""
 
         async def collected():
-            return await assertpy2.assert_that(lambda: 1).eventually(timeout=0.04, interval=0.01).is_equal_to(2)
+            return await assertpy.assert_that(lambda: 1).eventually(timeout=0.04, interval=0.01).is_equal_to(2)
 
         read = {}
-        with pytest.raises(assertpy2.AssertionFailure), assertpy2.soft_assertions():
+        with pytest.raises(assertpy.AssertionFailure), assertpy.soft_assertions():
             timed_out = asyncio.run(collected())
             read["outcome"] = timed_out.check().is_equal_to(7)
             read["refusal"] = _refusal_of(timed_out)
-        assertpy2.assert_that(read["outcome"].passed).described_as("an awaited chain that timed out").is_false()
-        assertpy2.assert_that(read["outcome"].message).described_as("the verdict's message").contains(
+        assertpy.assert_that(read["outcome"].passed).described_as("an awaited chain that timed out").is_false()
+        assertpy.assert_that(read["outcome"].message).described_as("the verdict's message").contains(
             "condition not met"
         )
-        assertpy2.assert_that(read["refusal"]).described_as("why .val refuses").contains("condition not met")
+        assertpy.assert_that(read["refusal"]).described_as("why .val refuses").contains("condition not met")
 
     def test_a_timed_out_warn_chain_asserts_nothing_more(self):
         capture = StringIO()
         logger = logging.getLogger("poll-warn-capture")
         logger.handlers.clear()
         logger.addHandler(logging.StreamHandler(capture))
-        adapted = assertpy2.WarningLoggingAdapter(logger, None)
+        adapted = assertpy.WarningLoggingAdapter(logger, None)
         timed_out = (
-            assertpy2.assert_warn(lambda: 1, logger=adapted).eventually_sync(timeout=0.04, interval=0.01).is_equal_to(2)
+            assertpy.assert_warn(lambda: 1, logger=adapted).eventually_sync(timeout=0.04, interval=0.01).is_equal_to(2)
         )
         timed_out.is_none()
         logged = capture.getvalue()
-        assertpy2.assert_that(logged.count("condition not met")).described_as("warnings").is_equal_to(1)
-        assertpy2.assert_that(logged).does_not_contain("<None>")
+        assertpy.assert_that(logged.count("condition not met")).described_as("warnings").is_equal_to(1)
+        assertpy.assert_that(logged).does_not_contain("<None>")
 
     @pytest.mark.parametrize("timeout", [0.04, 0.123456789], ids=["short", "past-six-digits"])
     def test_the_budget_is_printed_as_it_was_given(self, timeout):
-        with pytest.raises(assertpy2.AssertionFailure) as caught:
-            assertpy2.assert_that(lambda: 1).eventually_sync(timeout=timeout, interval=0.01).is_equal_to(2)
-        assertpy2.assert_that(str(caught.value)).contains(f"after {timeout} seconds")
+        with pytest.raises(assertpy.AssertionFailure) as caught:
+            assertpy.assert_that(lambda: 1).eventually_sync(timeout=timeout, interval=0.01).is_equal_to(2)
+        assertpy.assert_that(str(caught.value)).contains(f"after {timeout} seconds")
 
     def test_a_hint_the_quoted_failure_carries_is_not_repeated(self):
-        with pytest.raises(assertpy2.AssertionFailure) as caught, assertpy2.soft_assertions():
-            assertpy2.assert_that(lambda: [1, 2]).eventually_sync(timeout=0.04, interval=0.01).is_equal_to([2, 1])
-        assertpy2.assert_that(str(caught.value).count("same elements, in a different order")).is_equal_to(1)
+        with pytest.raises(assertpy.AssertionFailure) as caught, assertpy.soft_assertions():
+            assertpy.assert_that(lambda: [1, 2]).eventually_sync(timeout=0.04, interval=0.01).is_equal_to([2, 1])
+        assertpy.assert_that(str(caught.value).count("same elements, in a different order")).is_equal_to(1)
 
 
 class TestTheChangeKeyRendersAsItAlwaysDid:
@@ -1688,18 +1688,18 @@ class TestTheChangeKeyRendersAsItAlwaysDid:
         ],
     )
     def test_a_value_renders_to_exactly_this(self, value, rendered):
-        assertpy2.assert_that(async_assertions._canonical(value)).is_equal_to(rendered)
+        assertpy.assert_that(async_assertions._canonical(value)).is_equal_to(rendered)
 
     def test_a_leaf_that_appears_twice_is_rendered_twice(self):
         """Only a container can reach back to itself, so sharing a leaf is not a cycle."""
         shared = [1]
-        assertpy2.assert_that(async_assertions._canonical([shared, shared])).is_equal_to("l7:l4:v1:17:l4:v1:1")
+        assertpy.assert_that(async_assertions._canonical([shared, shared])).is_equal_to("l7:l4:v1:17:l4:v1:1")
 
     def test_a_container_that_holds_itself_is_marked(self):
         cyclic: list[object] = []
         cyclic.append(cyclic)
-        assertpy2.assert_that(async_assertions._canonical(cyclic)).is_equal_to("l1:c")
+        assertpy.assert_that(async_assertions._canonical(cyclic)).is_equal_to("l1:c")
 
     def test_two_values_that_differ_only_in_type_do_not_share_a_key(self):
         distinct = {async_assertions._canonical(value) for value in ([1], (1,), {1}, "1", 1, 1.0, True, {"1": 1})}
-        assertpy2.assert_that(distinct).is_length(8)
+        assertpy.assert_that(distinct).is_length(8)

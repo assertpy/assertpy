@@ -11,16 +11,16 @@ import typing
 
 import pytest
 
-from assertpy2 import AssertionFailure, assert_conforms, assert_that, match, soft_assertions
-from assertpy2._engine import _contract
-from assertpy2._engine._contract import (
+from assertpy import AssertionFailure, assert_conforms, assert_that, match, soft_assertions
+from assertpy._engine import _contract
+from assertpy._engine._contract import (
     UncheckableDriftError,
     _placed,
     contract_drift,
     shape,
     shape_diff,
 )
-from assertpy2.matchers import (
+from assertpy.matchers import (
     EachMatcher,
     IgnoreMatcher,
     IsNonEmptyStringMatcher,
@@ -845,7 +845,7 @@ def _every_entry_leads_back_to_what_it_holds(monkeypatch):
             assert_that(astray).described_as("entries whose steps do not reach what they hold").is_empty()
         return found
 
-    monkeypatch.setattr("assertpy2.assertpy.exactness_failure", gated)
+    monkeypatch.setattr("assertpy.assertpy.exactness_failure", gated)
 
 
 class TestContractDrift:
@@ -2693,7 +2693,7 @@ class TestExactnessReadsThePayloadAsItWasSent:
         def broken(*args, **kwargs):
             raise RuntimeError("walk")
 
-        monkeypatch.setattr("assertpy2.assertpy.exactness_failure", broken)
+        monkeypatch.setattr("assertpy.assertpy.exactness_failure", broken)
         emptied = {"x": [1]}
         assert_that(_contract._validated_again(dict.clear, emptied, [emptied])).is_none()
         assert_that(emptied).is_equal_to({"x": [1]})
@@ -2806,7 +2806,7 @@ class TestExactnessReadsThePayloadAsItWasSent:
         def refused(payload):
             raise RuntimeError("no record is needed")
 
-        monkeypatch.setattr("assertpy2.assertpy.sent_record", refused)
+        monkeypatch.setattr("assertpy.assertpy.sent_record", refused)
         assert_conforms({"x": 1, "rows": [{"a": 1}]}, Plain, exact=True)
         assert_conforms([{"x": 1}], Plain, exact=True, each=True)
         with pytest.raises(RuntimeError, match="no record"):

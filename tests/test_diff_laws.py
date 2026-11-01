@@ -41,10 +41,10 @@ import pytest
 from hypothesis import HealthCheck, example, given, settings
 from hypothesis import strategies as st
 
-from assertpy2 import AssertionFailure, assert_that, match, soft_assertions
-from assertpy2._engine import _diff, _introspection
-from assertpy2._engine._introspection import TakenApart, compares_by_parts
-from assertpy2.errors import DiffEntry, Step
+from assertpy import AssertionFailure, assert_that, match, soft_assertions
+from assertpy._engine import _diff, _introspection
+from assertpy._engine._introspection import TakenApart, compares_by_parts
+from assertpy.errors import DiffEntry, Step
 from tests.test_duality import _PAIRS, Case
 
 if TYPE_CHECKING:

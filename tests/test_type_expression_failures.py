@@ -23,8 +23,8 @@ import typing
 
 import pytest
 
-from assertpy2 import assert_that
-from assertpy2.errors import AssertionFailure
+from assertpy import assert_that
+from assertpy.errors import AssertionFailure
 
 
 class _Person:

@@ -7,12 +7,12 @@ an intention.
 
 | You can depend on | Enforced by |
 |---|---|
-| The 39 names `assertpy2` exports, and the fields of every record it hands you | [`test_public_surface.py`](https://github.com/Solganis/assertpy2/blob/main/tests/test_public_surface.py) pins both against a hand-written list |
-| Every assertion the type checker offers you existing at runtime | [`test_protocol_parity.py`](https://github.com/Solganis/assertpy2/blob/main/tests/test_protocol_parity.py) walks all thirty-four protocols |
-| The signature you call: parameter names, their order, their defaults | [`test_api_compatibility.py`](https://github.com/Solganis/assertpy2/blob/main/tests/test_api_compatibility.py) compares a recorded snapshot of the whole surface and classifies every change as breaking, an addition, or typing-only |
-| The type your chain has after each step, and that the value at the end is that type | [`test_typing.py`](https://github.com/Solganis/assertpy2/blob/main/tests/test_typing.py), 493 `assert_type` checks under ty, mypy `--strict`, Pyright and Pyrefly, zero suppressions |
-| One relation keeping one name across the API | [`test_api_vocabulary.py`](https://github.com/Solganis/assertpy2/blob/main/tests/test_api_vocabulary.py) |
-| The three-method `Matcher` protocol your custom matchers implement | [`test_matcher_parity.py`](https://github.com/Solganis/assertpy2/blob/main/tests/test_matcher_parity.py) |
+| The 39 names `assertpy` exports, and the fields of every record it hands you | [`test_public_surface.py`](https://github.com/assertpy/assertpy/blob/main/tests/test_public_surface.py) pins both against a hand-written list |
+| Every assertion the type checker offers you existing at runtime | [`test_protocol_parity.py`](https://github.com/assertpy/assertpy/blob/main/tests/test_protocol_parity.py) walks all thirty-four protocols |
+| The signature you call: parameter names, their order, their defaults | [`test_api_compatibility.py`](https://github.com/assertpy/assertpy/blob/main/tests/test_api_compatibility.py) compares a recorded snapshot of the whole surface and classifies every change as breaking, an addition, or typing-only |
+| The type your chain has after each step, and that the value at the end is that type | [`test_typing.py`](https://github.com/assertpy/assertpy/blob/main/tests/test_typing.py), 493 `assert_type` checks under ty, mypy `--strict`, Pyright and Pyrefly, zero suppressions |
+| One relation keeping one name across the API | [`test_api_vocabulary.py`](https://github.com/assertpy/assertpy/blob/main/tests/test_api_vocabulary.py) |
+| The three-method `Matcher` protocol your custom matchers implement | [`test_matcher_parity.py`](https://github.com/assertpy/assertpy/blob/main/tests/test_matcher_parity.py) |
 | The Allure attachment schema | versioned in its own `format` field, so a consumer branches on a number rather than guessing |
 | Your assertions keeping their verdict | the suite at 100 % branch coverage, plus mutation testing |
 
@@ -175,10 +175,16 @@ make it.
 
 Anything whose name starts with `_`, and the module an assertion happens to live in. The reference
 lists `matches_structure()` because you can call it from `assert_that()`, and its anchor reads
-`assertpy2._satisfies.SatisfiesMixin.matches_structure` because that is where the code sits.
+`assertpy._satisfies.SatisfiesMixin.matches_structure` because that is where the code sits.
 Importing from there is not supported.
 
 Python 3.10 and up. Dropping a version that upstream still supports would be a major.
 
-Code written against [assertpy](../getting-started/migration.md) keeps working, and that holds for
-refactors: an internal change that would break a documented assertpy call is not internal.
+A call documented by assertpy 1.1 keeps its meaning, apart from the changes listed under
+[Upgrading from assertpy 1.x](../getting-started/migration.md), and that holds for refactors: an internal
+change that would break such a call is not internal.
+
+The names this library had as assertpy2, its pytest flags, settings, environment variables and the
+dangling marker, are read through the whole 2.x line and go in 3.0. All but the marker warn with a
+`FutureWarning`. See
+[Coming from assertpy2](../getting-started/migration.md#coming-from-assertpy2).

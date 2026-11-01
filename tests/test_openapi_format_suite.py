@@ -17,7 +17,7 @@ from typing import Any
 
 import pytest
 
-from assertpy2 import assert_that
+from assertpy import assert_that
 
 pytest.importorskip("jsonschema", reason="jsonschema not installed")
 pytest.importorskip("idna", reason="idna not installed")

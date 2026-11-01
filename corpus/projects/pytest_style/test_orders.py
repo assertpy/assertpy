@@ -4,7 +4,7 @@ Nothing here is clever, and that is the point.  This is the shape most consumer 
 shape a narrowed type breaks first.
 """
 
-from assertpy2 import assert_that, soft_assertions
+from assertpy import assert_that, soft_assertions
 
 
 def orders():

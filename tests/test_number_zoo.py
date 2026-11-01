@@ -23,12 +23,12 @@ from typing import TYPE_CHECKING, Any
 
 import pytest
 
-from assertpy2 import AssertionFailure, assert_that, match
+from assertpy import AssertionFailure, assert_that, match
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Mapping
 
-    from assertpy2.assertpy import AssertionBuilder
+    from assertpy.assertpy import AssertionBuilder
 
 try:
     import numpy

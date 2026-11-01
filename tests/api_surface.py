@@ -29,12 +29,12 @@ import pathlib
 import types
 from typing import Any
 
-import assertpy2
-import assertpy2._engine._capable_typing
-import assertpy2._engine._typing
-import assertpy2.assertpy
-from assertpy2.assertpy import AssertionBuilder
-from assertpy2.matchers import Matcher
+import assertpy
+import assertpy._engine._capable_typing
+import assertpy._engine._typing
+import assertpy.assertpy
+from assertpy.assertpy import AssertionBuilder
+from assertpy.matchers import Matcher
 
 _SIMPLE = (bool, int, float, str, bytes, type(None))
 _DESCRIPTORS = (property, staticmethod, classmethod, types.MemberDescriptorType, types.GetSetDescriptorType)
@@ -150,8 +150,8 @@ def _class_entry(exported: type) -> dict[str, Any]:
 def collect() -> dict[str, Any]:
     """The whole public surface, sorted so two snapshots differ only where the package does."""
     exported: dict[str, Any] = {}
-    for name in sorted(assertpy2.__all__):
-        value = getattr(assertpy2, name)
+    for name in sorted(assertpy.__all__):
+        value = getattr(assertpy, name)
         if inspect.isclass(value):
             exported[name] = _class_entry(value)
         elif callable(value):
@@ -160,7 +160,7 @@ def collect() -> dict[str, Any]:
             exported[name] = {"kind": f"{type(value).__module__}.{type(value).__name__}", "parameters": []}
 
     return {
-        "exports": sorted(assertpy2.__all__),
+        "exports": sorted(assertpy.__all__),
         "py_typed": _has_py_typed(),
         "exported": exported,
         "builder": {
@@ -169,8 +169,8 @@ def collect() -> dict[str, Any]:
             if not name.startswith("_")
         },
         "matchers": {
-            name: _callable_entry(getattr(assertpy2.match, name))
-            for name in sorted(dir(assertpy2.match))
+            name: _callable_entry(getattr(assertpy.match, name))
+            for name in sorted(dir(assertpy.match))
             if not name.startswith("_")
         },
         "typed_views": _typed_views(),
@@ -191,7 +191,7 @@ def _view_sources() -> str:
     """
     return "\n".join(
         pathlib.Path(module.__file__).read_text(encoding="utf-8")
-        for module in (assertpy2._engine._typing, assertpy2._engine._capable_typing)
+        for module in (assertpy._engine._typing, assertpy._engine._capable_typing)
         if module.__file__ is not None
     )
 
@@ -356,7 +356,7 @@ def _entry_overloads() -> list[str]:
     `test_typing` pins the resolution of chosen calls, a different question: it would stay green if an
     overload nobody wrote an `assert_type` for disappeared.
     """
-    tree = ast.parse(pathlib.Path(assertpy2.assertpy.__file__).read_text(encoding="utf-8"))
+    tree = ast.parse(pathlib.Path(assertpy.assertpy.__file__).read_text(encoding="utf-8"))
     names, modules = _overload_names(tree)
     # from `tree.body`, not `ast.walk`: the latter has no documented order, and order is what this is compared by
     declared = [
@@ -459,7 +459,7 @@ def _failure_attributes() -> dict[str, str]:
     """
     inherited = {name for name in dir(BaseException) if not name.startswith("_")}
     members: dict[str, str] = {}
-    for base in reversed(assertpy2.AssertionFailure.__mro__):
+    for base in reversed(assertpy.AssertionFailure.__mro__):
         for name, value in vars(base).items():
             if name.startswith("_") or inspect.isroutine(value) or name in inherited:
                 continue
@@ -486,22 +486,22 @@ def _attributes_of_real_failures() -> set[str]:
 def _attributes_of(raise_it: Any) -> set[str]:
     try:
         raise_it()
-    except assertpy2.AssertionFailure as failure:
+    except assertpy.AssertionFailure as failure:
         return {name for name in vars(failure) if not name.startswith("_")}
     raise AssertionError("the probe did not fail")  # pragma: no cover - each probe always fails
 
 
 def _plain_failure() -> None:
-    assertpy2.assert_that(1).is_equal_to(2)
+    assertpy.assert_that(1).is_equal_to(2)
 
 
 def _soft_failure() -> None:
-    with assertpy2.soft_assertions():
-        assertpy2.assert_that(1).is_equal_to(2)
+    with assertpy.soft_assertions():
+        assertpy.assert_that(1).is_equal_to(2)
 
 
 def _polling_failure() -> None:
-    assertpy2.assert_that(lambda: 1).eventually_sync(timeout=0.05, interval=0.01).is_equal_to(2)
+    assertpy.assert_that(lambda: 1).eventually_sync(timeout=0.05, interval=0.01).is_equal_to(2)
 
 
 def _has_py_typed() -> bool:
@@ -511,4 +511,4 @@ def _has_py_typed() -> bool:
     built artifact into a clean environment.  Asking it here would mean building the package inside the
     suite.
     """
-    return (pathlib.Path(assertpy2.__file__).parent / "py.typed").exists()
+    return (pathlib.Path(assertpy.__file__).parent / "py.typed").exists()

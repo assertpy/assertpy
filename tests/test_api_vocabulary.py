@@ -8,8 +8,8 @@ next name has to do it too, and that every name which does not says why.
 
 import pytest
 
-from assertpy2 import assert_that, match
-from assertpy2.assertpy import AssertionBuilder
+from assertpy import assert_that, match
+from assertpy.assertpy import AssertionBuilder
 
 _PREFIXES = ("is_not_", "is_", "does_not_", "has_no_", "has_", "contains_", "all_", "any_", "none_")
 

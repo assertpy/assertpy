@@ -20,9 +20,9 @@ import dataclasses
 
 import pytest
 
-from assertpy2 import AssertionFailure, assert_that, match
-from assertpy2 import contains as contains_module
-from assertpy2.assertpy import AssertionBuilder
+from assertpy import AssertionFailure, assert_that, match
+from assertpy import contains as contains_module
+from assertpy.assertpy import AssertionBuilder
 
 _ITEM, _ELEMENT = "the item not found", "an element"
 _KEY, _A_KEY = "the key not found", "a key"

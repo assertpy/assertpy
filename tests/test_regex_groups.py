@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from assertpy2 import assert_that, soft_assertions
+from assertpy import assert_that, soft_assertions
 
 
 class TestExtractingGroup:

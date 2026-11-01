@@ -22,7 +22,7 @@ import pytest
 pytest.importorskip("pyright", reason="the lint job installs the typecheck group and this cell does not")
 pytest.importorskip("mypy", reason="the lint job installs the typecheck group and this cell does not")
 
-from assertpy2 import assert_that
+from assertpy import assert_that
 from tests import typing_harness
 from tests.typing_negative_baseline import (
     _NOT_THE_VALUES_VIEW,

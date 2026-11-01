@@ -11,7 +11,7 @@ import typing
 from collections.abc import Iterator, Mapping, Sequence
 from types import MappingProxyType
 
-from assertpy2 import assert_that
+from assertpy import assert_that
 
 
 class Registry(Mapping[str, int]):

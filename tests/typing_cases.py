@@ -24,13 +24,13 @@ from typing import TYPE_CHECKING, Any, TypedDict
 import numpy
 from typing_extensions import TypeIs
 
-from assertpy2 import assert_that, match
+from assertpy import assert_that, match
 
 if TYPE_CHECKING:
     from collections import Counter
     from collections.abc import Iterator
 
-    from assertpy2._engine._typing import _IterableAssertion, _RepeatableAssertion
+    from assertpy._engine._typing import _IterableAssertion, _RepeatableAssertion
 
 
 class _Person:

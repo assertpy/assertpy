@@ -124,7 +124,7 @@ wheels = [
 ]
 
 [[package]]
-name = "assertpy2"
+name = "assertpy"
 version = "2.34.0"
 source = { editable = "." }
 dependencies = [
@@ -228,7 +228,7 @@ typecheck = [
 [package.metadata]
 requires-dist = [
     { name = "allure-pytest", marker = "extra == 'allure'", specifier = ">=2.13" },
-    { name = "assertpy2", extras = ["numpy", "pandas", "polars"], marker = "extra == 'data'" },
+    { name = "assertpy", extras = ["numpy", "pandas", "polars"], marker = "extra == 'data'" },
     { name = "asttokens", marker = "extra == 'inline'", specifier = ">=2.0.4" },
     { name = "behave", marker = "extra == 'behave'", specifier = ">=1.3.0" },
     { name = "executing", marker = "extra == 'inline'", specifier = ">=2.2" },

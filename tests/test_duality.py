@@ -50,8 +50,8 @@ import pytest
 from hypothesis import Phase, example, find, given, settings
 from hypothesis import strategies as st
 
-from assertpy2 import AssertionFailure, _satisfies, assert_that, match
-from assertpy2._engine._equality import comparable_fields
+from assertpy import AssertionFailure, _satisfies, assert_that, match
+from assertpy._engine._equality import comparable_fields
 from tests import chain_model as model
 from tests.chain_surfaces import Answer, run_check, run_hard
 from tests.group_compat import BaseExceptionGroup, ExceptionGroup, needs_groups

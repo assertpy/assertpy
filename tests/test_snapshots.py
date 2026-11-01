@@ -17,7 +17,7 @@ import warnings
 
 import pytest
 
-from assertpy2 import (
+from assertpy import (
     AssertionFailure,
     SnapshotCreatedWarning,
     SnapshotUpdatedWarning,
@@ -29,8 +29,8 @@ from assertpy2 import (
     register_snapshot_serializer,
     soft_assertions,
 )
-from assertpy2 import snapshot as _snapshot
-from assertpy2.snapshot import _ci_mode_enabled, _file_lock, _load, _save
+from assertpy import snapshot as _snapshot
+from assertpy.snapshot import _ci_mode_enabled, _file_lock, _load, _save
 
 
 class Color(enum.Enum):
@@ -39,7 +39,7 @@ class Color(enum.Enum):
 
 
 # first pass re-captures every snapshot; the capture warnings are pinned in TestSnapshotCreatedWarning
-@pytest.mark.filterwarnings("ignore::assertpy2.snapshot.SnapshotCreatedWarning")
+@pytest.mark.filterwarnings("ignore::assertpy.snapshot.SnapshotCreatedWarning")
 @pytest.mark.parametrize("count", [1, 2])
 def test_snapshot_roundtrip_all_types(count):
     # test runs twice
@@ -434,10 +434,10 @@ class TestSnapshotUpdateMode:
     def test_stale_snapshot_updated_and_warns(self, tmp_path, monkeypatch):
         with pytest.warns(SnapshotCreatedWarning):
             assert_that({"a": 1}).snapshot(id="upd", path=str(tmp_path))
-        monkeypatch.setenv("ASSERTPY2_SNAPSHOT_UPDATE", "1")
+        monkeypatch.setenv("ASSERTPY_SNAPSHOT_UPDATE", "1")
         with pytest.warns(SnapshotUpdatedWarning, match="overwrote the stored value"):
             assert_that({"a": 2}).snapshot(id="upd", path=str(tmp_path))
-        monkeypatch.delenv("ASSERTPY2_SNAPSHOT_UPDATE")
+        monkeypatch.delenv("ASSERTPY_SNAPSHOT_UPDATE")
         assert_that({"a": 2}).snapshot(id="upd", path=str(tmp_path))
         with pytest.raises(AssertionError):
             assert_that({"a": 1}).snapshot(id="upd", path=str(tmp_path))
@@ -447,12 +447,12 @@ class TestSnapshotUpdateMode:
             assert_that({"a": 1}).snapshot(id="upd-same", path=str(tmp_path))
         target = tmp_path / "snap-upd-same.json"
         stamp = os.stat(target).st_mtime_ns
-        monkeypatch.setenv("ASSERTPY2_SNAPSHOT_UPDATE", "1")
+        monkeypatch.setenv("ASSERTPY_SNAPSHOT_UPDATE", "1")
         assert_that({"a": 1}).snapshot(id="upd-same", path=str(tmp_path))
         assert_that(os.stat(target).st_mtime_ns).is_equal_to(stamp)
 
     def test_first_capture_in_update_mode_warns_created(self, tmp_path, monkeypatch):
-        monkeypatch.setenv("ASSERTPY2_SNAPSHOT_UPDATE", "1")
+        monkeypatch.setenv("ASSERTPY_SNAPSHOT_UPDATE", "1")
         with pytest.warns(SnapshotCreatedWarning):
             assert_that({"a": 1}).snapshot(id="upd-first", path=str(tmp_path))
 
@@ -462,10 +462,10 @@ class TestSnapshotUpdateMode:
 
         with pytest.warns(SnapshotCreatedWarning):
             snap(7)
-        monkeypatch.setenv("ASSERTPY2_SNAPSHOT_UPDATE", "1")
+        monkeypatch.setenv("ASSERTPY_SNAPSHOT_UPDATE", "1")
         with pytest.warns(SnapshotUpdatedWarning):
             snap(8)
-        monkeypatch.delenv("ASSERTPY2_SNAPSHOT_UPDATE")
+        monkeypatch.delenv("ASSERTPY_SNAPSHOT_UPDATE")
         snap(8)
         with pytest.raises(AssertionError):
             snap(7)
@@ -481,36 +481,36 @@ class TestSnapshotUpdateMode:
             snap_a(1)
         with pytest.warns(SnapshotCreatedWarning):
             snap_b("keep")
-        monkeypatch.setenv("ASSERTPY2_SNAPSHOT_UPDATE", "1")
+        monkeypatch.setenv("ASSERTPY_SNAPSHOT_UPDATE", "1")
         with pytest.warns(SnapshotUpdatedWarning):
             snap_a(2)
-        monkeypatch.delenv("ASSERTPY2_SNAPSHOT_UPDATE")
+        monkeypatch.delenv("ASSERTPY_SNAPSHOT_UPDATE")
         snap_a(2)
         snap_b("keep")
 
     def test_update_honors_ignore_option(self, tmp_path, monkeypatch):
         with pytest.warns(SnapshotCreatedWarning):
             assert_that({"name": "Alice", "ts": 1}).snapshot(id="upd-ign", path=str(tmp_path))
-        monkeypatch.setenv("ASSERTPY2_SNAPSHOT_UPDATE", "1")
+        monkeypatch.setenv("ASSERTPY_SNAPSHOT_UPDATE", "1")
         assert_that({"name": "Alice", "ts": 999}).snapshot(id="upd-ign", path=str(tmp_path), ignore="ts")
-        monkeypatch.delenv("ASSERTPY2_SNAPSHOT_UPDATE")
+        monkeypatch.delenv("ASSERTPY_SNAPSHOT_UPDATE")
         with pytest.raises(AssertionError):
             assert_that({"name": "Alice", "ts": 999}).snapshot(id="upd-ign", path=str(tmp_path))
 
     def test_disabled_env_value_keeps_normal_failure(self, tmp_path, monkeypatch):
         with pytest.warns(SnapshotCreatedWarning):
             assert_that(1).snapshot(id="upd-off", path=str(tmp_path))
-        monkeypatch.setenv("ASSERTPY2_SNAPSHOT_UPDATE", "0")
+        monkeypatch.setenv("ASSERTPY_SNAPSHOT_UPDATE", "0")
         with pytest.raises(AssertionError):
             assert_that(2).snapshot(id="upd-off", path=str(tmp_path))
 
     def test_update_inside_soft_assertions_collects_nothing(self, tmp_path, monkeypatch):
         with pytest.warns(SnapshotCreatedWarning):
             assert_that(1).snapshot(id="upd-soft", path=str(tmp_path))
-        monkeypatch.setenv("ASSERTPY2_SNAPSHOT_UPDATE", "1")
+        monkeypatch.setenv("ASSERTPY_SNAPSHOT_UPDATE", "1")
         with pytest.warns(SnapshotUpdatedWarning), soft_assertions():
             assert_that(2).snapshot(id="upd-soft", path=str(tmp_path))
-        monkeypatch.delenv("ASSERTPY2_SNAPSHOT_UPDATE")
+        monkeypatch.delenv("ASSERTPY_SNAPSHOT_UPDATE")
         assert_that(2).snapshot(id="upd-soft", path=str(tmp_path))
 
 
@@ -788,7 +788,7 @@ class TestSnapshotPlaceholders:
             assert_that({"id": _UUID_A, "v": 1}).snapshot(
                 id="ph10", path=str(tmp_path), placeholders={"id": match.is_uuid()}
             )
-        monkeypatch.setenv("ASSERTPY2_SNAPSHOT_UPDATE", "1")
+        monkeypatch.setenv("ASSERTPY_SNAPSHOT_UPDATE", "1")
         with pytest.warns(SnapshotUpdatedWarning):
             assert_that({"id": _UUID_B, "v": 2}).snapshot(
                 id="ph10", path=str(tmp_path), placeholders={"id": match.is_uuid()}
@@ -868,7 +868,7 @@ class TestAPlaceholderHoldsBeforeASnapshotIsRecorded:
                 id="kept", path=str(tmp_path), placeholders=_UUID_ONLY
             )
         before = (tmp_path / "snap-kept.json").read_bytes()
-        monkeypatch.setenv("ASSERTPY2_SNAPSHOT_UPDATE", "1")
+        monkeypatch.setenv("ASSERTPY_SNAPSHOT_UPDATE", "1")
 
         def update():
             with soft_assertions() if soft else contextlib.nullcontext():
@@ -1005,11 +1005,11 @@ class TestSnapshotCiMode:
         monkeypatch.setattr(_snapshot, "_CI_MODE", False)
         assert_that(_ci_mode_enabled()).is_false()
         monkeypatch.setattr(_snapshot, "_CI_MODE", None)
-        monkeypatch.setenv("ASSERTPY2_SNAPSHOT_CI", "off")
+        monkeypatch.setenv("ASSERTPY_SNAPSHOT_CI", "off")
         assert_that(_ci_mode_enabled()).is_false()
-        monkeypatch.setenv("ASSERTPY2_SNAPSHOT_CI", "yes")
+        monkeypatch.setenv("ASSERTPY_SNAPSHOT_CI", "yes")
         assert_that(_ci_mode_enabled()).is_true()
-        monkeypatch.delenv("ASSERTPY2_SNAPSHOT_CI")
+        monkeypatch.delenv("ASSERTPY_SNAPSHOT_CI")
         monkeypatch.setenv("CI", "1")
         assert_that(_ci_mode_enabled()).is_true()
         monkeypatch.setenv("CI", "")
@@ -1023,20 +1023,20 @@ class TestSnapshotCiMode:
 
     def test_ci_env_fails_on_missing(self, tmp_path, monkeypatch):
         monkeypatch.setattr(_snapshot, "_CI_MODE", None)
-        monkeypatch.setenv("ASSERTPY2_SNAPSHOT_CI", "1")
+        monkeypatch.setenv("ASSERTPY_SNAPSHOT_CI", "1")
         with pytest.raises(AssertionError, match="CI mode forbids"):
             assert_that({"a": 1}).snapshot(id="ci-env", path=str(tmp_path))
 
     def test_ci_autodetect_via_ci_env(self, tmp_path, monkeypatch):
         monkeypatch.setattr(_snapshot, "_CI_MODE", None)
-        monkeypatch.delenv("ASSERTPY2_SNAPSHOT_CI", raising=False)
+        monkeypatch.delenv("ASSERTPY_SNAPSHOT_CI", raising=False)
         monkeypatch.setenv("CI", "true")
         with pytest.raises(AssertionError, match="CI mode forbids"):
             assert_that({"a": 1}).snapshot(id="ci-auto", path=str(tmp_path))
 
     def test_ci_env_off_beats_autodetect(self, tmp_path, monkeypatch):
         monkeypatch.setattr(_snapshot, "_CI_MODE", None)
-        monkeypatch.setenv("ASSERTPY2_SNAPSHOT_CI", "0")
+        monkeypatch.setenv("ASSERTPY_SNAPSHOT_CI", "0")
         monkeypatch.setenv("CI", "true")
         with pytest.warns(SnapshotCreatedWarning):
             assert_that({"a": 1}).snapshot(id="ci-off", path=str(tmp_path))
@@ -1236,7 +1236,7 @@ def test_a_snapshot_file_is_utf8_whatever_the_default_text_encoding_is(tmp_path)
     script = textwrap.dedent(
         """
         import json, pathlib, sys, warnings
-        from assertpy2 import assert_that
+        from assertpy import assert_that
 
         warnings.simplefilter("ignore")
         warnings.simplefilter("error", EncodingWarning)
@@ -1255,8 +1255,8 @@ def test_a_snapshot_file_is_utf8_whatever_the_default_text_encoding_is(tmp_path)
         "PYTHONUTF8": "0",
         "PYTHONCOERCECLOCALE": "0",
         "LC_ALL": "C",
-        "ASSERTPY2_SNAPSHOT_CI": "0",
-        "ASSERTPY2_SNAPSHOT_UPDATE": "",
+        "ASSERTPY_SNAPSHOT_CI": "0",
+        "ASSERTPY_SNAPSHOT_UPDATE": "",
     }
     ran = subprocess.run(
         [sys.executable, "-X", "utf8=0", "-X", "warn_default_encoding", "-c", script, str(tmp_path)],
@@ -1304,13 +1304,13 @@ class TestContractSnapshot:
         with pytest.warns(SnapshotCreatedWarning, match="captured the shape"):
             assert_that(_CONTRACT_SAMPLE).matches_contract_snapshot(id="c-first", path=str(tmp_path))
 
-    @pytest.mark.filterwarnings("ignore::assertpy2.snapshot.SnapshotCreatedWarning")
+    @pytest.mark.filterwarnings("ignore::assertpy.snapshot.SnapshotCreatedWarning")
     def test_value_tolerant_same_structure_passes(self, tmp_path):
         assert_that(_CONTRACT_SAMPLE).matches_contract_snapshot(id="c-tol", path=str(tmp_path))
         changed = {"id": 999, "total": 8.75, "created": "2026-07-06", "customer": {"name": "Z"}, "items": []}
         assert_that(changed).matches_contract_snapshot(id="c-tol", path=str(tmp_path))
 
-    @pytest.mark.filterwarnings("ignore::assertpy2.snapshot.SnapshotCreatedWarning")
+    @pytest.mark.filterwarnings("ignore::assertpy.snapshot.SnapshotCreatedWarning")
     def test_added_field_drift_fails_with_report(self, tmp_path):
         assert_that(_CONTRACT_SAMPLE).matches_contract_snapshot(id="c-add", path=str(tmp_path))
         grew = {**_CONTRACT_SAMPLE, "promo": "X", "customer": {"name": "A", "vip": True}}
@@ -1319,7 +1319,7 @@ class TestContractSnapshot:
         message = str(exc_info.value)
         assert_that(message).contains("structure").contains("+ promo").contains("+ customer.vip")
 
-    @pytest.mark.filterwarnings("ignore::assertpy2.snapshot.SnapshotCreatedWarning")
+    @pytest.mark.filterwarnings("ignore::assertpy.snapshot.SnapshotCreatedWarning")
     def test_removed_and_retyped_drift_fails(self, tmp_path):
         assert_that(_CONTRACT_SAMPLE).matches_contract_snapshot(id="c-rr", path=str(tmp_path))
         shrank = {k: v for k, v in _CONTRACT_SAMPLE.items() if k != "total"}
@@ -1329,7 +1329,7 @@ class TestContractSnapshot:
         with pytest.raises(AssertionError, match="number -> str"):
             assert_that(retyped).matches_contract_snapshot(id="c-rr", path=str(tmp_path))
 
-    @pytest.mark.filterwarnings("ignore::assertpy2.snapshot.SnapshotCreatedWarning")
+    @pytest.mark.filterwarnings("ignore::assertpy.snapshot.SnapshotCreatedWarning")
     def test_list_element_drift(self, tmp_path):
         assert_that(_CONTRACT_SAMPLE).matches_contract_snapshot(id="c-list", path=str(tmp_path))
         drifted = {**_CONTRACT_SAMPLE, "items": [{"sku": "X", "qty": 1, "gift": True}]}
@@ -1348,29 +1348,29 @@ class TestContractSnapshot:
         with pytest.warns(SnapshotCreatedWarning):
             assert_that({"b": 2}).matches_contract_snapshot(path=str(tmp_path))
 
-    @pytest.mark.filterwarnings("ignore::assertpy2.snapshot.SnapshotCreatedWarning")
+    @pytest.mark.filterwarnings("ignore::assertpy.snapshot.SnapshotCreatedWarning")
     def test_update_mode_rewrites_drifted_id(self, tmp_path, monkeypatch):
         assert_that(_CONTRACT_SAMPLE).matches_contract_snapshot(id="c-up", path=str(tmp_path))
         grew = {**_CONTRACT_SAMPLE, "promo": "X"}
-        monkeypatch.setenv("ASSERTPY2_SNAPSHOT_UPDATE", "1")
+        monkeypatch.setenv("ASSERTPY_SNAPSHOT_UPDATE", "1")
         with pytest.warns(SnapshotUpdatedWarning, match="overwrote the stored shape"):
             assert_that(grew).matches_contract_snapshot(id="c-up", path=str(tmp_path))
-        monkeypatch.delenv("ASSERTPY2_SNAPSHOT_UPDATE")
+        monkeypatch.delenv("ASSERTPY_SNAPSHOT_UPDATE")
         assert_that(grew).matches_contract_snapshot(id="c-up", path=str(tmp_path))
 
     def test_update_mode_rewrites_drifted_lineno(self, tmp_path, monkeypatch):
-        monkeypatch.setenv("ASSERTPY2_SNAPSHOT_UPDATE", "1")
+        monkeypatch.setenv("ASSERTPY_SNAPSHOT_UPDATE", "1")
         values = iter([{"a": 1}, {"a": 1, "b": 2}])
         for expected in (SnapshotCreatedWarning, SnapshotUpdatedWarning):
             with pytest.warns(expected):
                 assert_that(next(values)).matches_contract_snapshot(path=str(tmp_path))
 
-    @pytest.mark.filterwarnings("ignore::assertpy2.snapshot.SnapshotCreatedWarning")
+    @pytest.mark.filterwarnings("ignore::assertpy.snapshot.SnapshotCreatedWarning")
     def test_update_mode_leaves_matching_untouched(self, tmp_path, monkeypatch):
         assert_that(_CONTRACT_SAMPLE).matches_contract_snapshot(id="c-keep", path=str(tmp_path))
         target = os.path.join(str(tmp_path), "snap-c-keep.json")
         before = os.path.getmtime(target)
-        monkeypatch.setenv("ASSERTPY2_SNAPSHOT_UPDATE", "1")
+        monkeypatch.setenv("ASSERTPY_SNAPSHOT_UPDATE", "1")
         assert_that(_CONTRACT_SAMPLE).matches_contract_snapshot(id="c-keep", path=str(tmp_path))
         assert_that(os.path.getmtime(target)).is_equal_to(before)
 
@@ -1390,7 +1390,7 @@ class TestMismatchNamesItsSnapshot:
             assert_that({"a": 99}).snapshot(id="named-snap", path=str(tmp_path))
         message = str(exc_info.value)
         assert_that(message).contains("named-snap")
-        assert_that(message).contains("--assertpy2-snapshot-update")
+        assert_that(message).contains("--assertpy-snapshot-update")
 
     def test_line_keyed_snapshots_are_told_apart(self, tmp_path):
         def first(value):
@@ -1435,7 +1435,7 @@ class TestContractSnapshotNamesItself:
             assert_that({"id": "one", "extra": 2}).matches_contract_snapshot(id="ct-named", path=str(tmp_path))
         message = str(exc_info.value)
         assert_that(message).contains("ct-named")
-        assert_that(message).contains("--assertpy2-snapshot-update")
+        assert_that(message).contains("--assertpy-snapshot-update")
         assert_that(message).contains("+ extra")
         assert_that(message).contains("~ id number -> str")
 
@@ -1542,12 +1542,12 @@ class TestUpdateFlagVocabulary:
 
     @pytest.mark.parametrize("value", ["1", "true", "TRUE", " Yes ", "on"])
     def test_every_truthy_spelling_turns_update_mode_on(self, monkeypatch, value):
-        monkeypatch.setenv("ASSERTPY2_SNAPSHOT_UPDATE", value)
+        monkeypatch.setenv("ASSERTPY_SNAPSHOT_UPDATE", value)
         assert_that(_snapshot._update_enabled()).is_true()
 
     @pytest.mark.parametrize("value", ["0", "false", "OFF", "", "maybe"])
     def test_everything_else_leaves_it_off(self, monkeypatch, value):
-        monkeypatch.setenv("ASSERTPY2_SNAPSHOT_UPDATE", value)
+        monkeypatch.setenv("ASSERTPY_SNAPSHOT_UPDATE", value)
         assert_that(_snapshot._update_enabled()).is_false()
 
 
@@ -1556,7 +1556,7 @@ class TestCiRefusalMessage:
 
     def test_no_ci_marker_at_all_leaves_ci_mode_off(self, monkeypatch):
         monkeypatch.setattr(_snapshot, "_CI_MODE", None)
-        monkeypatch.delenv("ASSERTPY2_SNAPSHOT_CI", raising=False)
+        monkeypatch.delenv("ASSERTPY_SNAPSHOT_CI", raising=False)
         monkeypatch.delenv("CI", raising=False)
         assert_that(_ci_mode_enabled()).is_false()
 
@@ -1567,8 +1567,8 @@ class TestCiRefusalMessage:
             assert_that({"a": 1}).snapshot(id="ci-msg", path=str(tmp_path))
         assert_that(str(failure.value)).is_equal_to(
             f"snapshot <{snapname}> does not exist and CI mode forbids creating it - commit the snapshot"
-            " to source control, or run without CI mode (--assertpy2-snapshot-no-ci, or unset CI /"
-            " ASSERTPY2_SNAPSHOT_CI)"
+            " to source control, or run without CI mode (--assertpy-snapshot-no-ci, or unset CI /"
+            " ASSERTPY_SNAPSHOT_CI)"
         )
 
     def test_a_missing_line_key_in_an_existing_file_names_that_file(self, tmp_path, monkeypatch):
@@ -1638,21 +1638,21 @@ class TestUpdateModeHonorsEveryComparisonOption:
     def test_include_narrows_the_staleness_decision(self, tmp_path, monkeypatch):
         snapname = os.path.join(str(tmp_path), "snap-upd-inc.json")
         _save(snapname, {"a": 1, "b": 2})
-        monkeypatch.setenv("ASSERTPY2_SNAPSHOT_UPDATE", "1")
+        monkeypatch.setenv("ASSERTPY_SNAPSHOT_UPDATE", "1")
         assert_that({"a": 1, "b": 999}).snapshot(id="upd-inc", path=str(tmp_path), include="a")
         assert_that(_load(snapname)).is_equal_to({"a": 1, "b": 2})
 
     def test_tolerance_absorbs_noise_before_the_rewrite(self, tmp_path, monkeypatch):
         snapname = os.path.join(str(tmp_path), "snap-upd-tol.json")
         _save(snapname, {"price": 1.0})
-        monkeypatch.setenv("ASSERTPY2_SNAPSHOT_UPDATE", "1")
+        monkeypatch.setenv("ASSERTPY_SNAPSHOT_UPDATE", "1")
         assert_that({"price": 1.0004}).snapshot(id="upd-tol", path=str(tmp_path), tolerance=0.001)
         assert_that(_load(snapname)).is_equal_to({"price": 1.0})
 
     def test_a_comparator_owns_its_field_before_the_rewrite(self, tmp_path, monkeypatch):
         snapname = os.path.join(str(tmp_path), "snap-upd-cmp.json")
         _save(snapname, {"name": "Alice"})
-        monkeypatch.setenv("ASSERTPY2_SNAPSHOT_UPDATE", "1")
+        monkeypatch.setenv("ASSERTPY_SNAPSHOT_UPDATE", "1")
         assert_that({"name": "ALICE"}).snapshot(
             id="upd-cmp",
             path=str(tmp_path),
@@ -1676,7 +1676,7 @@ class TestSnapshotWarningsPointAtTheCaller:
 
     def test_the_updated_warning_points_at_the_calling_test(self, tmp_path, monkeypatch):
         _save(os.path.join(str(tmp_path), "snap-stack-upd.json"), {"a": 1})
-        monkeypatch.setenv("ASSERTPY2_SNAPSHOT_UPDATE", "1")
+        monkeypatch.setenv("ASSERTPY_SNAPSHOT_UPDATE", "1")
         with pytest.warns(SnapshotUpdatedWarning) as caught:
             assert_that({"a": 2}).snapshot(id="stack-upd", path=str(tmp_path))
         assert_that(os.path.basename(caught[0].filename)).is_equal_to("test_snapshots.py")
@@ -1689,7 +1689,7 @@ class TestSnapshotWarningsPointAtTheCaller:
     def test_the_updated_contract_warning_points_at_the_calling_test(self, tmp_path, monkeypatch):
         with pytest.warns(SnapshotCreatedWarning):
             assert_that({"a": 1}).matches_contract_snapshot(id="stack-ct-upd", path=str(tmp_path))
-        monkeypatch.setenv("ASSERTPY2_SNAPSHOT_UPDATE", "1")
+        monkeypatch.setenv("ASSERTPY_SNAPSHOT_UPDATE", "1")
         with pytest.warns(SnapshotUpdatedWarning) as caught:
             assert_that({"a": 1, "b": 2}).matches_contract_snapshot(id="stack-ct-upd", path=str(tmp_path))
         assert_that(os.path.basename(caught[0].filename)).is_equal_to("test_snapshots.py")
@@ -1731,10 +1731,10 @@ class TestContractLineKeys:
 
         with pytest.warns(SnapshotCreatedWarning):
             snap({"a": 1})
-        monkeypatch.setenv("ASSERTPY2_SNAPSHOT_UPDATE", "1")
+        monkeypatch.setenv("ASSERTPY_SNAPSHOT_UPDATE", "1")
         with pytest.warns(SnapshotUpdatedWarning):
             snap({"a": 1, "b": 2})
-        monkeypatch.delenv("ASSERTPY2_SNAPSHOT_UPDATE")
+        monkeypatch.delenv("ASSERTPY_SNAPSHOT_UPDATE")
         snap({"a": 9, "b": 9})
 
 
@@ -1783,7 +1783,7 @@ class TestSnapshotMessages:
     def test_the_updated_warning_states_what_it_did(self, tmp_path, monkeypatch):
         snapname = os.path.join(str(tmp_path), "snap-msg-upd.json")
         _save(snapname, {"a": 1})
-        monkeypatch.setenv("ASSERTPY2_SNAPSHOT_UPDATE", "1")
+        monkeypatch.setenv("ASSERTPY_SNAPSHOT_UPDATE", "1")
         with pytest.warns(SnapshotUpdatedWarning) as caught:
             assert_that({"a": 2}).snapshot(id="msg-upd", path=str(tmp_path))
         assert_that(str(caught[0].message)).is_equal_to(
@@ -1797,7 +1797,7 @@ class TestSnapshotMessages:
         with pytest.raises(AssertionError) as failure:
             assert_that({"a": 2}).snapshot(id="msg-diff", path=str(tmp_path))
         assert_that(str(failure.value)).ends_with(
-            f" Snapshot <{snapname}>; rerun with --assertpy2-snapshot-update to accept the new value."
+            f" Snapshot <{snapname}>; rerun with --assertpy-snapshot-update to accept the new value."
         )
 
     def test_the_created_contract_warning_states_what_it_did(self, tmp_path):
@@ -1813,7 +1813,7 @@ class TestSnapshotMessages:
         snapname = os.path.join(str(tmp_path), "snap-ct-msg-upd.json")
         with pytest.warns(SnapshotCreatedWarning):
             assert_that({"a": 1}).matches_contract_snapshot(id="ct-msg-upd", path=str(tmp_path))
-        monkeypatch.setenv("ASSERTPY2_SNAPSHOT_UPDATE", "1")
+        monkeypatch.setenv("ASSERTPY_SNAPSHOT_UPDATE", "1")
         with pytest.warns(SnapshotUpdatedWarning) as caught:
             assert_that({"a": 1, "b": 2}).matches_contract_snapshot(id="ct-msg-upd", path=str(tmp_path))
         assert_that(str(caught[0].message)).is_equal_to(
@@ -1830,7 +1830,7 @@ class TestSnapshotMessages:
         assert_that(str(failure.value)).is_equal_to(
             "Expected <{'id': 'one'}> to match contract snapshot, but the structure drifted:\n"
             "  ~ id number -> str\n"
-            f"Contract snapshot <{snapname}>; rerun with --assertpy2-snapshot-update to accept the new shape."
+            f"Contract snapshot <{snapname}>; rerun with --assertpy-snapshot-update to accept the new shape."
         )
 
     def test_a_contract_drift_carries_the_value_it_measured(self, tmp_path):
@@ -1957,7 +1957,7 @@ class TestASnapshotThroughCheckOrNot:
     def test_not_keeps_a_stale_one_under_update_mode(self, tmp_path, monkeypatch):
         with pytest.warns(SnapshotCreatedWarning):
             assert_that({"a": 1}).snapshot(id="kept", path=str(tmp_path))
-        monkeypatch.setenv("ASSERTPY2_SNAPSHOT_UPDATE", "1")
+        monkeypatch.setenv("ASSERTPY_SNAPSHOT_UPDATE", "1")
         assert_that({"a": 2}).not_.snapshot(id="kept", path=str(tmp_path))
         assert_that(_load(_snapshot._name(str(tmp_path), "kept"))).is_equal_to({"a": 1})
 
@@ -1970,6 +1970,6 @@ class TestASnapshotThroughCheckOrNot:
         with pytest.warns(SnapshotCreatedWarning):
             assert_that({"a": 1}).matches_contract_snapshot(id="shape", path=str(tmp_path))
         stored = _load(_snapshot._name(str(tmp_path), "shape"))
-        monkeypatch.setenv("ASSERTPY2_SNAPSHOT_UPDATE", "1")
+        monkeypatch.setenv("ASSERTPY_SNAPSHOT_UPDATE", "1")
         assert_that({"b": "x"}).not_.matches_contract_snapshot(id="shape", path=str(tmp_path))
         assert_that(_load(_snapshot._name(str(tmp_path), "shape"))).is_equal_to(stored)

@@ -14,8 +14,8 @@ from wsgiref.headers import Headers
 
 import pytest
 
-from assertpy2 import assert_that, match, soft_assertions
-from assertpy2.errors import AssertionFailure
+from assertpy import assert_that, match, soft_assertions
+from assertpy.errors import AssertionFailure
 
 
 class _Request:

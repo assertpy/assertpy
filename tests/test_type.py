@@ -4,7 +4,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from assertpy2 import assert_that
+from assertpy import assert_that
 
 
 class Foo:

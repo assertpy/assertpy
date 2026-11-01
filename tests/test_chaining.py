@@ -1,6 +1,6 @@
 import datetime
 
-from assertpy2 import assert_that
+from assertpy import assert_that
 
 
 class TestChaining:

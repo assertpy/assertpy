@@ -20,9 +20,9 @@ import pytest
 from hypothesis import assume, given
 from hypothesis import strategies as st
 
-from assertpy2 import AssertionFailure, assert_that, match
-from assertpy2._engine import _compare, _ordering
-from assertpy2._engine._ordering import numpy_float, python_numbers, unwrapped
+from assertpy import AssertionFailure, assert_that, match
+from assertpy._engine import _compare, _ordering
+from assertpy._engine._ordering import numpy_float, python_numbers, unwrapped
 
 numpy = pytest.importorskip("numpy")
 pytestmark = pytest.mark.filterwarnings("ignore:overflow encountered:RuntimeWarning")

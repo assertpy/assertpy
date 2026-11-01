@@ -5,8 +5,8 @@ from collections import namedtuple
 
 import pytest
 
-from assertpy2 import assert_that
-from assertpy2.helpers import HelpersMixin
+from assertpy import assert_that
+from assertpy.helpers import HelpersMixin
 
 
 @dataclasses.dataclass

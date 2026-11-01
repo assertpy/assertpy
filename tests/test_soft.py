@@ -5,7 +5,7 @@ import logging
 
 import pytest
 
-from assertpy2 import AssertionFailure, assert_all, assert_that, assert_warn, fail, soft_assertions, soft_fail
+from assertpy import AssertionFailure, assert_all, assert_that, assert_warn, fail, soft_assertions, soft_fail
 
 
 def test_success():

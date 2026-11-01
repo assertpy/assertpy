@@ -63,7 +63,7 @@ jobs:
         uses: anchore/sbom-action/download-syft@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
 
       - name: Generate SBOM (CycloneDX)
-        run: syft scan dir:dist -o "cyclonedx-json=provenance/assertpy2.sbom.cdx.json"
+        run: syft scan dir:dist -o "cyclonedx-json=provenance/assertpy.sbom.cdx.json"
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3

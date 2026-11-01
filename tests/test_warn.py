@@ -2,8 +2,8 @@ import logging
 from io import StringIO
 from unittest.mock import patch
 
-import assertpy2.assertpy as assertpy_module
-from assertpy2 import WarningLoggingAdapter, assert_that, assert_warn
+import assertpy.assertpy as assertpy_module
+from assertpy import WarningLoggingAdapter, assert_that, assert_warn
 
 
 def test_success():
@@ -70,7 +70,7 @@ def test_chained_failure():
 
 
 def test_failures_with_renamed_import():
-    from assertpy2 import assert_warn as warn
+    from assertpy import assert_warn as warn
 
     capture3 = StringIO()
     logger = logging.getLogger("capture3")
@@ -105,7 +105,7 @@ def test_failures_with_renamed_import():
 
 
 def test_failure_without_locatable_caller_frame():
-    # a user file living under a directory named "assertpy2" can shadow every stack frame; the
+    # a user file living under a directory named "assertpy" can shadow every stack frame; the
     capture = StringIO()
     logger = logging.getLogger("capture-unwind")
     logger.addHandler(logging.StreamHandler(capture))

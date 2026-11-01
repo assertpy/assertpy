@@ -13,8 +13,8 @@ invariant lives in ``TestExceptionContext`` in test_traceback.py.
 import ast
 import pathlib
 
-import assertpy2
-from assertpy2 import assert_that
+import assertpy
+from assertpy import assert_that
 
 # Sites that let the caught exception through. An entry without a reason is the bug this module catches.
 KEEPS_THE_CAUGHT_EXCEPTION = {
@@ -66,7 +66,7 @@ def _error_calls_in_except_blocks(node, module, functions, function="<module>", 
 
 
 def _sites_keeping_the_caught_exception() -> set[tuple[str, str]]:
-    package = pathlib.Path(assertpy2.__file__).parent
+    package = pathlib.Path(assertpy.__file__).parent
     trees = [(source.name, ast.parse(source.read_text(encoding="utf-8"))) for source in sorted(package.rglob("*.py"))]
     return {
         (module, function)

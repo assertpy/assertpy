@@ -18,7 +18,7 @@ import tomllib
 # the score. The import loads mutmut's config, so this runs from the root where `[tool.mutmut]` lives
 from mutmut.__main__ import status_by_exit_code
 
-_RESULTS = pathlib.Path("mutants/assertpy2")
+_RESULTS = pathlib.Path("mutants/assertpy")
 
 
 def _excluded_tests() -> tuple[list[str], int]:

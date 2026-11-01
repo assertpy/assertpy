@@ -28,16 +28,16 @@ import pytest
 from hypothesis import example, given, settings
 from hypothesis import strategies as st
 
-from assertpy2 import AssertionFailure, BaseMatcher, assert_that, assert_warn, match, soft_assertions
-from assertpy2._engine._compare import (
+from assertpy import AssertionFailure, BaseMatcher, assert_that, assert_warn, match, soft_assertions
+from assertpy._engine._compare import (
     WindowRefusedError,
     _both_decline,
     _CompareConfig,
     _declines,
     tolerance_window,
 )
-from assertpy2._engine._diff import _stored_members
-from assertpy2._engine._equality import (
+from assertpy._engine._diff import _stored_members
+from assertpy._engine._equality import (
     IncludeKeysMissingError,
     ignore_specs,
     include_specs,
@@ -45,8 +45,8 @@ from assertpy2._engine._equality import (
     mapping_shaped,
     values_differ,
 )
-from assertpy2._engine._introspection import materialized
-from assertpy2._engine._membership import (
+from assertpy._engine._introspection import materialized
+from assertpy._engine._membership import (
     MembershipRefusedError,
     _classified,
     _hash_safe,
@@ -58,7 +58,7 @@ from assertpy2._engine._membership import (
     repeated_items,
     searchable,
 )
-from assertpy2._engine._ordering import (
+from assertpy._engine._ordering import (
     UnorderableError,
     compare,
     first_out_of_order,
@@ -66,11 +66,11 @@ from assertpy2._engine._ordering import (
     holds,
     plainly_sortable,
 )
-from assertpy2._engine._size import length_of
-from assertpy2._engine._text import contains as text_contains
-from assertpy2._engine._text import starts_with as text_starts_with
-from assertpy2.errors import _json_safe
-from assertpy2.matchers import _is_matcher
+from assertpy._engine._size import length_of
+from assertpy._engine._text import contains as text_contains
+from assertpy._engine._text import starts_with as text_starts_with
+from assertpy.errors import _json_safe
+from assertpy.matchers import _is_matcher
 from tests.group_compat import ExceptionGroup, needs_groups
 
 

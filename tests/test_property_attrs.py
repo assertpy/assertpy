@@ -13,10 +13,10 @@ import pytest
 from hypothesis import example, given, settings
 from hypothesis import strategies as st
 
-from assertpy2 import assert_that, match
-from assertpy2._snapshot_codec import _Decoder, _Encoder
-from assertpy2.errors import AssertionFailure
-from assertpy2.pytest_plugin import _format_diff
+from assertpy import assert_that, match
+from assertpy._snapshot_codec import _Decoder, _Encoder
+from assertpy.errors import AssertionFailure
+from assertpy.pytest_plugin import _format_diff
 
 attrs = pytest.importorskip("attrs")
 

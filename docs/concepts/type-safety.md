@@ -1,6 +1,6 @@
 # Type Safety
 
-Type safety is what sets `assertpy2` apart from `assertpy` and most alternatives. `assert_that()` is
+Type safety is what sets assertpy 2 apart from assertpy 1.x and most alternatives. `assert_that()` is
 overloaded, so the value you pass decides which assertions you get back: a *type-specific* set, not one
 generic `Any`.
 
@@ -91,7 +91,7 @@ correct comparisons and accepting wrong ones, and refusing correct code is the w
 
 An `int` against a `float`, a matcher where an item is expected and every other ordinary combination keep
 working. Which relations are refused is measured, not asserted:
-[`tests/typing_cases.py`](https://github.com/Solganis/assertpy2/blob/main/tests/typing_cases.py) holds the
+[`tests/typing_cases.py`](https://github.com/assertpy/assertpy/blob/main/tests/typing_cases.py) holds the
 spellings tried, and CI compares all four checkers against a recorded baseline in both directions.
 
 [ty](https://github.com/astral-sh/ty), [mypy `--strict`](https://github.com/python/mypy),
@@ -99,7 +99,7 @@ spellings tried, and CI compares all four checkers against a recorded baseline i
 report these in the editor and in CI, turning a class of test bugs into errors you see while typing.
 
 - Every public `assert_that` overload is pinned by an `assert_type` check in
-  [`tests/test_typing.py`](https://github.com/Solganis/assertpy2/blob/main/tests/test_typing.py).
+  [`tests/test_typing.py`](https://github.com/assertpy/assertpy/blob/main/tests/test_typing.py).
 - CI runs four checkers against that file on every push, with **zero suppressions**. A changed or broadened
   return type fails the build.
 - `ty` also checks the whole package.
@@ -306,7 +306,7 @@ that model: parse, validate and type in one step.
 ```python
 from pydantic import BaseModel
 
-from assertpy2 import assert_conforms, assert_that
+from assertpy import assert_conforms, assert_that
 
 class Order(BaseModel):
     id: int
@@ -559,11 +559,11 @@ typeCheckingMode = "strict"
 ```
 
 `ty` and Pyrefly need no configuration - they read the types out of the box. All four pick up
-`assertpy2`'s types automatically via the `py.typed` marker below. There is no stub package to install.
+`assertpy`'s types automatically via the `py.typed` marker below. There is no stub package to install.
 
 ## py.typed and PEP 561
 
-`assertpy2` ships a `py.typed` marker and is [PEP 561](https://peps.python.org/pep-0561/) compliant, so the
+`assertpy` ships a `py.typed` marker and is [PEP 561](https://peps.python.org/pep-0561/) compliant, so the
 types are picked up automatically by any project that depends on it - no stub package, no extra config.
 
 ## Editor support

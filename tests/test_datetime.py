@@ -2,7 +2,7 @@ import datetime
 
 import pytest
 
-from assertpy2 import assert_that
+from assertpy import assert_that
 
 # fixed, later moments are offsets from it: the wall clock read twice can step back (a DST fall-back, NTP)
 reference_time = datetime.datetime(2026, 1, 1, 12, 0, 0, 123456)

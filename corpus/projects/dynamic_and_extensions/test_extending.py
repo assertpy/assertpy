@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from assertpy2 import (
+from assertpy import (
     BaseMatcher,
     assert_that,
     register_matcher,

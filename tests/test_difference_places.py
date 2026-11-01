@@ -14,9 +14,9 @@ import dataclasses
 
 import pytest
 
-from assertpy2 import AssertionFailure, assert_that, soft_assertions
-from assertpy2._hints import placed
-from assertpy2.errors import DiffEntry, DiffResult, Step, _render_diff
+from assertpy import AssertionFailure, assert_that, soft_assertions
+from assertpy._hints import placed
+from assertpy.errors import DiffEntry, DiffResult, Step, _render_diff
 
 
 def _rows(count: int, stamp: str = "10:00") -> list[dict[str, object]]:

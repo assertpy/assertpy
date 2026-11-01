@@ -6,8 +6,8 @@ from math import inf, nan
 
 import pytest
 
-from assertpy2 import AssertionFailure, Matcher, _matcher_impls, assert_that, match
-from assertpy2.matchers import AllOfMatcher, AnyOfMatcher, BaseMatcher, EachMatcher, HasPropertyMatcher, NotMatcher
+from assertpy import AssertionFailure, Matcher, _matcher_impls, assert_that, match
+from assertpy.matchers import AllOfMatcher, AnyOfMatcher, BaseMatcher, EachMatcher, HasPropertyMatcher, NotMatcher
 
 
 class TestTemporalMatchers:

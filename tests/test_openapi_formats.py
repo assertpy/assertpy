@@ -16,7 +16,7 @@ from unittest.mock import patch
 
 import pytest
 
-from assertpy2 import AssertionFailure, assert_that, json_mixin
+from assertpy import AssertionFailure, assert_that, json_mixin
 from tests.format_corpus import mailboxes, uris
 
 jsonschema = pytest.importorskip("jsonschema", reason="jsonschema not installed")
@@ -533,7 +533,7 @@ class TestAHostnameIsWrittenAsRfc1123WritesIt:
         with patch.dict(sys.modules, {"idna": None}):
             asked = assert_that(_conforms).raises(ImportError)
             asked.when_called_with("xn--nxasmq6b", _text_of("hostname"), "3.1.0").is_equal_to(
-                "idna is required to check an `xn--` label of a hostname. Install it with: pip install assertpy2[json]"
+                "idna is required to check an `xn--` label of a hostname. Install it with: pip install assertpy[json]"
             )
             assert_that(_conforms("example.com", _text_of("hostname"), "3.1.0")).is_true()
             assert_that(_conforms("xn--nxasmq6b", _text_of("hostname"), "3.0.3")).is_true()
@@ -541,7 +541,7 @@ class TestAHostnameIsWrittenAsRfc1123WritesIt:
     def test_the_package_is_loaded_for_such_a_label_and_for_nothing_else(self):
         pytest.importorskip("idna", reason="idna not installed")
         asked = (
-            "import sys; from assertpy2 import json_mixin; loaded = lambda: 'idna' in sys.modules;"
+            "import sys; from assertpy import json_mixin; loaded = lambda: 'idna' in sys.modules;"
             "before = loaded(); plain = ('example.com', 'not_one', 5, 'axn--b');"
             "took = [json_mixin._is_hostname(one) for one in plain];"
             "between = loaded(); encoded = json_mixin._is_hostname('xn--nxasmq6b');"
@@ -976,7 +976,7 @@ class TestEachIsCheckedAlikeEverywhere:
         asked = (
             "import re, sys; compiled = []; whole = re.compile;"
             "re.compile = lambda pattern, flags=0: compiled.append(pattern) or whole(pattern, flags);"
-            "import assertpy2; mixin = assertpy2.json_mixin;"
+            "import assertpy; mixin = assertpy.json_mixin;"
             "ours = (mixin._URI, mixin._HOSTNAME, mixin._DURATION, mixin._MAILBOX);"
             "print([pattern for pattern in compiled if pattern in ours],"
             " sorted({'urllib.parse', 'ipaddress'} & set(sys.modules)) if sys.version_info >= (3, 13) else [])"
@@ -986,7 +986,7 @@ class TestEachIsCheckedAlikeEverywhere:
 
     def test_ipaddress_is_loaded_for_an_address_in_brackets_and_for_nothing_else(self):
         asked = (
-            "import sys; from assertpy2 import json_mixin; loaded = lambda: 'ipaddress' in sys.modules;"
+            "import sys; from assertpy import json_mixin; loaded = lambda: 'ipaddress' in sys.modules;"
             "before = loaded();"
             "took = [json_mixin._is_uri(one) for one in ('http://example.com/a', 'not a uri', 5, 'http://[v1.x]/')];"
             "between = loaded(); address = json_mixin._is_uri('http://[::1]/');"

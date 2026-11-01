@@ -13,7 +13,7 @@ from functools import partial
 
 import pytest
 
-from assertpy2 import assert_that, assert_warn, soft_assertions
+from assertpy import assert_that, assert_warn, soft_assertions
 
 _REFUSED = r"whose outcome when_called_with\(\) cannot see"
 

@@ -14,7 +14,7 @@ import typing
 
 import pytest
 
-from assertpy2 import AssertionFailure, assert_conforms, assert_that
+from assertpy import AssertionFailure, assert_conforms, assert_that
 
 pydantic = pytest.importorskip("pydantic", reason="pydantic not installed")
 pydantic_dataclass = pytest.importorskip("pydantic.dataclasses").dataclass

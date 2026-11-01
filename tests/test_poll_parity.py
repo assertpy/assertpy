@@ -45,8 +45,8 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from assertpy2 import assert_that
-from assertpy2.assertpy import AssertionBuilder
+from assertpy import assert_that
+from assertpy.assertpy import AssertionBuilder
 from tests import typing_harness
 from tests.poll_parity_baseline import DISPATCHES_TO, REACHES, RECORDED, WITNESSED_BY
 
@@ -54,12 +54,12 @@ if TYPE_CHECKING:
     from types import ModuleType
 
 _ROOT = pathlib.Path(__file__).resolve().parent.parent
-_VIEWS = _ROOT / "assertpy2" / "_engine" / "_typing.py"
+_VIEWS = _ROOT / "assertpy" / "_engine" / "_typing.py"
 _CASES_FILE = _ROOT / "tests" / "poll_parity_cases.py"
 
-_SYNC = ("_SyncPoll", _ROOT / "assertpy2" / "_engine" / "_poll_typing.py")
-_ASYNC = ("_AsyncPoll", _ROOT / "assertpy2" / "_engine" / "_poll_typing.py")
-_VERDICT = ("_CheckAnyValue", _ROOT / "assertpy2" / "_engine" / "_builder_check_typing.py")
+_SYNC = ("_SyncPoll", _ROOT / "assertpy" / "_engine" / "_poll_typing.py")
+_ASYNC = ("_AsyncPoll", _ROOT / "assertpy" / "_engine" / "_poll_typing.py")
+_VERDICT = ("_CheckAnyValue", _ROOT / "assertpy" / "_engine" / "_builder_check_typing.py")
 _SURFACES = (_SYNC, _ASYNC, _VERDICT)
 _BOUND_OF = {"_Capable": "_CapableT"}
 """An arm written as the bound of a type variable, to the variable the measurement file asks about."""
@@ -278,7 +278,7 @@ def test_a_value_spelled_as_a_union_is_witnessed_member_by_member() -> None:
 
 def test_an_arm_read_as_a_variable_is_written_as_that_variables_bound() -> None:
     """The umbrella rung names the bound where it lands where it stood, and the measurement asks the variable."""
-    views = (_ROOT / "assertpy2" / "_engine" / "_typing.py").read_text(encoding="utf-8")
+    views = (_ROOT / "assertpy" / "_engine" / "_typing.py").read_text(encoding="utf-8")
     for bound, variable in _BOUND_OF.items():
         assert_that(views).contains(f'{variable} = TypeVar("{variable}", bound={bound})')
 

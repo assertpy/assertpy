@@ -22,9 +22,9 @@ import warnings
 
 import pytest
 
-from assertpy2 import assert_that, match
-from assertpy2._engine._require import CoroutineVerdictError
-from assertpy2.matchers import BaseMatcher, Matcher
+from assertpy import assert_that, match
+from assertpy._engine._require import CoroutineVerdictError
+from assertpy.matchers import BaseMatcher, Matcher
 
 
 async def _never(value: object, *rest: object) -> bool:

@@ -16,7 +16,7 @@ import os
 import pathlib
 import re
 
-from assertpy2 import assert_that
+from assertpy import assert_that
 
 _ROOT = pathlib.Path(__file__).resolve().parent.parent
 _DOCUMENT = _ROOT / "ARCHITECTURE.md"
@@ -25,7 +25,7 @@ _A_TYPING_GATE = re.compile(r"^test_.*(typing|protocol).*\.py$")
 _SIZE_ROW = re.compile(
     r"^\| `(?P<file>_engine/[a-z_]+\.py)` \| (?P<protocols>\d+) \| (?P<declarations>\d+) \|", re.MULTILINE
 )
-_TYPED_MODULES = sorted(f"_engine/{path.name}" for path in (_ROOT / "assertpy2" / "_engine").glob("*_typing.py"))
+_TYPED_MODULES = sorted(f"_engine/{path.name}" for path in (_ROOT / "assertpy" / "_engine").glob("*_typing.py"))
 """Read off the tree rather than listed here, which let the negation twins go unrecorded."""
 
 
@@ -42,7 +42,7 @@ def _typing_gates() -> set[str]:
 
 def _measured(module: str) -> tuple[int, int]:
     """Protocols and declarations, counted the way the table claims them."""
-    tree = ast.parse((_ROOT / "assertpy2" / module).read_text(encoding="utf-8"))
+    tree = ast.parse((_ROOT / "assertpy" / module).read_text(encoding="utf-8"))
     protocols = [node for node in ast.walk(tree) if isinstance(node, ast.ClassDef)]
     declarations = sum(len([body for body in node.body if isinstance(body, ast.FunctionDef)]) for node in protocols)
     return len(protocols), declarations
@@ -68,10 +68,10 @@ def test_the_table_of_sizes_is_what_the_files_hold() -> None:
     Row for row and file for file, since a deleted row and a duplicated one both leave a table that
     agrees with itself.
 
-    Re-record with `ASSERTPY2_UPDATE_ARCHITECTURE=1`, the way the API snapshot is re-recorded, so the
+    Re-record with `ASSERTPY_UPDATE_ARCHITECTURE=1`, the way the API snapshot is re-recorded, so the
     counting rule has one implementation and the numbers are never typed by hand.
     """
-    if os.environ.get("ASSERTPY2_UPDATE_ARCHITECTURE"):
+    if os.environ.get("ASSERTPY_UPDATE_ARCHITECTURE"):
         _rewritten(_SIZE_ROW.findall(_DOCUMENT.read_text(encoding="utf-8")))
     rows = _SIZE_ROW.findall(_DOCUMENT.read_text(encoding="utf-8"))
     listed = [module for module, _, _ in rows]

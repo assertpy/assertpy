@@ -18,8 +18,8 @@ from collections.abc import Iterator
 
 import pytest
 
-import assertpy2._matcher_impls as _impls
-from assertpy2 import AssertionFailure, BaseMatcher, MatchResult, assert_that, match
+import assertpy._matcher_impls as _impls
+from assertpy import AssertionFailure, BaseMatcher, MatchResult, assert_that, match
 
 
 class _Counting:

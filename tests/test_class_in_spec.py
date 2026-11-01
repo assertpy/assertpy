@@ -18,7 +18,7 @@ import pytest
 from hypothesis import given
 from hypothesis import strategies as st
 
-from assertpy2 import AssertionFailure, assert_that, match
+from assertpy import AssertionFailure, assert_that, match
 
 _MATCHER = "the matcher for an instance of a class is match.is_instance_of"
 _LINE = f"the spec holds a class itself and the value is an instance of it: {_MATCHER}"

@@ -5,25 +5,25 @@ callable value, chain the assertion you expect to eventually hold, and await the
 ``eventually_sync()`` for the same polling without an event loop. See
 [Testing](../guides/testing.md#async-assertions) for usage.
 
-::: assertpy2.assertpy.AssertionBuilder.eventually
+::: assertpy.assertpy.AssertionBuilder.eventually
     options:
       show_root_heading: true
       show_root_full_path: false
       show_root_toc_entry: true
 
-::: assertpy2.assertpy.AssertionBuilder.eventually_sync
+::: assertpy.assertpy.AssertionBuilder.eventually_sync
     options:
       show_root_heading: true
       show_root_full_path: false
       show_root_toc_entry: true
 
-::: assertpy2.async_assertions.AsyncAssertionBuilder
+::: assertpy.async_assertions.AsyncAssertionBuilder
     options:
       show_root_heading: true
       show_root_full_path: false
       show_root_toc_entry: true
 
-::: assertpy2.async_assertions.SyncAssertionBuilder
+::: assertpy.async_assertions.SyncAssertionBuilder
     options:
       show_root_heading: true
       show_root_full_path: false

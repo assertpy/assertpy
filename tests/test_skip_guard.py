@@ -16,7 +16,7 @@ import pathlib
 import subprocess
 import sys
 
-from assertpy2 import assert_that
+from assertpy import assert_that
 
 _ROOT = pathlib.Path(__file__).resolve().parent.parent
 
@@ -59,7 +59,7 @@ def _run(tmp_path: pathlib.Path, *extra: str, suite: str = _SUITE) -> subprocess
 
 def test_a_run_claiming_completeness_fails_on_a_missing_module(tmp_path):
     """The coverage floor is the claim: only the cell that enforces it promises every gate ran."""
-    result = _run(tmp_path, "--cov=assertpy2", "--cov-fail-under=1")
+    result = _run(tmp_path, "--cov=assertpy", "--cov-fail-under=1")
     assert_that(result.returncode).described_as("exit code").is_equal_to(1)
     assert_that(result.stdout).described_as("the report").contains(
         "gates skipped for a missing module", "a_module_that_is_not_installed"
@@ -77,7 +77,7 @@ def test_a_skip_that_says_why_is_left_alone(tmp_path):
         'importorskip("a_module_that_is_not_installed")',
         'importorskip("a_module_that_is_not_installed", reason="delegated to another job")',
     )
-    result = _run(tmp_path, "--cov=assertpy2", "--cov-fail-under=1", suite=reasoned)
+    result = _run(tmp_path, "--cov=assertpy", "--cov-fail-under=1", suite=reasoned)
     said = f"exit code, the child having said: {result.stdout[-1500:]} {result.stderr[-1500:]}"
     assert_that(result.returncode).described_as(said).is_equal_to(0)
     assert_that(result.stdout).described_as("the report").does_not_contain("gates skipped for a missing module")

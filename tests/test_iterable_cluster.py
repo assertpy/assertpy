@@ -1,6 +1,6 @@
 import pytest
 
-from assertpy2 import AssertionFailure, assert_that, match
+from assertpy import AssertionFailure, assert_that, match
 
 
 class TestSatisfiesExactly:

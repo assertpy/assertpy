@@ -19,12 +19,12 @@ from __future__ import annotations
 import ast
 import pathlib
 
-from assertpy2 import assert_that
+from assertpy import assert_that
 
-_SOURCE = pathlib.Path(__file__).resolve().parent.parent / "assertpy2" / "assertpy.py"
+_SOURCE = pathlib.Path(__file__).resolve().parent.parent / "assertpy" / "assertpy.py"
 
 
-_TYPING = pathlib.Path(__file__).resolve().parent.parent / "assertpy2" / "_engine" / "_typing.py"
+_TYPING = pathlib.Path(__file__).resolve().parent.parent / "assertpy" / "_engine" / "_typing.py"
 
 
 def _overload_subjects() -> list[str]:

@@ -11,9 +11,9 @@ from typing import ClassVar
 
 import pytest
 
-from assertpy2 import AssertionFailure, assert_that, match, soft_assertions
-from assertpy2._engine._compare import _build_compare_config
-from assertpy2._engine._diff import _build_equality_diff
+from assertpy import AssertionFailure, assert_that, match, soft_assertions
+from assertpy._engine._compare import _build_compare_config
+from assertpy._engine._diff import _build_equality_diff
 
 Pair = namedtuple("Pair", ["a", "b"])
 

@@ -1,8 +1,8 @@
 import datetime
 import pathlib
 
-from assertpy2 import assert_that
-from assertpy2.assertpy import AssertionBuilder
+from assertpy import assert_that
+from assertpy.assertpy import AssertionBuilder
 
 
 class TestOverloadsRuntimeBehavior:
@@ -53,6 +53,6 @@ class TestOverloadsRuntimeBehavior:
 
 class TestTypingModuleImport:
     def test_typing_module_importable(self):
-        import assertpy2._engine._typing  # inline: tests that module is importable
+        import assertpy._engine._typing  # inline: tests that module is importable
 
-        assert_that(assertpy2._engine._typing).is_not_none()
+        assert_that(assertpy._engine._typing).is_not_none()

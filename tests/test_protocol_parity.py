@@ -1,6 +1,6 @@
 """Parity between the typed Protocols and the concrete ``AssertionBuilder``.
 
-The Protocols in :mod:`assertpy2._engine._typing` are hand-maintained and exist only under ``TYPE_CHECKING``,
+The Protocols in :mod:`assertpy._engine._typing` are hand-maintained and exist only under ``TYPE_CHECKING``,
 so nothing at runtime stops them from advertising a method the concrete builder does not have (or
 whose signature no longer accepts the declared arguments).  These tests parse the module with ``ast``
 and verify every declared method against the real class, so that drift fails the suite instead of
@@ -20,8 +20,8 @@ from pathlib import Path
 
 import pytest
 
-import assertpy2._engine._typing
-from assertpy2 import (
+import assertpy._engine._typing
+from assertpy import (
     _satisfies,
     assert_that,
     base,
@@ -42,8 +42,8 @@ from assertpy2 import (
     string,
     warning,
 )
-from assertpy2 import dict as dict_mixin
-from assertpy2.assertpy import AssertionBuilder
+from assertpy import dict as dict_mixin
+from assertpy.assertpy import AssertionBuilder
 
 _SENTINEL = object()
 
@@ -257,7 +257,7 @@ def _base_name(base: ast.expr) -> str | None:
 
 def _protocol_classes():
     """Return ``{name: (own_methods, protocol_bases)}`` for every Protocol in the typed surface."""
-    source = Path(assertpy2._engine._typing.__file__).read_text(encoding="utf-8")
+    source = Path(assertpy._engine._typing.__file__).read_text(encoding="utf-8")
     classes = {}
     for node in ast.walk(ast.parse(source)):
         if isinstance(node, ast.ClassDef) and node.name.endswith("Assertion"):
@@ -295,7 +295,7 @@ def _public_methods(mixin: type) -> set[str]:
 
 def _protocol_method_cases():
     """Yield ``(protocol_name, method_def)`` for every method declared in a Protocol class."""
-    source = Path(assertpy2._engine._typing.__file__).read_text(encoding="utf-8")
+    source = Path(assertpy._engine._typing.__file__).read_text(encoding="utf-8")
     for node in ast.walk(ast.parse(source)):
         if isinstance(node, ast.ClassDef) and node.name.endswith("Assertion"):
             for item in node.body:
@@ -684,7 +684,7 @@ class TestTheProtocolsStayComposed:
         that way, so the rule costs nothing today and keeps the one spelling that `_canonical` folds
         exactly.
         """
-        source = Path(assertpy2._engine._typing.__file__).read_text(encoding="utf-8")
+        source = Path(assertpy._engine._typing.__file__).read_text(encoding="utf-8")
         legacy = {
             f"line {node.lineno}: {ast.unparse(node)}"
             for node in ast.walk(ast.parse(source))

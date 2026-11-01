@@ -12,9 +12,9 @@ import pytest
 from hypothesis import example, given
 from hypothesis import strategies as st
 
-from assertpy2 import assert_that, helpers
-from assertpy2._engine._diff import _aligned_match_indices
-from assertpy2.helpers import (
+from assertpy import assert_that, helpers
+from assertpy._engine._diff import _aligned_match_indices
+from assertpy.helpers import (
     _ELIDED,
     _both_list_like,
     _elided_seq_repr,

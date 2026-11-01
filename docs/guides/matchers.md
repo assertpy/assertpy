@@ -3,7 +3,7 @@
 Matchers are reusable, composable condition objects. Import the `match` namespace:
 
 ```python
-from assertpy2 import assert_that, match
+from assertpy import assert_that, match
 ```
 
 Combine them with `&` (and), `|` (or), `~` (not), and use them with `satisfies()`, `each()`,
@@ -386,7 +386,7 @@ matcher fails inside an assertion.
 expressed that way, subclass `BaseMatcher` and supply the predicate and its two descriptions:
 
 ```python
-from assertpy2 import BaseMatcher, assert_that
+from assertpy import BaseMatcher, assert_that
 
 class IsEven(BaseMatcher):
     def matches(self, value):
@@ -410,12 +410,12 @@ with each other.
 
 ### Answering in one call
 
-`evaluate()` is the same matcher answering with a [`MatchResult`][assertpy2.matchers.MatchResult]
+`evaluate()` is the same matcher answering with a [`MatchResult`][assertpy.matchers.MatchResult]
 instead of with three separate calls. Every matcher has it, including one written before it existed:
 the default composes it from `matches()`, `describe()` and `describe_mismatch()`.
 
 ```python
-from assertpy2 import match
+from assertpy import match
 
 result = match.is_positive().evaluate(-5)
 print(result.matched)        # False
@@ -428,7 +428,7 @@ Implement it instead of the three when finding the reason costs what finding the
 for, which is any matcher that walks its value:
 
 ```python
-from assertpy2 import BaseMatcher, MatchResult, assert_that
+from assertpy import BaseMatcher, MatchResult, assert_that
 
 class HasEvenLength(BaseMatcher):
     def describe(self):
@@ -462,7 +462,7 @@ which:
 ```python
 from collections.abc import Iterator
 
-from assertpy2 import BaseMatcher, assert_that, match
+from assertpy import BaseMatcher, assert_that, match
 
 class IsAnIterator(BaseMatcher):
     reads_items = False  # asks about the value itself
@@ -488,7 +488,7 @@ assert_that(iter([1, 2])).satisfies(IsAnIterator() & match.contains(2))
 ### Registering one on the `match` namespace
 
 ```python
-from assertpy2 import assert_that, match, register_matcher
+from assertpy import assert_that, match, register_matcher
 
 @register_matcher("is_valid_email")
 def is_valid_email():
@@ -523,7 +523,7 @@ assert_that(response).matches_structure({
 
 ??? note "Removing a custom matcher"
     ```python
-    from assertpy2 import unregister_matcher
+    from assertpy import unregister_matcher
 
     unregister_matcher("is_valid_email")
     ```

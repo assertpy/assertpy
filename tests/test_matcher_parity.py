@@ -20,7 +20,7 @@ import datetime
 
 import pytest
 
-from assertpy2 import BaseMatcher, assert_that, match
+from assertpy import BaseMatcher, assert_that, match
 
 _NAN = float("nan")
 

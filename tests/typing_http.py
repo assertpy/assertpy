@@ -16,7 +16,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, assert_type
 
-from assertpy2 import assert_that
+from assertpy import assert_that
 
 if TYPE_CHECKING:
     import django.http
@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     import requests
     import starlette.responses
 
-    from assertpy2._engine._capable_typing import _CapableAssertion
+    from assertpy._engine._capable_typing import _CapableAssertion
 
 
 def responses_keep_their_own_assertions(

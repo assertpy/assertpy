@@ -14,7 +14,7 @@ import pytest
 from hypothesis import given
 from hypothesis import strategies as st
 
-from assertpy2 import AssertionFailure, _hints, assert_that
+from assertpy import AssertionFailure, _hints, assert_that
 
 
 def _lines(call) -> list[str]:

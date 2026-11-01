@@ -16,7 +16,7 @@ import textwrap
 
 import pytest
 
-from assertpy2 import assert_that
+from assertpy import assert_that
 
 RED_SUITE = textwrap.dedent(
     """
@@ -25,7 +25,7 @@ RED_SUITE = textwrap.dedent(
 
     import pytest
 
-    from assertpy2 import assert_that
+    from assertpy import assert_that
 
     ROWS = [{"id": index, "role": "guest"} for index in range(4)]
 
@@ -53,15 +53,15 @@ RED_SUITE = textwrap.dedent(
     """
 )
 
-CAPTURING = ("--assertpy2-snapshot-no-ci",)
+CAPTURING = ("--assertpy-snapshot-no-ci",)
 
 REPORTS = (
     "-o",
-    "assertpy2_failure_clusters=3",
+    "assertpy_failure_clusters=3",
     "-o",
-    "assertpy2_dangling=on",
+    "assertpy_dangling=on",
     "-o",
-    "assertpy2_poll_report=0.01",
+    "assertpy_poll_report=0.01",
 )
 
 
@@ -105,7 +105,7 @@ def red_run(tmp_path, *extra):
 def test_the_failure_cluster_summary_needs_no_configuration(tmp_path):
     """The summary out of the box, from a project that wrote no ini file at all.
 
-    Every other cluster test here passes `-o assertpy2_failure_clusters=3`, which holds the setting and
+    Every other cluster test here passes `-o assertpy_failure_clusters=3`, which holds the setting and
     not the default.  A profile turning clustering off again, or the ini losing its default, would leave
     all of them green while an installing project saw nothing.
     """
@@ -116,13 +116,13 @@ def test_the_failure_cluster_summary_needs_no_configuration(tmp_path):
         outcome=pytest.ExitCode.TESTS_FAILED,
         tally="4 failed, 2 passed",
     )
-    assert_that(finished.said).contains("assertpy2 failure clusters:")
+    assert_that(finished.said).contains("assertpy failure clusters:")
     assert_that(finished.said).contains("4 of 4 failing tests differ at role")
 
 
 def test_the_failure_cluster_summary_reaches_the_terminal(tmp_path):
     output = red_run(tmp_path)
-    assert_that(output).contains("assertpy2 failure clusters:")
+    assert_that(output).contains("assertpy failure clusters:")
     assert_that(output).contains("4 of 4 failing tests differ at role")
     assert_that(output).contains("actual:   'guest'").contains("expected: 'admin'")
 
@@ -145,7 +145,7 @@ def test_the_dangling_statement_is_reported(tmp_path):
 
 def test_the_late_poll_is_named(tmp_path):
     output = red_run(tmp_path)
-    assert_that(output).contains("assertpy2 polls that nearly timed out:")
+    assert_that(output).contains("assertpy polls that nearly timed out:")
     assert_that(output).contains("converged on attempt 3")
 
 
@@ -157,9 +157,9 @@ def test_the_summary_survives_the_trip_from_the_workers(tmp_path):
     this is the only place the transport itself runs, and two different payloads cross it.
     """
     output = red_run(tmp_path, "-n", "2")
-    assert_that(output).contains("assertpy2 failure clusters:")
+    assert_that(output).contains("assertpy failure clusters:")
     assert_that(output).contains("4 of 4 failing tests differ at role")
-    assert_that(output).contains("assertpy2 polls that nearly timed out:")
+    assert_that(output).contains("assertpy polls that nearly timed out:")
     assert_that(output).contains("converged on attempt 3")
 
 
@@ -167,7 +167,7 @@ SHARED_KEY_SUITE = textwrap.dedent(
     """
     import pytest
 
-    from assertpy2 import assert_that
+    from assertpy import assert_that
 
 
     @pytest.mark.parametrize("name", ["alice", "bob"])
@@ -178,7 +178,7 @@ SHARED_KEY_SUITE = textwrap.dedent(
 
 TOUCHING_SUITE = textwrap.dedent(
     """
-    from assertpy2 import assert_that
+    from assertpy import assert_that
 
 
     def test_alice():
@@ -192,7 +192,7 @@ TOUCHING_SUITE = textwrap.dedent(
 
 INLINE_SUITE = textwrap.dedent(
     """
-    from assertpy2 import assert_that
+    from assertpy import assert_that
 
 
     def test_recorded_here():
@@ -225,7 +225,7 @@ def test_the_orphan_sweep_sees_what_every_worker_touched(tmp_path):
 
     recorded["nobody-reaches-this"] = {"stale": True}
     stored.write_text(json.dumps(recorded), encoding="utf-8")
-    finished = run_suite(tmp_path, TOUCHING_SUITE, "-n", "2", "--assertpy2-snapshot-update", *CAPTURING)
+    finished = run_suite(tmp_path, TOUCHING_SUITE, "-n", "2", "--assertpy-snapshot-update", *CAPTURING)
     swept = json.loads(stored.read_text(encoding="utf-8"))
     assert_that(sorted(swept)).described_as("the stale key is gone and the live ones stayed").is_equal_to(
         sorted(set(recorded) - {"nobody-reaches-this"})
@@ -239,6 +239,6 @@ def test_an_inline_value_recorded_on_a_worker_reaches_the_file(tmp_path):
     A worker must not write source: two of them editing one file is how a suite loses a line.  So the
     record travels, and the only proof that it travelled is the file afterwards.
     """
-    run_suite(tmp_path, INLINE_SUITE, "-n", "2", "--assertpy2-snapshot-update", *CAPTURING, tally="1 passed")
+    run_suite(tmp_path, INLINE_SUITE, "-n", "2", "--assertpy-snapshot-update", *CAPTURING, tally="1 passed")
     written = (tmp_path / "test_child.py").read_text(encoding="utf-8")
     assert_that(written).contains("matches_inline({'role': 'admin'})")

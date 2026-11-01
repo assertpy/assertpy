@@ -3,7 +3,7 @@ import logging
 
 import pytest
 
-from assertpy2 import assert_that, assert_warn
+from assertpy import assert_that, assert_warn
 
 
 def test_is_iterable():
@@ -316,6 +316,6 @@ class TestSizeValidatorBoundaries:
     def test_a_custom_logger_survives_the_hop(self, name, caplog):
         # warn mode routes through the caller's logger; losing it on any hop warns where nobody is watching
         navigate = _navigations()[name]
-        custom = logging.getLogger("assertpy2.test.custom")
+        custom = logging.getLogger("assertpy.test.custom")
         navigate(assert_warn([1], logger=custom)).is_equal_to(object())
-        assert_that([record.name for record in caplog.records]).contains("assertpy2.test.custom")
+        assert_that([record.name for record in caplog.records]).contains("assertpy.test.custom")

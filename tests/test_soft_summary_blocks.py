@@ -4,10 +4,10 @@ import os
 
 import pytest
 
-import assertpy2.assertpy as assertpy_module
-from assertpy2 import AssertionFailure, assert_that, errors, soft_assertions
-from assertpy2.errors import DiffEntry, DiffResult
-from assertpy2.outcome import AssertionOutcome
+import assertpy.assertpy as assertpy_module
+from assertpy import AssertionFailure, assert_that, errors, soft_assertions
+from assertpy.errors import DiffEntry, DiffResult
+from assertpy.outcome import AssertionOutcome
 
 
 @pytest.fixture

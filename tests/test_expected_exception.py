@@ -6,7 +6,7 @@ from io import StringIO
 
 import pytest
 
-from assertpy2 import (
+from assertpy import (
     WarningLoggingAdapter,
     add_extension,
     assert_that,

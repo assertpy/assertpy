@@ -24,9 +24,9 @@ import pytest
 if TYPE_CHECKING:
     from types import ModuleType
 
-from assertpy2 import assert_that
-from assertpy2._engine import _check_typing, _typing
-from assertpy2._engine._operations import NOT_AN_OPERATION, WITHOUT_A_VERDICT
+from assertpy import assert_that
+from assertpy._engine import _check_typing, _typing
+from assertpy._engine._operations import NOT_AN_OPERATION, WITHOUT_A_VERDICT
 
 _ROOT = pathlib.Path(__file__).resolve().parent.parent
 

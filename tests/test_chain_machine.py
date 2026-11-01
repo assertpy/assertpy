@@ -24,8 +24,8 @@ from hypothesis import note, settings
 from hypothesis import strategies as st
 from hypothesis.stateful import RuleBasedStateMachine, initialize, invariant, precondition, rule
 
-from assertpy2 import assert_that, assert_warn, match, soft_assertions
-from assertpy2.exception import _InertBuilder
+from assertpy import assert_that, assert_warn, match, soft_assertions
+from assertpy.exception import _InertBuilder
 from tests import chain_model as model
 
 if TYPE_CHECKING:

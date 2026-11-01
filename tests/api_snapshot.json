@@ -623,14 +623,14 @@
     },
     {
      "annotation": "Any",
-     "default": "<assertpy2.outcome._Missing>",
+     "default": "<assertpy.outcome._Missing>",
      "kind": "KEYWORD_ONLY",
      "name": "actual",
      "required": false
     },
     {
      "annotation": "Any",
-     "default": "<assertpy2.outcome._Missing>",
+     "default": "<assertpy.outcome._Missing>",
      "kind": "KEYWORD_ONLY",
      "name": "expected",
      "required": false
@@ -1621,7 +1621,7 @@
    "parameters": [
     {
      "annotation": "Callable[[Any], Any]",
-     "default": "<callable assertpy2.collection.CollectionMixin.<lambda>>",
+     "default": "<callable assertpy.collection.CollectionMixin.<lambda>>",
      "kind": "POSITIONAL_OR_KEYWORD",
      "name": "key",
      "required": false
@@ -2187,7 +2187,7 @@
     "builtins.Exception",
     "builtins.BaseException"
    ],
-   "construction": "assertpy2.AssertionFailure",
+   "construction": "assertpy.AssertionFailure",
    "fields": [],
    "kind": "class",
    "parameters": [
@@ -2245,7 +2245,7 @@
   },
   "AssertionOutcome": {
    "bases": [],
-   "construction": "assertpy2.outcome.AssertionOutcome",
+   "construction": "assertpy.outcome.AssertionOutcome",
    "fields": [
     "passed",
     "message",
@@ -2291,7 +2291,7 @@
     },
     {
      "annotation": "object",
-     "default": "<assertpy2.outcome._Missing>",
+     "default": "<assertpy.outcome._Missing>",
      "kind": "KEYWORD_ONLY",
      "name": "expected",
      "required": false
@@ -2343,7 +2343,7 @@
   },
   "AsyncAssertionBuilder": {
    "bases": [],
-   "construction": "assertpy2.async_assertions.AsyncAssertionBuilder",
+   "construction": "assertpy.async_assertions.AsyncAssertionBuilder",
    "fields": [],
    "kind": "class",
    "parameters": [
@@ -2430,7 +2430,7 @@
   },
   "CheckBuilder": {
    "bases": [],
-   "construction": "assertpy2.assertpy.CheckBuilder",
+   "construction": "assertpy.assertpy.CheckBuilder",
    "fields": [],
    "kind": "class",
    "parameters": [
@@ -2466,7 +2466,7 @@
   },
   "DiffEntry": {
    "bases": [],
-   "construction": "assertpy2.errors.DiffEntry",
+   "construction": "assertpy.errors.DiffEntry",
    "fields": [
     "path",
     "actual",
@@ -2516,7 +2516,7 @@
   },
   "DiffResult": {
    "bases": [],
-   "construction": "assertpy2.errors.DiffResult",
+   "construction": "assertpy.errors.DiffResult",
    "fields": [
     "kind",
     "entries"
@@ -2542,7 +2542,7 @@
   },
   "MatchResult": {
    "bases": [],
-   "construction": "assertpy2._matcher_impls.MatchResult",
+   "construction": "assertpy._matcher_impls.MatchResult",
    "fields": [
     "matched",
     "description",
@@ -2587,7 +2587,7 @@
     "typing.Protocol",
     "typing.Generic"
    ],
-   "construction": "assertpy2._matcher_impls.Matcher",
+   "construction": "assertpy._matcher_impls.Matcher",
    "fields": [],
    "kind": "class",
    "parameters": [
@@ -2612,7 +2612,7 @@
    "bases": [
     "typing.Generic"
    ],
-   "construction": "assertpy2.assertpy.NegatedBuilder",
+   "construction": "assertpy.assertpy.NegatedBuilder",
    "fields": [],
    "kind": "class",
    "parameters": [
@@ -2628,7 +2628,7 @@
   },
   "PollSample": {
    "bases": [],
-   "construction": "assertpy2.errors.PollSample",
+   "construction": "assertpy.errors.PollSample",
    "fields": [
     "elapsed",
     "outcome",
@@ -2678,7 +2678,7 @@
   },
   "PollTrace": {
    "bases": [],
-   "construction": "assertpy2.errors.PollTrace",
+   "construction": "assertpy.errors.PollTrace",
    "fields": [
     "samples",
     "total_polls",
@@ -2728,7 +2728,7 @@
   },
   "Requirement": {
    "bases": [],
-   "construction": "assertpy2.outcome.Requirement",
+   "construction": "assertpy.outcome.Requirement",
    "fields": [
     "operation",
     "parameters",
@@ -2811,7 +2811,7 @@
    "bases": [
     "builtins.tuple"
    ],
-   "construction": "assertpy2.errors.Step",
+   "construction": "assertpy.errors.Step",
    "fields": [
     "kind",
     "value",
@@ -2845,7 +2845,7 @@
   },
   "SyncAssertionBuilder": {
    "bases": [],
-   "construction": "assertpy2.async_assertions.SyncAssertionBuilder",
+   "construction": "assertpy.async_assertions.SyncAssertionBuilder",
    "fields": [],
    "kind": "class",
    "parameters": [
@@ -3172,7 +3172,7 @@
    "returns": "contextlib.AbstractContextManager[None]"
   },
   "match": {
-   "kind": "assertpy2.matchers._MatchNamespace",
+   "kind": "assertpy.matchers._MatchNamespace",
    "parameters": []
   },
   "register_matcher": {

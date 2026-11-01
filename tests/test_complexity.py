@@ -22,46 +22,46 @@ import re
 import subprocess
 import sys
 
-from assertpy2 import assert_that
+from assertpy import assert_that
 
 _ROOT = pathlib.Path(__file__).resolve().parent.parent
 _REPORTED = re.compile(r"`([^`]+)` is too complex \((\d+)")
 
 RECORDED: dict[str, int] = {
-    "assertpy2/extracting.py::extracting": 32,
-    "assertpy2/_engine/_diff.py::_build_equality_diff": 16,
+    "assertpy/extracting.py::extracting": 32,
+    "assertpy/_engine/_diff.py::_build_equality_diff": 16,
     # a flag per matched run instead of a call per matched element, which cost a failing is_equal_to 15%
-    "assertpy2/helpers.py::_elided_walks": 21,
+    "assertpy/helpers.py::_elided_walks": 21,
     # three branches for what JSON cannot spell: a set element, a tuple-valued enum, and the retry that names it
-    "assertpy2/_snapshot_codec.py::_object_hook": 22,
-    "assertpy2/_hints.py::diagnose": 17,
+    "assertpy/_snapshot_codec.py::_object_hook": 22,
+    "assertpy/_hints.py::diagnose": 17,
     # 16: a key the lookup refuses is found by `lookup`; through a helper per key a 50-key structure cost 10%
-    "assertpy2/_matcher_impls.py::_walk": 16,
-    "assertpy2/_snapshot_codec.py::default": 14,
-    "assertpy2/errors.py::_render_diff": 14,
-    "assertpy2/snapshot.py::snapshot": 14,
+    "assertpy/_matcher_impls.py::_walk": 16,
+    "assertpy/_snapshot_codec.py::default": 14,
+    "assertpy/errors.py::_render_diff": 14,
+    "assertpy/snapshot.py::snapshot": 14,
     # a mapping with a non-string key is written as pairs, since rendered as text `1` and `"1"` were one key
-    "assertpy2/errors.py::_json_native": 14,
-    "assertpy2/string.py::contains_ignoring_case": 13,
-    "assertpy2/_engine/_compare.py::_build_compare_config": 11,
-    "assertpy2/async_assertions.py::record": 12,
-    "assertpy2/dynamic.py::__getattr__": 12,
-    "assertpy2/_dangling.py::_survey": 11,
-    "assertpy2/_dangling.py::findings": 11,
+    "assertpy/errors.py::_json_native": 14,
+    "assertpy/string.py::contains_ignoring_case": 13,
+    "assertpy/_engine/_compare.py::_build_compare_config": 11,
+    "assertpy/async_assertions.py::record": 12,
+    "assertpy/dynamic.py::__getattr__": 12,
+    "assertpy/_dangling.py::_survey": 11,
+    "assertpy/_dangling.py::findings": 11,
     # 12: an unorderable window answers, the classes are asked in place. As helpers: close_to 8%, two float64 10%
-    "assertpy2/_engine/_compare.py::_within_tolerance": 12,
+    "assertpy/_engine/_compare.py::_within_tolerance": 12,
     # 12: a broadcast and the class kept are read in place. As helpers: a datetime 10%, a Decimal against an int 12%
-    "assertpy2/_engine/_ordering.py::compare": 12,
+    "assertpy/_engine/_ordering.py::compare": 12,
     # one more name refused by the poll chain: check() after a poll used to skip the wait and answer nothing
     # 13: the chain refuses `value` by name, where the hook used to record it as an assertion
     # 15: an attempt holds its passes for `log_passes()` behind guards in place; as calls, a poll passing at once 3-4%
-    "assertpy2/async_assertions.py::__getattr__": 15,
-    "assertpy2/contains.py::contains": 11,
-    "assertpy2/json_mixin.py::_openapi_resolve": 11,
+    "assertpy/async_assertions.py::__getattr__": 15,
+    "assertpy/contains.py::contains": 11,
+    "assertpy/json_mixin.py::_openapi_resolve": 11,
     # 12: a signalling NaN is answered in place. Through `equals` it cost a list's prefix check 7%
-    "assertpy2/string.py::ends_with": 12,
+    "assertpy/string.py::ends_with": 12,
     # 12: as `ends_with`, for the same measured 7%
-    "assertpy2/string.py::starts_with": 12,
+    "assertpy/string.py::starts_with": 12,
 }
 """Every function over mccabe's default, keyed by file and name, measured 2026-08-29."""
 
@@ -74,7 +74,7 @@ def _measured() -> dict[str, int]:
             "-m",
             "ruff",
             "check",
-            "assertpy2/",
+            "assertpy/",
             "--select",
             "C901",
             "--config",
@@ -97,7 +97,7 @@ def _measured() -> dict[str, int]:
         match = _REPORTED.search(row["message"])
         if match is None:
             raise RuntimeError(f"unreadable C901 message, so a real change could hide in it: {row['message']}")
-        # relative to the repository, because both the checkout and the package are named `assertpy2`
+        # relative to the repository, because both the checkout and the package are named `assertpy`
         # and splitting on the name landed on the first of the two
         where = pathlib.Path(row["filename"]).resolve().relative_to(_ROOT).as_posix()
         key = f"{where}::{match.group(1)}"

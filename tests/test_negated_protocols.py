@@ -14,8 +14,8 @@ import re
 
 import pytest
 
-from assertpy2 import assert_that
-from assertpy2._engine._operations import (
+from assertpy import assert_that
+from assertpy._engine._operations import (
     CONFIGURES,
     DESCRIBES,
     NOT_AN_OPERATION,
@@ -26,10 +26,10 @@ from assertpy2._engine._operations import (
 from tests.test_capable_protocol import _formatted, _generator
 
 _ROOT = pathlib.Path(__file__).resolve().parent.parent
-_VIEWS = _ROOT / "assertpy2" / "_engine" / "_typing.py"
-_TWINS = _ROOT / "assertpy2" / "_engine" / "_negated_typing.py"
-_ENTRY = _ROOT / "assertpy2" / "assertpy.py"
-_UMBRELLA = _ROOT / "assertpy2" / "_engine" / "_capable_typing.py"
+_VIEWS = _ROOT / "assertpy" / "_engine" / "_typing.py"
+_TWINS = _ROOT / "assertpy" / "_engine" / "_negated_typing.py"
+_ENTRY = _ROOT / "assertpy" / "assertpy.py"
+_UMBRELLA = _ROOT / "assertpy" / "_engine" / "_capable_typing.py"
 
 _NOT_AN_ASSERTION = set(NOT_AN_OPERATION) | set(WITHOUT_A_VERDICT)
 """What a negated view must not carry: `check`, `value`, the transforms, configurers, describers, polls."""

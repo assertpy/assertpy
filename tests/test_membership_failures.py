@@ -17,8 +17,8 @@ import enum
 
 import pytest
 
-from assertpy2 import AssertionFailure, assert_that, match, soft_assertions
-from assertpy2._hints import not_found, reads_as
+from assertpy import AssertionFailure, assert_that, match, soft_assertions
+from assertpy._hints import not_found, reads_as
 
 _NAN_SOUGHT = "the item not found is a NaN, and one NaN is not equal to another"
 _IDENTITY_SOUGHT = (
