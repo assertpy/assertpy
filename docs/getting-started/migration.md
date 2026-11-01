@@ -1,31 +1,32 @@
 # Upgrading from assertpy 1.x
 
-`assertpy` 2.x continues assertpy 1.1 under the same name and the same `assert_that(...)` API, now typed
-and extended. It is a major release: a few answers, the failure class and many failure messages change.
-Read this page before you upgrade, or stay on 1.x.
+`assertpy` 2.x is assertpy 1.1 rewritten: the same name, the same `assert_that(...)` API, now typed and
+extended. It is a major release, so some answers, the failure class and many messages change.
 
 !!! success "TL;DR"
     - On Python 3.10+, upgrade and run your tests. Your imports stay as they are.
-    - To stay on 1.x, pin `assertpy<2`. Python 3.9 and older keep getting 1.1 without a pin.
-    - Uninstall `types-assertpy`. 2.x ships its own types, and the 1.1 stubs would hide them.
-    - What can change, from most to least serious: [answers](#where-results-differ),
-      [extensions](#extensions), [the failure class](#the-failure-class), [message text](#message-text).
+    - To stay on 1.x, pin `assertpy<2`. Python 3.9 and older get 1.1 anyway.
+    - Uninstall `types-assertpy`: its 1.1 stubs hide the 2.x types.
+    - What can change, most serious first: [answers](#where-results-differ), [extensions](#extensions),
+      [the failure class](#the-failure-class), [message text](#message-text).
 
 ## Before you start
 
-- **Python 3.10+ is required**, 3.10 through 3.15. On an older interpreter pip keeps installing 1.1.
-- **No runtime dependencies on Python 3.11+.** On 3.10 a single backport (`typing_extensions`) is pulled
-  in. The extras (`[json]`, `[inline]`, `[data]` or one of `[numpy]`, `[pandas]`, `[polars]`, `[allure]`,
-  `[behave]`) stay opt-in.
-- **Check how you depend on it.** A bare `assertpy` or `assertpy>=1.1` takes 2.x on the next fresh
-  install, and a lock file takes it the next time it upgrades `assertpy`. `assertpy==1.1`,
-  `assertpy~=1.1` and Poetry's `^1.1` hold you on 1.x.
+- **Python 3.10 to 3.15.** On an older interpreter pip keeps installing 1.1.
+- **No runtime dependencies** on 3.11+. On 3.10 one backport, `typing_extensions`. Extras stay opt-in:
+  `[json]`, `[inline]`, `[data]`, `[numpy]`, `[pandas]`, `[polars]`, `[allure]`, `[behave]`.
+- **How you pin decides when you get 2.x:**
+
+| Your dependency | You get 2.x |
+|---|---|
+| `assertpy`, `assertpy>=1.1` | on the next fresh install |
+| the same, through a lock file | the next time the lock upgrades `assertpy` |
+| `assertpy==1.1`, `assertpy~=1.1`, Poetry's `^1.1` | never: you stay on 1.x |
 
 ## Remove the 1.1 stubs
 
-`types-assertpy`, the stub package from typeshed, describes 1.1. A type checker reads a stub package
-before the types a package ships, so with it installed your checker sees the 1.1 API and none of the 2.x
-one. Take it out of your dependencies and your lock file, then uninstall it:
+`types-assertpy` describes 1.1, and a type checker reads stubs before the types a package ships. Take it
+out of your dependencies and your lock file, then:
 
 ```bash
 pip uninstall types-assertpy
@@ -33,8 +34,7 @@ pip uninstall types-assertpy
 
 ## Where results differ
 
-A few answers 1.1 gave were wrong, and 2.x corrects them. A test can change its outcome in either
-direction, and each row is measured against 1.1:
+Some answers 1.1 gave were wrong. A test can change its outcome in either direction:
 
 | Call | assertpy 1.1 | assertpy 2.x |
 |---|---|---|
@@ -51,32 +51,36 @@ direction, and each row is measured against 1.1:
 
 ## Extensions
 
-- **A name already in use is refused.** 1.1 let `add_extension()` replace a built-in or an earlier
-  extension silently. 2.x raises `ValueError`, so a module registering such an extension at import fails
-  to import. 2.x has many more assertion names than 1.1, so an extension name that was free may now be
-  taken. Rename the extension, or pass `override=True` to replace the built-in on purpose.
-- **A name a polling chain uses**, such as `within` or `every`, or one starting with `_`, `cr_` or
-  `gi_`, is refused even under `override=True`.
-- **Registration reaches builders already made.** A builder created before `add_extension()` sees the
-  extension, where 1.1 raised `AttributeError`. A builder kept past `remove_extension()` loses it, where
-  1.1 kept it.
-- **Private helpers of 1.1 are gone.** An extension that called one, such as `_check_dict_like()`, needs
-  a check of its own.
+<!-- docs-guard: skip -->
+```python
+def is_equal_to(self, other):
+    ...
 
-See [Custom Assertions](../extending/custom-assertions.md) for the rules in full.
+add_extension(is_equal_to)                 # 1.1: replaced the built-in. 2.x: ValueError
+add_extension(is_equal_to, override=True)  # 2.x: replaces it on purpose
+```
+
+- 2.x has many more assertion names than 1.1, so a name that was free may now be taken. A module that
+  registers it at import then fails to import.
+- Names a polling chain uses (`within`, `every`) and names starting with `_`, `cr_` or `gi_` are refused
+  even under `override=True`.
+- A builder made before `add_extension()` sees the extension (1.1 raised `AttributeError`). A builder kept
+  past `remove_extension()` loses it (1.1 kept it).
+- Private helpers of 1.1, such as `_check_dict_like()`, are gone.
+
+See [Custom Assertions](../extending/custom-assertions.md).
 
 ## The failure class
 
-A failing assertion raises `AssertionFailure`, a subclass of `AssertionError` that carries the compared
-values and a structured diff.
+Failures raise `AssertionFailure`, a subclass of `AssertionError`:
 
 - `except AssertionError` and `pytest.raises(AssertionError)` keep working.
-- A check of the exact type, `type(error) is AssertionError`, no longer holds.
+- `type(error) is AssertionError` no longer holds.
 
 ## Message text
 
-Failure messages changed in wording, and not only at the end. A test that compares a whole message, or
-matches a part of one with `match=` or `in`, may need updating:
+Messages are reworded, and not only at the end. A test that compares a message, or matches part of one
+with `match=` or `in`, may need updating:
 
 | Failure | assertpy 1.1 | assertpy 2.x |
 |---|---|---|
@@ -88,68 +92,117 @@ matches a part of one with `match=` or `in`, may need updating:
 | a `datetime` in `is_before()`, `is_after()`, `is_between()`, `is_close_to()` and the other date comparisons | `<2026-10-28 21:22:29>`, without microseconds | `<2026-10-28 21:22:29.556697>` |
 | `extracting("foo")` on items without it | `val does not have property ...` | `item does not have property ... (at index 0, item is <Person>)` |
 | a soft block's failure | `1. Expected ...` | `1. Expected ...  [test_orders.py:14]` |
+| a usage error, such as an argument of the wrong type (same exception class) | `val is not iterable` | `val must be iterable, but was <123> (int)` |
 
-- **Usage errors**, such as an argument of the wrong type, keep their exception class and read
-  `<subject> must be <expectation>, but was <value> (<type>)`: `val must be iterable, but was <123> (int)`
-  where 1.1 said `val is not iterable`.
-- **Many failures add lines under the message**: a diff, the distance to a bound, a reason. Under pytest
-  the diff goes to a report section instead.
-
-Rather than matching text, assert on the data the failure carries: `AssertionFailure.actual`,
-`.expected` and `.diff`.
+Many failures also add lines under the message: a diff, the distance to a bound, a reason. Under pytest
+the diff goes to a report section instead. Rather than matching text, read `failure.actual`,
+`failure.expected` and `failure.diff`.
 
 ## Coming from assertpy2
 
-This library was published as `assertpy2` before it took over the `assertpy` name. Code written for
-`assertpy2` runs on `assertpy` 2.x once its names are updated:
+This library was published as `assertpy2` before it took over the `assertpy` name.
 
-- **Package and imports.** Depend on `assertpy` and write `from assertpy import ...`. The last `assertpy2`
-  release installs `assertpy` and hands you the same objects under the old name.
-- **Flags, settings and environment variables** lose the `2`: `--assertpy-snapshot-update`,
-  `assertpy_diff`, `ASSERTPY_SNAPSHOT_CI`. The old names keep working through 2.x with a `FutureWarning`
-  and go in 3.0. The old name is read only where the new one is blank.
-- **Under warnings-as-errors** that warning stops the run. Rename the setting, or filter it:
-  `ignore:.*is the assertpy2 name of:FutureWarning`.
-- **The dangling marker** is `# assertpy: allow-dangling`. The old `# assertpy2: allow-dangling` is read
-  the same way through 2.x, without a warning, and goes in 3.0.
-- **Two names have no synonym.** The loggers are `assertpy` and `assertpy.passes`, so a logging config
-  naming `assertpy2` stops matching. The pytest plugin is `assertpy`, so `-p no:assertpy2` no longer
-  turns it off.
+```diff
+- assertpy2[json]
++ assertpy[json]
+```
+
+```diff
+- from assertpy2 import assert_that
++ from assertpy import assert_that
+```
+
+- The last `assertpy2` release installs `assertpy` and hands out the same objects, so old imports keep
+  working meanwhile.
+- Flags, settings and environment variables drop the `2`: `--assertpy-snapshot-update`, `assertpy_diff`,
+  `ASSERTPY_SNAPSHOT_CI`. Old names work through 2.x with a `FutureWarning` and go in 3.0. An old name is
+  read only where the new one is blank.
+- Under warnings-as-errors that warning stops the run. Rename, or filter it:
+
+    ```toml
+    [tool.pytest.ini_options]
+    filterwarnings = ["error", "ignore:.*is the assertpy2 name of:FutureWarning"]
+    ```
+
+- The dangling marker is `# assertpy: allow-dangling`. `# assertpy2: allow-dangling` is still read,
+  without a warning, until 3.0.
+- No synonym for two names: the loggers are `assertpy` and `assertpy.passes`, and the plugin is
+  `assertpy`, so `-p no:assertpy2` no longer turns it off.
 
 ## What improves automatically
 
-You get these the moment you upgrade, without touching any test code:
+No test code changes needed.
 
-- **Thread-safe and async-safe soft assertions.** State is isolated per thread and per `asyncio.Task`
-  via `contextvars`, so soft assertions are safe under `pytest-xdist` and `asyncio`. The soft assertions
-  of 1.1 were not thread-safe.
-- **Structured failures and rich diffs.** Failures carry `.actual` / `.expected` / `.diff`, and the diff
-  is rendered into the message itself, so it shows in `unittest`, plain scripts and CI logs. Under pytest
-  the auto-registered plugin attaches it to the failure as a section instead, which the terminal, JUnit
-  reports and IDE runners all show, recursive for lists, dicts, dataclasses, namedtuples, attrs classes
-  and Pydantic models. Set `assertpy_diff` to `off` to turn that section off.
-- **The comparison window of an IDE.** PyCharm's runner gave the failures of 1.1 its "Click to see
-  difference" link by reading their message. A failed `is_equal_to()` or `has_<name>()` reaches the same
-  runner through the hook pytest calls for a failed `assert left == right`, with the two values it
-  compared. See [The comparison window of an IDE](../guides/errors.md#the-comparison-window-of-an-ide).
-- **Failures that say why.** Where one fact explains a failure, a line under the message says it: an id
-  the payload holds as text, a NaN, two instances compared by identity. See
-  [Some failures say why](../guides/errors.md#some-failures-say-why-not-only-what).
-- **Static typing.** With `py.typed` and `@overload` protocols your editor filters autocomplete by the
-  value's type, and a type checker flags misuse before the tests run. See
-  [Type Safety](../concepts/type-safety.md).
+**A diff in every failure.** Nested values report the path that differs:
+
+<!-- docs-guard: raises -->
+```python
+assert_that({"user": {"name": "Alice", "role": "superadmin"}}).is_equal_to(
+    {"user": {"name": "Alice", "role": "admin"}}
+)
+# Expected <{'user': {.., 'role': 'superadmin'}}> to be equal to <{'user': {.., 'role': 'admin'}}>, but was not.
+# diff (dict):
+#   user.role:
+#     - 'superadmin'
+#     + 'admin'
+```
+
+Under pytest the diff goes to a report section, which the terminal, JUnit reports and IDE runners show.
+`assertpy_diff = off` turns it off.
+
+**Failures as data.** The failure carries what it compared:
+
+```python
+from assertpy import AssertionFailure
+
+try:
+    assert_that({"user": {"role": "superadmin"}}).is_equal_to({"user": {"role": "admin"}})
+except AssertionFailure as failure:
+    assert failure.diff is not None
+    assert failure.diff.entries[0].path == "user.role"
+```
+
+**Failures that say why.** Where one fact explains a failure, a line says it:
+
+<!-- docs-guard: raises -->
+```python
+assert_that({"id": "7"}).is_equal_to({"id": 7})
+# Expected <{'id': '7'}> to be equal to <{'id': 7}>, but was not.
+# every difference here is the same text against a value of another type
+```
+
+See [Some failures say why](../guides/errors.md#some-failures-say-why-not-only-what).
+
+**Typed chains.** The editor offers only the assertions that fit the value, and a type checker flags the
+rest before the tests run:
+
+<!-- docs-guard: type-error -->
+```python
+assert_that("foo").is_positive()  # type error: is_positive is not a string assertion
+```
+
+See [Type Safety](../concepts/type-safety.md).
+
+**The IDE comparison window.**
+
+- A failed `is_equal_to()` or `has_<name>()` gets PyCharm's "Click to see difference" link.
+- The window shows both values whole, side by side.
+
+See [The comparison window of an IDE](../guides/errors.md#the-comparison-window-of-an-ide).
+
+**Safe soft assertions.**
+
+- Their state is per thread and per `asyncio.Task`.
+- So they work under `pytest-xdist` and `asyncio`. Those of 1.1 were not thread-safe.
 
 ## What you can now adopt
 
-New capabilities 1.1 never had, ready whenever you want them:
+- [Composable matchers](../guides/matchers.md), in assertions and inside plain `==`
+- [Structural matching](../guides/matchers.md#structural-matching) for API responses
+- [Typed narrowing](../concepts/type-safety.md#typed-narrowing-with-value) with `.value`, and [contract testing](../concepts/type-safety.md#contract-narrowing-with-assert_conforms)
+- [Exception cause chains and groups](../guides/errors.md#expected-exceptions)
+- The [collection pipeline](../guides/fluent.md#collection-pipeline) and [universal negation](../guides/fluent.md#universal-negation)
+- [Async and blocking polling](../guides/testing.md#async-assertions)
+- [JSON Path / Schema](../guides/data.md), [regex groups](../guides/data.md#regex-group-extraction), [bytes](../guides/assertions.md#bytes--bytearray)
 
-- [Composable matchers](../guides/matchers.md), reusable across assertions and the plain `==` form.
-- [Structural matching](../guides/matchers.md#structural-matching) for API-response shapes.
-- [Typed narrowing](../concepts/type-safety.md#typed-narrowing-with-value) (`.value`) and [contract testing](../concepts/type-safety.md#contract-narrowing-with-assert_conforms) for typed API responses.
-- [Exception cause chains and groups](../guides/errors.md#expected-exceptions).
-- The [collection pipeline](../guides/fluent.md#collection-pipeline) and [universal negation](../guides/fluent.md#universal-negation).
-- [Async and blocking polling](../guides/testing.md#async-assertions) for eventual consistency.
-- [JSON Path / Schema](../guides/data.md), [regex group extraction](../guides/data.md#regex-group-extraction), and [bytes assertions](../guides/assertions.md#bytes--bytearray).
-
-See the [comparison](comparison.md) for how the two read side by side, and [stability](../concepts/stability.md)
-for what is covered by a compatibility promise and what is not.
+What the compatibility promise covers: [stability](../concepts/stability.md).
