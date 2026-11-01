@@ -9,6 +9,8 @@ permissions:
 
 jobs:
   publish:
+    # a release tagged assertpy2-v* belongs to the bridge, which publish-bridge.yml publishes
+    if: startsWith(github.event.release.tag_name, 'v')
     timeout-minutes: 20
     runs-on: ubuntu-latest
     environment: pypi
