@@ -95,7 +95,7 @@ dev = [
 ]
 docs = [
     "mkdocs-material>=9.7.6",
-    "mkdocstrings[python]>=1.0.4",
+    "mkdocstrings[python]>=1.0.6",
     "mkdocs-redirects>=1.2.3",
 ]
 # Real third-party libraries the duck-typed integration paths are verified against in CI (the suite
