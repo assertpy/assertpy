@@ -257,7 +257,8 @@ dev = [
 docs = [
     { name = "mkdocs-material", specifier = ">=9.7.6" },
     { name = "mkdocs-redirects", specifier = ">=1.2.3" },
-    { name = "mkdocstrings", extras = ["python"], specifier = ">=1.0.4" },
+    { name = "mkdocstrings", extras = ["python"], marker = "python_full_version < '3.11'", specifier = ">=1.0.4" },
+    { name = "mkdocstrings", extras = ["python"], marker = "python_full_version >= '3.11'", specifier = ">=1.0.8" },
 ]
 docs-examples = [{ name = "pytest-examples", specifier = ">=0.0.18" }]
 integrations = [

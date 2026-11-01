@@ -95,7 +95,9 @@ dev = [
 ]
 docs = [
     "mkdocs-material>=9.7.6",
-    "mkdocstrings[python]>=1.0.4",
+    # 1.0.6 breaks on pymdown-extensions 12 and 1.0.8 needs 3.11: a single floor lets the lock fall to 1.0.6 everywhere
+    "mkdocstrings[python]>=1.0.4; python_version < '3.11'",
+    "mkdocstrings[python]>=1.0.8; python_version >= '3.11'",
     "mkdocs-redirects>=1.2.3",
 ]
 # Real third-party libraries the duck-typed integration paths are verified against in CI (the suite
