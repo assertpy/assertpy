@@ -71,6 +71,8 @@ include = [
     # the suite reads it: `tests/test_check_protocols.py` regenerates the verdict twins and compares.
     # Without it the shipped sdist carries a test that fails during collection
     "scripts",
+    # the suite reads it: `tests/test_bridge.py` imports the `assertpy2` bridge from it
+    "bridge",
     "docs",
     "benchmarks",
     "mkdocs.yml",
@@ -295,9 +297,10 @@ pytest_add_cli_args = [
     # a child pytest starts from the mutants tree
     "--deselect=tests/test_skip_guard.py::test_a_skip_that_says_why_is_left_alone",
     "--ignore=tests/test_requirement.py",
-    # read what the mutants tree does not carry: ARCHITECTURE.md, the CI workflow, the unmutated source
+    # read what the mutants tree does not carry: ARCHITECTURE.md, the CI workflow, the unmutated source, bridge/
     "--deselect=tests/test_public_surface.py::TestEveryExportHasAReferenceEntry",
     "--ignore=tests/test_architecture_doc.py",
+    "--ignore=tests/test_bridge.py",
     "--ignore=tests/test_complexity.py",
     "--ignore=tests/test_declared_floors.py",
     "--ignore=tests/test_docs_examples.py",

@@ -1,4 +1,8 @@
-"""The behave matchers under the old name, the one submodule the docs had readers import."""
+"""`assertpy.behave_matchers` under its old name: importing this module hands out that module itself."""
 
-from assertpy.behave_matchers import ASSERTPY_TYPES as ASSERTPY_TYPES
-from assertpy.behave_matchers import register_assertpy_types as register_assertpy_types
+import sys
+
+import assertpy.behave_matchers
+from assertpy.behave_matchers import *  # noqa: F403 - lets a type checker see the names
+
+sys.modules[__name__] = assertpy.behave_matchers

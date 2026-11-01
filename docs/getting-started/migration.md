@@ -127,7 +127,8 @@ This library was published as `assertpy2` before it took over the `assertpy` nam
 - The dangling marker is `# assertpy: allow-dangling`. `# assertpy2: allow-dangling` is still read,
   without a warning, until 3.0.
 - No synonym for two names: the loggers are `assertpy` and `assertpy.passes`, and the plugin is
-  `assertpy`, so `-p no:assertpy2` no longer turns it off.
+  `assertpy`, so `-p no:assertpy2` no longer turns it off. With plugin autoloading off, load it with
+  `-p assertpy`: `-p assertpy2` no longer loads it.
 
 ## What improves automatically
 
