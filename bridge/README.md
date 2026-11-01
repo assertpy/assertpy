@@ -1,6 +1,6 @@
 # assertpy2 is now assertpy
 
-This library took over the `assertpy` name with version 2.35.0. This last release of `assertpy2` installs `assertpy` 2.x and hands out the same objects under the old name, so existing code keeps running.
+This library took over the `assertpy` name with version 2.35.0. From that version on, `assertpy2` installs `assertpy` 2.x and hands out the same objects under the old name, so existing code keeps running.
 
 Switch when convenient:
 

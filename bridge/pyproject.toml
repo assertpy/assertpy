@@ -1,6 +1,6 @@
 [project]
 name = "assertpy2"
-version = "2.35.0"
+version = "2.35.1"
 description = "assertpy2 is now assertpy: this release installs assertpy 2.x and hands out the same objects under the old name."
 readme = "README.md"
 license = "BSD-3-Clause"
