@@ -79,6 +79,21 @@ uv pip install attrs pydantic requests httpx flask
 `ruff` belongs in that list: the tests that compare a generated file against its generator shell out
 to it, and without it they fail for a reason that has nothing to do with your change.
 
+### From the sdist
+
+The sdist ships the suite, and distributions run it from there with the `json` extra and the tools of
+the `dev` group, without `uv`. CI checks that it passes there: `scripts/check_sdist.py` builds the sdist
+and runs the suite from it and from the checkout in one environment made from the lockfile. Both runs
+must pass and collect and skip the same tests. On Linux, macOS or WSL:
+
+```bash
+python scripts/check_sdist.py --export="--extra json" -- -q -n 4 --dist loadfile --ignore=tests/test_docs_examples.py tests
+```
+
+A test that reads a file outside `assertpy/` and `tests/` needs that file in the sdist `include` of
+`pyproject.toml`. A test that starts a child pytest launches `sys.executable`, not `uv run`: outside
+the checkout there is no project environment for `uv` to use.
+
 ### The four type checkers
 
 Run these after the main gate, not before. `uv run --group typecheck` adds the checkers to the same

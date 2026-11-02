@@ -3066,9 +3066,8 @@ class TestSnapshotKeyReuseUnderXdist:
     def _spawn(self, tmp_path, extra):
         return subprocess.run(
             [
-                "uv",
-                "run",
-                "--no-sync",
+                sys.executable,
+                "-m",
                 "pytest",
                 str(tmp_path / "test_reuse.py"),
                 "-q",

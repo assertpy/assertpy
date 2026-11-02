@@ -81,6 +81,10 @@ include = [
     "LICENSE",
     "CONTRIBUTING.md",
     "SECURITY.md",
+    # the suite reads them: `scripts/check_sdist.py` runs it from this sdist in CI, so a file left out fails there
+    "ARCHITECTURE.md",
+    ".github/workflows/ci.yml",
+    "pyrefly.toml",
 ]
 
 [dependency-groups]

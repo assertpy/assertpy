@@ -411,9 +411,40 @@ jobs:
           tests/test_operation_contract.py
           tests/test_typing_conformance.py
 
+  sdist:
+    # the suite as a distribution runs it, from the sdist: `scripts/check_sdist.py` says how and why
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - mode: packager
+            options: '--export="--extra json"'
+          # the lint job's set, for the type-checker gates
+          - mode: developer
+            options: '--developer --export="--extra json --extra data --extra inline --group typecheck --group integrations"'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.14"
+
+      - name: The suite from the sdist and from the checkout (${{ matrix.mode }})
+        run: >
+          python scripts/check_sdist.py ${{ matrix.options }} --work "$RUNNER_TEMP/check_sdist"
+          -- -q -n 4 --dist loadfile --ignore=tests/test_docs_examples.py tests
+
   ci-ok:
     timeout-minutes: 5
-    needs: [test, declared-floors, floors-reached, optional-integrations, lint]
+    needs: [test, declared-floors, floors-reached, optional-integrations, lint, sdist]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -424,9 +455,11 @@ jobs:
           REACHED_RESULT: ${{ needs.floors-reached.result }}
           INTEGRATIONS_RESULT: ${{ needs.optional-integrations.result }}
           LINT_RESULT: ${{ needs.lint.result }}
+          SDIST_RESULT: ${{ needs.sdist.result }}
         run: |
           [ "$TEST_RESULT" = "success" ] &&
           [ "$FLOOR_RESULT" = "success" ] &&
           [ "$REACHED_RESULT" = "success" ] &&
           [ "$INTEGRATIONS_RESULT" = "success" ] &&
-          [ "$LINT_RESULT" = "success" ]
+          [ "$LINT_RESULT" = "success" ] &&
+          [ "$SDIST_RESULT" = "success" ]
