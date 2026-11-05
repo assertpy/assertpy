@@ -1,0 +1,9 @@
+{
+  "__class__": "Shaped",
+  "__data__": [
+    1,
+    2
+  ],
+  "__module__": "tests.snapshot_types_2_35",
+  "__type__": "enum"
+}

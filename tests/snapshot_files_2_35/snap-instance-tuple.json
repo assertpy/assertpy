@@ -1,0 +1,11 @@
+{
+  "__class__": "Holder",
+  "__data__": {
+    "pair": [
+      1,
+      2
+    ]
+  },
+  "__module__": "tests.snapshot_types_2_35",
+  "__type__": "instance"
+}

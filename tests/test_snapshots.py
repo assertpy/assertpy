@@ -202,13 +202,13 @@ class TestSharedKeyHint:
 
     def test_a_mismatch_still_says_what_was_asked(self, tmp_path):
         """The failure is rebuilt around a new message, and the rebuild used to drop the requirement."""
-        _save(str(tmp_path / "snap-asked.json"), {"a": 1})
+        _save(str(tmp_path / "snap-asked.json"), {"a": 1}, keyed=False)
         with pytest.raises(AssertionError) as failure:
             assert_that({"a": 2}).snapshot(id="asked", path=str(tmp_path))
         assert_that(failure.value.requirement.operation).is_equal_to("snapshot")
 
     def test_a_first_and_only_call_says_nothing(self, tmp_path):
-        _save(str(tmp_path / "snap-once.json"), {"a": 1})
+        _save(str(tmp_path / "snap-once.json"), {"a": 1}, keyed=False)
         with pytest.raises(AssertionError) as failure:
             assert_that({"a": 2}).snapshot(id="once", path=str(tmp_path))
         assert_that(str(failure.value)).does_not_contain("more than once")
@@ -1418,7 +1418,7 @@ class TestMismatchNamesItsSnapshot:
         assert_that(exc_info.value.diff.entries[0].path).is_equal_to("a.b")
 
     def test_the_rewrap_keeps_the_values_the_comparison_measured(self, tmp_path):
-        _save(os.path.join(str(tmp_path), "snap-rewrap.json"), {"a": 1})
+        _save(os.path.join(str(tmp_path), "snap-rewrap.json"), {"a": 1}, keyed=False)
         with pytest.raises(AssertionFailure) as failure:
             assert_that({"a": 2}).snapshot(id="rewrap", path=str(tmp_path))
         assert_that(failure.value.actual).is_equal_to({"a": 2})
@@ -1573,7 +1573,7 @@ class TestCiRefusalMessage:
 
     def test_a_missing_line_key_in_an_existing_file_names_that_file(self, tmp_path, monkeypatch):
         snapname = os.path.join(str(tmp_path), "snap-test_snapshots.json")
-        _save(snapname, {"1": "another call site"})
+        _save(snapname, {"1": "another call site"}, keyed=True)
         monkeypatch.setattr(_snapshot, "_CI_MODE", True)
         with pytest.raises(AssertionError) as failure:
             assert_that({"a": 1}).snapshot(path=str(tmp_path))
@@ -1588,7 +1588,7 @@ class TestCiRefusalMessage:
 
     def test_a_missing_contract_line_key_names_its_file(self, tmp_path, monkeypatch):
         snapname = os.path.join(str(tmp_path), "snap-test_snapshots.json")
-        _save(snapname, {"1": {}})
+        _save(snapname, {"1": {}}, keyed=True)
         monkeypatch.setattr(_snapshot, "_CI_MODE", True)
         with pytest.raises(AssertionError) as failure:
             assert_that({"a": 1}).matches_contract_snapshot(path=str(tmp_path))
@@ -1637,21 +1637,21 @@ class TestUpdateModeHonorsEveryComparisonOption:
 
     def test_include_narrows_the_staleness_decision(self, tmp_path, monkeypatch):
         snapname = os.path.join(str(tmp_path), "snap-upd-inc.json")
-        _save(snapname, {"a": 1, "b": 2})
+        _save(snapname, {"a": 1, "b": 2}, keyed=False)
         monkeypatch.setenv("ASSERTPY_SNAPSHOT_UPDATE", "1")
         assert_that({"a": 1, "b": 999}).snapshot(id="upd-inc", path=str(tmp_path), include="a")
         assert_that(_load(snapname)).is_equal_to({"a": 1, "b": 2})
 
     def test_tolerance_absorbs_noise_before_the_rewrite(self, tmp_path, monkeypatch):
         snapname = os.path.join(str(tmp_path), "snap-upd-tol.json")
-        _save(snapname, {"price": 1.0})
+        _save(snapname, {"price": 1.0}, keyed=False)
         monkeypatch.setenv("ASSERTPY_SNAPSHOT_UPDATE", "1")
         assert_that({"price": 1.0004}).snapshot(id="upd-tol", path=str(tmp_path), tolerance=0.001)
         assert_that(_load(snapname)).is_equal_to({"price": 1.0})
 
     def test_a_comparator_owns_its_field_before_the_rewrite(self, tmp_path, monkeypatch):
         snapname = os.path.join(str(tmp_path), "snap-upd-cmp.json")
-        _save(snapname, {"name": "Alice"})
+        _save(snapname, {"name": "Alice"}, keyed=False)
         monkeypatch.setenv("ASSERTPY_SNAPSHOT_UPDATE", "1")
         assert_that({"name": "ALICE"}).snapshot(
             id="upd-cmp",
@@ -1675,7 +1675,7 @@ class TestSnapshotWarningsPointAtTheCaller:
         assert_that(os.path.basename(caught[0].filename)).is_equal_to("test_snapshots.py")
 
     def test_the_updated_warning_points_at_the_calling_test(self, tmp_path, monkeypatch):
-        _save(os.path.join(str(tmp_path), "snap-stack-upd.json"), {"a": 1})
+        _save(os.path.join(str(tmp_path), "snap-stack-upd.json"), {"a": 1}, keyed=False)
         monkeypatch.setenv("ASSERTPY_SNAPSHOT_UPDATE", "1")
         with pytest.warns(SnapshotUpdatedWarning) as caught:
             assert_that({"a": 2}).snapshot(id="stack-upd", path=str(tmp_path))
@@ -1719,7 +1719,7 @@ class TestContractLineKeys:
     """A line-keyed contract file has to stay a map of shapes through a create and through an update."""
 
     def test_a_new_line_key_stores_a_shape_the_next_run_compares_against(self, tmp_path):
-        _save(os.path.join(str(tmp_path), "snap-test_snapshots.json"), {"1": {}})
+        _save(os.path.join(str(tmp_path), "snap-test_snapshots.json"), {"1": {}}, keyed=True)
         payloads = iter([{"a": 1}, {"a": 2}])
         with pytest.warns(SnapshotCreatedWarning):
             for _ in range(2):
@@ -1752,7 +1752,11 @@ class TestSnapshotMessages:
         assert_that(str(failure.value)).is_equal_to("encode and decode must be callable")
 
     def test_the_placeholder_failure_shows_the_value_it_rejected(self, tmp_path):
-        _save(os.path.join(str(tmp_path), "snap-msg-ph.json"), {"id": {"__placeholder__": "a valid UUID string"}})
+        _save(
+            os.path.join(str(tmp_path), "snap-msg-ph.json"),
+            {"id": {"__placeholder__": "a valid UUID string"}},
+            keyed=False,
+        )
         with pytest.raises(AssertionError) as failure:
             assert_that({"id": "not-a-uuid"}).snapshot(
                 id="msg-ph", path=str(tmp_path), placeholders={"id": match.is_uuid()}
@@ -1782,7 +1786,7 @@ class TestSnapshotMessages:
 
     def test_the_updated_warning_states_what_it_did(self, tmp_path, monkeypatch):
         snapname = os.path.join(str(tmp_path), "snap-msg-upd.json")
-        _save(snapname, {"a": 1})
+        _save(snapname, {"a": 1}, keyed=False)
         monkeypatch.setenv("ASSERTPY_SNAPSHOT_UPDATE", "1")
         with pytest.warns(SnapshotUpdatedWarning) as caught:
             assert_that({"a": 2}).snapshot(id="msg-upd", path=str(tmp_path))
@@ -1793,7 +1797,7 @@ class TestSnapshotMessages:
 
     def test_a_mismatch_ends_by_naming_the_snapshot_and_the_way_to_accept_it(self, tmp_path):
         snapname = os.path.join(str(tmp_path), "snap-msg-diff.json")
-        _save(snapname, {"a": 1})
+        _save(snapname, {"a": 1}, keyed=False)
         with pytest.raises(AssertionError) as failure:
             assert_that({"a": 2}).snapshot(id="msg-diff", path=str(tmp_path))
         assert_that(str(failure.value)).ends_with(
@@ -1872,12 +1876,12 @@ class TestWhatWasWrittenCanBeReadBack:
         ],
     )
     def test_a_value_round_trips_through_the_codec(self, value):
-        written = json.dumps(_snapshot_codec._prepare(value), cls=_snapshot_codec._Encoder)
-        assert_that(json.loads(written, cls=_snapshot_codec._Decoder)).is_equal_to(value)
+        written = json.dumps(_snapshot_codec._encode(value))
+        assert_that(_snapshot_codec._decode(json.loads(written))).is_equal_to(value)
 
     def test_an_instance_without_odd_keys_is_written_as_it_always_was(self):
         """Preparing the attributes must not change what an ordinary snapshot file holds."""
-        written = json.dumps(_snapshot_codec._prepare(_Holder({"a": 1})), cls=_snapshot_codec._Encoder)
+        written = json.dumps(_snapshot_codec._encode(_Holder({"a": 1})))
         assert_that(json.loads(written)["__data__"]).is_equal_to({"mapping": {"a": 1}})
 
     def test_an_enum_whose_value_is_simply_wrong_still_says_so(self):
@@ -1888,7 +1892,7 @@ class TestWhatWasWrittenCanBeReadBack:
             "__data__": "not a colour",
         }
         with pytest.raises(ValueError, match="not a valid"):
-            json.loads(json.dumps(marker), cls=_snapshot_codec._Decoder)
+            _snapshot_codec._decode(marker)
 
 
 class TestASnapshotIdNamesOneFile:
@@ -1909,14 +1913,8 @@ class TestWhatIsWrittenIsWrittenWhole:
     def test_the_bytes_are_what_the_encoder_produces(self, tmp_path):
         value = {"a": [1, {2, 3}], "b": decimal.Decimal("1.5")}
         target = tmp_path / "snap.json"
-        _save(str(target), value)
-        expected = json.dumps(
-            _snapshot_codec._prepare(value),
-            indent=2,
-            separators=(",", ": "),
-            sort_keys=True,
-            cls=_snapshot_codec._Encoder,
-        )
+        _save(str(target), value, keyed=False)
+        expected = json.dumps(_snapshot_codec._encode(value), indent=2, separators=(",", ": "), sort_keys=True)
         assert_that(target.read_text()).is_equal_to(expected)
 
     def test_a_value_the_encoder_refuses_leaves_no_file(self, tmp_path):
@@ -1927,7 +1925,7 @@ class TestWhatIsWrittenIsWrittenWhole:
 
         target = tmp_path / "snap.json"
         with contextlib.suppress(Exception):
-            _save(str(target), {"a": Refusing()})
+            _save(str(target), {"a": Refusing()}, keyed=False)
         assert_that(sorted(entry.name for entry in tmp_path.iterdir())).is_empty()
 
 

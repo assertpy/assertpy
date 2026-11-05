@@ -32,12 +32,9 @@ RECORDED: dict[str, int] = {
     "assertpy/_engine/_diff.py::_build_equality_diff": 16,
     # a flag per matched run instead of a call per matched element, which cost a failing is_equal_to 15%
     "assertpy/helpers.py::_elided_walks": 21,
-    # three branches for what JSON cannot spell: a set element, a tuple-valued enum, and the retry that names it
-    "assertpy/_snapshot_codec.py::_object_hook": 22,
     "assertpy/_hints.py::diagnose": 17,
     # 16: a key the lookup refuses is found by `lookup`; through a helper per key a 50-key structure cost 10%
     "assertpy/_matcher_impls.py::_walk": 16,
-    "assertpy/_snapshot_codec.py::default": 14,
     "assertpy/errors.py::_render_diff": 14,
     "assertpy/snapshot.py::snapshot": 14,
     # a mapping with a non-string key is written as pairs, since rendered as text `1` and `"1"` were one key

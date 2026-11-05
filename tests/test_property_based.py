@@ -50,7 +50,7 @@ from assertpy._engine._text import ends_with as text_ends_with
 from assertpy._engine._text import starts_with as text_starts_with
 from assertpy._hints import diagnose
 from assertpy._inline import _format_literal, is_literalable
-from assertpy._snapshot_codec import _Decoder, _Encoder
+from assertpy._snapshot_codec import _decode, _encode
 from assertpy.assertpy import _format_soft_errors
 from assertpy.errors import AssertionFailure, DiffEntry, DiffResult, _diff_sides, _disambiguated, _json_safe
 from assertpy.exception import _matches_shape
@@ -895,8 +895,8 @@ _snapshot_codec_values = (
 @settings(deadline=None)
 @given(value=_snapshot_codec_values)
 def test_snapshot_codec_roundtrip(value):
-    encoded = json.dumps({"v": value}, cls=_Encoder)
-    decoded = json.loads(encoded, cls=_Decoder)
+    encoded = json.dumps(_encode({"v": value}))
+    decoded = _decode(json.loads(encoded))
     assert_that(decoded["v"]).is_equal_to(value)
 
 

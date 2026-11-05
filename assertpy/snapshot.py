@@ -86,7 +86,10 @@ def register_snapshot_serializer(
     of raising ``TypeError``.
 
     Matching is by ``isinstance`` (so subclasses are covered), the registry is consulted **before** the
-    built-ins, and a later registration wins over an earlier one for overlapping types.
+    built-ins, and a later registration wins over an earlier one for overlapping types.  It is asked for
+    every value: a subclass of ``tuple``, ``list``, ``dict`` or ``str``, a dict key and a member of a set
+    included.  The value of an ``Enum`` member is written as earlier versions wrote it, and so is what
+    ``encode`` returns: as plain JSON, so a tuple inside it reaches ``decode`` as a list.
 
     Args:
         cls: the type (matched by ``isinstance``) the serializer applies to
@@ -387,7 +390,7 @@ def _prune_sub_key_orphans(sub_orphans):
             for key in keys:
                 data.pop(key, None)
             if data:
-                _save(snapname, data)
+                _save(snapname, data, keyed=True)
             else:
                 os.unlink(snapname)
 
@@ -784,7 +787,9 @@ class SnapshotMixin(_MixinBase):
                     snapshot_value = snap[lineno]
                 else:
                     self._forbid_creation(snapname)
-                    held = self._recorded(placeholders, lambda: _save(snapname, {**snap, lineno: stored_val}))
+                    held = self._recorded(
+                        placeholders, lambda: _save(snapname, {**snap, lineno: stored_val}, keyed=True)
+                    )
 
                 if (
                     snapshot_value is not _UNSET
@@ -799,11 +804,14 @@ class SnapshotMixin(_MixinBase):
                     )
                 ):
                     held = updated = self._recorded(
-                        placeholders, lambda: _save(snapname, stored_val if id else {**snap, lineno: stored_val})
+                        placeholders,
+                        lambda: _save(snapname, stored_val if id else {**snap, lineno: stored_val}, keyed=not id),
                     )
             else:
                 self._forbid_creation(snapname)
-                held = self._recorded(placeholders, lambda: _save(snapname, stored_val if id else {lineno: stored_val}))
+                held = self._recorded(
+                    placeholders, lambda: _save(snapname, stored_val if id else {lineno: stored_val}, keyed=not id)
+                )
 
         if not held:
             # a soft block collected the placeholder that failed, and a value it failed on is never recorded
@@ -990,18 +998,18 @@ class SnapshotMixin(_MixinBase):
                 else:
                     self._forbid_creation(snapname)
                     snap[lineno] = contract
-                    _save(snapname, snap)
+                    _save(snapname, snap, keyed=True)
 
                 if stored is not _UNSET and self._rewriting() and shape_diff(stored, contract):
                     if id:
-                        _save(snapname, contract)
+                        _save(snapname, contract, keyed=False)
                     else:
                         snap[lineno] = contract
-                        _save(snapname, snap)
+                        _save(snapname, snap, keyed=True)
                     updated = True
             else:
                 self._forbid_creation(snapname)
-                _save(snapname, contract if id else {lineno: contract})
+                _save(snapname, contract if id else {lineno: contract}, keyed=not id)
 
         if updated:
             warnings.warn(

@@ -1,0 +1,12 @@
+{
+  "__class__": "Shaped",
+  "__data__": {
+    "__data__": [
+      1,
+      2
+    ],
+    "__type__": "tuple"
+  },
+  "__module__": "tests.snapshot_types_2_35",
+  "__type__": "enum"
+}

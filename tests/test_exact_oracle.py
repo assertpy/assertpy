@@ -9,10 +9,16 @@ Written as a difference against pydantic and not as a list of expectations: whic
 decide, and it is asked under whichever pydantic the suite runs with.
 """
 
+import copy
+import functools
 import itertools
+import operator
 import typing
 
 import pytest
+from hypothesis import HealthCheck, event, example, given, reject, settings
+from hypothesis import strategies as st
+from typing_extensions import NotRequired, TypedDict
 
 from assertpy import AssertionFailure, assert_conforms, assert_that
 
@@ -63,8 +69,6 @@ def _model(named, config):
 
 
 def _typed_dict(named, config):
-    from typing_extensions import NotRequired, TypedDict
-
     class Read(TypedDict):
         first: NotRequired[typing.Annotated[int, Field(**named)]]
 
@@ -153,6 +157,165 @@ def test_the_keys_named_are_the_keys_pydantic_drops(place, named):
     assert_that(apart).described_as(f"{place}, a field read by {named}").is_empty()
     # a case pydantic refuses for more is no case, so a matrix that asked nothing would hold whatever the check does
     assert_that(asked).described_as("payloads pydantic validated").is_greater_than(20)
+
+
+def _state(place, model, payload):
+    """What validation built from *payload*, its field and its extras apart, so that an extra under the field's name
+    does not hide the field as it does in a dump."""
+    built = model.model_validate(_sent(place, payload))
+    held = built if place == "a model" else built.held[0] if place == "a model in a list" else built.held
+    if isinstance(held, BaseModel):
+        return held.first, held.model_extra
+    return dict(held) if isinstance(held, dict) else dict(vars(held))
+
+
+def _ignored(place, model, payload):
+    """Where pydantic ignored the field's name, told by sending it again with another value: a name it read or kept
+    changes what it built, one it ignored does not.  Only the name is asked: an alias whose value a kept name was put
+    over changes nothing either, and was read all the same."""
+    if "first" not in payload:
+        return set()
+    same = _state(place, model, {**payload, "first": payload["first"] + 100}) == _state(place, model, payload)
+    under = {"a model": (), "a model in a list": ("held", 0)}.get(place, ("held",))
+    return {(*under, "first")} if same else set()
+
+
+_OWN = (("a", int), ("b", str), ("c", bytes))
+
+
+def _member(index, named, config):
+    """The *index*-th member of a union: an optional field of its own, so that a payload of this file tells no member
+    apart, and `first` read by *named*, or no `first` where *named* is ``None``."""
+    own, kind = _OWN[index]
+    fields: dict[str, object] = {own: NotRequired[kind]}
+    if named is not None:
+        fields["first"] = NotRequired[typing.Annotated[int, Field(**named)]]
+    member = TypedDict(f"Read{own.upper()}", fields)
+    member.__pydantic_config__ = ConfigDict(**config)
+    return member
+
+
+def _typed_dicts(count, *, reversed_order=False):
+    """A builder of a union of *count* `TypedDict`s that read `first` alike."""
+
+    def build(named, config):
+        members = [_member(index, named, config) for index in range(count)]
+        return functools.reduce(operator.or_, reversed(members) if reversed_order else members)
+
+    return build
+
+
+_UNIONS = {
+    "one of two TypedDicts": (_typed_dicts(2), lambda kind: kind),
+    "one of two TypedDicts, the other first": (_typed_dicts(2, reversed_order=True), lambda kind: kind),
+    "one of three TypedDicts": (_typed_dicts(3), lambda kind: kind),
+    "one of three TypedDicts, the last first": (_typed_dicts(3, reversed_order=True), lambda kind: kind),
+}
+_NAME_PLACES = _PLACES | _UNIONS
+
+
+@pytest.mark.parametrize("extra", ["ignore", "allow"])
+@pytest.mark.parametrize("place", _NAME_PLACES)
+@pytest.mark.parametrize("named", _NAMED)
+def test_the_name_is_named_where_pydantic_ignores_it(place, named, extra):
+    """A field's name validation does not read the field by is named exactly where pydantic ignores it.  A record that
+    keeps extras keeps the name unless pydantic ignores it, as a later one does, which the twin that forbids extras
+    cannot tell apart, since it refuses what is kept as well.  Where a union of records that nothing tells apart built
+    the dict, the check may also refuse, which is no verdict and is counted apart."""
+    build, wrap = _NAME_PLACES[place]
+    asked, refused, apart = 0, 0, {}
+    for said, config in _CONFIGS.items():
+        try:
+            plain = build(_NAMED[named], {**config, "extra": extra})
+        # an older pydantic takes a path for no field of a record, or one `Field` for a dataclass
+        except (TypeError, pydantic.PydanticUserError):
+            continue
+        model = plain if wrap is None else _held(plain, wrap)
+        for payload in _payloads():
+            try:
+                ignored = _ignored(place, model, payload)
+            except ValidationError:
+                continue
+            asked += 1
+            found, said_of_it = _named_by_the_check(model, _sent(place, payload))
+            if "cannot be checked" in said_of_it and place in _UNIONS:
+                refused += 1
+                continue
+            named_name = {spot for spot in found if spot[-1] == "first"}
+            if named_name != ignored:
+                apart[f"{said}, sent {payload}"] = f"pydantic ignores {sorted(map(str, ignored))}, named {said_of_it}"
+    assert_that(apart).described_as(f"{place} with extra={extra}, a field read by {named}").is_empty()
+    # the fewest a union decides, measured on pydantic 2.0, where it refuses most
+    least = 4 if place in _UNIONS else 21
+    decided = asked - refused
+    assert_that(decided).described_as("payloads pydantic validated and the check decided").is_greater_than_or_equal_to(
+        least
+    )
+
+
+_MEMBERS = st.lists(
+    st.tuples(
+        st.sampled_from([None, *_NAMED]), st.sampled_from(["ignore", "allow"]), st.sampled_from(sorted(_CONFIGS))
+    ),
+    min_size=2,
+    max_size=len(_OWN),
+)
+# `first` always, since the name is what is judged and a payload without it has nothing to name
+_SHARED = 10**30
+"""One object every key may hold at once, which is what two equal small ints are."""
+
+_SENT = st.builds(
+    lambda chosen, data, grown, shared: (
+        {key: _SHARED if shared else _KEYS[key] for key in sorted({"first", *chosen})}
+        | ({} if _UNDER_DATA[data] is None else {"data": copy.deepcopy(_UNDER_DATA[data])})
+        | ({"grown": 7} if grown else {})
+    ),
+    st.sets(st.sampled_from(sorted(_KEYS.keys() - {"first"}))),
+    st.integers(0, len(_UNDER_DATA) - 1),
+    st.booleans(),
+    st.booleans(),
+)
+
+
+@settings(deadline=None, max_examples=300, suppress_health_check=[HealthCheck.too_slow, HealthCheck.filter_too_much])
+@given(members=_MEMBERS, payload=_SENT)
+@example(members=[("an alias", "ignore", "default")] * 2, payload={"first": 1, "firstName": 2})
+@example(
+    members=[("an alias", "ignore", "default"), ("its name alone", "ignore", "default")],
+    payload={"first": 1, "firstName": 1},
+)
+@example(members=[("an alias", "ignore", "default"), (None, "allow", "default")], payload={"first": 1, "firstName": 2})
+@example(members=[(None, "allow", "default"), ("an alias", "ignore", "default")], payload={"first": 1})
+@example(
+    members=[("an alias", "allow", "default"), ("an alias", "ignore", "default")], payload={"first": 1, "firstName": 2}
+)
+@example(
+    members=[("an alias", "ignore", "default"), ("an alias", "allow", "default")], payload={"first": 1, "firstName": 2}
+)
+def test_a_union_names_the_name_exactly_where_pydantic_ignores_it(members, payload):
+    """Members that read `first` each their own way, keep or drop extras, or lack the field, under any config: where
+    the check decides, it names `first` exactly where pydantic ignored it.  Where nothing tells the members apart it may
+    refuse, which is no verdict."""
+    try:
+        union = functools.reduce(
+            operator.or_,
+            [
+                _member(index, None if named is None else _NAMED[named], {**_CONFIGS[said], "extra": extra})
+                for index, (named, extra, said) in enumerate(members)
+            ],
+        )
+        model = _held(union, lambda kind: kind)
+        ignored = _ignored("a union", model, payload)
+    # an older pydantic takes a path for no field of a record, and a payload a member refuses is no case
+    except (TypeError, pydantic.PydanticUserError, ValidationError):
+        reject()
+    found, said_of_it = _named_by_the_check(model, _sent("a union", payload))
+    if "cannot be checked" in said_of_it:
+        event("refused")
+        return
+    event("named" if ignored else "left alone")
+    named_name = {spot for spot in found if spot[-1] == "first"}
+    assert_that(named_name).described_as(f"{members}, sent {payload}: {said_of_it}").is_equal_to(ignored)
 
 
 def test_keys_two_fields_share_are_read_once_and_dropped_once():

@@ -1,0 +1,13 @@
+{
+  "__class__": "Future",
+  "__data__": {
+    "__data__": null,
+    "__type__": "future",
+    "when": {
+      "__data__": "2026-01-02",
+      "__type__": "date"
+    }
+  },
+  "__module__": "tests.snapshot_types_2_35",
+  "__type__": "enum"
+}

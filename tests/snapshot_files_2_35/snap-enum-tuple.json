@@ -1,0 +1,10 @@
+{
+  "__class__": "Colour",
+  "__data__": [
+    255,
+    0,
+    0
+  ],
+  "__module__": "tests.snapshot_types_2_35",
+  "__type__": "enum"
+}

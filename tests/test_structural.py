@@ -3058,6 +3058,10 @@ class TestExactnessReachesDataclassesAndTypedDicts:
 
     CARRIES = "undeclared field(s) the model does not declare: "
     READ_FROM_X = "\n<f.x> is not read: its field was read from <X>"
+    MIXED = (
+        "<f> cannot be checked: one of its declared types keeps a key another ignores,"
+        " and they do not say which built it"
+    )
 
     @staticmethod
     def _found(payload, model):
@@ -3073,11 +3077,13 @@ class TestExactnessReachesDataclassesAndTypedDicts:
 
         return type("Holding", (BaseModel,), {"__annotations__": {"f": annotation}, **validators})
 
-    def test_a_record_that_keeps_extras_drops_no_key(self):
-        """Sent beside the alias its field is read from, a field's name is dropped by a record, and kept by one that
-        allows extras, which puts what it was sent there over the field."""
+    def test_a_record_that_keeps_extras_drops_a_name_where_pydantic_ignores_it(self):
+        """Sent beside the alias its field is read from, a field's name is dropped by a record.  One that allows extras
+        keeps it where pydantic puts what was sent there over the field, as an older one does, and drops it where
+        pydantic ignores it, as a later one does.  What is expected is read off what pydantic built: the name was kept
+        where the field holds what was sent under it, and another key where the record holds it."""
         pytest.importorskip("pydantic", reason="pydantic not installed")
-        from pydantic import ConfigDict, Field
+        from pydantic import ConfigDict, Field, TypeAdapter
         from pydantic.dataclasses import dataclass as pydantic_dataclass
         from typing_extensions import TypedDict
 
@@ -3094,36 +3100,42 @@ class TestExactnessReachesDataclassesAndTypedDicts:
             )
             return pydantic_dataclass(config=ConfigDict(**config))(plain)
 
-        dropped = f"2 {self.CARRIES}['f.first', 'f.more']\n<f.first> is not read: its field was read from <firstName>"
         sent = {"first": 1, "firstName": 2, "more": 3}
-        found = {
-            (build.__name__, kept): self._found({"f": sent}, self._holding(build(**{"extra": kept} if kept else {})))
+
+        def expected(record):
+            built = TypeAdapter(record).validate_python(sent)
+            held = built if isinstance(built, dict) else vars(built)
+            dropped = [f"f.{key}" for key in ("first", "more") if held.get(key) != sent[key]]
+            not_read = "\n<f.first> is not read: its field was read from <firstName>" if "f.first" in dropped else ""
+            return f"{len(dropped)} {self.CARRIES}{dropped}{not_read}" if dropped else "passes"
+
+        records = {
+            (build.__name__, kept): build(**{"extra": kept} if kept else {})
             for build in (typed_dict, dataclass)
             for kept in ("", "allow")
         }
-        assert_that(found).is_equal_to(
-            {
-                ("typed_dict", ""): dropped,
-                ("typed_dict", "allow"): "passes",
-                ("dataclass", ""): dropped,
-                ("dataclass", "allow"): "passes",
-            }
-        )
         try:
 
             class Declaring(TypedDict, extra_items=int):
                 first: typing.Annotated[int, Field(alias="firstName")]
 
-            declaring = self._holding(Declaring)
+            self._holding(Declaring)
+            records["typed_dict", "extra_items"] = Declaring
         # an older `TypedDict` takes no such argument, and an older pydantic builds no schema for one that does
         except TypeError:
-            return
-        assert_that(self._found({"f": sent}, declaring)).is_equal_to("passes")
+            pass
+        assert_that(expected(records["typed_dict", ""])).is_equal_to(
+            f"2 {self.CARRIES}['f.first', 'f.more']\n<f.first> is not read: its field was read from <firstName>"
+        )
+        found = {key: self._found({"f": sent}, self._holding(record)) for key, record in records.items()}
+        assert_that(found).is_equal_to({key: expected(record) for key, record in records.items()})
 
     def test_a_tag_an_extra_was_put_over_tells_no_typed_dict_apart(self):
-        """Of two `TypedDict`s that read their tag through an alias, one keeps extras: sent beside the alias, the tag's
-        own name is kept by it, over the tag it validated, so what the dict holds there says nothing of which built
-        it.  A tag nothing was put over still tells them apart."""
+        """Of two `TypedDict`s that read their tag through an alias, one keeps extras.  Where pydantic puts the tag's
+        own name sent beside the alias over the tag it validated, as an older one does, what the dict holds there says
+        nothing of which built it, and the one that drops extras would have ignored the name: it refuses.  Where
+        pydantic ignores the name, as a later one does, the tag tells them apart and the name is named.  A tag nothing
+        was put over tells them apart either way."""
         pytest.importorskip("pydantic", reason="pydantic not installed")
         from pydantic import ConfigDict, Field
         from typing_extensions import TypedDict
@@ -3138,8 +3150,10 @@ class TestExactnessReachesDataclassesAndTypedDicts:
 
         holding = self._holding(Keeping | Dropping)
         put_over = {"kind": "a", "tag": "b"}
-        assert_that(holding.model_validate({"f": put_over}).f).is_equal_to({"tag": "b"})
-        assert_that(self._found({"f": put_over}, holding)).is_equal_to("passes")
+        built = holding.model_validate({"f": put_over}).f
+        assert_that(built).is_in({"tag": "b"}, {"tag": "a"})
+        named = f"1 {self.CARRIES}['f.tag']\n<f.tag> is not read: its field was read from <kind>"
+        assert_that(self._found({"f": put_over}, holding)).is_equal_to(self.MIXED if built == {"tag": "b"} else named)
         assert_that(self._found({"f": {"kind": "b", "grown": 1}}, holding)).is_equal_to(f"1 {self.CARRIES}['f.grown']")
 
         class Plain(TypedDict):
@@ -3211,11 +3225,13 @@ class TestExactnessReachesDataclassesAndTypedDicts:
             assert_that(built_by.values()).contains(holding.model_validate({"f": sent}).f)
             assert_that(self._found({"f": sent}, holding)).is_equal_to("passes")
 
-    def test_a_name_beside_its_alias_is_not_named_where_two_typed_dicts_are_not_told_apart(self):
-        """Where the check knows which `TypedDict` built a dict it names a field's name sent beside the alias.  Where
-        it does not, the dict holds that name whichever built it, and nothing is seen to be dropped."""
+    def test_a_name_beside_its_alias_is_named_where_every_typed_dict_ignores_it(self):
+        """Where the check knows which `TypedDict` built a dict it names a field's name sent beside the alias, and so
+        where it does not but each of them ignores the name.  One that keeps extras keeps the name where pydantic puts
+        it over the field, as an older one does: beside one that ignores it nothing tells which built the dict, and it
+        refuses, whatever object the field holds."""
         pytest.importorskip("pydantic", reason="pydantic not installed")
-        from pydantic import Field
+        from pydantic import ConfigDict, Field, TypeAdapter
         from typing_extensions import TypedDict
 
         class One(TypedDict):
@@ -3224,9 +3240,30 @@ class TestExactnessReachesDataclassesAndTypedDicts:
         class Other(TypedDict):
             x: typing.Annotated[int, Field(alias="X")]
 
-        both = {"f": {"x": 1, "X": 2}}
-        assert_that(self._found(both, self._holding(One))).is_equal_to(f"1 {self.CARRIES}['f.x']{self.READ_FROM_X}")
-        assert_that(self._found(both, self._holding(One | Other))).is_equal_to("passes")
+        class Keeping(TypedDict):
+            x: typing.Annotated[int, Field(alias="X")]
+
+        Keeping.__pydantic_config__ = ConfigDict(extra="allow")
+
+        large = 10**30
+        payloads = {"two objects": {"f": {"x": 1, "X": 2}}, "one object": {"f": {"x": large, "X": large}}}
+        named = f"1 {self.CARRIES}['f.x']{self.READ_FROM_X}"
+        kept = self.MIXED if TypeAdapter(Keeping).validate_python({"x": 1, "X": 2})["x"] == 1 else named
+        kinds = {
+            "one": (One, named),
+            "two that drop it": (One | Other, named),
+            "the other first": (Other | One, named),
+            "one beside one that may keep it": (One | Keeping, kept),
+            "the one that may keep it first": (Keeping | One, kept),
+        }
+        found = {
+            (label, sent): self._found(payload, self._holding(kind))
+            for label, (kind, _) in kinds.items()
+            for sent, payload in payloads.items()
+        }
+        assert_that(found).is_equal_to(
+            {(label, sent): verdict for label, (_, verdict) in kinds.items() for sent in payloads}
+        )
 
     def test_a_typed_dict_under_a_container_the_walk_does_not_name_is_not_guessed(self):
         """A deque, an `OrderedDict` and a named tuple are no container the walk reads a `TypedDict` out of, nor a type
@@ -4120,6 +4157,179 @@ class TestExactnessReadsATypedDictOffTheSchema:
                 "in a tuple": f"<f[0]> {self.UNSURE}",
             }
         )
+
+    def test_two_keys_holding_one_object_are_still_two_places(self):
+        """One reads the field by its alias and the other by its name, and each drops the key the other reads.  Sent
+        one object under both keys, as two equal small ints are, the field is still read from two places, and nothing
+        tells which key was dropped."""
+        pytest.importorskip("pydantic", reason="pydantic not installed")
+        from pydantic import Field
+        from typing_extensions import NotRequired, TypedDict
+
+        class ByAlias(TypedDict):
+            first: NotRequired[typing.Annotated[int, Field(alias="firstName")]]
+            a: NotRequired[int]
+
+        class ByName(TypedDict):
+            first: NotRequired[int]
+            b: NotRequired[str]
+
+        large = 10**30
+        sent = {
+            "two equal small ints": {"firstName": 1, "first": 1},
+            "one large int": {"firstName": large, "first": large},
+            "two objects": {"firstName": 2, "first": 1},
+        }
+        found = {
+            (label, order): self._found({"f": payload}, self._holding(kind))
+            for label, payload in sent.items()
+            for order, kind in (("alias first", ByAlias | ByName), ("name first", ByName | ByAlias))
+        }
+        assert_that(set(found.values())).is_equal_to({f"<f> {self.UNSURE}"})
+        assert_that(found).is_length(6)
+
+    def test_a_name_one_typed_dict_ignores_and_another_may_hold_refuses(self):
+        """A key one `TypedDict` would have ignored and another, or a dict schema beside them, would have held refuses:
+        a record that keeps extras and has no such field, a record that puts the name over its field, as an older
+        pydantic does, and a dict schema all hold it.  Nothing in what the dict holds rules one of them out: not a
+        default, not a key the dict lacks, not what a validator of the owner's did to it.  Where every one of them
+        ignored the key it is named, and where none of them would have had it, only a validator could have put it
+        there: it refuses.  A key the one that built the dict dropped and a validator put back, where another would
+        have read it, is the documented limit: the dict holds it, and it passes.  Where releases differ, what was
+        expected is read off what pydantic built."""
+        pytest.importorskip("pydantic", reason="pydantic not installed")
+        from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, field_validator
+        from typing_extensions import NotRequired, TypedDict
+
+        class Aliased(TypedDict):
+            first: NotRequired[typing.Annotated[int, Field(alias="firstName")]]
+
+        class Defaulted(TypedDict):
+            first: NotRequired[typing.Annotated[int, Field(default=5, alias="firstName")]]
+
+        class Keeper(TypedDict):
+            b: NotRequired[str]
+
+        class Keeping(TypedDict):
+            first: NotRequired[typing.Annotated[int, Field(alias="firstName")]]
+
+        class Moving(TypedDict):
+            first: typing.Annotated[int, Field(alias="firstName")]
+
+        class Elsewhere(TypedDict):
+            out: typing.Annotated[int, Field(alias="extra")]
+            required: int
+
+        for keeps in (Keeper, Keeping, Moving):
+            keeps.__pydantic_config__ = ConfigDict(extra="allow")
+
+        def grow(cls, value):
+            value["grown"] = 0
+            return value
+
+        def move(cls, value):
+            value["out"] = value.pop("extra")
+            return value
+
+        def recreate(cls, value):
+            value["grown"] = 0
+            return value
+
+        def overwrite(cls, value):
+            value["first"] = 0
+            return value
+
+        class Only(TypedDict):
+            x: typing.Annotated[int, Field(alias="X")]
+
+        class Twin(TypedDict):
+            x: typing.Annotated[int, Field(alias="X")]
+            o: NotRequired[int]
+
+        class Reads(TypedDict):
+            out: typing.Annotated[int, Field(alias="first")]
+
+        class Grows(TypedDict):
+            x: typing.Annotated[int, Field(alias="X")]
+            grown: int
+            missing: int
+
+        def validated(kind, validator):
+            body = {"__annotations__": {"f": kind}, "after": field_validator("f", mode="after")(classmethod(validator))}
+            return type("Holding", (BaseModel,), body)
+
+        mixed = TestExactnessReachesDataclassesAndTypedDicts.MIXED
+        unsure = f"<f> {self.UNSURE}"
+
+        def put_back(built):
+            return (
+                "<f> cannot be checked: it holds a key none of its declared types reads or keeps,"
+                " which code of the owner's may have put"
+            )
+
+        not_sent = f"1 {self.CARRIES}['f.first']\n<f.first> is not read: validation reads its field from <firstName>"
+        read_from = f"1 {self.CARRIES}['f.first']\n<f.first> is not read: its field was read from <firstName>"
+        puts_over = TypeAdapter(Keeping).validate_python({"firstName": 2, "first": 1})["first"] == 1
+        alone, beside = {"first": 1}, {"firstName": 2, "first": 1}
+
+        def held(built):
+            return mixed if "first" in built else unsure
+
+        cases = {
+            "a keeper, beside the alias": (self._holding(Aliased | Keeper), beside, held),
+            "a keeper first, beside the alias": (self._holding(Keeper | Aliased), beside, held),
+            "a keeper, alone": (self._holding(Aliased | Keeper), alone, held),
+            "a keeper first, alone": (self._holding(Keeper | Aliased), alone, held),
+            "a dict schema": (self._holding(Aliased | dict[str, int]), alone, held),
+            "a dict schema first": (self._holding(dict[str, int] | Aliased), alone, held),
+            "a default beside a keeper": (self._holding(Defaulted | Keeper), alone, held),
+            "a keeper beside a default": (self._holding(Keeper | Defaulted), alone, held),
+            "a default beside one that may put the name over": (
+                self._holding(Defaulted | Keeping),
+                alone,
+                lambda built: unsure if "first" not in built else mixed if puts_over else not_sent,
+            ),
+            "one that may put the name over beside a default": (
+                self._holding(Keeping | Defaulted),
+                alone,
+                lambda built: unsure if "first" not in built else mixed if puts_over else not_sent,
+            ),
+            "grown by a validator": (validated(Aliased | Keeper, grow), beside, held),
+            "grown by a validator, the keeper first": (validated(Keeper | Aliased, grow), beside, held),
+            "an extra moved by a validator": (
+                validated(Moving | Elsewhere, move),
+                {**beside, "extra": 3},
+                lambda built: "passes" if puts_over else read_from,
+            ),
+            "an extra moved by a validator, the other first": (
+                validated(Elsewhere | Moving, move),
+                {**beside, "extra": 3},
+                lambda built: "passes" if puts_over else read_from,
+            ),
+            "a dropped key a validator put back": (validated(Only | Twin, recreate), {"X": 2, "grown": 7}, put_back),
+            "a dropped key a validator put back, the other first": (
+                validated(Twin | Only, recreate),
+                {"X": 2, "grown": 7},
+                put_back,
+            ),
+            "a name another reads as its alias": (validated(Aliased | Reads, overwrite), alone, held),
+            "a name another reads as its alias, the reader first": (validated(Reads | Aliased, overwrite), alone, held),
+            "the limit: a dropped key put back that another reads": (
+                validated(Only | Grows, recreate),
+                {"X": 2, "grown": 0},
+                lambda built: "passes",
+            ),
+            "the limit, the reader first": (
+                validated(Grows | Only, recreate),
+                {"X": 2, "grown": 0},
+                lambda built: "passes",
+            ),
+        }
+        found, expected = {}, {}
+        for label, (holding, payload, verdict) in cases.items():
+            found[label] = self._found({"f": dict(payload)}, holding)
+            expected[label] = verdict(holding.model_validate({"f": dict(payload)}).f)
+        assert_that(found).is_equal_to(expected)
 
     def test_what_is_declared_beside_them_declares_what_the_dict_holds_as_well(self):
         pytest.importorskip("pydantic", reason="pydantic not installed")

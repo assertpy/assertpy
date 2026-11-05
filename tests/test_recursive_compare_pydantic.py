@@ -11,7 +11,7 @@ from hypothesis import strategies as st
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, computed_field, field_serializer
 
 from assertpy import AssertionFailure, assert_that
-from assertpy._snapshot_codec import _Decoder, _Encoder
+from assertpy._snapshot_codec import _decode, _encode
 
 
 class UserDto(BaseModel):
@@ -383,7 +383,7 @@ class TestAModelComparisonAgreesWithEquality:
 
 
 def _round_trip(value: object) -> object:
-    return json.loads(json.dumps({"v": value}, cls=_Encoder), cls=_Decoder)["v"]
+    return _decode(json.loads(json.dumps(_encode({"v": value}))))["v"]
 
 
 class TestAModelRoundTripsThroughASnapshot:
@@ -417,7 +417,7 @@ class TestAModelRoundTripsThroughASnapshot:
         written = json.dumps(
             {"v": {"__type__": "instance", "__class__": "_Counted", "__module__": __name__, "__data__": {"n": 4}}}
         )
-        assert_that(json.loads(written, cls=_Decoder)["v"]).is_equal_to(expected)
+        assert_that(_decode(json.loads(written))["v"]).is_equal_to(expected)
         assert_that(_Counted.runs).is_equal_to(runs)
 
     def test_the_private_state_and_the_fields_set_come_back(self):
@@ -446,7 +446,7 @@ class TestAModelRoundTripsThroughASnapshot:
                 }
             }
         )
-        back = json.loads(written, cls=_Decoder)["v"]
+        back = _decode(json.loads(written))["v"]
         assert_that(back).is_equal_to(_Stringified(f=1, g=2))
         assert_that(back.model_fields_set).is_equal_to({"f", "g"})
 

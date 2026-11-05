@@ -538,8 +538,14 @@ import pathlib
 register_snapshot_serializer(pathlib.PurePath, str, pathlib.PurePath)
 ```
 
-Matching is by `isinstance`, subclasses included. The registry is consulted before the built-ins, and
-a later registration wins.
+Matching is by `isinstance`, subclasses included, and a later registration wins. The registry is
+asked before the built-ins for every value: a subclass of `tuple`, `list`, `dict` or `str`, a dict key and a
+member of a set included.
+
+What `encode` returns is written as plain JSON, so a tuple inside it reaches `decode` as a list. The value
+of an `Enum` member is written the same way, as earlier versions wrote it, and read back as the member it
+names. Two members whose values are written alike, such as `(1, 2)` and `[1, 2]`, cannot be told apart in
+the file: the one a lookup by the value read back finds is the one returned, as before.
 
 The `decode` half runs your own code on load, so it is a trusted, explicit opt-in. The automatic
 instance decode never imports anything.
@@ -627,6 +633,7 @@ Beyond the JSON natives, these types survive a round-trip:
 
 | Type | Stored as |
 |---|---|
+| `tuple` | a tagged list, read back as a plain `tuple` |
 | `set` | a tagged list |
 | `complex` | a tagged pair |
 | `datetime` / `date` / `time` | ISO text, microseconds and timezone kept |
@@ -638,10 +645,15 @@ Beyond the JSON natives, these types survive a round-trip:
 Anything else raises `TypeError` on capture. Teach the codec with
 [`register_snapshot_serializer()`](#custom-types), which is what a `frozenset` or a domain class needs.
 
-Three more things worth knowing:
+Four more things worth knowing:
 
-- **A tuple comes back as a list**, since JSON has no tuple. A snapshot of `(1, 2)` compares as
-  `[1, 2]` on the next run and fails, so convert tuples before snapshotting.
+- **A subclass of `tuple` comes back a plain tuple**: a named tuple, or a `mock.call` in
+  `mock.method_calls`. It compares equal to the value it was, unless its class changes how it compares,
+  as one whose `==` asks for its own class does. Register a serializer to get the class back.
+- **A file recording a tuple needs assertpy 2.36 or later.** An older version reads the tag as a dict,
+  which can even compare equal to a dict of that shape, so require `assertpy>=2.36` where such files live.
+  A tuple recorded by an older version was written as a list and still compares as one until the
+  snapshot is rewritten under `--assertpy-snapshot-update`.
 - **Snapshot ids are case-insensitive.** Filenames are lower-cased, so two ids differing only by case
   land in one file.
 - **The write lock is not crash-safe.** A process killed mid-write leaves a stale `.lock` beside the

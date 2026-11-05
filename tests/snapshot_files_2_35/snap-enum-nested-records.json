@@ -1,0 +1,27 @@
+{
+  "__class__": "Nested",
+  "__data__": {
+    "enum": {
+      "__class__": "Gone",
+      "__data__": 1,
+      "__module__": "no.such",
+      "__type__": "enum",
+      "when": {
+        "__data__": "2026-01-02",
+        "__type__": "date"
+      }
+    },
+    "instance": {
+      "__class__": "Gone",
+      "__data__": {},
+      "__module__": "no.such",
+      "__type__": "instance",
+      "when": {
+        "__data__": "2026-01-03",
+        "__type__": "date"
+      }
+    }
+  },
+  "__module__": "tests.snapshot_types_2_35",
+  "__type__": "enum"
+}

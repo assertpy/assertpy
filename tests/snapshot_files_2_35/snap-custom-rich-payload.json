@@ -1,0 +1,70 @@
+{
+  "__data__": {
+    "colour": {
+      "__class__": "Colour",
+      "__data__": [
+        255,
+        0,
+        0
+      ],
+      "__module__": "tests.snapshot_types_2_35",
+      "__type__": "enum"
+    },
+    "holder": {
+      "__class__": "Holder",
+      "__data__": {
+        "pair": {
+          "__data__": [
+            [
+              "t",
+              [
+                1,
+                2
+              ]
+            ],
+            [
+              1,
+              "a"
+            ]
+          ],
+          "__type__": "dict"
+        }
+      },
+      "__module__": "tests.snapshot_types_2_35",
+      "__type__": "instance"
+    },
+    "marker": {
+      "__data__": [
+        5
+      ],
+      "__type__": "tuple"
+    },
+    "numbers": {
+      "2": "two",
+      "10": "ten"
+    },
+    "point": [
+      3,
+      4
+    ],
+    "set": {
+      "__data__": [
+        [
+          1,
+          2
+        ]
+      ],
+      "__type__": "set"
+    },
+    "tuple": [
+      6,
+      7
+    ],
+    "when": {
+      "__data__": "2026-11-05 12:00:00",
+      "__type__": "datetime"
+    }
+  },
+  "__tag__": "rich",
+  "__type__": "custom"
+}

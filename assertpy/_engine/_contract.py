@@ -845,6 +845,39 @@ _RecordReads = tuple[
 """For a dataclass or a `TypedDict`: the payload keys it reads, the names of its fields, whether it keeps extras, the
 fields worth walking with where each is read and what it declares, and the class as a declaration of its own."""
 
+_NAMES_PUT_OVER: dict[str, bool] = {}
+"""Per kind of record, ``"typed-dict"`` or ``"dataclass"``, what `_puts_names_over` found."""
+
+
+def _keeps_names(read: _RecordReads) -> bool:
+    """Whether a record, as `_record_reads` read it, keeps a field's name it does not read the field by: it keeps
+    extras, and pydantic puts such a name over the field (`_puts_names_over`)."""
+    kind = read[4][0]
+    return read[2] and _puts_names_over("dataclass" if dataclasses.is_dataclass(kind) else "typed-dict")
+
+
+def _puts_names_over(kind: str) -> bool:
+    """Whether pydantic, validating a record of *kind* that keeps extras, puts a field's name that it does not read
+    the field by over the field, as an older pydantic does, rather than ignoring the key, as a later one does.  Asked
+    of pydantic itself by sending the name beside the alias of a record of one field, and kept per kind: two threads
+    asking first at once may both ask, and are told the same."""
+    known = _NAMES_PUT_OVER.get(kind)
+    if known is None:
+        pydantic = sys.modules["pydantic"]
+        sent = {"alias": 0, "name": 1}
+        if kind == "dataclass":
+            plain = type("Probe", (), {"__annotations__": {"name": int}, "name": pydantic.Field(alias="alias")})
+            probe = pydantic.dataclasses.dataclass(config={"extra": "allow"})(plain)
+            known = pydantic.TypeAdapter(probe).validate_python(sent).name == 1
+        else:
+            fields = {"name": Annotated[int, pydantic.Field(alias="alias")]}
+            probe = sys.modules["typing_extensions"].TypedDict("Probe", fields)
+            probe.__pydantic_config__ = {"extra": "allow"}
+            known = pydantic.TypeAdapter(probe).validate_python(sent)["name"] == 1
+        _NAMES_PUT_OVER[kind] = known
+    return known
+
+
 _RECORDS: dict[tuple[object, object], tuple[object, _RecordReads]] = {}
 """Per dataclass or `TypedDict`, by its schema or its class, and the class whose schema holds it, beside the schema or
 the validator it was read with.  At most 256 entries (`_remember`)."""
@@ -1326,9 +1359,10 @@ def _record_drift(
     the fields it *built*.
 
     A key that is the name of a field is no extra by being in what was built, where every field is: it is kept only
-    by a record that keeps extras, which puts what it was sent there over the field.
+    by a record that keeps extras, and only where pydantic puts what it was sent there over the field.
     """
-    reads, names, keeps, fields, _ = _record_reads(record, owner)
+    read = _record_reads(record, owner)
+    reads, names, _, fields, _ = read
     replayed = _REPLAYED in seen
     sure = reads[0]
     left = [key for key in raw if key not in sure]
@@ -1337,7 +1371,7 @@ def _record_drift(
         drift = [
             _undeclared(raw, key, path, reads)
             for key in _unread(left, raw, reads)
-            if (not keeps if key in names else key not in extras)
+            if (not _keeps_names(read) if key in names else key not in extras)
         ]
     for name, sources, declared in fields:
         source, part = _raw_field(raw, sources)
@@ -1361,8 +1395,9 @@ def _unsure_drift(
     declared beside them may build a dict, the dict is
     read as that record.  Else nothing tells the rest apart, and the walk does not choose as validation did.  A key the
     payload sent that the dict holds neither under its name nor as the field one of them reads from it could have been
-    dropped by any, so it refuses; so does a field two of them read from different parts of the payload.  What the
-    dict does hold is followed as a choice between whatever each of them, and each schema beside them, declares it as.
+    dropped by any, so it refuses; so does a field two of them read from different parts of the payload.  A field's
+    name the dict holds that each of them ignored is named, as for one (`_ignored_names`).  What the dict does hold is
+    followed as a choice between whatever each of them, and each schema beside them, declares it as.
     """
     records = unsure.records
     if not runs_own_code(owner):
@@ -1377,17 +1412,58 @@ def _unsure_drift(
     replayed = _REPLAYED in seen
     drift: list[_Found] = []
     for name, readings, declared in fields:
-        read = {
-            id(part): (source, part) for sources in readings for source, part in [_raw_field(raw, sources)] if source
-        }
+        # by where it was read, not by the object: two keys may hold one object, as two equal small ints do
+        read = {source: part for sources in readings for source, part in [_raw_field(raw, sources)] if source}
         if name in built and len(read) > 1:
             raise UncheckableDriftError(path, reason, raw)
-        for source, part in read.values() if name in built else ():
+        for source, part in read.items() if name in built else ():
             drift += _declared_drift(part, built[name], (path, name, source), seen, declared, replayed)
     declared_fields = {name for name, _, _ in fields}
     for key in built if other is not None else ():
         if key not in declared_fields and key in raw:
             drift += _declared_drift(raw[key], built[key], (path, key, (key,)), seen, other, replayed)
+    return [*_ignored_names(raw, built, records, bool(unsure.beside), path, owner), *drift]
+
+
+def _ignored_names(
+    raw: collections.abc.Mapping, built: dict, records: tuple[Any, ...], beside: bool, path: _Hop, owner: object
+) -> list[_Found]:
+    """The keys of *raw* the dict holds under their own name that every `TypedDict` schema of *records* ignored, as
+    `_record_drift` names them for one.
+
+    One held such a key where one of its fields read it, where it is the name of one of its fields and it keeps the
+    name (`_keeps_names`), or where it is no field of it and it keeps extras; a schema *beside* them keeps every key.
+    One ignored it where it is the name of one of its fields that none of its fields read and it does not keep it.  A
+    key every one of them with a say ignored was dropped whichever built the dict.  Where one would have ignored it
+    and another held it, it refuses, even where what the dict holds shows which could not have built it: each rule
+    tried for that misjudged a payload or a validator of the owner's.  Where none of them would have held or ignored
+    it, none could have put it in the dict, which only code of the owner's could, so it refuses too.  A key one of
+    them dropped and code of the owner's put back is a key the dict holds, as it is for one record
+    (`_record_drift`): that is not seen.  Two that ignore it read the field from one key, or `_unsure_drift` refused
+    before, so they name it alike.
+    """
+    drift: list[_Found] = []
+    for key in raw:
+        if key not in built:
+            continue
+        ignored: list[_Found] = []
+        held = beside
+        for record in records:
+            read = _record_reads(_Record(record, None), owner)
+            reads, names, keeps = read[0], read[1], read[2]
+            if key in reads[0] or not _unread([key], raw, reads) or (key in names and _keeps_names(read)):
+                held = True
+            elif key not in names:
+                held = held or keeps
+            else:
+                ignored.append(_undeclared(raw, key, path, reads))
+        if ignored and held:
+            reason = "one of its declared types keeps a key another ignores, and they do not say which built it"
+            raise UncheckableDriftError(path, reason, raw)
+        if not ignored and not held:
+            reason = "it holds a key none of its declared types reads or keeps, which code of the owner's may have put"
+            raise UncheckableDriftError(path, reason, raw)
+        drift += ignored[:1]
     return drift
 
 
@@ -1404,16 +1480,17 @@ def _put_over(raw: collections.abc.Mapping, record: Any, owner: object) -> colle
     """The fields of the `TypedDict` schema *record* that a key of *raw* was put over, if it built the dict.
 
     One that keeps extras keeps a key it read no field from, and where that key is the name of a field, as beside the
-    alias the field was read from, it lands on what validation built there.  What the dict holds under that name is
-    then what was sent, and does not say that this one did not build it.  One that drops extras had nothing put over
-    its fields, so what another would have kept is nothing to it.
+    alias the field was read from, an older pydantic lands it on what validation built there.  What the dict holds
+    under that name is then what was sent, and does not say that this one did not build it.  One that drops extras,
+    or a later pydantic, which ignores such a key, had nothing put over its fields.
     """
-    reads, names, keeps, _, _ = _record_reads(_Record(record, None), owner)
-    if not keeps:
-        return ()
-    sure = reads[0]
-    left = [key for key in raw if key in names and key not in sure]
-    return _unread(left, raw, reads) if left else left
+    read = _record_reads(_Record(record, None), owner)
+    reads, names = read[0], read[1]
+    if _keeps_names(read):  # pragma: no cover - only an older pydantic puts a name there, and the floor cells run one
+        sure = reads[0]
+        left = [key for key in raw if key in names and key not in sure]
+        return _unread(left, raw, reads) if left else left
+    return ()
 
 
 def _literals(record: Any, owner: object) -> list[tuple[str, list[object]]]:

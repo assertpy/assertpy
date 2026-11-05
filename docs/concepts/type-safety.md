@@ -479,6 +479,8 @@ It reads the payload as it was sent:
 - What a validator does to bridge the payload to the model. A key it renames is reported under the name
   the payload sent, and items it reorders or rewrites without changing the size of their container are
   read by position.
+- A validator that puts back into a dict a key validation dropped. The dict holds the key, so it is
+  read as kept.
 - A validator that drops built items of one member of a union. It is read as if every raw item became
   the class the remaining ones became.
 - A model a validator puts inside a container of plain values (`list[Any]`, `dict[str, int]`), and a

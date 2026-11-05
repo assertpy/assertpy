@@ -6,7 +6,7 @@ import pytest
 
 from assertpy import assert_that, match
 from assertpy._engine._introspection import is_attrs_instance
-from assertpy._snapshot_codec import _Decoder, _Encoder
+from assertpy._snapshot_codec import _decode, _encode
 from assertpy.errors import AssertionFailure
 
 attrs = pytest.importorskip("attrs", reason="attrs not installed")
@@ -332,7 +332,7 @@ class TestAnAttrsInstanceRoundTripsThroughASnapshot:
 
 
 def _round_trip(value):
-    return json.loads(json.dumps({"v": value}, cls=_Encoder), cls=_Decoder)["v"]
+    return _decode(json.loads(json.dumps(_encode({"v": value}))))["v"]
 
 
 class TestStructuralDiff:

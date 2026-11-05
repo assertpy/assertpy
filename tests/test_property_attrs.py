@@ -14,7 +14,7 @@ from hypothesis import example, given, settings
 from hypothesis import strategies as st
 
 from assertpy import assert_that, match
-from assertpy._snapshot_codec import _Decoder, _Encoder
+from assertpy._snapshot_codec import _decode, _encode
 from assertpy.errors import AssertionFailure
 from assertpy.pytest_plugin import _format_diff
 
@@ -120,4 +120,4 @@ def test_a_configured_comparison_reads_a_keyed_field_as_equality_does(left, righ
 @settings(deadline=None)
 @given(value=st.one_of(_attrs_outers, st.builds(_FrozenPair, left=st.integers(), right=st.text(max_size=5))))
 def test_an_attrs_instance_round_trips_through_the_snapshot_codec(value):
-    assert_that(json.loads(json.dumps({"v": value}, cls=_Encoder), cls=_Decoder)["v"]).is_equal_to(value)
+    assert_that(_decode(json.loads(json.dumps(_encode({"v": value}))))["v"]).is_equal_to(value)
