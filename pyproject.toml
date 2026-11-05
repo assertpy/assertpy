@@ -1,6 +1,6 @@
 [project]
 name = "assertpy"
-version = "2.35.0"
+version = "2.36.0"
 description = "Fluent, fully typed assertion library for Python: your type checker sees only the assertions that fit the value, and every failure carries a structured diff. Soft assertions, polling, inline snapshots, OpenAPI contracts."
 readme = "README.md"
 license = "BSD-3-Clause"
