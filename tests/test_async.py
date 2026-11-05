@@ -17,6 +17,7 @@ import warnings
 from collections import Counter, OrderedDict, defaultdict
 from dataclasses import dataclass, field
 from io import StringIO
+from types import SimpleNamespace
 
 import pytest
 
@@ -34,6 +35,34 @@ from assertpy import (
 )
 from assertpy.async_assertions import _RETRIES, AsyncAssertionBuilder, _change_key, _PollRecorder
 from assertpy.errors import _json_safe
+
+
+class _ControlledClock:
+    """A poll clock that moves only when the poll sleeps, so every reading and the number of polls are fixed."""
+
+    def __init__(self):
+        # not zero, so a reading taken as it stands instead of from the start of the poll shows
+        self.now = 100.0
+
+    def monotonic(self):
+        return self.now
+
+    def sleep(self, seconds):
+        self.now += seconds
+
+    def drive_sync_polls(self, monkeypatch):
+        monkeypatch.setattr(aa, "time", SimpleNamespace(monotonic=self.monotonic, sleep=self.sleep))
+
+    def drive_async_polls(self, monkeypatch, loop):
+        """`eventually()` reads `loop.time()` and sleeps through `asyncio.sleep`, which here yields once."""
+        real_sleep = asyncio.sleep
+
+        async def sleep(seconds):
+            self.sleep(seconds)
+            await real_sleep(0)
+
+        monkeypatch.setattr(asyncio, "sleep", sleep)
+        monkeypatch.setattr(loop, "time", self.monotonic)
 
 
 class TestEventuallyBasic:
@@ -437,7 +466,7 @@ class TestSummaryUnderWindowOverflow:
         assert_that(trace.dropped).described_as("the guard: without a drop this proves nothing").is_positive()
         assert_that(trace.summary).contains("value changed 59 times")
 
-    def test_a_change_the_snapshot_cuts_away_is_still_a_change(self):
+    def test_a_change_the_snapshot_cuts_away_is_still_a_change(self, monkeypatch):
         """The sample kept per poll is a diagnostic snapshot, and it is cut.
 
         Containers lose everything past their hundredth item, so a queue that only moved past that point
@@ -453,8 +482,9 @@ class TestSummaryUnderWindowOverflow:
             rows[150] = f"changed on poll {step[0]}"
             return rows
 
+        _ControlledClock().drive_sync_polls(monkeypatch)
         with pytest.raises(AssertionFailure) as failure:
-            assert_that(probing).eventually_sync(timeout=0.15, interval=0.005).is_equal_to("never")
+            assert_that(probing).eventually_sync(timeout=1, interval=0.25).is_equal_to("never")
         assert_that(failure.value.trace.summary).does_not_contain("unchanged")
         assert_that(failure.value.trace.summary).contains("value changed")
 
@@ -1095,30 +1125,53 @@ class TestContextVarsIsolation:
 class TestRealPollTimings:
     """The recorder unit tests hand-feed `elapsed`, so the live poll never had its clock pinned.
 
-    Every sample and the trace total come from the same `time.monotonic()` reading. If it stops
-    arriving, nothing fails until the summary reaches its "value changed N times" branch and subtracts
-    one timestamp from another, and the assertion turns into a TypeError.
+    Every sample and the trace total come from the poll's clock: `time.monotonic()` under
+    `eventually_sync()`, the loop's `time()` under `eventually()`. If a reading stops arriving, nothing
+    fails until the summary reaches its "value changed N times" branch and subtracts one timestamp from
+    another, and the assertion turns into a TypeError. That branch needs two polls, which no budget on a
+    real clock promises on a loaded runner, so it runs on a controlled clock whose readings are known. The
+    real clock is checked apart, on what any real reading satisfies, with no poll dropped from the trace.
     """
 
-    def test_a_mutating_sync_probe_times_out_with_real_timings(self):
+    def test_a_sync_poll_reads_its_clock_for_every_sample_and_the_total(self, monkeypatch):
+        _ControlledClock().drive_sync_polls(monkeypatch)
         counter = itertools.count()
         with pytest.raises(AssertionError) as exc_info:
-            assert_that(lambda: next(counter)).eventually_sync(timeout=0.12, interval=0.02).is_equal_to(-1)
-        trace = exc_info.value.trace
-        assert_that(str(exc_info.value)).contains("last change")
-        assert_that(trace.elapsed).is_instance_of(float).is_greater_than_or_equal_to(0)
-        for sample in trace.samples:
-            assert_that(sample.elapsed).is_instance_of(float).is_between(0, 5)
+            assert_that(lambda: next(counter)).eventually_sync(timeout=1, interval=0.25).is_equal_to(-1)
+        self._assert_read_off_the_clock(exc_info.value.trace)
 
-    def test_a_mutating_async_probe_times_out_with_real_timings(self):
+    def test_an_async_poll_reads_its_clock_for_every_sample_and_the_total(self, monkeypatch):
+        counter = itertools.count()
+
+        async def poll():
+            _ControlledClock().drive_async_polls(monkeypatch, asyncio.get_running_loop())
+            await assert_that(lambda: next(counter)).eventually(timeout=1, interval=0.25).is_equal_to(-1)
+
+        with pytest.raises(AssertionError) as exc_info:
+            asyncio.run(poll())
+        self._assert_read_off_the_clock(exc_info.value.trace)
+
+    @staticmethod
+    def _assert_read_off_the_clock(trace):
+        assert_that([sample.elapsed for sample in trace.samples]).is_equal_to([0.0, 0.25, 0.5, 0.75, 1.0])
+        assert_that(trace.elapsed).is_equal_to(1.0)
+        assert_that(trace.summary).is_equal_to("value changed 4 times; last change 0.0s before the deadline")
+
+    @pytest.mark.parametrize("asynchronous", [False, True], ids=["sync", "async"])
+    def test_a_poll_on_the_real_clock_keeps_a_real_reading_for_every_poll(self, asynchronous):
         counter = itertools.count()
         with pytest.raises(AssertionError) as exc_info:
-            asyncio.run(assert_that(lambda: next(counter)).eventually(timeout=0.12, interval=0.02).is_equal_to(-1))
+            if asynchronous:
+                asyncio.run(assert_that(lambda: next(counter)).eventually(timeout=0.12, interval=0.05).is_equal_to(-1))
+            else:
+                assert_that(lambda: next(counter)).eventually_sync(timeout=0.12, interval=0.05).is_equal_to(-1)
         trace = exc_info.value.trace
-        assert_that(str(exc_info.value)).contains("last change")
-        assert_that(trace.elapsed).is_instance_of(float).is_greater_than_or_equal_to(0)
-        for sample in trace.samples:
-            assert_that(sample.elapsed).is_instance_of(float).is_between(0, 5)
+        readings = [sample.elapsed for sample in trace.samples]
+        assert_that(trace.dropped).is_zero()
+        assert_that(readings).is_length(trace.total_polls).is_sorted()
+        assert_that(readings[0]).is_greater_than_or_equal_to(0)
+        # a total past most of the budget comes only from a clock that moved during the poll
+        assert_that(trace.elapsed).is_greater_than_or_equal_to(readings[-1]).is_greater_than(0.1)
 
 
 class TestRetryCollection:
