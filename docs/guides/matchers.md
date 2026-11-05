@@ -149,6 +149,7 @@ own `matches()` raises still propagates, and so does a coroutine handed back whe
 | `match.has_property(name, matcher?)` | an object with attribute `name`, optionally matching a nested matcher |
 | `match.contains_string(sub)` | text containing `sub`, on `str` and on `bytes` |
 | `match.matches_regex(pattern)` | a string where `pattern`, as text or compiled, is found (`re.search`) |
+| `match.html_equal_to(expected, whitespace="lenient")` | a string holding the same HTML as `expected`, read as [`is_html_equal_to()`](assertions.md#html) reads it |
 | `match.starts_with(prefix)` | text starting with `prefix`, on `str` and on `bytes` |
 | `match.ends_with(suffix)` | text ending with `suffix`, on `str` and on `bytes` |
 | `match.is_uuid()` | a string parseable as a UUID |

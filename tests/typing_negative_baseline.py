@@ -110,6 +110,8 @@ CAUGHT: dict[str, dict[str, frozenset[str]]] = {
     "zip-reads-the-wrong-side": _MISSING,
     "text-matched-by-a-bytes-pattern": _ARGUMENT,
     "regex-matcher-of-a-bytes-pattern": _ARGUMENT,
+    "html-equality-in-an-unknown-mode": _ARGUMENT,
+    "html-matcher-in-an-unknown-mode": _ARGUMENT,
     "date-compared-to-number": _MISSING,
     "date-ordered-as-a-datetime": _MISSING,
     "date-taken-from-a-datetime": _MISSING,

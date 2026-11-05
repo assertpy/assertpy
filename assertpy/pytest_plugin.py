@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import contextlib
 import json
+import os
 import warnings
 from itertools import pairwise
 from typing import TYPE_CHECKING, Any, Final, Protocol, cast
@@ -50,6 +51,7 @@ class _Stashing(Protocol):
     _assertpy_prev_diff_in_message: bool
     _assertpy_prev_whole_values: bool
     _assertpy_prev_vacuous: bool
+    _assertpy_prev_layout: str
     _assertpy_cluster_minimum: int | None
     _assertpy_poll_threshold: float | None
     _assertpy_failed_ids: set[str]
@@ -131,6 +133,14 @@ def pytest_addoption(parser: pytest.Parser) -> None:
         help="Disable CI mode / its autodetection, allowing missing snapshots to be created",
     )
     parser.addini(
+        "assertpy_snapshot_layout",
+        help=(
+            "Where a snapshot without path= is kept: cwd (default, __snapshots in the working directory) or"
+            " beside (__snapshots beside the test file)"
+        ),
+        default="",
+    )
+    parser.addini(
         "assertpy_profile",
         help=(
             "Which guards a suite gets without naming them one by one: compatible (default), safe,"
@@ -210,6 +220,14 @@ def _option(config, name: str) -> bool:
         return False
     _renamed.tell(f"--{old.replace('_', '-')}", f"--{name.replace('_', '-')}")
     return True
+
+
+def _layout(config) -> str:
+    """Where a snapshot without ``path=`` is kept, as ``assertpy_snapshot_layout`` says: ``cwd`` unless written."""
+    written = config.getini("assertpy_snapshot_layout").strip().lower()
+    if written not in ("", "cwd", "beside"):
+        raise pytest.UsageError(f"assertpy_snapshot_layout must be cwd or beside, not {written!r}")
+    return written or "cwd"
 
 
 def _given(value: object) -> bool:
@@ -459,6 +477,8 @@ def pytest_configure(config: pytest.Config) -> None:
     _escalate(config)
     if _option(config, "assertpy_snapshot_update"):
         _snapshot._UPDATE_ALL = True
+    stashed._assertpy_prev_layout = _snapshot._LAYOUT
+    _snapshot._LAYOUT = _layout(config)
     if _option(config, "assertpy_snapshot_ci"):
         _snapshot._CI_MODE = True
     elif _option(config, "assertpy_snapshot_no_ci"):
@@ -483,6 +503,7 @@ def pytest_unconfigure(config: pytest.Config) -> None:
     _satisfies._VACUOUS_GUARD = _satisfies._env_enabled() if previous is None else previous
     if _option(config, "assertpy_snapshot_update"):
         _snapshot._UPDATE_ALL = False
+    _snapshot._LAYOUT = getattr(config, "_assertpy_prev_layout", "cwd")
     if _option(config, "assertpy_snapshot_ci") or _option(config, "assertpy_snapshot_no_ci"):
         _snapshot._CI_MODE = None
 
@@ -928,16 +949,24 @@ def _write_cluster_summary(terminalreporter, config) -> None:
         terminalreporter.write_line(f"  {line}")
 
 
+def _shown(snapname: str) -> str:
+    """A snapshot file as the report names it: from the working directory where it lies under it."""
+    relative = (
+        os.path.relpath(snapname) if os.path.splitdrive(snapname)[0] == os.path.splitdrive(os.getcwd())[0] else ""
+    )
+    return relative if relative and not relative.startswith(os.pardir) else snapname
+
+
 def _report_snapshot_orphans(config, sub_orphans, whole_orphans, pruned):
     reporter = config.pluginmanager.get_plugin("terminalreporter")
     if reporter is None:  # pragma: no cover - the terminal reporter is always present under pytest
         return
-    lines = [f"removed obsolete snapshot: {snap}::{key}" for snap, key in pruned]
+    lines = [f"removed obsolete snapshot: {_shown(snap)}::{key}" for snap, key in pruned]
     lines += [
-        f"obsolete snapshot (run --assertpy-snapshot-update on a full run to remove): {snap}::{key}"
+        f"obsolete snapshot (run --assertpy-snapshot-update on a full run to remove): {_shown(snap)}::{key}"
         for snap, key in sub_orphans
     ]
-    lines += [f"obsolete snapshot file (delete manually if its test is gone): {snap}" for snap in whole_orphans]
+    lines += [f"obsolete snapshot file (delete manually if its test is gone): {_shown(snap)}" for snap in whole_orphans]
     reporter.write_line("")
     reporter.write_line("assertpy snapshots:")
     for line in lines:

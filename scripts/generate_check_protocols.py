@@ -51,7 +51,7 @@ if TYPE_CHECKING:
     import re
 {abc}
     from pathlib import Path
-    from typing import Any, Protocol, SupportsFloat, SupportsIndex, TypeVar, overload
+    from typing import Any, Literal, Protocol, SupportsFloat, SupportsIndex, TypeVar, overload
 
     from typing_extensions import TypeIs
 

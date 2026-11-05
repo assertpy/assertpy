@@ -83,6 +83,12 @@ PAIRS = [
         ["abc", "axc", "ab", "xxabcxx"],
     ),
     (
+        "is_html_equal_to",
+        lambda: match.html_equal_to("<p>a</p>"),
+        lambda builder: builder.is_html_equal_to("<p>a</p>"),
+        ["<p>a</p>", "<p> a </p>", "<P>a</P>", "<p>b</p>", "<p>a</q>", "<p>a", ""],
+    ),
+    (
         "is_before",
         lambda: match.is_before(datetime.datetime(2026, 6, 1)),
         lambda builder: builder.is_before(datetime.datetime(2026, 6, 1)),

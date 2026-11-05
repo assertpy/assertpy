@@ -34,7 +34,7 @@ if TYPE_CHECKING:
     import re
     from collections.abc import Callable, Generator, Hashable, Iterable, Mapping, Sized
     from pathlib import Path
-    from typing import Any, Protocol, SupportsFloat, SupportsIndex, TypeVar, overload
+    from typing import Any, Literal, Protocol, SupportsFloat, SupportsIndex, TypeVar, overload
 
     from .._matcher_impls import ClassInfo, ExceptionInfo, RetriedInfo, WarningInfo
     from ..assertpy import AssertionBuilder
@@ -228,6 +228,10 @@ if TYPE_CHECKING:
         def is_equal_to_ignoring_case(self: _SyncPoll[str], other: str) -> _SyncPoll[_P_co]: ...
 
         def is_equal_to_ignoring_whitespace(self: _SyncPoll[str], other: str) -> _SyncPoll[_P_co]: ...
+
+        def is_html_equal_to(
+            self: _SyncPoll[str], other: str, *, whitespace: Literal["lenient", "exact"] = ...
+        ) -> _SyncPoll[_P_co]: ...
 
         @overload
         def contains_ignoring_case(self: _SyncPoll[str], *items: str) -> _SyncPoll[_P_co]: ...
@@ -1486,7 +1490,7 @@ if TYPE_CHECKING:
         def snapshot(
             self,
             id: str | None = ...,
-            path: str = ...,
+            path: str | None = ...,
             *,
             ignore: _KeySpecs | None = ...,
             include: _KeySpecs | None = ...,
@@ -1496,7 +1500,7 @@ if TYPE_CHECKING:
             placeholders: Mapping[Any, Matcher[Any] | Callable[[Any], object]] | None = ...,
         ) -> _SyncPoll[_P_co]: ...
 
-        def matches_contract_snapshot(self, id: str | None = ..., path: str = ...) -> _SyncPoll[_P_co]: ...
+        def matches_contract_snapshot(self, id: str | None = ..., path: str | None = ...) -> _SyncPoll[_P_co]: ...
 
         def matches_inline(
             self,
@@ -1614,6 +1618,10 @@ if TYPE_CHECKING:
         def is_equal_to_ignoring_case(self: _NegatedSyncPoll[str], other: str) -> _SyncPoll[_P_co]: ...
 
         def is_equal_to_ignoring_whitespace(self: _NegatedSyncPoll[str], other: str) -> _SyncPoll[_P_co]: ...
+
+        def is_html_equal_to(
+            self: _NegatedSyncPoll[str], other: str, *, whitespace: Literal["lenient", "exact"] = ...
+        ) -> _SyncPoll[_P_co]: ...
 
         @overload
         def contains_ignoring_case(self: _NegatedSyncPoll[str], *items: str) -> _SyncPoll[_P_co]: ...
@@ -2866,7 +2874,7 @@ if TYPE_CHECKING:
         def snapshot(
             self,
             id: str | None = ...,
-            path: str = ...,
+            path: str | None = ...,
             *,
             ignore: _KeySpecs | None = ...,
             include: _KeySpecs | None = ...,
@@ -2876,7 +2884,7 @@ if TYPE_CHECKING:
             placeholders: Mapping[Any, Matcher[Any] | Callable[[Any], object]] | None = ...,
         ) -> _SyncPoll[_P_co]: ...
 
-        def matches_contract_snapshot(self, id: str | None = ..., path: str = ...) -> _SyncPoll[_P_co]: ...
+        def matches_contract_snapshot(self, id: str | None = ..., path: str | None = ...) -> _SyncPoll[_P_co]: ...
 
         def matches_inline(
             self,
@@ -3007,6 +3015,10 @@ if TYPE_CHECKING:
         def is_equal_to_ignoring_case(self: _AsyncPoll[str], other: str) -> _AsyncPoll[_P_co]: ...
 
         def is_equal_to_ignoring_whitespace(self: _AsyncPoll[str], other: str) -> _AsyncPoll[_P_co]: ...
+
+        def is_html_equal_to(
+            self: _AsyncPoll[str], other: str, *, whitespace: Literal["lenient", "exact"] = ...
+        ) -> _AsyncPoll[_P_co]: ...
 
         @overload
         def contains_ignoring_case(self: _AsyncPoll[str], *items: str) -> _AsyncPoll[_P_co]: ...
@@ -4287,7 +4299,7 @@ if TYPE_CHECKING:
         def snapshot(
             self,
             id: str | None = ...,
-            path: str = ...,
+            path: str | None = ...,
             *,
             ignore: _KeySpecs | None = ...,
             include: _KeySpecs | None = ...,
@@ -4297,7 +4309,7 @@ if TYPE_CHECKING:
             placeholders: Mapping[Any, Matcher[Any] | Callable[[Any], object]] | None = ...,
         ) -> _AsyncPoll[_P_co]: ...
 
-        def matches_contract_snapshot(self, id: str | None = ..., path: str = ...) -> _AsyncPoll[_P_co]: ...
+        def matches_contract_snapshot(self, id: str | None = ..., path: str | None = ...) -> _AsyncPoll[_P_co]: ...
 
         def matches_inline(
             self,
@@ -4398,6 +4410,10 @@ if TYPE_CHECKING:
         def is_equal_to_ignoring_case(self: _NegatedAsyncPoll[str], other: str) -> _AsyncPoll[_P_co]: ...
 
         def is_equal_to_ignoring_whitespace(self: _NegatedAsyncPoll[str], other: str) -> _AsyncPoll[_P_co]: ...
+
+        def is_html_equal_to(
+            self: _NegatedAsyncPoll[str], other: str, *, whitespace: Literal["lenient", "exact"] = ...
+        ) -> _AsyncPoll[_P_co]: ...
 
         @overload
         def contains_ignoring_case(self: _NegatedAsyncPoll[str], *items: str) -> _AsyncPoll[_P_co]: ...
@@ -5670,7 +5686,7 @@ if TYPE_CHECKING:
         def snapshot(
             self,
             id: str | None = ...,
-            path: str = ...,
+            path: str | None = ...,
             *,
             ignore: _KeySpecs | None = ...,
             include: _KeySpecs | None = ...,
@@ -5680,7 +5696,7 @@ if TYPE_CHECKING:
             placeholders: Mapping[Any, Matcher[Any] | Callable[[Any], object]] | None = ...,
         ) -> _AsyncPoll[_P_co]: ...
 
-        def matches_contract_snapshot(self, id: str | None = ..., path: str = ...) -> _AsyncPoll[_P_co]: ...
+        def matches_contract_snapshot(self, id: str | None = ..., path: str | None = ...) -> _AsyncPoll[_P_co]: ...
 
         def matches_inline(
             self,

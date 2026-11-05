@@ -7,7 +7,7 @@ import sys
 import time
 import warnings
 from dataclasses import replace
-from typing import TYPE_CHECKING, Any, Final, NoReturn
+from typing import TYPE_CHECKING, Any, Final, NamedTuple, NoReturn
 
 from . import _inline, _renamed
 from ._engine._compare import _build_compare_config
@@ -157,6 +157,9 @@ class SnapshotUpdatedWarning(UserWarning):
 # set by the pytest plugin when --assertpy-snapshot-update is given; the env var covers other runners
 _UPDATE_ALL: bool = False
 
+# where a snapshot without `path=` is kept, set by the pytest plugin from `assertpy_snapshot_layout`
+_LAYOUT: str = "cwd"
+
 # tri-state CI mode set by the pytest plugin flags (None = not set by a flag)
 _CI_MODE: bool | None = None
 
@@ -273,7 +276,8 @@ def _record_access(snapname: str, key: str, site: str) -> None:
     where no single process sees two node ids and only the union does.
     """
     global _SCOPE
-    _TOUCHED.add((snapname, key))
+    # absolute now: a test that moves the working directory must not move the file the sweep reads
+    _TOUCHED.add((os.path.abspath(snapname), key))
     _ACCESS_SITES.setdefault((snapname, key), site)
     if _SCOPE != _CURRENT_NODE:  # a new test: its predecessor's repeats say nothing about this one
         _SCOPE = _CURRENT_NODE
@@ -352,31 +356,55 @@ def _find_orphans(touched):
     file in a touched directory that was not touched at all (its test/module is gone).  Only directories
     that had at least one live snapshot this run are scanned, so an unrelated directory is never judged.
     """
-    touched_files = {snapname for snapname, _ in touched}
-    custom_touched = {snapname for snapname, key in touched if key == ""}
-    touched_keys: dict[str, set[str]] = {}
-    for snapname, key in touched:
-        if key != "":
-            touched_keys.setdefault(snapname, set()).add(key)
+    spelling, custom_touched, touched_keys = _touched_by_identity(touched)
+    directories: dict[str, str] = {}
+    for snapname, _ in sorted(touched):
+        directories.setdefault(_identity(os.path.dirname(snapname)), os.path.dirname(snapname))
 
     sub_orphans: list[tuple[str, str]] = []
     whole_orphans: list[str] = []
-    for directory in sorted({os.path.dirname(snapname) for snapname, _ in touched}):
+    scanned: set[str] = set()
+    for _, directory in sorted(directories.items()):
         if not os.path.isdir(directory):
             continue
         for fname in sorted(os.listdir(directory)):
             if not (fname.startswith("snap-") and fname.endswith(".json")):
                 continue
-            snapname = os.path.join(directory, fname)
-            if snapname not in touched_files:
+            identity = _identity(os.path.join(directory, fname))
+            if identity in scanned:
+                continue  # a link and its target name one file
+            scanned.add(identity)
+            snapname = spelling.get(identity, os.path.join(directory, fname))
+            if identity not in spelling:
                 whole_orphans.append(snapname)
                 continue
-            if snapname in custom_touched:
+            if identity in custom_touched:
                 continue  # a touched whole-file custom-id snapshot is live
             data = _load(snapname)
-            live = touched_keys.get(snapname, set())
+            live = touched_keys.get(identity, set())
             sub_orphans.extend((snapname, key) for key in sorted(data) if key not in live)
     return sub_orphans, whole_orphans
+
+
+def _touched_by_identity(touched) -> tuple[dict[str, str], set[str], dict[str, set[str]]]:
+    """The files *touched* reached, one entry per file however it was spelled: the spelling read first, the files
+    an id named whole, and the line keys reached in each of the rest."""
+    spelling: dict[str, str] = {}
+    custom_touched: set[str] = set()
+    touched_keys: dict[str, set[str]] = {}
+    for snapname, key in sorted(touched):
+        identity = _identity(snapname)
+        spelling.setdefault(identity, snapname)
+        if key == "":
+            custom_touched.add(identity)
+        else:
+            touched_keys.setdefault(identity, set()).add(key)
+    return spelling, custom_touched, touched_keys
+
+
+def _identity(snapname: str) -> str:
+    """The file *snapname* names, however it is reached: links resolved, in the case the file system compares."""
+    return os.path.normcase(os.path.realpath(snapname))
 
 
 def _prune_sub_key_orphans(sub_orphans):
@@ -422,6 +450,62 @@ def _file_lock(target: str, *, timeout: float = 10.0, poll: float = 0.05) -> Gen
     finally:
         os.close(lock_fd)
         os.unlink(lockpath)
+
+
+class _Location(NamedTuple):
+    """Where one snapshot is kept, and how an access to it is reported."""
+
+    snapname: str
+    directory: str
+    lineno: str
+    """The key of a line's value in a file keyed by line, empty for a file one id names whole."""
+    site: str
+    other: str
+    """The same file where the other layout keeps it, empty where ``path=`` was given; it may be this one."""
+
+
+def _located(id: str | None, path: str | None) -> _Location:  # noqa: A002  # `id` is the public parameter
+    """Where the snapshot `snapshot()` or `matches_contract_snapshot()` asks for is kept.
+
+    Without *path*, in ``__snapshots`` in the working directory, or beside the calling test file where the
+    suite sets ``assertpy_snapshot_layout = beside``.
+    """
+    if id and path is not None:
+        return _Location(_name(path, id), path, "", f"id={id!r}", "")
+    caller = _require_caller(inspect.currentframe())
+    written_in = caller.f_code.co_filename
+    beside = os.path.join(os.path.dirname(written_in), "__snapshots")
+    anchored = os.path.isabs(written_in) and os.path.isfile(written_in)
+    if path is None and _LAYOUT == "beside" and not anchored:
+        _assertpy_refusal = True
+        raise ValueError(
+            f"assertpy_snapshot_layout = beside keeps a snapshot beside the file that asks for it, and"
+            f" <{written_in}> is no file on disk: give this call a path="
+        )
+    directory = path if path is not None else beside if _LAYOUT == "beside" else "__snapshots"
+    if id:
+        lineno, site, snapname = "", f"id={id!r}", _name(directory, id)
+    else:
+        file_path = os.path.basename(caller.f_code.co_filename)
+        lineno, site = str(caller.f_lineno), f"{file_path}:{caller.f_lineno}"
+        snapname = _name(directory, os.path.splitext(file_path)[0])
+    other = "" if path is not None or not anchored else "__snapshots" if directory == beside else beside
+    return _Location(snapname, directory, lineno, site, other and os.path.join(other, os.path.basename(snapname)))
+
+
+def _elsewhere(location: _Location) -> str:
+    """A note on a file of the same name the other layout keeps, for a run about to create this one."""
+    if not location.other or not os.path.isfile(location.other):
+        return ""
+    if _LAYOUT == "beside":
+        return (
+            f" A snapshot of this name is kept at <{location.other}>, in the working directory, where it is kept"
+            " without assertpy_snapshot_layout = beside: move it here to keep its values."
+        )
+    return (
+        f" A snapshot of this name is kept beside its test at <{location.other}>, where"
+        " assertpy_snapshot_layout = beside keeps it: set that to read it."
+    )
 
 
 def _name(path, name):
@@ -509,7 +593,7 @@ class SnapshotMixin(_MixinBase):
         """
         raise self._failure(self._compose(message, actual=MISSING, expected=MISSING, diff=None, trace=None))
 
-    def _forbid_creation(self, snapname: str) -> None:
+    def _forbid_creation(self, snapname: str, elsewhere: str = "") -> None:
         """In CI mode a missing snapshot is a hard failure, not a silent create - the golden was never
         committed, so drift detection for this test would be silently off.
 
@@ -520,7 +604,7 @@ class SnapshotMixin(_MixinBase):
             self._refuse(
                 f"snapshot <{snapname}> does not exist and CI mode forbids creating it - commit the"
                 " snapshot to source control, or run without CI mode (--assertpy-snapshot-no-ci, or"
-                " unset CI / ASSERTPY_SNAPSHOT_CI)"
+                f" unset CI / ASSERTPY_SNAPSHOT_CI){elsewhere}"
             )
         if self._answering_another:
             self._refuse(f"snapshot <{snapname}> does not exist, and not_ cannot create one; create it without not_")
@@ -644,7 +728,7 @@ class SnapshotMixin(_MixinBase):
     def snapshot(
         self,
         id: str | None = None,  # noqa: A002  # `id` is the public snapshot-identifier parameter
-        path: str = "__snapshots",
+        path: str | None = None,
         *,
         ignore: object = None,
         include: object = None,
@@ -661,7 +745,9 @@ class SnapshotMixin(_MixinBase):
         any mismatch.
 
         Snapshots live in the ``__snapshots`` directory by default (commit them to source control) and
-        are identified by test filename plus line number, unless you pass ``id`` or ``path``.
+        are identified by test filename plus line number, unless you pass ``id`` or ``path``.  That
+        directory is in the working directory, or beside the test file where the suite sets
+        ``assertpy_snapshot_layout = beside``.
 
         In **update mode** (``--assertpy-snapshot-update``, or the ``ASSERTPY_SNAPSHOT_UPDATE`` env
         var) a failing comparison overwrites the stored snapshot and passes, emitting a
@@ -679,7 +765,9 @@ class SnapshotMixin(_MixinBase):
 
         Args:
             id: a custom snapshot identifier (defaults to test filename plus line number)
-            path: the directory where snapshots are stored (defaults to ``__snapshots``)
+            path: the directory where snapshots are stored, read from the working directory; without it,
+                ``__snapshots`` in the working directory or, with ``assertpy_snapshot_layout = beside``, beside
+                the test file
 
         Keyword Args:
             ignore (Hashable | list | set | frozenset | None): the key/field (or collection of
@@ -761,18 +849,11 @@ class SnapshotMixin(_MixinBase):
         # the stored snapshot documents placeholders as tokens, so a volatile field never breaks it
         stored_val = self._with_placeholder_tokens(placeholders) if placeholders else self.val
         effective_ignore = _combine_ignore(ignore, placeholders)
-        lineno = ""
-        if id:
-            snapname = _name(path, id)
-        else:
-            caller = _require_caller(inspect.currentframe())
-            file_path = os.path.basename(caller.f_code.co_filename)
-            file_name = os.path.splitext(file_path)[0]
-            lineno = str(caller.f_lineno)
-            snapname = _name(path, file_name)
-
-        _record_access(snapname, "" if id else lineno, f"id={id!r}" if id else f"{file_path}:{lineno}")
-        os.makedirs(path, exist_ok=True)
+        location = _located(id, path)
+        snapname, lineno = location.snapname, location.lineno
+        _record_access(snapname, lineno, location.site)
+        os.makedirs(location.directory, exist_ok=True)
+        elsewhere = ""
 
         # serialised so parallel workers do not lose each other's entries; the rewrite decision stays inside the lock
         snapshot_value = _UNSET
@@ -808,7 +889,8 @@ class SnapshotMixin(_MixinBase):
                         lambda: _save(snapname, stored_val if id else {**snap, lineno: stored_val}, keyed=not id),
                     )
             else:
-                self._forbid_creation(snapname)
+                elsewhere = _elsewhere(location)
+                self._forbid_creation(snapname, elsewhere)
                 held = self._recorded(
                     placeholders, lambda: _save(snapname, stored_val if id else {lineno: stored_val}, keyed=not id)
                 )
@@ -846,7 +928,7 @@ class SnapshotMixin(_MixinBase):
                 ) from None
         warnings.warn(
             f"created snapshot <{snapname}>: this run captured the value instead of comparing;"
-            " subsequent runs compare against it (delete the file to re-capture)",
+            f" subsequent runs compare against it (delete the file to re-capture){elsewhere}",
             SnapshotCreatedWarning,
             stacklevel=caller_stacklevel(),
         )
@@ -929,7 +1011,7 @@ class SnapshotMixin(_MixinBase):
                 mismatch, f"{mismatch._message} {_update_hint('Inline snapshot', 'rewrite the literal here')}"
             ) from None
 
-    def matches_contract_snapshot(self, id: str | None = None, path: str = "__snapshots") -> Self:  # noqa: A002  # `id` is the public snapshot-identifier parameter
+    def matches_contract_snapshot(self, id: str | None = None, path: str | None = None) -> Self:  # noqa: A002  # `id` is the public snapshot-identifier parameter
         """Asserts that val's *structure* matches a contract snapshot stored previously.
 
         Records the shape - paths and type categories, never values - on the first run, then on later
@@ -955,7 +1037,8 @@ class SnapshotMixin(_MixinBase):
 
         Args:
             id: a custom snapshot identifier (defaults to test filename plus line number)
-            path: the directory where snapshots are stored (defaults to ``__snapshots``)
+            path: the directory where snapshots are stored, as for
+                [`snapshot()`][assertpy.snapshot.SnapshotMixin.snapshot]
 
         Examples:
             Usage:
@@ -973,18 +1056,11 @@ class SnapshotMixin(_MixinBase):
             SnapshotUpdatedWarning: when update mode overwrote a drifted contract instead of failing
         """
         contract = shape(self.val)
-        lineno = ""
-        if id:
-            snapname = _name(path, id)
-        else:
-            caller = _require_caller(inspect.currentframe())
-            file_path = os.path.basename(caller.f_code.co_filename)
-            file_name = os.path.splitext(file_path)[0]
-            lineno = str(caller.f_lineno)
-            snapname = _name(path, file_name)
-
-        _record_access(snapname, "" if id else lineno, f"id={id!r}" if id else f"{file_path}:{lineno}")
-        os.makedirs(path, exist_ok=True)
+        location = _located(id, path)
+        snapname, lineno = location.snapname, location.lineno
+        _record_access(snapname, lineno, location.site)
+        os.makedirs(location.directory, exist_ok=True)
+        elsewhere = ""
 
         stored = _UNSET
         updated = False
@@ -1008,7 +1084,8 @@ class SnapshotMixin(_MixinBase):
                         _save(snapname, snap, keyed=True)
                     updated = True
             else:
-                self._forbid_creation(snapname)
+                elsewhere = _elsewhere(location)
+                self._forbid_creation(snapname, elsewhere)
                 _save(snapname, contract if id else {lineno: contract}, keyed=not id)
 
         if updated:
@@ -1032,7 +1109,7 @@ class SnapshotMixin(_MixinBase):
             return self
         warnings.warn(
             f"created contract snapshot <{snapname}>: this run captured the shape instead of comparing;"
-            " subsequent runs compare against it (delete the file to re-capture)",
+            f" subsequent runs compare against it (delete the file to re-capture){elsewhere}",
             SnapshotCreatedWarning,
             stacklevel=caller_stacklevel(),
         )

@@ -393,6 +393,36 @@ earlier call in the same test stored. Give each call its own snapshot(id=...).
 Under `pytest-xdist` the cases of one parametrised test may land on different workers, where no single
 process sees the second one, so that split is caught by a sweep at the end of the run instead.
 
+### Where snapshots are kept
+
+Without `path=`, a snapshot is kept in `__snapshots` in the working directory, in a file named after the
+test file (`snap-test_orders.json`) or after the `id`. Two consequences follow from that:
+
+- two test files of one name in different folders, such as `tests/api/test_users.py` and
+  `tests/ui/test_users.py`, share one file, and their snapshots are keyed by line in it;
+- a run started from another directory does not find the snapshots and creates new ones there, unless
+  CI mode refuses.
+
+Give each such call its own `id=` or `path=`, or keep every snapshot beside its test file:
+
+```toml
+[tool.pytest.ini_options]
+assertpy_snapshot_layout = "beside"
+```
+
+With `beside`, a snapshot without `path=` goes to `__snapshots` next to the file that asks for it,
+whatever the working directory, and an `id=` is kept there too. The file that asks is the one the call is
+written in, so a helper that calls `snapshot()` for many tests keeps their snapshots beside the helper, as
+it keys them by its own lines. A call written in no file on disk, such as code compiled from a string, is
+refused under `beside`: give it a `path=`. A `path=` is still read from the working directory. The default,
+`cwd`, keeps the old place, and stays the default in 2.x.
+
+Switching a suite over is moving files: each `__snapshots/snap-<test file>.json` goes into `__snapshots`
+beside that test file. A file two same-named test files shared holds the keys of both, so it is split by
+hand, or deleted and captured again. When a run is about to create a snapshot file and a file of that
+name sits where the other layout keeps it, the `SnapshotCreatedWarning` (or the CI-mode refusal) names it.
+A snapshot added to a file that exists already is not checked against the other place.
+
 ### Updating snapshots
 
 Run pytest with `--assertpy-snapshot-update` and every failing snapshot comparison overwrites the

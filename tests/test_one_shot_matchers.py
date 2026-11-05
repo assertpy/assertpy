@@ -43,6 +43,7 @@ _NOW = datetime.datetime.now()
 
 _BUILT = {
     "is_none": match.is_none(),
+    "html_equal_to": match.html_equal_to("<p>a</p>"),
     "is_not_none": match.is_not_none(),
     "is_instance_of(list)": match.is_instance_of(list),
     "is_instance_of(Iterator)": match.is_instance_of(Iterator),

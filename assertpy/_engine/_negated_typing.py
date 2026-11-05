@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     import re
     from collections.abc import Callable, Hashable, Iterable, Mapping, Sized
     from pathlib import Path
-    from typing import Any, SupportsFloat, SupportsIndex, TypeVar, overload
+    from typing import Any, Literal, SupportsFloat, SupportsIndex, TypeVar, overload
 
     from .._matcher_impls import ClassInfo, ExceptionInfo
     from ..matchers import Matcher
@@ -84,6 +84,9 @@ if TYPE_CHECKING:
         def contains(self, *items: str | Matcher[str]) -> _StringAssertion: ...
         def is_equal_to_ignoring_case(self, other: str) -> _StringAssertion: ...
         def is_equal_to_ignoring_whitespace(self, other: str) -> _StringAssertion: ...
+        def is_html_equal_to(
+            self, other: str, *, whitespace: Literal["lenient", "exact"] = ...
+        ) -> _StringAssertion: ...
         def contains_ignoring_case(self, *items: str) -> _StringAssertion: ...
         def starts_with(self, prefix: str) -> _StringAssertion: ...
         def starts_with_ignoring_case(self, prefix: str) -> _StringAssertion: ...
@@ -187,7 +190,7 @@ if TYPE_CHECKING:
         def snapshot(
             self,
             id: str | None = ...,
-            path: str = ...,
+            path: str | None = ...,
             *,
             ignore: _KeySpecs | None = ...,
             include: _KeySpecs | None = ...,
@@ -196,7 +199,7 @@ if TYPE_CHECKING:
             comparators: dict[Any, Callable[[Any, Any], Any]] | None = ...,
             placeholders: Mapping[Any, Matcher[Any] | Callable[[Any], object]] | None = ...,
         ) -> _StringAssertion: ...
-        def matches_contract_snapshot(self, id: str | None = ..., path: str = ...) -> _StringAssertion: ...
+        def matches_contract_snapshot(self, id: str | None = ..., path: str | None = ...) -> _StringAssertion: ...
         def matches_inline(
             self,
             expected: object = ...,
@@ -265,7 +268,7 @@ if TYPE_CHECKING:
         def snapshot(
             self,
             id: str | None = ...,
-            path: str = ...,
+            path: str | None = ...,
             *,
             ignore: _KeySpecs | None = ...,
             include: _KeySpecs | None = ...,
@@ -274,7 +277,7 @@ if TYPE_CHECKING:
             comparators: dict[Any, Callable[[Any, Any], Any]] | None = ...,
             placeholders: Mapping[Any, Matcher[Any] | Callable[[Any], object]] | None = ...,
         ) -> _BoolAssertion: ...
-        def matches_contract_snapshot(self, id: str | None = ..., path: str = ...) -> _BoolAssertion: ...
+        def matches_contract_snapshot(self, id: str | None = ..., path: str | None = ...) -> _BoolAssertion: ...
         def matches_inline(
             self,
             expected: object = ...,
@@ -352,7 +355,7 @@ if TYPE_CHECKING:
         def snapshot(
             self,
             id: str | None = ...,
-            path: str = ...,
+            path: str | None = ...,
             *,
             ignore: _KeySpecs | None = ...,
             include: _KeySpecs | None = ...,
@@ -361,7 +364,7 @@ if TYPE_CHECKING:
             comparators: dict[Any, Callable[[Any, Any], Any]] | None = ...,
             placeholders: Mapping[Any, Matcher[Any] | Callable[[Any], object]] | None = ...,
         ) -> _NumericAssertion[_N]: ...
-        def matches_contract_snapshot(self, id: str | None = ..., path: str = ...) -> _NumericAssertion[_N]: ...
+        def matches_contract_snapshot(self, id: str | None = ..., path: str | None = ...) -> _NumericAssertion[_N]: ...
         def matches_inline(
             self,
             expected: object = ...,
@@ -418,7 +421,7 @@ if TYPE_CHECKING:
         def snapshot(
             self,
             id: str | None = ...,
-            path: str = ...,
+            path: str | None = ...,
             *,
             ignore: _KeySpecs | None = ...,
             include: _KeySpecs | None = ...,
@@ -427,7 +430,7 @@ if TYPE_CHECKING:
             comparators: dict[Any, Callable[[Any, Any], Any]] | None = ...,
             placeholders: Mapping[Any, Matcher[Any] | Callable[[Any], object]] | None = ...,
         ) -> _ComplexAssertion: ...
-        def matches_contract_snapshot(self, id: str | None = ..., path: str = ...) -> _ComplexAssertion: ...
+        def matches_contract_snapshot(self, id: str | None = ..., path: str | None = ...) -> _ComplexAssertion: ...
         def matches_inline(
             self,
             expected: object = ...,
@@ -510,7 +513,7 @@ if TYPE_CHECKING:
         def snapshot(
             self,
             id: str | None = ...,
-            path: str = ...,
+            path: str | None = ...,
             *,
             ignore: _KeySpecs | None = ...,
             include: _KeySpecs | None = ...,
@@ -519,7 +522,7 @@ if TYPE_CHECKING:
             comparators: dict[Any, Callable[[Any, Any], Any]] | None = ...,
             placeholders: Mapping[Any, Matcher[Any] | Callable[[Any], object]] | None = ...,
         ) -> _DictAssertion[_K, _V]: ...
-        def matches_contract_snapshot(self, id: str | None = ..., path: str = ...) -> _DictAssertion[_K, _V]: ...
+        def matches_contract_snapshot(self, id: str | None = ..., path: str | None = ...) -> _DictAssertion[_K, _V]: ...
         def matches_inline(
             self,
             expected: object = ...,
@@ -625,7 +628,7 @@ if TYPE_CHECKING:
         def snapshot(
             self,
             id: str | None = ...,
-            path: str = ...,
+            path: str | None = ...,
             *,
             ignore: _KeySpecs | None = ...,
             include: _KeySpecs | None = ...,
@@ -634,7 +637,7 @@ if TYPE_CHECKING:
             comparators: dict[Any, Callable[[Any, Any], Any]] | None = ...,
             placeholders: Mapping[Any, Matcher[Any] | Callable[[Any], object]] | None = ...,
         ) -> _IterableAssertion[_E]: ...
-        def matches_contract_snapshot(self, id: str | None = ..., path: str = ...) -> _IterableAssertion[_E]: ...
+        def matches_contract_snapshot(self, id: str | None = ..., path: str | None = ...) -> _IterableAssertion[_E]: ...
         def matches_inline(
             self,
             expected: object = ...,
@@ -722,7 +725,7 @@ if TYPE_CHECKING:
         def snapshot(
             self,
             id: str | None = ...,
-            path: str = ...,
+            path: str | None = ...,
             *,
             ignore: _KeySpecs | None = ...,
             include: _KeySpecs | None = ...,
@@ -731,7 +734,7 @@ if TYPE_CHECKING:
             comparators: dict[Any, Callable[[Any, Any], Any]] | None = ...,
             placeholders: Mapping[Any, Matcher[Any] | Callable[[Any], object]] | None = ...,
         ) -> _DateTimeAssertion: ...
-        def matches_contract_snapshot(self, id: str | None = ..., path: str = ...) -> _DateTimeAssertion: ...
+        def matches_contract_snapshot(self, id: str | None = ..., path: str | None = ...) -> _DateTimeAssertion: ...
         def matches_inline(
             self,
             expected: object = ...,
@@ -792,7 +795,7 @@ if TYPE_CHECKING:
         def snapshot(
             self,
             id: str | None = ...,
-            path: str = ...,
+            path: str | None = ...,
             *,
             ignore: _KeySpecs | None = ...,
             include: _KeySpecs | None = ...,
@@ -801,7 +804,7 @@ if TYPE_CHECKING:
             comparators: dict[Any, Callable[[Any, Any], Any]] | None = ...,
             placeholders: Mapping[Any, Matcher[Any] | Callable[[Any], object]] | None = ...,
         ) -> _DateAssertion: ...
-        def matches_contract_snapshot(self, id: str | None = ..., path: str = ...) -> _DateAssertion: ...
+        def matches_contract_snapshot(self, id: str | None = ..., path: str | None = ...) -> _DateAssertion: ...
         def matches_inline(
             self,
             expected: object = ...,
@@ -865,7 +868,7 @@ if TYPE_CHECKING:
         def snapshot(
             self,
             id: str | None = ...,
-            path: str = ...,
+            path: str | None = ...,
             *,
             ignore: _KeySpecs | None = ...,
             include: _KeySpecs | None = ...,
@@ -874,7 +877,7 @@ if TYPE_CHECKING:
             comparators: dict[Any, Callable[[Any, Any], Any]] | None = ...,
             placeholders: Mapping[Any, Matcher[Any] | Callable[[Any], object]] | None = ...,
         ) -> _PathAssertion: ...
-        def matches_contract_snapshot(self, id: str | None = ..., path: str = ...) -> _PathAssertion: ...
+        def matches_contract_snapshot(self, id: str | None = ..., path: str | None = ...) -> _PathAssertion: ...
         def matches_inline(
             self,
             expected: object = ...,
@@ -953,7 +956,7 @@ if TYPE_CHECKING:
         def snapshot(
             self,
             id: str | None = ...,
-            path: str = ...,
+            path: str | None = ...,
             *,
             ignore: _KeySpecs | None = ...,
             include: _KeySpecs | None = ...,
@@ -962,7 +965,7 @@ if TYPE_CHECKING:
             comparators: dict[Any, Callable[[Any, Any], Any]] | None = ...,
             placeholders: Mapping[Any, Matcher[Any] | Callable[[Any], object]] | None = ...,
         ) -> _BytesAssertion[_B_co]: ...
-        def matches_contract_snapshot(self, id: str | None = ..., path: str = ...) -> _BytesAssertion[_B_co]: ...
+        def matches_contract_snapshot(self, id: str | None = ..., path: str | None = ...) -> _BytesAssertion[_B_co]: ...
         def matches_inline(
             self,
             expected: object = ...,
@@ -1025,7 +1028,7 @@ if TYPE_CHECKING:
         def snapshot(
             self,
             id: str | None = ...,
-            path: str = ...,
+            path: str | None = ...,
             *,
             ignore: _KeySpecs | None = ...,
             include: _KeySpecs | None = ...,
@@ -1034,7 +1037,9 @@ if TYPE_CHECKING:
             comparators: dict[Any, Callable[[Any, Any], Any]] | None = ...,
             placeholders: Mapping[Any, Matcher[Any] | Callable[[Any], object]] | None = ...,
         ) -> _FrameAssertion[_FrameT_co]: ...
-        def matches_contract_snapshot(self, id: str | None = ..., path: str = ...) -> _FrameAssertion[_FrameT_co]: ...
+        def matches_contract_snapshot(
+            self, id: str | None = ..., path: str | None = ...
+        ) -> _FrameAssertion[_FrameT_co]: ...
         def matches_inline(
             self,
             expected: object = ...,
@@ -1109,7 +1114,7 @@ if TYPE_CHECKING:
         def snapshot(
             self,
             id: str | None = ...,
-            path: str = ...,
+            path: str | None = ...,
             *,
             ignore: _KeySpecs | None = ...,
             include: _KeySpecs | None = ...,
@@ -1118,7 +1123,9 @@ if TYPE_CHECKING:
             comparators: dict[Any, Callable[[Any, Any], Any]] | None = ...,
             placeholders: Mapping[Any, Matcher[Any] | Callable[[Any], object]] | None = ...,
         ) -> _ArrayAssertion[_ArrayT_co]: ...
-        def matches_contract_snapshot(self, id: str | None = ..., path: str = ...) -> _ArrayAssertion[_ArrayT_co]: ...
+        def matches_contract_snapshot(
+            self, id: str | None = ..., path: str | None = ...
+        ) -> _ArrayAssertion[_ArrayT_co]: ...
         def matches_inline(
             self,
             expected: object = ...,
@@ -1186,7 +1193,7 @@ if TYPE_CHECKING:
         def snapshot(
             self,
             id: str | None = ...,
-            path: str = ...,
+            path: str | None = ...,
             *,
             ignore: _KeySpecs | None = ...,
             include: _KeySpecs | None = ...,
@@ -1195,7 +1202,9 @@ if TYPE_CHECKING:
             comparators: dict[Any, Callable[[Any, Any], Any]] | None = ...,
             placeholders: Mapping[Any, Matcher[Any] | Callable[[Any], object]] | None = ...,
         ) -> _CallableAssertion[_P_co]: ...
-        def matches_contract_snapshot(self, id: str | None = ..., path: str = ...) -> _CallableAssertion[_P_co]: ...
+        def matches_contract_snapshot(
+            self, id: str | None = ..., path: str | None = ...
+        ) -> _CallableAssertion[_P_co]: ...
         def matches_inline(
             self,
             expected: object = ...,
@@ -1313,7 +1322,7 @@ if TYPE_CHECKING:
         def snapshot(
             self,
             id: str | None = ...,
-            path: str = ...,
+            path: str | None = ...,
             *,
             ignore: _KeySpecs | None = ...,
             include: _KeySpecs | None = ...,
@@ -1322,7 +1331,9 @@ if TYPE_CHECKING:
             comparators: dict[Any, Callable[[Any, Any], Any]] | None = ...,
             placeholders: Mapping[Any, Matcher[Any] | Callable[[Any], object]] | None = ...,
         ) -> _ObjectAssertion[_T_co]: ...
-        def matches_contract_snapshot(self, id: str | None = ..., path: str = ...) -> _ObjectAssertion[_T_co]: ...
+        def matches_contract_snapshot(
+            self, id: str | None = ..., path: str | None = ...
+        ) -> _ObjectAssertion[_T_co]: ...
         def matches_inline(
             self,
             expected: object = ...,
@@ -1384,7 +1395,7 @@ if TYPE_CHECKING:
         def snapshot(
             self,
             id: str | None = ...,
-            path: str = ...,
+            path: str | None = ...,
             *,
             ignore: _KeySpecs | None = ...,
             include: _KeySpecs | None = ...,
@@ -1394,7 +1405,7 @@ if TYPE_CHECKING:
             placeholders: Mapping[Any, Matcher[Any] | Callable[[Any], object]] | None = ...,
         ) -> _ExpectedRaiseAssertion[_P_co, _Exc]: ...
         def matches_contract_snapshot(
-            self, id: str | None = ..., path: str = ...
+            self, id: str | None = ..., path: str | None = ...
         ) -> _ExpectedRaiseAssertion[_P_co, _Exc]: ...
         def matches_inline(
             self,
@@ -1453,7 +1464,7 @@ if TYPE_CHECKING:
         def snapshot(
             self,
             id: str | None = ...,
-            path: str = ...,
+            path: str | None = ...,
             *,
             ignore: _KeySpecs | None = ...,
             include: _KeySpecs | None = ...,
@@ -1463,7 +1474,7 @@ if TYPE_CHECKING:
             placeholders: Mapping[Any, Matcher[Any] | Callable[[Any], object]] | None = ...,
         ) -> _ExpectedCompletionAssertion[_P_co]: ...
         def matches_contract_snapshot(
-            self, id: str | None = ..., path: str = ...
+            self, id: str | None = ..., path: str | None = ...
         ) -> _ExpectedCompletionAssertion[_P_co]: ...
         def matches_inline(
             self,
@@ -1520,7 +1531,7 @@ if TYPE_CHECKING:
         def snapshot(
             self,
             id: str | None = ...,
-            path: str = ...,
+            path: str | None = ...,
             *,
             ignore: _KeySpecs | None = ...,
             include: _KeySpecs | None = ...,
@@ -1530,7 +1541,7 @@ if TYPE_CHECKING:
             placeholders: Mapping[Any, Matcher[Any] | Callable[[Any], object]] | None = ...,
         ) -> _ExpectedWarningAssertion[_P_co]: ...
         def matches_contract_snapshot(
-            self, id: str | None = ..., path: str = ...
+            self, id: str | None = ..., path: str | None = ...
         ) -> _ExpectedWarningAssertion[_P_co]: ...
         def matches_inline(
             self,
@@ -1551,6 +1562,9 @@ if TYPE_CHECKING:
         def contains(self, *items: str | Matcher[str]) -> _WarnedAssertion[_P_co]: ...
         def is_equal_to_ignoring_case(self, other: str) -> _WarnedAssertion[_P_co]: ...
         def is_equal_to_ignoring_whitespace(self, other: str) -> _WarnedAssertion[_P_co]: ...
+        def is_html_equal_to(
+            self, other: str, *, whitespace: Literal["lenient", "exact"] = ...
+        ) -> _WarnedAssertion[_P_co]: ...
         def contains_ignoring_case(self, *items: str) -> _WarnedAssertion[_P_co]: ...
         def starts_with(self, prefix: str) -> _WarnedAssertion[_P_co]: ...
         def starts_with_ignoring_case(self, prefix: str) -> _WarnedAssertion[_P_co]: ...
@@ -1647,7 +1661,7 @@ if TYPE_CHECKING:
         def snapshot(
             self,
             id: str | None = ...,
-            path: str = ...,
+            path: str | None = ...,
             *,
             ignore: _KeySpecs | None = ...,
             include: _KeySpecs | None = ...,
@@ -1656,7 +1670,9 @@ if TYPE_CHECKING:
             comparators: dict[Any, Callable[[Any, Any], Any]] | None = ...,
             placeholders: Mapping[Any, Matcher[Any] | Callable[[Any], object]] | None = ...,
         ) -> _WarnedAssertion[_P_co]: ...
-        def matches_contract_snapshot(self, id: str | None = ..., path: str = ...) -> _WarnedAssertion[_P_co]: ...
+        def matches_contract_snapshot(
+            self, id: str | None = ..., path: str | None = ...
+        ) -> _WarnedAssertion[_P_co]: ...
         def matches_inline(
             self,
             expected: object = ...,
@@ -1748,7 +1764,7 @@ if TYPE_CHECKING:
         def snapshot(
             self,
             id: str | None = ...,
-            path: str = ...,
+            path: str | None = ...,
             *,
             ignore: _KeySpecs | None = ...,
             include: _KeySpecs | None = ...,
@@ -1757,7 +1773,7 @@ if TYPE_CHECKING:
             comparators: dict[Any, Callable[[Any, Any], Any]] | None = ...,
             placeholders: Mapping[Any, Matcher[Any] | Callable[[Any], object]] | None = ...,
         ) -> _ListAssertion[_E]: ...
-        def matches_contract_snapshot(self, id: str | None = ..., path: str = ...) -> _ListAssertion[_E]: ...
+        def matches_contract_snapshot(self, id: str | None = ..., path: str | None = ...) -> _ListAssertion[_E]: ...
         def matches_inline(
             self,
             expected: object = ...,
@@ -1791,6 +1807,7 @@ if TYPE_CHECKING:
         def contains(self, *items: str | Matcher[str]) -> _TextAssertion: ...
         def is_equal_to_ignoring_case(self, other: str) -> _TextAssertion: ...
         def is_equal_to_ignoring_whitespace(self, other: str) -> _TextAssertion: ...
+        def is_html_equal_to(self, other: str, *, whitespace: Literal["lenient", "exact"] = ...) -> _TextAssertion: ...
         def contains_ignoring_case(self, *items: str) -> _TextAssertion: ...
         def starts_with(self, prefix: str) -> _TextAssertion: ...
         def starts_with_ignoring_case(self, prefix: str) -> _TextAssertion: ...
@@ -1885,7 +1902,7 @@ if TYPE_CHECKING:
         def snapshot(
             self,
             id: str | None = ...,
-            path: str = ...,
+            path: str | None = ...,
             *,
             ignore: _KeySpecs | None = ...,
             include: _KeySpecs | None = ...,
@@ -1894,7 +1911,7 @@ if TYPE_CHECKING:
             comparators: dict[Any, Callable[[Any, Any], Any]] | None = ...,
             placeholders: Mapping[Any, Matcher[Any] | Callable[[Any], object]] | None = ...,
         ) -> _TextAssertion: ...
-        def matches_contract_snapshot(self, id: str | None = ..., path: str = ...) -> _TextAssertion: ...
+        def matches_contract_snapshot(self, id: str | None = ..., path: str | None = ...) -> _TextAssertion: ...
         def matches_inline(
             self,
             expected: object = ...,
@@ -1949,7 +1966,7 @@ if TYPE_CHECKING:
         def snapshot(
             self,
             id: str | None = ...,
-            path: str = ...,
+            path: str | None = ...,
             *,
             ignore: _KeySpecs | None = ...,
             include: _KeySpecs | None = ...,
@@ -1958,7 +1975,7 @@ if TYPE_CHECKING:
             comparators: dict[Any, Callable[[Any, Any], Any]] | None = ...,
             placeholders: Mapping[Any, Matcher[Any] | Callable[[Any], object]] | None = ...,
         ) -> _CoreAssertion: ...
-        def matches_contract_snapshot(self, id: str | None = ..., path: str = ...) -> _CoreAssertion: ...
+        def matches_contract_snapshot(self, id: str | None = ..., path: str | None = ...) -> _CoreAssertion: ...
         def matches_inline(
             self,
             expected: object = ...,
@@ -2013,7 +2030,7 @@ if TYPE_CHECKING:
         def snapshot(
             self,
             id: str | None = ...,
-            path: str = ...,
+            path: str | None = ...,
             *,
             ignore: _KeySpecs | None = ...,
             include: _KeySpecs | None = ...,
@@ -2022,7 +2039,9 @@ if TYPE_CHECKING:
             comparators: dict[Any, Callable[[Any, Any], Any]] | None = ...,
             placeholders: Mapping[Any, Matcher[Any] | Callable[[Any], object]] | None = ...,
         ) -> _CompletedAssertion[_P_co]: ...
-        def matches_contract_snapshot(self, id: str | None = ..., path: str = ...) -> _CompletedAssertion[_P_co]: ...
+        def matches_contract_snapshot(
+            self, id: str | None = ..., path: str | None = ...
+        ) -> _CompletedAssertion[_P_co]: ...
         def matches_inline(
             self,
             expected: object = ...,
@@ -2057,6 +2076,9 @@ if TYPE_CHECKING:
         def contains(self, *items: str | Matcher[str]) -> _InvokedAssertion[_Exc]: ...
         def is_equal_to_ignoring_case(self, other: str) -> _InvokedAssertion[_Exc]: ...
         def is_equal_to_ignoring_whitespace(self, other: str) -> _InvokedAssertion[_Exc]: ...
+        def is_html_equal_to(
+            self, other: str, *, whitespace: Literal["lenient", "exact"] = ...
+        ) -> _InvokedAssertion[_Exc]: ...
         def contains_ignoring_case(self, *items: str) -> _InvokedAssertion[_Exc]: ...
         def starts_with(self, prefix: str) -> _InvokedAssertion[_Exc]: ...
         def starts_with_ignoring_case(self, prefix: str) -> _InvokedAssertion[_Exc]: ...
@@ -2153,7 +2175,7 @@ if TYPE_CHECKING:
         def snapshot(
             self,
             id: str | None = ...,
-            path: str = ...,
+            path: str | None = ...,
             *,
             ignore: _KeySpecs | None = ...,
             include: _KeySpecs | None = ...,
@@ -2162,7 +2184,9 @@ if TYPE_CHECKING:
             comparators: dict[Any, Callable[[Any, Any], Any]] | None = ...,
             placeholders: Mapping[Any, Matcher[Any] | Callable[[Any], object]] | None = ...,
         ) -> _InvokedAssertion[_Exc]: ...
-        def matches_contract_snapshot(self, id: str | None = ..., path: str = ...) -> _InvokedAssertion[_Exc]: ...
+        def matches_contract_snapshot(
+            self, id: str | None = ..., path: str | None = ...
+        ) -> _InvokedAssertion[_Exc]: ...
         def matches_inline(
             self,
             expected: object = ...,

@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     import re
     from collections.abc import Awaitable, Callable, Hashable, Iterable, Mapping, Sized
     from pathlib import Path
-    from typing import Any, ClassVar, Protocol, SupportsFloat, SupportsIndex, TypeVar, overload
+    from typing import Any, ClassVar, Literal, Protocol, SupportsFloat, SupportsIndex, TypeVar, overload
 
     from typing_extensions import TypeIs
 
@@ -341,7 +341,7 @@ if TYPE_CHECKING:
         def snapshot(
             self,
             id: str | None = ...,  # noqa: A002  # mirrors public snapshot() parameter
-            path: str = ...,
+            path: str | None = ...,
             *,
             ignore: _KeySpecs | None = ...,
             include: _KeySpecs | None = ...,
@@ -350,7 +350,7 @@ if TYPE_CHECKING:
             comparators: dict[Any, Callable[[Any, Any], Any]] | None = ...,
             placeholders: Mapping[Any, Matcher[Any] | Callable[[Any], object]] | None = ...,
         ) -> Self: ...
-        def matches_contract_snapshot(self, id: str | None = ..., path: str = ...) -> Self: ...  # noqa: A002  # mirrors public parameter
+        def matches_contract_snapshot(self, id: str | None = ..., path: str | None = ...) -> Self: ...  # noqa: A002  # mirrors public parameter
         def matches_inline(
             self,
             expected: object = ...,
@@ -582,6 +582,7 @@ if TYPE_CHECKING:
         def value(self) -> str: ...
         def is_equal_to_ignoring_case(self, other: str) -> Self: ...
         def is_equal_to_ignoring_whitespace(self, other: str) -> Self: ...
+        def is_html_equal_to(self, other: str, *, whitespace: Literal["lenient", "exact"] = ...) -> Self: ...
         def contains_ignoring_case(self, *items: str) -> Self: ...
         def starts_with(self, prefix: str) -> Self: ...
         def starts_with_ignoring_case(self, prefix: str) -> Self: ...

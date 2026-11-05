@@ -58,7 +58,7 @@ An assertion hands the value back statically narrowed, with no <code>cast</code>
 </td>
 <td valign="top">
 <a href="#features"><b>Composable matchers</b></a><br>
-45 matchers that combine with <code>&amp;</code>, <code>|</code>, <code>~</code> and nest inside the expected structure itself
+46 matchers that combine with <code>&amp;</code>, <code>|</code>, <code>~</code> and nest inside the expected structure itself
 </td>
 </tr>
 <tr>
@@ -137,7 +137,7 @@ assert response == {
 
 The fluent form keeps the path-level diff, the bare form keeps pytest's.
 
-There are [45 matchers](https://assertpy.github.io/assertpy/guides/matchers/), combining with `&`, `|` and `~`.
+There are [46 matchers](https://assertpy.github.io/assertpy/guides/matchers/), combining with `&`, `|` and `~`.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/assertpy/assertpy/main/docs/assets/diff-gallery.png" width="640" alt="Structured diffs in the terminal: dict path, list element, set extra/missing, and structural-matcher predicate diffs, side by side">

@@ -105,6 +105,7 @@ if TYPE_CHECKING:
     from typing_extensions import TypeIs
 
     from ._engine._compare import _CompareConfig
+    from ._html import Whitespace
     from .errors import DiffResult
 
     # nested because `isinstance()` accepts tuples nested to any depth.  Only the recursive reference is
@@ -1309,6 +1310,40 @@ class MatchesRegexMatcher(_OfTheValueItself):
 
     def describe(self) -> str:
         return f"a string matching pattern <{self.pattern}>"
+
+
+class HtmlEqualToMatcher(_OfTheValueItself):
+    """The relation of `is_html_equal_to()`: the expected markup is read once, when the matcher is built."""
+
+    def __init__(self, expected: str, whitespace: object = "lenient"):
+        if not isinstance(expected, str):
+            refuse(expected, "a string", subject=argument("expected"))
+        # html.parser and html.entities cost 2.3 ms to import, and only markup read here needs them
+        from ._html import read_html, whitespace_mode
+
+        self.expected = expected
+        self.whitespace: Whitespace = whitespace_mode(whitespace)
+        self._read = read_html
+        self._tree = read_html(expected, self.whitespace, subject=argument("expected"))
+
+    def matches(self, value: Any) -> bool:
+        if not isinstance(value, str):
+            return False
+        try:
+            return self._read(value, self.whitespace, subject="val") == self._tree
+        except ValueError:
+            return False
+
+    def describe(self) -> str:
+        return f"HTML equal to <{_capped_format(self.expected)}>"
+
+    def describe_mismatch(self, value: Any) -> str:
+        if isinstance(value, str):
+            try:
+                self._read(value, self.whitespace, subject="it")
+            except ValueError as refused:
+                return f"was <{_capped(value)}>, and {refused}"
+        return super().describe_mismatch(value)
 
 
 class StartsWithMatcher(_OfTheValueItself):

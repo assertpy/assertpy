@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     import re
     from collections.abc import Callable, Iterable, Mapping, Sized
     from pathlib import Path
-    from typing import Any, Protocol, SupportsFloat, SupportsIndex, TypeVar, overload
+    from typing import Any, Literal, Protocol, SupportsFloat, SupportsIndex, TypeVar, overload
 
     from typing_extensions import TypeIs
 
@@ -387,6 +387,9 @@ if TYPE_CHECKING:
         def is_hex_equal_to(
             self: _CapableAssertion[bytes | bytearray], expected_hex: str
         ) -> _CapableAssertion[_CapableT_co]: ...
+        def is_html_equal_to(
+            self: _CapableAssertion[str], other: str, *, whitespace: Literal["lenient", "exact"] = ...
+        ) -> _CapableAssertion[_CapableT_co]: ...
         def is_in(self, *items: object) -> Self: ...
         def is_inf(self: _CapableAssertion[SupportsFloat | SupportsIndex]) -> _CapableAssertion[_CapableT_co]: ...
         def is_iterable(self) -> Self: ...
@@ -441,7 +444,7 @@ if TYPE_CHECKING:
         def matches(
             self: _CapableAssertion[str], pattern: str | re.Pattern[str]
         ) -> _CapableAssertion[_CapableT_co]: ...
-        def matches_contract_snapshot(self, id: str | None = ..., path: str = ...) -> Self: ...
+        def matches_contract_snapshot(self, id: str | None = ..., path: str | None = ...) -> Self: ...
         def matches_error_tree(self, *expected: type | list[Any]) -> Self: ...
         def matches_inline(
             self,
@@ -468,7 +471,7 @@ if TYPE_CHECKING:
         def snapshot(
             self,
             id: str | None = ...,
-            path: str = ...,
+            path: str | None = ...,
             *,
             ignore: object = ...,
             include: object = ...,
@@ -656,6 +659,9 @@ if TYPE_CHECKING:
         def is_hex_equal_to(
             self: _NegatedCapableAssertion[bytes | bytearray], expected_hex: str
         ) -> _CapableAssertion[_CapableT_co]: ...
+        def is_html_equal_to(
+            self: _NegatedCapableAssertion[str], other: str, *, whitespace: Literal["lenient", "exact"] = ...
+        ) -> _CapableAssertion[_CapableT_co]: ...
         def is_in(self, *items: object) -> _CapableAssertion[_CapableT_co]: ...
         def is_inf(
             self: _NegatedCapableAssertion[SupportsFloat | SupportsIndex],
@@ -721,7 +727,7 @@ if TYPE_CHECKING:
             self: _NegatedCapableAssertion[str], pattern: str | re.Pattern[str]
         ) -> _CapableAssertion[_CapableT_co]: ...
         def matches_contract_snapshot(
-            self, id: str | None = ..., path: str = ...
+            self, id: str | None = ..., path: str | None = ...
         ) -> _CapableAssertion[_CapableT_co]: ...
         def matches_error_tree(self, *expected: type | list[Any]) -> _CapableAssertion[_CapableT_co]: ...
         def matches_inline(
@@ -751,7 +757,7 @@ if TYPE_CHECKING:
         def snapshot(
             self,
             id: str | None = ...,
-            path: str = ...,
+            path: str | None = ...,
             *,
             ignore: object = ...,
             include: object = ...,

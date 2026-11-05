@@ -4,15 +4,27 @@ import collections.abc
 import decimal
 from typing import TYPE_CHECKING
 
+from ._engine._diff import _build_equality_diff
 from ._engine._mixin_base import _MixinBase
 from ._engine._ordering import broadcasts, equal_past
 from ._engine._require import argument, refuse, require_pattern, require_type, sized_len
 from ._hints import but_for_case, but_for_whitespace, not_at_an_end, not_in_text, under
-from .errors import _capped, _capped_format, _capped_repr, _first_difference, _formatted, _parted, _safe_str
+from .errors import (
+    _capped,
+    _capped_format,
+    _capped_repr,
+    _first_difference,
+    _formatted,
+    _parted,
+    _safe_str,
+    _truncated,
+)
+from .helpers import _elided_text_repr
 
 if TYPE_CHECKING:
     import re
     from collections.abc import Callable
+    from typing import Literal
 
     from ._engine._compat import Self
 
@@ -148,6 +160,68 @@ class StringMixin(_MixinBase):
             f"Expected <{actual_text}> to be equal to <{other_text}> ignoring whitespace, but was not."
             f"{under(but_for_case(self.val, other))}",
             expected=other,
+        )
+
+    def is_html_equal_to(self, other: str, *, whitespace: Literal["lenient", "exact"] = "lenient") -> Self:
+        """Asserts that val is a string holding the same HTML as other: the same elements, attributes and text.
+
+        Both are read into trees and the trees compared, so markup that differs only in how it is written
+        is equal.  Attribute order and the order of ``class`` tokens do not count, nor do the case of names,
+        quotes, character references against their characters, comments and the doctype.  A boolean
+        attribute counts by its presence, on the elements the HTML standard makes it boolean on.
+
+        ``whitespace`` decides how text is read:
+
+        - ``"lenient"``, the default, reads it as Django's ``assertHTMLEqual`` does: runs of whitespace are
+          one space, and whitespace at the edges of a text and between elements does not count.  That lets
+          the expected value be written across indented lines.  It also makes a space that separates two
+          elements count for nothing: ``<b>a</b> <i>b</i>`` equals ``<b>a</b><i>b</i>``.
+        - ``"exact"`` compares text as written, every space and newline of it.
+
+        Either way the text of ``pre``, ``textarea``, ``script`` and ``style`` is compared as written, and
+        whitespace means ASCII whitespace: a non-breaking space is text.
+
+        Args:
+            other: the expected HTML
+            whitespace: ``"lenient"`` or ``"exact"``
+
+        Examples:
+            Usage:
+
+                assert_that('<p class="a b">Hi</p>').is_html_equal_to('<p class="b a">Hi</p>')
+                assert_that('<ul>\\n  <li>one</li>\\n</ul>').is_html_equal_to('<ul><li>one</li></ul>')
+                assert_that('<input disabled>').is_html_equal_to('<input disabled="disabled">')
+
+        Returns:
+            AssertionBuilder: returns this instance to chain to the next assertion
+
+        Raises:
+            AssertionError: if actual is **not** the same HTML as expected
+            TypeError: if val or the given arg is not a string
+            ValueError: if ``whitespace`` is not one of the two, or either side is markup that cannot be
+                read: an end tag that closes no open element, an attribute given twice on one element, a
+                ``script``, ``textarea`` or other element holding raw text left open, text that ends
+                inside a tag or a comment, or a spelling Python's parser reads differently before and after
+                its 2025 fixes (the guide lists them).  The refusal holds under ``not_`` too.
+        """
+        require_type(self.val, str, "a string")
+        require_type(other, str, "a string", subject=argument("other"))
+        # html.parser and html.entities cost 2.3 ms to import, and only markup read here needs them
+        from ._html import read_html, rendered, whitespace_mode
+
+        mode = whitespace_mode(whitespace)
+        actual = read_html(self.val, mode, subject="val")
+        expected = read_html(other, mode, subject=argument("other"))
+        if actual == expected:
+            return self
+        actual_text, expected_text = rendered(actual), rendered(expected)
+        self._compared = (actual_text, expected_text)
+        return self.error(
+            f"Expected <{_truncated(_elided_text_repr(actual_text, expected_text))}> to be equal to"
+            f" <{_truncated(_elided_text_repr(expected_text, actual_text))}> as HTML, but was not.",
+            actual=self.val,
+            expected=other,
+            diff=_build_equality_diff(actual_text, expected_text),
         )
 
     def contains_ignoring_case(self, *items: str) -> Self:

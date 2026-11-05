@@ -36,7 +36,7 @@ RECORDED: dict[str, int] = {
     # 16: a key the lookup refuses is found by `lookup`; through a helper per key a 50-key structure cost 10%
     "assertpy/_matcher_impls.py::_walk": 16,
     "assertpy/errors.py::_render_diff": 14,
-    "assertpy/snapshot.py::snapshot": 14,
+    "assertpy/snapshot.py::snapshot": 13,
     # a mapping with a non-string key is written as pairs, since rendered as text `1` and `"1"` were one key
     "assertpy/errors.py::_json_native": 14,
     "assertpy/string.py::contains_ignoring_case": 13,

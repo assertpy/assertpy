@@ -137,9 +137,10 @@ class TestPluginLoaded:
     def test_addoption_registers_ini(self):
         parser = MagicMock()
         pytest_addoption(parser)
+        # the snapshot layout came after the move, so it has no assertpy2 name to read
         assert_that(parser.addini.call_count).described_as(
-            "each setting under its name and its assertpy2 one"
-        ).is_equal_to(20)
+            "each setting under its name and its assertpy2 one, and the snapshot layout once"
+        ).is_equal_to(21)
         names = [call[0][0] for call in parser.addini.call_args_list]
         assert_that(names).contains("assertpy2_diff", "assertpy2_dangling_entries")
         assert_that(names).contains("assertpy_allure")
@@ -2046,6 +2047,7 @@ def _make_config(
     profile="compatible",
     vacuous="off",
     comparison="on",
+    layout="",
 ):
     config = MagicMock()
     # every key answered by name: a catch-all fed the allure mode to every other reader, and a guard was
@@ -2063,6 +2065,7 @@ def _make_config(
         "assertpy_vacuous": vacuous,
     }
     per_key |= {_renamed.old_name(name): [] if name == "assertpy_dangling_entries" else "" for name in per_key}
+    per_key["assertpy_snapshot_layout"] = layout
 
     def answer(name):
         if name not in per_key:
@@ -2103,6 +2106,19 @@ class TestPytestConfigure:
         assert_that(errors_module._RENDER_DIFF_IN_MESSAGE).is_false()
         pytest_unconfigure(config)
         assert_that(errors_module._RENDER_DIFF_IN_MESSAGE).is_true()
+
+    @pytest.mark.parametrize(("written", "layout"), [("", "cwd"), ("cwd", "cwd"), (" Beside ", "beside")])
+    def test_the_snapshot_layout_is_set_for_the_run_and_restored_after_it(self, monkeypatch, written, layout):
+        monkeypatch.setattr(snapshot_module, "_LAYOUT", "before")
+        config = _make_config(layout=written)
+        pytest_configure(config)
+        assert_that(snapshot_module._LAYOUT).is_equal_to(layout)
+        pytest_unconfigure(config)
+        assert_that(snapshot_module._LAYOUT).is_equal_to("before")
+
+    def test_a_snapshot_layout_it_does_not_know_is_refused(self):
+        with pytest.raises(pytest.UsageError, match="assertpy_snapshot_layout must be cwd or beside, not 'side'"):
+            pytest_configure(_make_config(layout="side"))
 
     @pytest.mark.parametrize(("verbosity", "whole"), [(0, False), (1, False), (2, True), (3, True), (None, False)])
     def test_at_two_levels_of_verbosity_a_message_prints_its_values_whole(self, monkeypatch, verbosity, whole):
@@ -2419,6 +2435,23 @@ class TestSnapshotOrphans:
         text = " ".join(str(call) for call in reporter.write_line.call_args_list)
         assert_that(text).contains("::30").contains("full run to remove")
         assert_that(json.loads((tmp_path / "snap-mod.json").read_text())).contains_key("30")
+
+    def test_names_a_file_under_the_working_directory_from_it_and_one_outside_whole(self, tmp_path, monkeypatch):
+        (tmp_path / "run" / "__snapshots").mkdir(parents=True)
+        (tmp_path / "away").mkdir()
+        inside = tmp_path / "run" / "__snapshots" / "snap-mod.json"
+        outside = tmp_path / "away" / "snap-mod.json"
+        for target in (inside, outside):
+            target.write_text(json.dumps({"10": 1, "30": 3}), encoding="utf-8")
+        monkeypatch.chdir(tmp_path / "run")
+        monkeypatch.setattr(snapshot_module, "_TOUCHED", {(str(inside), "10"), (str(outside), "10")})
+        monkeypatch.setattr(snapshot_module, "_UPDATE_ALL", False)
+        monkeypatch.delenv("ASSERTPY_SNAPSHOT_UPDATE", raising=False)
+        reporter = MagicMock()
+        pytest_sessionfinish(SimpleNamespace(config=_controller_config(reporter)), 0)
+        text = " ".join(call.args[0] for call in reporter.write_line.call_args_list)
+        assert_that(text).contains(f"remove): {os.path.join('__snapshots', 'snap-mod.json')}::30")
+        assert_that(text).contains(f"remove): {outside}::30")
 
     def test_prunes_sub_key_under_update_full_run(self, tmp_path, monkeypatch):
         snapname = str(tmp_path / "snap-mod.json")
@@ -2926,7 +2959,7 @@ class TestSnapshotKeyReuseWarning:
             snapshot_module._record_access("/x/snap.json", "17", "test_mod.py:17")
         assert_that(caught).is_empty()
         assert_that(snapshot_module._ACCESS_NODES).is_empty()
-        assert_that(snapshot_module._TOUCHED).contains(("/x/snap.json", "17"))
+        assert_that(snapshot_module._TOUCHED).contains((os.path.abspath("/x/snap.json"), "17"))
 
     def test_a_custom_id_reads_as_a_whole_file(self, monkeypatch):
         snapshot_module._record_access("/x/snap.json", "", "id='payload'")

@@ -186,6 +186,9 @@ def _incompatible_operands() -> None:
     # a pattern compiled from bytes is never found in a string, and the runtime refuses it as well
     assert_that("text").matches(re.compile(b"t"))  # case: text-matched-by-a-bytes-pattern
     match.matches_regex(re.compile(b"t"))  # case: regex-matcher-of-a-bytes-pattern
+    # HTML is read in one of two whitespace modes, and the runtime refuses any other name
+    assert_that("<p>").is_html_equal_to("<p>", whitespace="strict")  # case: html-equality-in-an-unknown-mode
+    match.html_equal_to("<p>", whitespace="strict")  # case: html-matcher-in-an-unknown-mode
 
 
 def _numbers_that_are_not_ordinary_numbers() -> None:

@@ -21,6 +21,7 @@ from ._matcher_impls import (
     GreaterThanOrEqualToMatcher,
     HasLengthMatcher,
     HasPropertyMatcher,
+    HtmlEqualToMatcher,
     IgnoreMatcher,
     IsAfterMatcher,
     IsBeforeMatcher,
@@ -72,6 +73,7 @@ from ._matcher_impls import (
 if TYPE_CHECKING:
     import re
     from collections.abc import Callable, Iterable
+    from typing import Literal
 
     # the element a membership matcher judges, so `match.contains("x")` is a matcher for collections of strings
     _Item = TypeVar("_Item")
@@ -469,6 +471,16 @@ class _MatchNamespace:
     def matches_regex(pattern: str | re.Pattern[str]) -> _Composable[str]:
         """Matcher for a string in which ``pattern`` (a string, or compiled from one) is found (``re.search``)."""
         return MatchesRegexMatcher(pattern)
+
+    @staticmethod
+    def html_equal_to(expected: str, *, whitespace: Literal["lenient", "exact"] = "lenient") -> _Composable[str]:
+        """Matcher for a string holding the same HTML as ``expected``, read as
+        [`is_html_equal_to()`][assertpy.string.StringMixin.is_html_equal_to] reads it.
+
+        ``expected`` is read when the matcher is built, and markup that cannot be read is refused there.  A
+        value that is not a string, or whose markup cannot be read, does not match.
+        """
+        return HtmlEqualToMatcher(expected, whitespace)
 
     @staticmethod
     def starts_with(prefix: str | bytes) -> _Composable[str | bytes]:

@@ -43,8 +43,6 @@ BASELINE: dict[tuple[str, str], int] = {
     ("assertpy/assertpy.py", "reportReturnType"): 2,
     # the failure record is `| None` in general and never None at this call, as the comment there says
     ("assertpy/snapshot.py", "reportArgumentType"): 1,
-    # both branches that reach the read assign it first, through a `try` pyright does not follow
-    ("assertpy/snapshot.py", "reportPossiblyUnboundVariable"): 2,
 }
 
 LADDER_OVERLAP: dict[tuple[str, str], int] = {

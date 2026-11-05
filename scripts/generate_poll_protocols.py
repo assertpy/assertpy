@@ -282,7 +282,7 @@ _IMPORTS = """    import datetime
     import re
 {abc}
     from pathlib import Path
-    from typing import Any, Protocol, SupportsFloat, SupportsIndex, TypeVar, overload
+    from typing import Any, Literal, Protocol, SupportsFloat, SupportsIndex, TypeVar, overload
 
     from typing_extensions import TypeIs
 
@@ -1081,6 +1081,7 @@ _ASKS_A_TYPE: Final = {
     "is_whitespace": "str",
     "is_equal_to_ignoring_case": "str",
     "is_equal_to_ignoring_whitespace": "str",
+    "is_html_equal_to": "str",
     "starts_with_ignoring_case": "str",
     "ends_with_ignoring_case": "str",
     "matches_with_groups": "str",
@@ -1260,7 +1261,7 @@ if TYPE_CHECKING:
     import re
     from collections.abc import Callable, Collection, Hashable, Iterable, Mapping, Sized
     from pathlib import Path
-    from typing import Any, Protocol, SupportsFloat, SupportsIndex, TypeVar, overload
+    from typing import Any, Literal, Protocol, SupportsFloat, SupportsIndex, TypeVar, overload
 
     from typing_extensions import TypeIs
 

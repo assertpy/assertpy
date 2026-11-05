@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     import re
     from collections.abc import Callable, Hashable, Iterable, Mapping, Sized
     from pathlib import Path
-    from typing import Any, Protocol, SupportsFloat, SupportsIndex, TypeVar, overload
+    from typing import Any, Literal, Protocol, SupportsFloat, SupportsIndex, TypeVar, overload
 
     from .._matcher_impls import ClassInfo
     from ..matchers import Matcher
@@ -112,6 +112,10 @@ if TYPE_CHECKING:
         def is_equal_to_ignoring_case(self: _CheckAnyValue[str], other: str) -> AssertionOutcome: ...
 
         def is_equal_to_ignoring_whitespace(self: _CheckAnyValue[str], other: str) -> AssertionOutcome: ...
+
+        def is_html_equal_to(
+            self: _CheckAnyValue[str], other: str, *, whitespace: Literal["lenient", "exact"] = ...
+        ) -> AssertionOutcome: ...
 
         @overload
         def contains_ignoring_case(self: _CheckAnyValue[str], *items: str) -> AssertionOutcome: ...
@@ -1340,7 +1344,7 @@ if TYPE_CHECKING:
         def snapshot(
             self,
             id: str | None = ...,
-            path: str = ...,
+            path: str | None = ...,
             *,
             ignore: _KeySpecs | None = ...,
             include: _KeySpecs | None = ...,
@@ -1350,7 +1354,7 @@ if TYPE_CHECKING:
             placeholders: Mapping[Any, Matcher[Any] | Callable[[Any], object]] | None = ...,
         ) -> AssertionOutcome: ...
 
-        def matches_contract_snapshot(self, id: str | None = ..., path: str = ...) -> AssertionOutcome: ...
+        def matches_contract_snapshot(self, id: str | None = ..., path: str | None = ...) -> AssertionOutcome: ...
 
         def matches_inline(
             self,

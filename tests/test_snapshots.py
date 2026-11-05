@@ -1073,9 +1073,9 @@ def test_snapshot_custom_id_int():
     assert_that(str(exc_info.value)).starts_with("failed to create snapshot filename")
 
 
-def test_snapshot_custom_path_none():
+def test_snapshot_custom_path_not_a_string():
     with pytest.raises(ValueError) as exc_info:
-        assert_that("foo").snapshot(path=None)
+        assert_that("foo").snapshot(id="x", path=5)
     assert_that(str(exc_info.value)).starts_with("failed to create snapshot filename")
 
 

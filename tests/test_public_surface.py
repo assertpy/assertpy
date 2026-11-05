@@ -247,7 +247,7 @@ class TestTheCountsTheDocsQuote:
     sentence carrying it.
     """
 
-    QUOTED_MATCHER_COUNT = 45
+    QUOTED_MATCHER_COUNT = 46
     # the comparison page dropped the figure deliberately: it sold on inventory, our weakest pitch
     PAGES_QUOTING_THE_MATCHER_COUNT = ("README.md",)
     QUOTED_PROTOCOL_COUNT = 15

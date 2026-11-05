@@ -12,6 +12,7 @@ assert_that("FOO").is_upper()
 assert_that("foo").is_equal_to("foo").is_not_equal_to("bar")
 assert_that("foo").is_equal_to_ignoring_case("FOO")
 assert_that("foo bar").is_equal_to_ignoring_whitespace("foobar")
+assert_that("<p>foo</p>").is_html_equal_to("<p> foo </p>")
 assert_that("foo").is_length_between(1, 5)
 assert_that("foo123").is_alphanumeric()
 assert_that("   ").is_whitespace()
@@ -70,6 +71,124 @@ collection, `any_satisfy(match.is_in(2, 9))` holds when any item is one of them,
     assert_that("foo\n").matches(r"^foo$")     # passes, $ matches before the final newline
     assert_that("a\nb").matches(re.compile(r"a.b", re.DOTALL))   # the flag on the pattern, passes
     ```
+
+### HTML
+
+`is_html_equal_to()` reads both strings as HTML and compares the trees, so markup that differs only in
+how it is written is equal. `match.html_equal_to()` is the same comparison as a matcher.
+
+```python
+assert_that('<p class="a b" id="x">Hi</p>').is_html_equal_to("<P ID=x CLASS='b a'>Hi</P>")
+assert_that("<ul>\n  <li>one</li>\n  <li>two</li>\n</ul>").is_html_equal_to("<ul><li>one</li><li>two</li></ul>")
+assert_that("<input disabled>").is_html_equal_to('<input disabled="disabled">')
+assert_that("<p>&lt;3 &amp; more</p>").is_html_equal_to("<p>&#60;3 &#38; more</p>")
+assert_that({"body": "<p>\n  Hi\n</p>"}).matches_structure({"body": match.html_equal_to("<p>Hi</p>")})
+```
+
+What does not count:
+
+- the order of attributes, and of the tokens of `class`;
+- the case of ASCII letters in element and attribute names, the quotes around a value, and a character
+  reference against its character;
+- comments and the doctype;
+- the value of a boolean attribute, on the elements the HTML standard makes it boolean on. `disabled` is
+  boolean on form controls, so `<input disabled="false">` is disabled and equals `<input disabled>`, while
+  on a `div` or a custom element the value is compared;
+- the spelling of the `hidden` state: `hidden`, `hidden=""` and `hidden="hidden"` are one state, and
+  `hidden="until-found"` is another.
+
+The `whitespace` argument decides how text is read. `"lenient"`, the default, reads it as Django's
+`assertHTMLEqual` does. Runs of whitespace are one space, and whitespace at the edges of a text and between
+elements does not count. That is what lets the expected value be written across indented lines, and it
+makes some markup that renders differently compare equal:
+
+<!-- docs-guard: skip -->
+```python
+assert_that("<b>a</b> <i>b</i>").is_html_equal_to("<b>a</b><i>b</i>")                # passes
+assert_that("<span>a </span><span>b</span>").is_html_equal_to("<span>a</span><span>b</span>")  # passes
+assert_that("<p>a <b>b</b> c</p>").is_html_equal_to("<p>a<b>b</b>c</p>")             # passes
+```
+
+`whitespace="exact"` compares text as written, every space and newline of it, so those three fail. Then the
+expected value has to be written with the spacing it means.
+
+Whichever mode is chosen, the text of `pre`, `textarea`, `script` and `style` is compared as written.
+Whitespace means ASCII whitespace, so a non-breaking space is text. A newline right after `<pre>` or
+`<textarea>` does not count, as the HTML parser drops it.
+
+A failure shows both trees written out one node to a line, with every text in quotes, and the lines where
+they part:
+
+<!-- docs-guard: raises -->
+```python
+assert_that('<div>\n  <p class="a">Hello</p>\n</div>').is_html_equal_to('<div><p class="a">Hi</p></div>')
+```
+
+<!-- docs-guard: skip -->
+```text
+Expected <<div>
+  <p class="a">"Hello"</p>
+</div>> to be equal to <<div>
+  <p class="a">"Hi"</p>
+</div>> as HTML, but was not.
+diff (string):
+  line 2:
+    -   <p class="a">"Hello"</p>
+    ?                  ^^^^
+    +   <p class="a">"Hi"</p>
+    ?                  ^
+```
+
+!!! note "Markup that is refused"
+    Some markup is refused with `ValueError` rather than compared, on either side and under `not_` too: an
+    end tag that closes no open element, an attribute given twice on one element, a `script`, `textarea` or
+    another element holding raw text left open, `<script/>` and the other raw-text elements written with a
+    slash, text that ends inside a tag or a comment, a marked section such as `<![CDATA[x]]>` or `<![if x]>`
+    (HTML ends it at the first `>`, Python's parser at `]]>` or not at all), a NUL character, a numeric
+    reference to a control character or a noncharacter (`&#1;`, which Python's decoder drops where a browser
+    keeps the character), and elements nested more than 256 deep. `svg` and `math` are refused too: SVG and
+    MathML have their own rules for slashes, CDATA, text and attributes, and this comparison does not read
+    them.
+    An element left open at the end is closed, and an end tag closes the elements opened after its own.
+
+    A few malformed spellings are refused because Python's own parser reads them one way before its 2025
+    fixes and another way after, and a comparison should not pass on one patch release and fail on the next:
+    a comment closed as `<!-->` or by `--!>`, a comment holding `--` and spaces before a `>`, a `</` not
+    followed by a letter, a raw-text end tag with more than its name (`</script x>`), a non-ASCII space in
+    an attribute's name or in a value without quotes, and a value without quotes holding `"`, `'`, `=`, `<`
+    or a backtick. Attribute values are decoded as the HTML standard decodes them on every version, so
+    `href="?a=1&not=2"` keeps its `&not=2`.
+
+    <!-- docs-guard: raises -->
+    ```python
+    assert_that("<p>a</q>").is_html_equal_to("<p>a</p>")
+    # ValueError: val is not HTML that can be read: </q> closes no open <q>, at line 1, column 5
+    ```
+
+    `match.html_equal_to()` reads what it expects when it is built and refuses it there. A value it cannot
+    read does not match.
+
+!!! note "Where it differs from Django"
+    The tree is built as Django builds it, which is simpler than a browser: `<p>a<p>b` nests the second `p`
+    in the first, where a browser closes the first. Two rules of the HTML standard are kept that Django
+    does not keep. A slash on a non-void HTML element is ignored, so `<div/>x` puts `x` inside the `div`,
+    where Django closes it at once. Beyond that, `lenient` departs from Django where Django makes markup
+    that means different things equal:
+
+    - the text of `pre`, `textarea`, `script` and `style` is compared as written, where Django collapses its
+      whitespace;
+    - only ASCII whitespace is collapsed and trimmed, where Django trims every Unicode space, the
+      non-breaking one included;
+    - a boolean attribute counts by its presence, where Django takes `disabled="false"` as a different value
+      than `disabled`. Django's list also treats `disabled` as boolean on every element and misses `defer`;
+    - `hidden` compares by its state, so an unknown value is the hidden state and `UNTIL-FOUND` is
+      `until-found`;
+    - a repeated attribute, markup that ends inside a tag, a comment or a raw-text element, and SVG and
+      MathML are refused, where Django reads them.
+
+    `textarea`, `title`, `xmp`, `iframe`, `noembed`, `noframes` and `plaintext` hold text on every Python
+    version. The standard library's parser read markup inside them before its 2025 fixes, so Django's verdict
+    on them depends on the patch release it runs on.
 
 ## Numbers
 

@@ -532,7 +532,7 @@ class TestWhatEachRestrictedAssertionAsksFor:
                         "Iterable[_E] | _Indexed[_E]": 1,
                     }
                 ),
-                "type": collections.Counter({"int": 3, "str": 14, "datetime.datetime": 7, "bytes | bytearray": 7}),
+                "type": collections.Counter({"int": 3, "str": 15, "datetime.datetime": 7, "bytes | bytearray": 7}),
             }
         )
 
