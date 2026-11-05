@@ -395,33 +395,41 @@ process sees the second one, so that split is caught by a sweep at the end of th
 
 ### Where snapshots are kept
 
-Without `path=`, a snapshot is kept in `__snapshots` in the working directory, in a file named after the
-test file (`snap-test_orders.json`) or after the `id`. Two consequences follow from that:
+By default a snapshot without `path=` is kept in `__snapshots` in the working directory. The file is
+named after the test file (`snap-test_orders.json`), or after the `id` when one is given.
+
+This has two consequences:
 
 - two test files of one name in different folders, such as `tests/api/test_users.py` and
-  `tests/ui/test_users.py`, share one file, and their snapshots are keyed by line in it;
+  `tests/ui/test_users.py`, share one snapshot file, keyed by line number
 - a run started from another directory does not find the snapshots and creates new ones there, unless
-  CI mode refuses.
+  CI mode refuses
 
-Give each such call its own `id=` or `path=`, or keep every snapshot beside its test file:
+To avoid this, give each such call its own `id=` or `path=`, or keep every snapshot beside its test file:
 
 ```toml
 [tool.pytest.ini_options]
 assertpy_snapshot_layout = "beside"
 ```
 
-With `beside`, a snapshot without `path=` goes to `__snapshots` next to the file that asks for it,
-whatever the working directory, and an `id=` is kept there too. The file that asks is the one the call is
-written in, so a helper that calls `snapshot()` for many tests keeps their snapshots beside the helper, as
-it keys them by its own lines. A call written in no file on disk, such as code compiled from a string, is
-refused under `beside`: give it a `path=`. A `path=` is still read from the working directory. The default,
-`cwd`, keeps the old place, and stays the default in 2.x.
+With `beside`:
 
-Switching a suite over is moving files: each `__snapshots/snap-<test file>.json` goes into `__snapshots`
-beside that test file. A file two same-named test files shared holds the keys of both, so it is split by
-hand, or deleted and captured again. When a run is about to create a snapshot file and a file of that
-name sits where the other layout keeps it, the `SnapshotCreatedWarning` (or the CI-mode refusal) names it.
-A snapshot added to a file that exists already is not checked against the other place.
+- a snapshot without `path=` goes to `__snapshots` next to the file the call is written in, whatever the
+  working directory. A snapshot with `id=` goes there too
+- a helper that calls `snapshot()` for many tests keeps their snapshots beside the helper, keyed by the
+  helper's own lines
+- a call written in no file on disk, such as code compiled from a string, is refused. Give it a `path=`
+- a `path=` is still read from the working directory
+
+The default, `cwd`, keeps snapshots where they were, and stays the default in 2.x.
+
+To switch a suite over, move each `__snapshots/snap-<test file>.json` into `__snapshots` beside that test
+file. A file that two same-named test files shared holds the keys of both: split it by hand, or delete it
+and let the next run capture the snapshots again.
+
+When a run is about to create a snapshot file and a file of that name already exists where the other
+setting keeps it, the `SnapshotCreatedWarning` names that file, and so does the CI-mode refusal. A
+snapshot added to a file that already exists is not checked against the other place.
 
 ### Updating snapshots
 
@@ -568,17 +576,22 @@ import pathlib
 register_snapshot_serializer(pathlib.PurePath, str, pathlib.PurePath)
 ```
 
-Matching is by `isinstance`, subclasses included, and a later registration wins. The registry is
-asked before the built-ins for every value: a subclass of `tuple`, `list`, `dict` or `str`, a dict key and a
-member of a set included.
+How the registry is used:
 
-What `encode` returns is written as plain JSON, so a tuple inside it reaches `decode` as a list. The value
-of an `Enum` member is written the same way, as earlier versions wrote it, and read back as the member it
-names. Two members whose values are written alike, such as `(1, 2)` and `[1, 2]`, cannot be told apart in
-the file: the one a lookup by the value read back finds is the one returned, as before.
+- a type matches by `isinstance`, so subclasses are included
+- a later registration wins over an earlier one
+- the registry is asked before the built-in types, for every value. That includes subclasses of
+  `tuple`, `list`, `dict` and `str`, dict keys and members of a set
 
-The `decode` half runs your own code on load, so it is a trusted, explicit opt-in. The automatic
-instance decode never imports anything.
+What `encode` returns is written as plain JSON. A tuple inside it therefore reaches `decode` as a list.
+
+An `Enum` member is stored by its value, written as plain JSON as in earlier versions. On load the
+member is looked up by the value read back. Two members whose values are written the same way, such as
+`(1, 2)` and `[1, 2]`, cannot be told apart in the file, and loading returns the member that lookup
+finds, as before.
+
+`decode` runs your own code when a snapshot is loaded, so registering it is a deliberate opt-in. An
+object stored by its attributes is rebuilt without importing anything.
 
 ### Contract snapshots
 
@@ -675,15 +688,16 @@ Beyond the JSON natives, these types survive a round-trip:
 Anything else raises `TypeError` on capture. Teach the codec with
 [`register_snapshot_serializer()`](#custom-types), which is what a `frozenset` or a domain class needs.
 
-Four more things worth knowing:
+Other limits:
 
-- **A subclass of `tuple` comes back a plain tuple**: a named tuple, or a `mock.call` in
-  `mock.method_calls`. It compares equal to the value it was, unless its class changes how it compares,
-  as one whose `==` asks for its own class does. Register a serializer to get the class back.
-- **A file recording a tuple needs assertpy 2.36 or later.** An older version reads the tag as a dict,
-  which can even compare equal to a dict of that shape, so require `assertpy>=2.36` where such files live.
-  A tuple recorded by an older version was written as a list and still compares as one until the
-  snapshot is rewritten under `--assertpy-snapshot-update`.
+- **A subclass of `tuple` comes back as a plain tuple.** This covers named tuples and the `mock.call`
+  objects in `mock.method_calls`. The plain tuple compares equal to the original, unless the class
+  changes how it compares, for example with an `==` that checks the class. Register a serializer to get the class back.
+- **A snapshot file with a tuple in it needs assertpy 2.36 or later.** An older version reads the tag as
+  a dict, and that dict can even compare equal to a dict of the same shape. Require `assertpy>=2.36`
+  wherever such files are used.
+- **Tuples in files written before 2.36 are lists.** They keep comparing as lists until the snapshot is
+  rewritten with `--assertpy-snapshot-update`.
 - **Snapshot ids are case-insensitive.** Filenames are lower-cased, so two ids differing only by case
   land in one file.
 - **The write lock is not crash-safe.** A process killed mid-write leaves a stale `.lock` beside the

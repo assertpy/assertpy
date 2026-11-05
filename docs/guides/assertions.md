@@ -74,8 +74,9 @@ collection, `any_satisfy(match.is_in(2, 9))` holds when any item is one of them,
 
 ### HTML
 
-`is_html_equal_to()` reads both strings as HTML and compares the trees, so markup that differs only in
-how it is written is equal. `match.html_equal_to()` is the same comparison as a matcher.
+`is_html_equal_to()` parses both strings as HTML and compares the element trees. Two strings that give
+the same tree are equal, however each is written. `match.html_equal_to()` does the same comparison as a
+matcher.
 
 ```python
 assert_that('<p class="a b" id="x">Hi</p>').is_html_equal_to("<P ID=x CLASS='b a'>Hi</P>")
@@ -85,36 +86,44 @@ assert_that("<p>&lt;3 &amp; more</p>").is_html_equal_to("<p>&#60;3 &#38; more</p
 assert_that({"body": "<p>\n  Hi\n</p>"}).matches_structure({"body": match.html_equal_to("<p>Hi</p>")})
 ```
 
-What does not count:
+These differences are ignored:
 
-- the order of attributes, and of the tokens of `class`;
-- the case of ASCII letters in element and attribute names, the quotes around a value, and a character
-  reference against its character;
-- comments and the doctype;
-- the value of a boolean attribute, on the elements the HTML standard makes it boolean on. `disabled` is
-  boolean on form controls, so `<input disabled="false">` is disabled and equals `<input disabled>`, while
-  on a `div` or a custom element the value is compared;
-- the spelling of the `hidden` state: `hidden`, `hidden=""` and `hidden="hidden"` are one state, and
-  `hidden="until-found"` is another.
+- the order of attributes, and the order of the classes in `class`
+- upper and lower case of ASCII letters in element and attribute names
+- the quotes around an attribute value
+- a character written as a reference, such as `&#233;` for `é`
+- comments and the doctype
+- the value of a boolean attribute, on elements where the HTML standard makes it boolean. `disabled` is
+  boolean on form controls, so `<input disabled="false">` equals `<input disabled>`. On a `div` or a
+  custom element the value is compared
+- how the `hidden` state is spelled. `hidden`, `hidden=""` and `hidden="hidden"` are the same state, and
+  `hidden="until-found"` is a different one
 
-The `whitespace` argument decides how text is read. `"lenient"`, the default, reads it as Django's
-`assertHTMLEqual` does. Runs of whitespace are one space, and whitespace at the edges of a text and between
-elements does not count. That is what lets the expected value be written across indented lines, and it
-makes some markup that renders differently compare equal:
+The `whitespace` argument sets how text is compared. The default, `whitespace="lenient"`, follows
+Django's `assertHTMLEqual`:
+
+- a run of whitespace counts as one space
+- whitespace at the start and end of a text is ignored
+- whitespace between two elements is ignored
+
+This lets you write the expected HTML across indented lines. It also makes some markup equal that a
+browser shows differently. All three of these pass:
 
 <!-- docs-guard: skip -->
 ```python
-assert_that("<b>a</b> <i>b</i>").is_html_equal_to("<b>a</b><i>b</i>")                # passes
-assert_that("<span>a </span><span>b</span>").is_html_equal_to("<span>a</span><span>b</span>")  # passes
-assert_that("<p>a <b>b</b> c</p>").is_html_equal_to("<p>a<b>b</b>c</p>")             # passes
+assert_that("<b>a</b> <i>b</i>").is_html_equal_to("<b>a</b><i>b</i>")
+assert_that("<i>a </i><i>b</i>").is_html_equal_to("<i>a</i><i>b</i>")
+assert_that("<p>a <b>b</b> c</p>").is_html_equal_to("<p>a<b>b</b>c</p>")
 ```
 
-`whitespace="exact"` compares text as written, every space and newline of it, so those three fail. Then the
-expected value has to be written with the spacing it means.
+With `whitespace="exact"`, text is compared as written, every space and newline included, so all three
+fail. The expected HTML then needs exactly the spacing you mean.
 
-Whichever mode is chosen, the text of `pre`, `textarea`, `script` and `style` is compared as written.
-Whitespace means ASCII whitespace, so a non-breaking space is text. A newline right after `<pre>` or
-`<textarea>` does not count, as the HTML parser drops it.
+In both modes:
+
+- the text inside `pre`, `textarea`, `script` and `style` is compared as written
+- only ASCII whitespace counts as whitespace. A non-breaking space is compared like any other character
+- a newline right after `<pre>` or `<textarea>` is ignored, because the HTML parser drops it
 
 A failure shows both trees written out one node to a line, with every text in quotes, and the lines where
 they part:
@@ -140,24 +149,8 @@ diff (string):
 ```
 
 !!! note "Markup that is refused"
-    Some markup is refused with `ValueError` rather than compared, on either side and under `not_` too: an
-    end tag that closes no open element, an attribute given twice on one element, a `script`, `textarea` or
-    another element holding raw text left open, `<script/>` and the other raw-text elements written with a
-    slash, text that ends inside a tag or a comment, a marked section such as `<![CDATA[x]]>` or `<![if x]>`
-    (HTML ends it at the first `>`, Python's parser at `]]>` or not at all), a NUL character, a numeric
-    reference to a control character or a noncharacter (`&#1;`, which Python's decoder drops where a browser
-    keeps the character), and elements nested more than 256 deep. `svg` and `math` are refused too: SVG and
-    MathML have their own rules for slashes, CDATA, text and attributes, and this comparison does not read
-    them.
-    An element left open at the end is closed, and an end tag closes the elements opened after its own.
-
-    A few malformed spellings are refused because Python's own parser reads them one way before its 2025
-    fixes and another way after, and a comparison should not pass on one patch release and fail on the next:
-    a comment closed as `<!-->` or by `--!>`, a comment holding `--` and spaces before a `>`, a `</` not
-    followed by a letter, a raw-text end tag with more than its name (`</script x>`), a non-ASCII space in
-    an attribute's name or in a value without quotes, and a value without quotes holding `"`, `'`, `=`, `<`
-    or a backtick. Attribute values are decoded as the HTML standard decodes them on every version, so
-    `href="?a=1&not=2"` keeps its `&not=2`.
+    Some markup raises `ValueError` instead of being compared. This holds for either side, and under
+    `not_` too.
 
     <!-- docs-guard: raises -->
     ```python
@@ -165,30 +158,66 @@ diff (string):
     # ValueError: val is not HTML that can be read: </q> closes no open <q>, at line 1, column 5
     ```
 
-    `match.html_equal_to()` reads what it expects when it is built and refuses it there. A value it cannot
-    read does not match.
+    Broken markup:
+
+    - an end tag that closes no open element
+    - an attribute given twice on one element
+    - a `script`, `textarea` or other raw-text element that is never closed
+    - a raw-text element written with a slash, such as `<script/>`
+    - text that ends inside a tag or a comment
+    - a NUL character
+    - a numeric reference to a control character or a noncharacter, such as `&#1;`. Python's decoder
+      drops the character, and a browser keeps it
+    - elements nested more than 256 deep
+
+    Markup this comparison does not read:
+
+    - a marked section, such as `<![CDATA[x]]>` or `<![if x]>`. HTML ends it at the first `>`, and
+      Python's parser at `]]>` or not at all
+    - `svg` and `math`. SVG and MathML have their own rules for slashes, CDATA, text and attributes
+
+    Spellings that Python's parser reads one way before its 2025 fixes and another way after. They are
+    refused so that a comparison does not pass on one patch release and fail on the next:
+
+    - a comment closed as `<!-->` or by `--!>`
+    - a comment holding `--` and spaces before a `>`
+    - a `</` not followed by a letter
+    - a raw-text end tag with more than its name, such as `</script x>`
+    - a non-ASCII space in an attribute name, or in a value without quotes
+    - a value without quotes holding `"`, `'`, `=`, `<` or a backtick
+
+    Not refused: an element left open at the end is closed, and an end tag closes every element opened
+    after its own.
+
+    Attribute values are decoded by the HTML standard's rules on every Python version. So
+    `href="?a=1&not=2"` keeps `&not=2` as written.
+
+    `match.html_equal_to()` parses the expected HTML when the matcher is built, and raises there. A value
+    it cannot parse does not match.
 
 !!! note "Where it differs from Django"
-    The tree is built as Django builds it, which is simpler than a browser: `<p>a<p>b` nests the second `p`
-    in the first, where a browser closes the first. Two rules of the HTML standard are kept that Django
-    does not keep. A slash on a non-void HTML element is ignored, so `<div/>x` puts `x` inside the `div`,
-    where Django closes it at once. Beyond that, `lenient` departs from Django where Django makes markup
-    that means different things equal:
+    The tree is built the way Django builds it, which is simpler than a browser. `<p>a<p>b` puts the
+    second `p` inside the first, and a browser closes the first.
 
-    - the text of `pre`, `textarea`, `script` and `style` is compared as written, where Django collapses its
-      whitespace;
-    - only ASCII whitespace is collapsed and trimmed, where Django trims every Unicode space, the
-      non-breaking one included;
-    - a boolean attribute counts by its presence, where Django takes `disabled="false"` as a different value
-      than `disabled`. Django's list also treats `disabled` as boolean on every element and misses `defer`;
-    - `hidden` compares by its state, so an unknown value is the hidden state and `UNTIL-FOUND` is
-      `until-found`;
+    The differences:
+
+    - a slash on a non-void element is ignored, as the HTML standard says. `<div/>x` puts `x` inside the
+      `div`, and Django closes the `div` at once
+    - the text of `pre`, `textarea`, `script` and `style` is compared as written. Django collapses its
+      whitespace
+    - only ASCII whitespace is collapsed and trimmed. Django trims every Unicode space, the non-breaking
+      one included
+    - a boolean attribute counts by its presence. Django takes `disabled="false"` as a different value
+      than `disabled`. Its list of boolean attributes also treats `disabled` as boolean on every element
+      and lacks `defer`
+    - `hidden` is compared by its state, so an unknown value means hidden, and `UNTIL-FOUND` equals
+      `until-found`
     - a repeated attribute, markup that ends inside a tag, a comment or a raw-text element, and SVG and
-      MathML are refused, where Django reads them.
+      MathML are refused. Django reads them
 
-    `textarea`, `title`, `xmp`, `iframe`, `noembed`, `noframes` and `plaintext` hold text on every Python
-    version. The standard library's parser read markup inside them before its 2025 fixes, so Django's verdict
-    on them depends on the patch release it runs on.
+    The content of `textarea`, `title`, `xmp`, `iframe`, `noembed`, `noframes` and `plaintext` is read as
+    text on every Python version. Python's parser read markup inside them before its 2025 fixes, so
+    Django's result on them depends on the Python patch release.
 
 ## Numbers
 
@@ -217,8 +246,9 @@ assert_that(123.4).is_not_inf()
 ```
 
 
-`is_in()` and `is_not_in()` take the candidates as arguments, so a collection is unpacked into them.
-Passed whole, it is one candidate, and the question is whether the value is that collection itself:
+`is_in()` and `is_not_in()` take each candidate as a separate argument, so unpack a collection with
+`*`. A collection passed without `*` is a single candidate, and the value is compared with the
+collection itself:
 
 ```python
 allowed = [0, 1, 2, 3]
@@ -226,11 +256,14 @@ allowed = [0, 1, 2, 3]
 assert_that(1).is_in(*allowed)
 assert_that(1).satisfies(match.is_in(*allowed))
 assert_that(9).is_not_in(*allowed)
-assert_that(1).is_not_in(allowed)   # passes: 1 is not the list, though the list holds it
+assert_that(1).is_not_in(allowed)   # passes: 1 is not equal to the list
 ```
 
-The last line is the trap. `is_in(allowed)` fails for a member and shows the list in its message, and
-`is_not_in(allowed)` passes for a member and prints nothing for a reader to notice.
+A missing `*` is easy to overlook:
+
+- `is_in(allowed)` fails for a value in the list, and the message shows the list, so you notice
+- `is_not_in(allowed)` passes for a value in the list, and nothing tells you the check was wrong
+
 `match.is_in()` takes its candidates the same way.
 
 !!! warning "Floats and equality"
@@ -238,10 +271,11 @@ The last line is the trap. `is_in(allowed)` fails for a member and shows the lis
 
 How `is_close_to()` measures:
 
-- Three ways, the difference and the window around each side, and it passes when any is within the
-  tolerance. Float rounding at the boundary differs between them, so `-1.1` is close to `-0.9` within
-  `0.2`, though `-0.9 - -1.1` is `0.20000000000000007`.
-- Under an absolute tolerance the answer is the same whichever operand is the value.
+- It passes when any one of three checks holds: the difference is at most the tolerance, the value is
+  within `expected ± tolerance`, or the expected value is within `value ± tolerance`.
+- Float rounding at the boundary can differ between the three checks. So `-1.1` is close to `-0.9`
+  within `0.2`, although `-0.9 - -1.1` is `0.20000000000000007`.
+- With an absolute tolerance, swapping the value and the expected value gives the same answer.
 - `match.close_to()` gives the same answer, `is_not_close_to()` the opposite, and
   `is_equal_to(..., tolerance=)` measures each pair the same way.
 
@@ -347,8 +381,8 @@ assert_that([1, 2, 3]).has_size_greater_than(2).has_size_less_than(4).has_size_b
 
 `all_satisfy` over an empty collection passes, the way `all([])` is true: no item failed.
 
-That is the correct answer to the question asked. It is also the most common silent false pass in a
-suite, because a query that returned no rows leaves the assertion with nothing to examine.
+This is logically right, but it is also the most common way a test passes without checking anything.
+When a query returns no rows, the assertion has no items to check, and it passes.
 
 Turn the guard on and those cases say so:
 
@@ -394,9 +428,10 @@ VacuousAssertionWarning: is_equal_to() passed with ignore and include leaving no
 key to compare, so nothing was checked.
 ```
 
-Two empty dicts under a filter stay quiet, since the comparison checked that both are empty. A
-snapshot is not watched this way: the keys it ignores include its placeholders, which it checks with
-matchers of their own.
+Two empty dicts compared under a filter give no warning, because the comparison did check that both
+are empty.
+`snapshot()` gives no such warning: the keys it ignores include its placeholders, and their matchers
+check those.
 
 The negative ones never warn. For `none_satisfy`, `does_not_contain` and `does_not_contain_duplicates`
 an empty subject is the expected pass: "no errors were logged" is what such a test wants to hear.
@@ -426,16 +461,17 @@ async def test_the_user_is_active():
 All three are green forever, and none of them is possible with a bare `assert`. That is the price of a
 fluent API, so the library owes you a way to find them.
 
-A fourth shape needs no check, because it is refused where it happens. An `async def` predicate hands
-back a coroutine, which is truthy and never runs, so the assertion around it would pass whatever the
-value was:
+A fourth case needs no check, because it raises an error on the spot. Calling an `async def`
+predicate returns a coroutine and runs nothing. A coroutine is truthy, so without the error the
+assertion would pass for any value:
 
 <!-- docs-guard: raises -->
 ```python
 async def is_positive(value: int) -> bool:
     return value > 0
 
-assert_that(-1).satisfies(is_positive)  # TypeError: predicate handed back a coroutine instead of an answer; ...
+assert_that(-1).satisfies(is_positive)
+# TypeError: predicate handed back a coroutine instead of an answer; ...
 ```
 
 Await the call and assert on the result: `assert_that(await is_positive(-1)).is_true()`.
@@ -510,9 +546,9 @@ for index in range(1000):
     assert_that(index)  # assertpy: allow-dangling
 ```
 
-The marker is namespaced rather than borrowing ruff's, so a line silenced for one tool is not silently
-silenced for the other. It covers the statement it sits on, and on a call broken over several lines the
-closing line works.
+The marker is assertpy's own, not ruff's `# noqa`. Silencing ruff on a line does not silence this
+check, and the marker does not silence ruff. It covers the whole statement it is on, so on a call split
+over several lines it can go on any of them, the closing line included.
 
 Most suites of any size wrap `assert_that` in a helper of their own, and the check cannot see through
 one it has never heard of. Name yours and it reads them the same way:
