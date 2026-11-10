@@ -16,6 +16,7 @@ import pytest
 
 from assertpy import assert_that, match, soft_assertions
 from assertpy.errors import AssertionFailure
+from tests.optional import needs
 
 
 class _Request:
@@ -159,6 +160,7 @@ class TestTheFailureSaysWhichResponseItCameFrom:
             assert_that(Fetched(body='{"id": 7}')).decoded_as_json().is_equal_to({"id": 9})
         assert_that(str(failure.value)).contains("from GET https://api.example.com/orders/7 -> 200")
 
+    @pytest.mark.needs("jsonpath_ng")
     def test_a_failure_two_pivots_below_the_response(self):
         response = Fetched(body='{"items": [{"sku": "A-1"}]}')
         with pytest.raises(AssertionFailure) as failure:
@@ -214,6 +216,7 @@ class TestTheFailureSaysWhichResponseItCameFrom:
             assert_that(Streaming()).has_status_code(200)
         assert_that(str(failure.value)).contains("from POST https://api.example.com/orders -> 500")
 
+    @pytest.mark.needs("jsonpath_ng")
     def test_a_response_that_is_falsey_still_carries_its_note(self):
         # `requests.Response` is falsey for every 4xx and 5xx, exactly the one whose provenance a reader needs
         class Refused(Fetched):
@@ -491,8 +494,9 @@ class TestTheClientsThemselves:
     made: both libraries build a response object directly.
     """
 
+    @pytest.mark.needs("jsonpath_ng")
     def test_an_httpx_response(self):
-        httpx = pytest.importorskip("httpx")
+        httpx = needs("httpx")
         response = httpx.Response(
             500,
             json={"error": "locked"},
@@ -504,7 +508,7 @@ class TestTheClientsThemselves:
 
     def test_an_httpx_response_that_was_never_read(self):
         # its `.text` raises `ResponseNotRead`, which is the case the note is forbidden to trigger
-        httpx = pytest.importorskip("httpx")
+        httpx = needs("httpx")
         response = httpx.Response(
             503,
             content=iter([b'{"error": "locked"}']),
@@ -514,8 +518,9 @@ class TestTheClientsThemselves:
             assert_that(response).has_status_code(200)
         assert_that(str(failure.value)).contains("from GET https://api.example.com/orders/7 -> 503")
 
+    @pytest.mark.needs("jsonpath_ng")
     def test_an_httpx2_response(self):
-        httpx2 = pytest.importorskip("httpx2")
+        httpx2 = needs("httpx2")
         response = httpx2.Response(
             404,
             json={"error": "no such order"},
@@ -527,7 +532,7 @@ class TestTheClientsThemselves:
 
     def test_a_requests_response(self):
         # a requests response is falsey for every 4xx and 5xx, which is the case a truthiness test loses
-        requests = pytest.importorskip("requests")
+        requests = needs("requests")
         response = requests.Response()
         response.status_code = 502
         response._content = b'{"error": "upstream"}'
@@ -538,8 +543,9 @@ class TestTheClientsThemselves:
             assert_that(response).decoded_as_json().is_equal_to({"error": "none"})
         assert_that(str(failure.value)).contains("from POST https://api.example.com/orders -> 502")
 
+    @pytest.mark.needs("jsonpath_ng")
     def test_a_flask_response(self):
-        flask = pytest.importorskip("flask")
+        flask = needs("flask")
         app = flask.Flask(__name__)
 
         @app.route("/orders/<int:order_id>")
@@ -551,7 +557,7 @@ class TestTheClientsThemselves:
         assert_that(str(failure.value)).contains("from GET http://localhost/orders/7 -> 500")
 
     def test_a_flask_response_that_is_not_json(self):
-        flask = pytest.importorskip("flask")
+        flask = needs("flask")
         app = flask.Flask(__name__)
 
         @app.route("/private")
@@ -563,7 +569,7 @@ class TestTheClientsThemselves:
         assert_that(str(failure.value)).contains("text/html").contains("Session expired")
 
     def test_a_django_response(self):
-        django = pytest.importorskip("django")
+        django = needs("django")
         _configure_django(django)
         from django.http import JsonResponse
 
@@ -573,8 +579,9 @@ class TestTheClientsThemselves:
             assert_that(response).decoded_as_json().is_equal_to({"error": "open"})
         assert_that(str(failure.value)).contains("from a response with status 502")
 
+    @pytest.mark.needs("jsonpath_ng")
     def test_a_django_response_through_its_test_client(self):
-        django = pytest.importorskip("django")
+        django = needs("django")
         _configure_django(django)
         from django.test import Client
 
@@ -584,8 +591,8 @@ class TestTheClientsThemselves:
         assert_that(str(failure.value)).contains("from GET /orders/7/?q=alice -> 500")
 
     def test_a_starlette_test_client_response(self):
-        starlette = pytest.importorskip("starlette")
-        pytest.importorskip("httpx2")
+        starlette = needs("starlette")
+        needs("httpx2")
         from starlette.applications import Starlette
         from starlette.responses import JSONResponse
         from starlette.routing import Route

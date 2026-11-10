@@ -77,18 +77,27 @@ uv pip install attrs pydantic requests httpx flask
 ```
 
 `ruff` belongs in that list: the tests that compare a generated file against its generator shell out
-to it, and without it they fail for a reason that has nothing to do with your change.
+to it, and without it they skip.
 
 ### From the sdist
 
-The sdist ships the suite, and distributions run it from there with the `json` extra and the tools of
-the `dev` group, without `uv`. CI checks that it passes there: `scripts/check_sdist.py` builds the sdist
-and runs the suite from it and from the checkout in one environment made from the lockfile. Both runs
-must pass and collect and skip the same tests. On Linux, macOS or WSL:
+The sdist ships the suite, and distributions run it from there, without `uv`, with whatever subset of the
+optional libraries they package. The `test` dependency group is all it requires. Every other library a
+test reads is optional, and the test skips without it. CI checks both ends with `scripts/check_sdist.py`,
+which builds the sdist and runs the suite from it. `--developer` installs everything and runs the suite
+from the checkout as well, and both runs must pass and collect and skip the same tests, so a file the
+sdist leaves out shows. `--bare` installs nothing optional, so the suite runs without xdist workers
+there. `--without` takes one optional distribution away, with what requires it, and the `absent` job does
+that for each of them. On Linux, macOS or WSL:
 
 ```bash
-python scripts/check_sdist.py --export="--extra json" -- -q -n 4 --dist loadfile --ignore=tests/test_docs_examples.py tests
+python scripts/check_sdist.py --bare -- -q tests
+python scripts/check_sdist.py --without=jsonpath-ng -- -q -n 4 --dist loadfile tests
 ```
+
+A test that reads an optional library says so with `needs()` from `tests/optional.py`, or with the `needs`
+marker, and not with `pytest.importorskip`. Its skip names the module, and the guard in `tests/conftest.py`
+fails a run whose skips contradict what that run claims is installed.
 
 A test that reads a file outside `assertpy/` and `tests/` needs that file in the sdist `include` of
 `pyproject.toml`. A test that starts a child pytest launches `sys.executable`, not `uv run`: outside

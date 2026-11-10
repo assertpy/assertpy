@@ -250,7 +250,7 @@
    "reportAttributeAccessIssue"
   ],
   "ty": [
-   "unresolved-attribute"
+   "missing-attribute"
   ]
  }
 }

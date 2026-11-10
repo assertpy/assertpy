@@ -101,7 +101,7 @@ def same_value(left: object, right: object) -> bool:
     if type(left) is not type(right):
         return False
     if isinstance(left, BaseException):
-        return left.args == right.args  # ty: ignore[unresolved-attribute]  # same type, checked above
+        return left.args == right.args  # ty: ignore[missing-attribute]  # same type, checked above
     return shown(left) == shown(right)
 
 

@@ -26,7 +26,7 @@ else:  # pragma: no cover - exercised only on Python 3.10
     from typing_extensions import Self
 
     try:
-        from exceptiongroup import BaseExceptionGroup  # ty: ignore[unresolved-import]  # optional 3.10 backport
+        from exceptiongroup import BaseExceptionGroup  # ty: ignore[import-not-found]  # optional 3.10 backport
     except ImportError:
         BaseExceptionGroup = ()
 

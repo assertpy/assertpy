@@ -488,7 +488,8 @@ def _responses() -> dict[str, Case]:
         "status holds": Case(lambda: assert_that(ok).has_status_code(200)),
         "status differs": Case(lambda: assert_that(missing).has_status_code(200)),
         "json path through a response": Case(
-            lambda: assert_that(ok).decoded_as_json().at_json_path("$.items[0].sku").is_equal_to("B-2")
+            lambda: assert_that(ok).decoded_as_json().at_json_path("$.items[0].sku").is_equal_to("B-2"),
+            requires="jsonpath_ng",
         ),
         "a response is not a mapping": Case(lambda: assert_that(ok).contains_key("items")),
     }

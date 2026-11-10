@@ -63,6 +63,7 @@ from assertpy.pytest_plugin import (
     pytest_unconfigure,
 )
 from tests.group_compat import ExceptionGroup
+from tests.optional import needs
 
 # a child starting in `tmp_path` otherwise imports the installed copy, which a cached 3.10 floor build left stale
 _CHECKOUT = str(pathlib.Path(pytest_plugin.__file__).resolve().parents[1])
@@ -131,7 +132,7 @@ def _run_hook(report, call, *, item=None):
 
 class TestPluginLoaded:
     def test_plugin_is_registered(self):
-        pm = pytest.importorskip("assertpy.pytest_plugin")
+        pm = needs("assertpy.pytest_plugin")
         assert_that(hasattr(pm, "pytest_runtest_makereport")).is_true()
 
     def test_addoption_registers_ini(self):
@@ -2633,7 +2634,7 @@ class TestTheDiffTravelsWithTheFailure:
     @pytest.mark.parametrize("workers", [(), ("-n", "2")], ids=["in-process", "distributed"])
     def test_forced_colour_reaches_the_terminal_and_no_other_reader(self, tmp_path, workers):
         if workers:
-            pytest.importorskip("xdist", reason="the integration cell installs xdist and this one may not")
+            needs("xdist")
         result = self._run(tmp_path, "--color=yes", *workers)
         assert_that(result.stdout.count("\x1b[36mdiff (dict):")).described_as("coloured diffs").is_equal_to(6)
         readers = [
@@ -2656,7 +2657,7 @@ class TestTheDiffTravelsWithTheFailure:
         assert_that(self._junit_bodies(tmp_path)).all_satisfy(match.contains("diff (dict)"))
 
     def test_a_distributed_run_carries_it_to_the_controller(self, tmp_path):
-        pytest.importorskip("xdist", reason="the integration cell installs xdist and this one may not")
+        needs("xdist")
         self._run(tmp_path, "-n", "2")
         bodies = self._junit_bodies(tmp_path)
         assert_that(bodies).is_length(5).all_satisfy(match.contains("diff (dict)"))
@@ -2695,7 +2696,7 @@ class TestASoftBlocksSectionsReachEveryReader:
     @pytest.mark.parametrize("workers", [(), ("-n", "2")], ids=["in-process", "distributed"])
     def test_the_terminal_gets_each_diff_in_colour_and_junit_in_plain_text(self, tmp_path, workers):
         if workers:
-            pytest.importorskip("xdist", reason="the integration cell installs xdist and this one may not")
+            needs("xdist")
         result, bodies = self._run(tmp_path, "--color=yes", *workers)
         assert_that(result.stdout.count("\x1b[36mdiff (dict):")).described_as("coloured diffs").is_equal_to(2)
         assert_that(bodies).is_length(1)
@@ -3066,6 +3067,7 @@ def test_case(name):
 """
 
 
+@pytest.mark.needs("xdist")
 class TestSnapshotKeyReuseUnderXdist:
     """The reuse gate across real worker processes, rather than at the seam.
 

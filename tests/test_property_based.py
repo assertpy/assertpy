@@ -57,6 +57,7 @@ from assertpy.exception import _matches_shape
 from assertpy.outcome import AssertionOutcome
 from assertpy.pytest_plugin import _format_diff
 from tests.group_compat import BaseExceptionGroup, ExceptionGroup, needs_groups
+from tests.optional import needs
 
 try:
     import jsonschema  # noqa: F401  # presence gate only
@@ -986,7 +987,7 @@ def test_duplicate_elements_merge_to_one(value):
 @settings(deadline=None)
 @given(ident=st.integers(), name=st.text(), tags=st.lists(st.text()))
 def test_conforming_dump_has_no_drift(ident, name, tags):
-    pytest.importorskip("pydantic", reason="pydantic not installed")
+    needs("pydantic")
     from pydantic import BaseModel
 
     class Item(BaseModel):
@@ -1001,7 +1002,7 @@ def test_conforming_dump_has_no_drift(ident, name, tags):
 @settings(deadline=None)
 @given(payload=st.dictionaries(_keys, _json_atoms), extra_key=st.text(min_size=1))
 def test_undeclared_key_is_always_detected(payload, extra_key):
-    pytest.importorskip("pydantic", reason="pydantic not installed")
+    needs("pydantic")
     from pydantic import BaseModel
 
     class Item(BaseModel):
@@ -1016,7 +1017,7 @@ def test_undeclared_key_is_always_detected(payload, extra_key):
 @settings(deadline=None)
 @given(payload=st.dictionaries(_keys, _json))
 def test_contract_drift_is_total(payload):
-    pytest.importorskip("pydantic", reason="pydantic not installed")
+    needs("pydantic")
     from pydantic import BaseModel
 
     class Sub(BaseModel):
@@ -1054,7 +1055,7 @@ def _grown(draw, value):
 @settings(deadline=None)
 @given(data=st.data(), widths=st.lists(st.integers(0, 3), min_size=3, max_size=3))
 def test_every_undeclared_key_is_an_entry_whose_steps_lead_back_to_it(data, widths):
-    pytest.importorskip("pydantic", reason="pydantic not installed")
+    needs("pydantic")
     from pydantic import BaseModel
 
     class Sub(BaseModel):
@@ -1156,7 +1157,7 @@ _field = st.text(alphabet="abcdefghijklmnopqrstuvwxyz", min_size=1, max_size=6)
 @settings(deadline=None)
 @given(ids=st.lists(st.integers(), max_size=6), suffix=st.text(max_size=4))
 def test_assert_conforms_each_preserves_length_and_order(ids, suffix):
-    pytest.importorskip("pydantic", reason="pydantic not installed")
+    needs("pydantic")
     from pydantic import BaseModel
 
     class Item(BaseModel):
@@ -1172,7 +1173,7 @@ def test_assert_conforms_each_preserves_length_and_order(ids, suffix):
 @settings(deadline=None)
 @given(ids=st.lists(st.integers(), min_size=1, max_size=5), position=st.integers(), extra=_field)
 def test_assert_conforms_each_exact_reports_indexed_drift(ids, position, extra):
-    pytest.importorskip("pydantic", reason="pydantic not installed")
+    needs("pydantic")
     from pydantic import BaseModel
 
     class Item(BaseModel):

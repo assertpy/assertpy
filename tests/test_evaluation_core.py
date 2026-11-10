@@ -72,6 +72,7 @@ from assertpy._engine._text import starts_with as text_starts_with
 from assertpy.errors import _json_safe
 from assertpy.matchers import _is_matcher
 from tests.group_compat import ExceptionGroup, needs_groups
+from tests.optional import needs
 
 
 @dataclass
@@ -705,7 +706,7 @@ class TestOrderingIsOneDecisionAsWell:
         "equal" and make `le`/`ge` true. It is the only case that reaches that guard now that plain
         floats short-circuit, so it is what keeps the guard honest.
         """
-        numpy = pytest.importorskip("numpy")
+        numpy = needs("numpy")
         nan = numpy.float64("nan")
         assert_that(holds(nan, nan, "le")).is_false()
         assert_that(holds(nan, nan, "ge")).is_false()
@@ -2199,7 +2200,7 @@ class TestARefusalThatCannotBeReproducedIsNotRewritten:
 
     def test_an_element_whose_equality_changes_its_answer_is_asked_once(self):
         """The refusal ``in`` raised is answered as caught: asked again, the second answer passed the item."""
-        numpy = pytest.importorskip("numpy")
+        numpy = needs("numpy")
 
         class Fickle:
             def __init__(self):

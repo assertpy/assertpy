@@ -20,6 +20,7 @@ from assertpy import assert_that
 from assertpy._engine._diff import _build_equality_diff
 from assertpy.behave_matchers import ASSERTPY_TYPES, register_assertpy_types
 from assertpy.errors import PollSample, PollTrace
+from tests.optional import needs
 
 
 class TestAllureContract:
@@ -27,7 +28,7 @@ class TestAllureContract:
 
     @pytest.fixture(autouse=True)
     def _require_allure(self):
-        pytest.importorskip("allure", reason="allure-pytest is an optional extra")
+        needs("allure", delegated_to="the optional-integrations job")
 
     def test_the_plugin_sees_allure_as_present(self):
         from assertpy import pytest_plugin
@@ -68,7 +69,7 @@ class TestBehaveContract:
 
     @pytest.fixture(autouse=True)
     def _require_behave(self):
-        pytest.importorskip("behave", reason="behave is an optional extra")
+        needs("behave", delegated_to="the optional-integrations job")
 
     def test_every_type_reaches_behave_own_registry(self):
         from behave.matchers import ParseMatcher

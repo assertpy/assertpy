@@ -530,11 +530,11 @@ class TestTwoSidesOfOneClassThatPrintAlike:
             __hash__ = None  # ty: ignore[invalid-assignment]  # a class that defines `__eq__` alone is unhashable
 
         one, other, same = _Counted(1), _Counted(2), _Counted(1)
-        one.touchy, other.touchy = Touchy(), Touchy()  # ty: ignore[unresolved-attribute]  # given to the instance
-        one.shared = other.shared = Touchy()  # ty: ignore[unresolved-attribute]  # given to the instance
+        one.touchy, other.touchy = Touchy(), Touchy()  # ty: ignore[missing-attribute]  # given to the instance
+        one.shared = other.shared = Touchy()  # ty: ignore[missing-attribute]  # given to the instance
         failure = _failed(lambda: assert_that([one]).is_equal_to([other]))
         assert_that(failure._message.splitlines()[1]).is_equal_to(f"{_UNSEEN_FACT} (attributes that differ: held)")
-        same.touchy = Touchy()  # ty: ignore[unresolved-attribute]  # given to the instance
+        same.touchy = Touchy()  # ty: ignore[missing-attribute]  # given to the instance
         unknown = _failed(lambda: assert_that([one]).is_equal_to([same], comparators={_Counted: lambda a, b: False}))
         assert_that(unknown._message.splitlines()[-1]).is_equal_to(f"{_UNSEEN_FACT} (attributes that differ: shared)")
 
@@ -544,7 +544,7 @@ class TestTwoSidesOfOneClassThatPrintAlike:
 
     def test_an_attribute_one_side_lacks_is_named_and_a_long_list_is_cut(self):
         one, other = _Counted(1), _Counted(1)
-        one.only_here = 1  # ty: ignore[unresolved-attribute]  # an attribute given to one instance alone
+        one.only_here = 1  # ty: ignore[missing-attribute]  # an attribute given to one instance alone
         for index in range(6):
             setattr(other, f"extra{index}", index)
         failure = _failed(lambda: assert_that([one]).is_equal_to([other], comparators={_Counted: lambda a, b: False}))

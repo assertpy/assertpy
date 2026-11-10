@@ -23,6 +23,7 @@ import subprocess
 import sys
 
 from assertpy import assert_that
+from tests.optional import needs
 
 _ROOT = pathlib.Path(__file__).resolve().parent.parent
 _REPORTED = re.compile(r"`([^`]+)` is too complex \((\d+)")
@@ -65,6 +66,7 @@ RECORDED: dict[str, int] = {
 
 def _measured() -> dict[str, int]:
     """What ruff reports at the default threshold, read from its own JSON."""
+    needs("ruff")
     result = subprocess.run(
         [
             sys.executable,

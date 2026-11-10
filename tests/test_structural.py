@@ -27,6 +27,7 @@ from assertpy.matchers import (
     IsUuidMatcher,
     StructureMatcher,
 )
+from tests.optional import needs
 
 
 class TestIgnoreMatcher:
@@ -519,7 +520,7 @@ class TestStructureMatcherOnModel:
         assert_that(matcher.describe_mismatch(_SpecModel(id=-1))).contains("at <id>")
 
     def test_real_pydantic_model(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel
 
         class Address(BaseModel):
@@ -599,7 +600,7 @@ class TestModelNestedInsideDict:
 class TestAssertConforms:
     @staticmethod
     def _order_model():
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel
 
         class Order(BaseModel):
@@ -663,7 +664,7 @@ class TestAssertConforms:
 class TestAssertConformsExact:
     @staticmethod
     def _models():
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from datetime import datetime
 
         from pydantic import BaseModel
@@ -723,7 +724,7 @@ class TestAssertConformsExact:
         assert_that(message).contains("customer.vip").contains("items[1].gift_wrap")
 
     def test_exact_alias_not_flagged(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, Field
 
         class Aliased(BaseModel):
@@ -732,7 +733,7 @@ class TestAssertConformsExact:
         assert_that(assert_conforms({"userId": 1}, Aliased, exact=True).value.user_id).is_equal_to(1)
 
     def test_exact_respects_extra_allow_config(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, ConfigDict
 
         class Loose(BaseModel):
@@ -853,7 +854,7 @@ class TestContractDrift:
 
     @staticmethod
     def _submodels():
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, Field
 
         class Inner(BaseModel):
@@ -904,7 +905,7 @@ class TestContractDrift:
         assert_that(_drift({"inner": None}, Holder)).is_empty()
 
     def test_validation_alias_str_not_flagged(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, Field
 
         class Model(BaseModel):
@@ -913,7 +914,7 @@ class TestContractDrift:
         assert_that(_drift({"userId": 1}, Model)).is_empty()
 
     def test_alias_choices_not_flagged_but_genuine_drift_caught(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import AliasChoices, BaseModel, Field
 
         class Model(BaseModel):
@@ -924,7 +925,7 @@ class TestContractDrift:
         assert_that(_drift({"uid": 1, "surprise": 9}, Model)).is_equal_to(["surprise"])
 
     def test_alias_path_top_level_key_not_flagged(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import AliasPath, BaseModel, Field
 
         class Model(BaseModel):
@@ -933,7 +934,7 @@ class TestContractDrift:
         assert_that(_drift({"address": {"city": "NYC"}}, Model)).is_empty()
 
     def test_submodel_resolved_via_validation_alias(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, Field
 
         class Inner(BaseModel):
@@ -945,7 +946,7 @@ class TestContractDrift:
         assert_that(_drift({"innerAlias": {"x": 1, "extra": 2}}, Outer)).is_equal_to(["inner.extra"])
 
     def test_submodel_value_resolution_alias_loop_branches(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import AliasChoices, BaseModel, Field
 
         class Inner(BaseModel):
@@ -1026,7 +1027,7 @@ class TestContractFailuresCarryPaths:
 
     @staticmethod
     def _models():
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel
 
         class Address(BaseModel):
@@ -1049,7 +1050,7 @@ class TestContractFailuresCarryPaths:
         assert_that(next(entry for entry in diff.entries if entry.path == "id").actual).is_equal_to("seven")
 
     def test_each_names_the_element_that_failed(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel
 
         class Item(BaseModel):
@@ -1069,7 +1070,7 @@ class TestAliasResolution:
 
     def test_a_serialization_only_alias_is_not_declared(self):
         # `serialization_alias` renames a field on the way out, and pydantic will not accept it as input
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, Field
 
         class Model(BaseModel):
@@ -1079,7 +1080,7 @@ class TestAliasResolution:
         assert_that(_drift({"user_id": 1, "userId": 2}, Model)).is_equal_to(["userId"])
 
     def test_a_validation_only_alias_is_declared(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, Field
 
         class Model(BaseModel):
@@ -1088,7 +1089,7 @@ class TestAliasResolution:
         assert_that(_drift({"incoming_id": 1}, Model)).is_empty()
 
     def test_every_choice_of_an_alias_choices_is_declared(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import AliasChoices, BaseModel, Field
 
         class Model(BaseModel):
@@ -1098,7 +1099,7 @@ class TestAliasResolution:
             assert_that(_drift({choice: 1}, Model)).described_as(choice).is_empty()
 
     def test_an_alias_path_declares_the_key_it_consumes(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import AliasPath, BaseModel, Field
 
         class Model(BaseModel):
@@ -1109,7 +1110,7 @@ class TestAliasResolution:
 
 class TestSubmodelAnnotations:
     def test_an_optional_submodel_is_still_walked(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel
 
         class Inner(BaseModel):
@@ -1129,7 +1130,7 @@ class TestDriftFollowsWhatPydanticBuilt:
 
     @staticmethod
     def _cases():
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import AliasPath, BaseModel, ConfigDict, Field, RootModel, field_validator, model_validator
         from typing_extensions import TypedDict
 
@@ -1269,7 +1270,7 @@ class TestDriftFollowsWhatPydanticBuilt:
         assert_that(found).is_equal_to({label: expected for label, (_, _, expected) in self._cases().items()})
 
     def test_a_name_the_config_does_not_read_is_named_and_not_followed(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, Field
 
         class Inner(BaseModel):
@@ -1284,7 +1285,7 @@ class TestDriftFollowsWhatPydanticBuilt:
     def test_a_key_that_spells_a_field_says_where_the_field_was_read(self):
         """A key the model knows and validation did not read is dropped like any other, and named with the reason: the
         key its field was read from in its place, or the keys validation reads it from where the payload sent none."""
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import AliasChoices, AliasPath, BaseModel, Field
 
         class Named(BaseModel):
@@ -1345,7 +1346,7 @@ class TestDriftFollowsWhatPydanticBuilt:
         )
 
     def test_a_config_reading_names_only_is_followed_by_name(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import ConfigDict as _Config
 
         if "validate_by_name" not in _Config.__annotations__:
@@ -1396,7 +1397,7 @@ class TestDriftFollowsWhatPydanticBuilt:
         assert_that(_contract._READS).contains_key(model)
 
     def test_a_rebuilt_model_is_read_again(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import ConfigDict as _Config
 
         if "validate_by_name" not in _Config.__annotations__:
@@ -1417,7 +1418,7 @@ class TestDriftFollowsWhatPydanticBuilt:
         assert_that(_drift(payload, Outer)).is_equal_to(["sub.extra"])
 
     def test_a_payload_holding_itself_is_walked_once(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel
 
         class Loose(BaseModel):
@@ -1428,7 +1429,7 @@ class TestDriftFollowsWhatPydanticBuilt:
         assert_that(assert_conforms(looped, Loose, exact=True).value.f).is_same_as(looped)
 
     def test_a_model_a_validator_made_hold_itself_is_walked_once(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, model_validator
 
         class Selfish(BaseModel):
@@ -1497,7 +1498,7 @@ class TestExactnessRefusesWhatItCannotPair:
 
     @staticmethod
     def _models():
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, ConfigDict, Json, RootModel, field_validator, model_validator
 
         class A(BaseModel):
@@ -1726,7 +1727,7 @@ class TestExactnessRefusesWhatItCannotPair:
         )
 
     def test_an_item_validated_again_runs_its_validators_once_more(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, ConfigDict, model_validator
 
         runs = []
@@ -1749,7 +1750,7 @@ class TestExactnessRefusesWhatItCannotPair:
 
     def test_a_filtered_list_is_checked_as_the_payload_sent_it(self):
         """An item the validator dropped is checked too: the contract is the payload's, not what was kept."""
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, field_validator
 
         class Plain(BaseModel):
@@ -1773,7 +1774,7 @@ class TestExactnessRefusesWhatItCannotPair:
         declared type and what that builds is read; where that cannot tell what they became (items pydantic will not
         build that type from, a choice the validators not run again could have steered), the check refuses, clean
         payloads too."""
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, BeforeValidator, ConfigDict, Field, Json, RootModel, field_validator
         from pydantic_core import core_schema
         from typing_extensions import TypeAliasType
@@ -2070,7 +2071,7 @@ class TestExactnessRefusesWhatItCannotPair:
             assert_conforms(payload, model, exact=True)
 
     def test_a_recursive_model_emptied_at_every_level_is_checked_at_every_level(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, field_validator
 
         class Node(BaseModel):
@@ -2091,7 +2092,7 @@ class TestExactnessRefusesWhatItCannotPair:
         )
 
     def test_items_dropped_beside_plain_survivors_are_refused(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, ConfigDict, field_validator
 
         class A(BaseModel):
@@ -2137,7 +2138,7 @@ class TestExactnessRefusesWhatItCannotPair:
         )
 
     def test_an_emptied_container_is_answered_when_the_records_are_full_and_refused_without_pydantic(self, monkeypatch):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, field_validator
 
         class A(BaseModel):
@@ -2191,7 +2192,7 @@ class TestExactnessRefusesWhatItCannotPair:
     def test_typed_extras_are_checked_as_their_annotation_declares(self):
         """A list emptied inside a typed `__pydantic_extra__` is replayed as its annotation declares, read as written
         whatever other annotations the model holds.  Under a replay, an extra built through a choice refuses."""
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import AfterValidator, BaseModel, ConfigDict
 
         class A(BaseModel):
@@ -2249,7 +2250,7 @@ class TestExactnessRefusesWhatItCannotPair:
         """Text is not read back: pydantic read it in the frame that defined the model, where a name can mean another
         type than in its module.  A list emptied there refuses, and under a replay an extra built through it refuses
         too; so does one whose annotations raise when read, as from 3.14 a name defined only later does."""
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import AfterValidator, BaseModel, ConfigDict, PydanticSchemaGenerationError
 
         class A(BaseModel):
@@ -2294,7 +2295,7 @@ class TestExactnessRefusesWhatItCannotPair:
     def test_a_declaration_is_worked_out_once_whatever_ran_before(self, monkeypatch):
         """The caches are bounded, and a long run fills them before this one: each is emptied here, so a second ask
         is answered by what the first one worked out."""
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel
 
         class A(BaseModel):
@@ -2315,7 +2316,7 @@ class TestExactnessRefusesWhatItCannotPair:
         assert_that([ask() is answer for ask, answer in zip(asks, first, strict=True)]).is_equal_to([True] * 5)
 
     def test_a_replay_that_builds_no_matching_sequence_refuses(self, monkeypatch):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, field_validator
 
         class A(BaseModel):
@@ -2417,7 +2418,7 @@ class TestExactnessRefusesWhatItCannotPair:
         assert_that(list(lazy.value.f)).is_length(1)
 
     def test_a_validator_reordering_at_equal_length_is_read_by_position(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, field_validator
 
         class A(BaseModel):
@@ -2440,7 +2441,7 @@ class TestExactnessRefusesWhatItCannotPair:
         )
 
     def test_a_nesting_deeper_than_the_walk_follows_is_refused(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, field_validator
 
         class A(BaseModel):
@@ -2493,7 +2494,7 @@ class TestExactnessReadsThePayloadAsItWasSent:
         return Stripping
 
     def test_a_key_removed_in_place_is_named_and_the_payload_is_left_as_validation_left_it(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         stripping = self._stripping()
         payload = {"x": 1, "extra": 2}
         assert_that(self._failure(payload, stripping)).is_equal_to(
@@ -2506,7 +2507,7 @@ class TestExactnessReadsThePayloadAsItWasSent:
     @pytest.mark.parametrize("stamp", [{}, {"at": datetime.date(2026, 10, 1)}], ids=["copied whole", "by container"])
     def test_items_changed_and_dropped_in_place_are_read_as_sent(self, stamp):
         """Plain data is kept as one copy; a payload holding a date cannot be, and is kept container by container."""
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, field_validator, model_validator
 
         class Row(BaseModel):
@@ -2579,7 +2580,7 @@ class TestExactnessReadsThePayloadAsItWasSent:
 
     @pytest.mark.parametrize("stamp", [{}, {"at": datetime.date(2026, 10, 1)}], ids=["copied whole", "by container"])
     def test_a_tuple_of_items_is_put_back_item_by_item(self, stamp):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, model_validator
 
         class Stamped(BaseModel):
@@ -2606,7 +2607,7 @@ class TestExactnessReadsThePayloadAsItWasSent:
     def test_what_a_validator_run_again_changes_is_put_back_before_the_walk(self):
         """The item class strips its input in place, and runs again on the payload itself: what it strips is put
         back before the walk reads it."""
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, field_validator
 
         stripping = self._stripping()
@@ -2633,7 +2634,7 @@ class TestExactnessReadsThePayloadAsItWasSent:
             assert_that(payload).is_equal_to({"items": left})
 
     def test_each_item_is_kept_before_the_first_one_is_validated(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, model_validator
 
         later = {"x": 2, "extra": 3}
@@ -2654,7 +2655,7 @@ class TestExactnessReadsThePayloadAsItWasSent:
         assert_that(later).is_equal_to({"x": 2})
 
     def test_a_retained_object_changed_in_place_and_a_payload_that_holds_itself(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, field_validator, model_validator
 
         class Keeping(BaseModel):
@@ -2688,7 +2689,7 @@ class TestExactnessReadsThePayloadAsItWasSent:
         assert_that(sorted(looped)).is_equal_to(["back", "x"])
 
     def test_the_payload_is_returned_when_the_check_itself_raises(self, monkeypatch):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
 
         def broken(*args, **kwargs):
             raise RuntimeError("walk")
@@ -2704,7 +2705,7 @@ class TestExactnessReadsThePayloadAsItWasSent:
             assert_that(payload).is_equal_to({"x": 1})
 
     def test_a_container_the_payload_holds_twice_is_left_as_validation_left_it(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, field_validator
 
         shared = {"x": 1, "extra": 2}
@@ -2740,7 +2741,7 @@ class TestExactnessReadsThePayloadAsItWasSent:
 
     def test_a_subclass_is_read_as_the_builtin_it_is(self):
         """Keeping the payload reads a subclass's storage, not through the methods it overrides."""
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, model_validator
 
         class Refusing(dict):
@@ -2767,7 +2768,7 @@ class TestExactnessReadsThePayloadAsItWasSent:
     def test_a_value_whose_comparison_raises_counts_as_a_change(self):
         """A validator can put a value of any kind into the payload, and comparing it with what was sent calls its
         own ``==``."""
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, model_validator
 
         class Bomb:
@@ -2792,11 +2793,11 @@ class TestExactnessReadsThePayloadAsItWasSent:
 
     def test_a_subclass_changed_in_place_is_not_put_back(self):
         """Putting a subclass back would go through methods of its own, so what it lost stays unseen."""
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         assert_conforms(collections.OrderedDict(x=1, extra=2), self._stripping(), exact=True)
 
     def test_a_model_with_no_code_of_its_own_keeps_no_record(self, monkeypatch):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel
 
         class Plain(BaseModel):
@@ -2817,7 +2818,7 @@ class TestExactnessReadsThePayloadAsItWasSent:
     def test_a_dict_emptied_by_code_validation_calls_is_read_as_sent(self, through):
         """Neither is a validator: pydantic calls the class of a named tuple, and the constructor of an enum calls its
         `_missing_`.  The dict is held twice, so what either took out of it is gone from the model beside it."""
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel
 
         class Inner(BaseModel):
@@ -2934,7 +2935,7 @@ class TestExactnessReadsThePayloadAsItWasSent:
         )
 
     def test_which_models_run_code_of_their_own(self, monkeypatch):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         import pydantic
         from pydantic import AfterValidator, BaseModel, PrivateAttr, field_serializer, field_validator
         from pydantic.dataclasses import dataclass as pydantic_dataclass
@@ -3082,7 +3083,7 @@ class TestExactnessReachesDataclassesAndTypedDicts:
         keeps it where pydantic puts what was sent there over the field, as an older one does, and drops it where
         pydantic ignores it, as a later one does.  What is expected is read off what pydantic built: the name was kept
         where the field holds what was sent under it, and another key where the record holds it."""
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import ConfigDict, Field, TypeAdapter
         from pydantic.dataclasses import dataclass as pydantic_dataclass
         from typing_extensions import TypedDict
@@ -3136,7 +3137,7 @@ class TestExactnessReachesDataclassesAndTypedDicts:
         nothing of which built it, and the one that drops extras would have ignored the name: it refuses.  Where
         pydantic ignores the name, as a later one does, the tag tells them apart and the name is named.  A tag nothing
         was put over tells them apart either way."""
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import ConfigDict, Field
         from typing_extensions import TypedDict
 
@@ -3193,7 +3194,7 @@ class TestExactnessReachesDataclassesAndTypedDicts:
     def test_a_typed_dict_that_keeps_extras_lends_no_other_its_exemption(self):
         """One that keeps extras is ruled out by another tag.  The two left drop extras, read the name of the tag as
         another field, and are told apart by the tag itself, whichever the union names first."""
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import ConfigDict, Field
         from typing_extensions import TypedDict
 
@@ -3230,7 +3231,7 @@ class TestExactnessReachesDataclassesAndTypedDicts:
         where it does not but each of them ignores the name.  One that keeps extras keeps the name where pydantic puts
         it over the field, as an older one does: beside one that ignores it nothing tells which built the dict, and it
         refuses, whatever object the field holds."""
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import ConfigDict, Field, TypeAdapter
         from typing_extensions import TypedDict
 
@@ -3269,7 +3270,7 @@ class TestExactnessReachesDataclassesAndTypedDicts:
         """A deque, an `OrderedDict` and a named tuple are no container the walk reads a `TypedDict` out of, nor a type
         it knows to build no dict.  A clean payload passes, and a key that grew refuses: read as building no dict, a
         named tuple hid the `TypedDict` in its field, and the grown key passed."""
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from typing_extensions import TypedDict
 
         class Point(TypedDict):
@@ -3297,7 +3298,7 @@ class TestExactnessReachesDataclassesAndTypedDicts:
     def test_a_field_read_from_a_later_source_is_no_extra_a_model_lost(self):
         """A model that keeps typed extras is asked which of them it no longer holds, and a key a field was read
         from is none of them, whichever of the field's sources it is."""
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, ConfigDict, Field
 
         class Row(BaseModel):
@@ -3314,7 +3315,7 @@ class TestExactnessReachesDataclassesAndTypedDicts:
         )
 
     def test_a_typed_dict_is_checked_for_its_own_keys_and_walked(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, ConfigDict, Field
         from typing_extensions import NotRequired, TypedDict
 
@@ -3378,7 +3379,7 @@ class TestExactnessReachesDataclassesAndTypedDicts:
     def test_a_typed_dict_declared_in_text_or_beside_another_is_read_off_the_schema(self, monkeypatch):
         """The plain dict built does not say which of two it became, so a key lost there refuses.  Declared in text,
         its own keys and aliases are read off the schema, and so is a `TypedDict` below it."""
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, Field, field_validator
         from typing_extensions import TypedDict
 
@@ -3445,7 +3446,7 @@ class TestExactnessReachesDataclassesAndTypedDicts:
     def test_a_record_is_read_as_the_schema_pydantic_built_says(self):
         """What no annotation tells is in the schema: which of several aliases wins, a config that reaches a
         `TypedDict` from the model above, an alias on a plain dataclass."""
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, ConfigDict, Field, ValidationError
         from pydantic.dataclasses import dataclass as pydantic_dataclass
         from typing_extensions import TypedDict
@@ -3545,7 +3546,7 @@ class TestExactnessReachesDataclassesAndTypedDicts:
         """A plain dataclass validated again on its own, out of a list its validator cut, has no schema that holds it,
         and is read off its annotations; inside a union of containers the schema of its model reaches it.  A
         parametrized `TypedDict` is read off the schema of what its variable is."""
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, BeforeValidator, Field, field_validator
         from typing_extensions import NotRequired, TypedDict
 
@@ -3609,7 +3610,7 @@ class TestExactnessReachesDataclassesAndTypedDicts:
         assert_that(found).is_equal_to(expected)
 
     def test_a_dataclass_is_checked_for_its_own_keys_and_walked(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, ConfigDict, Field
         from pydantic.dataclasses import dataclass as pydantic_dataclass
 
@@ -3679,7 +3680,7 @@ class TestExactnessReachesDataclassesAndTypedDicts:
         )
 
     def test_dataclasses_that_lost_their_order_or_their_count_are_validated_again(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import Json, field_validator
         from pydantic.dataclasses import dataclass as pydantic_dataclass
 
@@ -3738,7 +3739,7 @@ class TestExactnessReachesDataclassesAndTypedDicts:
         )
 
     def test_a_record_is_read_once_per_class_and_a_choice_in_it_refuses_under_a_replay(self, monkeypatch):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, ConfigDict, field_validator
         from pydantic.dataclasses import dataclass as pydantic_dataclass
 
@@ -3797,7 +3798,7 @@ class TestExactnessChecksAnExtraTheModelNoLongerHolds:
         return "passes"
 
     def test_an_extra_removed_after_it_was_built_is_checked_as_its_declared_type(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, ConfigDict, model_validator
 
         class Value(BaseModel):
@@ -3868,7 +3869,7 @@ class TestExactnessChecksAnExtraTheModelNoLongerHolds:
     def test_an_extra_typed_as_a_typed_dict_loses_only_what_that_typed_dict_drops(self):
         """Under a model that allows extras a `TypedDict` takes that config and keeps a key it does not declare, so
         nothing was dropped, held or removed.  One with a config of its own drops it, and is named either way."""
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, ConfigDict, model_validator
         from typing_extensions import TypedDict
 
@@ -3901,7 +3902,7 @@ class TestExactnessChecksAnExtraTheModelNoLongerHolds:
         assert_that(found).is_equal_to([inherited, inherited, *[f"1 {self.CARRIES}['first.unexpected']"] * 2])
 
     def test_where_the_declared_type_does_not_tell_it_refuses_and_where_nothing_hides_it_passes(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, ConfigDict, model_validator
 
         class Value(BaseModel):
@@ -3987,7 +3988,7 @@ class TestExactnessReadsATypedDictOffTheSchema:
         return type("Holding", (BaseModel,), {"__annotations__": {"f": annotation}, **validators})
 
     def test_one_typed_dict_beside_types_that_build_no_dict_is_that_record(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, RootModel
         from typing_extensions import NotRequired, TypedDict
 
@@ -4032,7 +4033,7 @@ class TestExactnessReadsATypedDictOffTheSchema:
         )
 
     def test_several_typed_dicts_are_told_apart_only_by_what_their_literals_rule_out(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import Field, field_validator
         from typing_extensions import NotRequired, TypedDict
 
@@ -4079,7 +4080,7 @@ class TestExactnessReadsATypedDictOffTheSchema:
         )
 
     def test_where_nothing_tells_them_apart_a_lost_key_refuses_and_a_clean_payload_passes(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BeforeValidator, Field
         from typing_extensions import NotRequired, TypedDict
 
@@ -4162,7 +4163,7 @@ class TestExactnessReadsATypedDictOffTheSchema:
         """One reads the field by its alias and the other by its name, and each drops the key the other reads.  Sent
         one object under both keys, as two equal small ints are, the field is still read from two places, and nothing
         tells which key was dropped."""
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import Field
         from typing_extensions import NotRequired, TypedDict
 
@@ -4197,7 +4198,7 @@ class TestExactnessReadsATypedDictOffTheSchema:
         there: it refuses.  A key the one that built the dict dropped and a validator put back, where another would
         have read it, is the documented limit: the dict holds it, and it passes.  Where releases differ, what was
         expected is read off what pydantic built."""
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, field_validator
         from typing_extensions import NotRequired, TypedDict
 
@@ -4332,7 +4333,7 @@ class TestExactnessReadsATypedDictOffTheSchema:
         assert_that(found).is_equal_to(expected)
 
     def test_what_is_declared_beside_them_declares_what_the_dict_holds_as_well(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import Field, Json
         from typing_extensions import TypedDict
 
@@ -4389,7 +4390,7 @@ class TestExactnessReadsATypedDictOffTheSchema:
         )
 
     def test_what_could_mislead_the_choice_between_them_refuses(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import Field, field_validator
         from typing_extensions import NotRequired, TypedDict
 
@@ -4452,7 +4453,7 @@ class TestExactnessReadsATypedDictOffTheSchema:
         )
 
     def test_a_typed_dict_inside_a_schema_that_does_not_say_what_it_builds_is_one_of_them(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic_core import core_schema
         from typing_extensions import TypedDict
 
@@ -4495,7 +4496,7 @@ class TestExactnessReadsATypedDictOffTheSchema:
         )
 
     def test_what_no_reading_pairs_refuses_where_a_typed_dict_is_declared_for_it(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import field_validator
         from typing_extensions import TypedDict
 
@@ -4535,7 +4536,7 @@ class TestExactnessReadsATypedDictOffTheSchema:
         )
 
     def test_a_field_its_own_schema_validates_as_a_record_is_walked(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel
         from typing_extensions import TypedDict
 
@@ -4574,7 +4575,7 @@ class TestExactnessReadsATypedDictOffTheSchema:
         )
 
     def test_a_type_that_may_build_a_dict_too_leaves_it_open(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import AfterValidator, PlainValidator
         from typing_extensions import TypedDict
 
@@ -4609,7 +4610,7 @@ class TestExactnessReadsATypedDictOffTheSchema:
         assert_that(self._found({"f": [{"x": 1, "extra": 2}]}, beside)).is_equal_to(f"1 {self.CARRIES}['f[0].extra']")
 
     def test_without_a_schema_to_read_the_type_declares_as_far_as_it_says(self, monkeypatch):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel
         from typing_extensions import TypedDict
 
@@ -4631,7 +4632,7 @@ class TestExactnessReadsATypedDictOffTheSchema:
         )
 
     def test_what_text_and_a_type_variable_stand_for_is_read_off_the_schema(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, Field
         from typing_extensions import TypedDict
 
@@ -4722,7 +4723,7 @@ class TestExactnessReadsATypedDictOffTheSchema:
         )
 
     def test_a_list_emptied_where_its_type_is_not_read_refuses(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, BeforeValidator
         from typing_extensions import TypedDict
 
@@ -4755,7 +4756,7 @@ class TestExactnessReadsATypedDictOffTheSchema:
         assert_that(self._found({"f": {"many": [{"x": 1, "extra": 2}]}}, boxed)).is_equal_to(f"<f.many> {emptied}")
 
     def test_under_a_replay_a_type_that_is_not_read_counts_as_a_choice(self, monkeypatch):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, field_validator
         from typing_extensions import TypedDict
 
@@ -4786,7 +4787,7 @@ class TestExactnessReadsATypedDictOffTheSchema:
         assert_that(self._found({"f": [{"point": {"x": 1}}]}, Emptied)).is_equal_to(expected)
 
     def test_a_dataclass_and_typed_extras_declared_in_text_are_read_off_the_schema(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, ConfigDict
         from typing_extensions import TypedDict
 
@@ -4852,7 +4853,7 @@ class TestAnExactFailureCarriesADiff:
         return Row, Order
 
     def test_each_undeclared_field_is_an_entry_holding_what_was_sent_there(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         _, order = self._models()
         payload = {
             "rows": [{"x": 1}, {"x": 2, "extra": [3]}],
@@ -4879,7 +4880,7 @@ class TestAnExactFailureCarriesADiff:
             assert_that(self._reached(payload, entry.steps)).described_as(entry.path).is_same_as(entry.actual)
 
     def test_the_entries_name_what_the_message_names_in_its_order(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         row, order = self._models()
         payloads = [
             ({"zeta": 1, "rows": [{"x": 1, "b": 2, "a": 3}], "alpha": 4}, order, {}),
@@ -4896,7 +4897,7 @@ class TestAnExactFailureCarriesADiff:
         )
 
     def test_a_collection_that_keeps_no_positions_is_stepped_into_by_the_item(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, ConfigDict, Json
 
         class Row(BaseModel):
@@ -4930,7 +4931,7 @@ class TestAnExactFailureCarriesADiff:
         )
 
     def test_a_find_inside_a_key_or_a_record_or_an_extra_is_stepped_into_as_it_was_read(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, ConfigDict, Field, Json
         from pydantic.dataclasses import dataclass
         from typing_extensions import TypedDict
@@ -5010,7 +5011,7 @@ class TestAnExactFailureCarriesADiff:
     def test_json_text_is_entered_by_a_step_that_holds_what_it_decodes_to(self):
         """The steps led on into what the text decodes to without saying so: a reader that followed them through the
         payload met a string, and one that decoded it had an equal value and not the object the entry holds."""
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, Json
 
         class Row(BaseModel):
@@ -5061,7 +5062,7 @@ class TestAnExactFailureCarriesADiff:
         assert_that(entry.actual).is_equal_to({"1": {"x": 1, "extra": 2}, "01": {"x": 2}})
 
     def test_what_json_text_holds_is_not_copied_where_the_payload_was_changed_in_place(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, Json, model_validator
 
         class Row(BaseModel):
@@ -5087,7 +5088,7 @@ class TestAnExactFailureCarriesADiff:
         assert_that(found["row.more"].actual).is_same_as(entered.value["more"])
 
     def test_a_part_that_cannot_be_checked_is_an_entry_holding_the_part_against_the_reason(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, field_validator, model_validator
         from pydantic_core import core_schema
 
@@ -5161,7 +5162,7 @@ class TestAnExactFailureCarriesADiff:
         assert_that(entry.actual).is_same_as(sent)
 
     def test_a_payload_too_deep_to_walk_is_an_entry_at_the_item_that_was_being_walked(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, field_validator
 
         class A(BaseModel):
@@ -5193,7 +5194,7 @@ class TestAnExactFailureCarriesADiff:
         assert_that(entry.actual).is_same_as(payload)
 
     def test_the_entries_of_one_failure_share_the_copies_of_what_they_share(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, model_validator
 
         class Emptying(BaseModel):
@@ -5217,7 +5218,7 @@ class TestAnExactFailureCarriesADiff:
         assert_that(entries["deep"]).is_not_same_as(deep)
 
     def test_an_entry_keeps_what_was_sent_where_validation_changed_the_payload_in_place(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, model_validator
 
         class Stripping(BaseModel):
@@ -5284,7 +5285,7 @@ class TestAnExactFailureCarriesADiff:
         assert_that((depth, kept)).is_equal_to((5_001, [1]))
 
     def test_a_key_named_by_nothing_joins_the_path_as_it_did(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, RootModel
 
         class Row(BaseModel):
@@ -5305,7 +5306,7 @@ class TestAnExactFailureCarriesADiff:
         assert_that(found).is_equal_to([["[0].", "[0].extra"], ["", "extra"], ["f.[0].", "f.[0].extra"]])
 
     def test_the_diff_renders_an_undeclared_field_as_what_only_the_payload_holds(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel, field_validator
 
         class A(BaseModel):
@@ -5331,7 +5332,7 @@ class TestAnExactFailureCarriesADiff:
         )
 
     def test_a_soft_failure_carries_the_same_diff(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         row, _ = self._models()
         with pytest.raises(AssertionError) as caught, soft_assertions():
             assert_conforms({"x": 1, "extra": 2}, row, exact=True)
@@ -5346,7 +5347,7 @@ class TestExactnessWalksOnlyWhatCanHoldAModel:
 
     @staticmethod
     def _model():
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel
 
         class A(BaseModel):

@@ -20,10 +20,12 @@ from typing import TYPE_CHECKING
 
 import pytest
 
+from tests.optional import needs
+
 if TYPE_CHECKING:
     import pathlib
 
-pytest.importorskip("mypy", reason="the lint job installs the typecheck group and this cell does not")
+needs("mypy", delegated_to="the lint job")
 
 from assertpy import assert_that
 from tests import typing_harness

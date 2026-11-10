@@ -37,6 +37,7 @@ from assertpy import AssertionFailure, assert_that
 from assertpy._engine import _capable_typing
 from assertpy._engine._operations import ALSO_ASSERTS, CONFIGURES, TRANSFORMS, WITHOUT_A_VERDICT
 from assertpy.assertpy import AssertionBuilder
+from tests.optional import needs
 
 _ROOT = pathlib.Path(__file__).resolve().parent.parent
 _SOURCE = pathlib.Path(_capable_typing.__file__).read_text(encoding="utf-8")
@@ -358,6 +359,7 @@ def _generator() -> ModuleType:
 
 def _formatted(source: str, path: str = _capable_typing.__file__) -> str:
     """*source* after the two steps the generator runs once it has written *path*: ruff format, then ruff's fixes."""
+    needs("ruff")
     for command in (
         ["ruff", "format", "--stdin-filename", path, "-"],
         ["ruff", "check", "--fix", "--quiet", "--stdin-filename", path, "-"],

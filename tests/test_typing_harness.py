@@ -12,6 +12,7 @@ import pytest
 
 from assertpy import assert_that
 from tests import typing_harness
+from tests.optional import needs
 
 REPORT = '{"generalDiagnostics": [{"rule": "reportCallIssue", "range": {"start": {"line": 4}}}], "n": 1}'
 READ = {"generalDiagnostics": [{"rule": "reportCallIssue", "range": {"start": {"line": 4}}}], "n": 1}
@@ -74,6 +75,6 @@ def test_an_output_that_is_not_one_report_is_refused_and_not_searched(output):
 
 
 def test_a_real_pyright_run_is_read():
-    pytest.importorskip("pyright", reason="pyright not installed")
+    needs("pyright", delegated_to="the lint job")
     found = typing_harness.pyright(typing_harness.ROOT / "tests" / "typing_harness.py")
     assert_that(found).is_instance_of(dict)

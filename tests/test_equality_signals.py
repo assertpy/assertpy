@@ -33,6 +33,7 @@ from assertpy._engine._ordering import (
     mixes_broadcasting,
 )
 from assertpy._engine._require import pure_decimal_code, raised_inside
+from tests.optional import needs
 
 _DECIMAL_REFUSES_A_NUMPY_INTEGER = r"argument must be an integer|Cannot convert (np\.int64\(5\)|5) to Decimal"
 """The C `decimal` and the one CPython runs in Python where built without it word this refusal differently."""
@@ -91,19 +92,19 @@ def test_a_signalling_nan_answers_as_a_quiet_one(asked, counterpart):
 @pytest.mark.parametrize("asked", list(_ASKED))
 @pytest.mark.parametrize("bignum", [10**400, 1], ids=["past-the-float-range", "within-it"])
 def test_a_numpy_float_answers_as_the_float_it_holds(asked, bignum):
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     with numpy.errstate(all="ignore"):
         assert_that(_ASKED[asked](numpy.float32(1), bignum)).is_equal_to(_ASKED[asked](1.0, bignum))
 
 
 def test_a_scalar_numpy_broadcasts_against_a_list_holding_a_signalling_nan_is_unequal():
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     assert_that(assert_that([decimal.Decimal("sNaN"), 1]).check().is_equal_to(numpy.float32(1)).passed).is_false()
 
 
 def test_a_walk_reads_a_numpy_scalar_against_a_sequence_as_the_verdict_does():
     """A walk asks ``==`` of a pair itself, and `numpy` answers a scalar against a list with an array that is true."""
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     under_a_key_option = assert_that({"a": numpy.int64(5), "b": 1}).check().is_equal_to({"a": [5], "b": 2}, ignore="b")
     assert_that(under_a_key_option.passed).is_false()
     in_a_diff = assert_that([numpy.int64(5), 1]).check().is_equal_to([[5], 2])
@@ -121,7 +122,7 @@ def test_a_walk_reads_a_numpy_scalar_against_a_sequence_as_the_verdict_does():
 )
 def test_a_frame_that_refuses_its_truth_with_a_type_error_is_named_inside_a_list(ask):
     """`polars` refuses the truth of a frame with a `TypeError`, where `numpy` refuses an array's with `ValueError`."""
-    polars = pytest.importorskip("polars")
+    polars = needs("polars")
     with pytest.raises(TypeError, match=r"equal_to\(\) cannot directly compare <DataFrame>"):
         ask(polars.DataFrame({"a": [1, 2]}), polars.DataFrame({"a": [1, 2]}))
 
@@ -156,7 +157,7 @@ def test_a_refusal_whose_class_cannot_be_asked_comes_out_as_it_was_raised(ask):
 
 def test_a_signal_ahead_of_an_array_is_answered_as_the_signal():
     """``==`` stopped at the signalling NaN and never asked the array after it, so the array is not what refused."""
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     held = [decimal.Decimal("sNaN"), numpy.array([1, 2])]
     assert_that(held).is_not_equal_to([decimal.Decimal("sNaN"), numpy.array([1, 2])])
 
@@ -427,14 +428,14 @@ def test_a_signalling_nan_on_the_other_side_answers_as_a_quiet_one(asked):
 @pytest.mark.parametrize("asked", list(_ASKED))
 @pytest.mark.parametrize("bignum", [10**400, 1], ids=["past-the-float-range", "within-it"])
 def test_a_bignum_against_a_numpy_float_answers_as_against_the_float_it_holds(asked, bignum):
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     with numpy.errstate(all="ignore"):
         assert_that(_ASKED[asked](bignum, numpy.float32(1))).is_equal_to(_ASKED[asked](bignum, 1.0))
 
 
 def _decimal_and_int64(text: str, *, decimal_first: bool) -> tuple[list[object], list[object]]:
     """The pair of a `Decimal` and a `numpy.int64(5)`, and the same pair with a Python ``5`` standing in."""
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     pair, stand_in = [decimal.Decimal(text), numpy.int64(5)], [decimal.Decimal(text), 5]
     if not decimal_first:
         pair.reverse()
@@ -484,14 +485,14 @@ def test_a_set_or_a_deque_searched_for_a_decimal_against_a_numpy_integer_answers
 )
 def test_the_refusal_named_after_a_pair_a_decimal_refuses_is_the_item_refused(asked):
     """Asked again one item at a time, the `Decimal` refused ahead of the list, which is what the set refuses."""
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     with pytest.raises(TypeError, match="unhashable type: 'list'"):
         asked(decimal.Decimal(5), numpy.int64(5))
 
 
 @pytest.mark.parametrize("asked", [match.contains, match.contains_only], ids=["contains", "contains_only"])
 def test_a_matcher_reads_the_refusal_after_a_pair_a_decimal_refuses_as_no_match(asked):
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     assert_that(asked(numpy.int64(5), [1]).matches({decimal.Decimal(5)})).is_false()
 
 
@@ -688,7 +689,7 @@ class _InvertedSet(set):
 
 def test_a_set_whose_equality_is_not_the_built_in_one_hands_its_refusal_on():
     """Its elements decide nothing, so the `Decimal`'s refusal of the `numpy` integer is the answer's to give."""
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     with pytest.raises(TypeError, match=_DECIMAL_REFUSES_A_NUMPY_INTEGER):
         assert_that(_InvertedSet({numpy.int64(5)})).is_equal_to({decimal.Decimal(5)})
 
@@ -716,7 +717,7 @@ def test_a_key_whose_hash_collides_with_one_it_does_not_equal_is_absent(asked, c
     `numpy.int64` answers for itself), and a `numpy.float32` infinity hashes as `_BEYOND` does, which `numpy`
     overflows converting either way round.
     """
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     kinds = {
         "decimal-int64": (numpy.int64(2**61 - 1), decimal.Decimal(0), 2**61 - 1),
         "float32-bignum": (numpy.float32("inf"), _BEYOND, math.inf),
@@ -760,7 +761,7 @@ def test_an_error_of_a_values_own_equality_is_handed_on_once_and_not_taken_for_a
 
 def test_a_key_is_searched_past_a_refusal_only_in_a_container_searched_by_hash():
     """Elsewhere the key held cannot be read back through identity, so the refusal is the answer's to give."""
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     assert_that(held_key({decimal.Decimal(5)}, numpy.int64(5))).is_equal_to((True, decimal.Decimal(5)))
     with pytest.raises(TypeError, match=_DECIMAL_REFUSES_A_NUMPY_INTEGER):
         held_key([decimal.Decimal(5)], numpy.int64(5))
@@ -782,7 +783,7 @@ class _SpecCounted:
 @pytest.mark.parametrize("ignore_first", [True, False], ids=["counted-first", "counted-last"])
 def test_a_spec_that_refuses_the_key_asks_no_other_spec_again(ignore_first):
     """The `Decimal` refuses the `numpy` key, and every other spec is asked as often as beside a spec that does not."""
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     value, other = {numpy.int64(5): 1, "b": 2}, {numpy.int64(5): 9, "b": 2}
     asked = []
     for last in (decimal.Decimal(5), 5):
@@ -874,7 +875,7 @@ def test_a_numpy_scalar_against_a_list_is_unequal_as_the_value_it_holds_is(asked
     truth of several, and on none, where numpy 1 only warns; the library asked that pair itself, and a Python
     value is simply unequal to a list.
     """
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     plain = _SCALAR_KINDS[kind]
     sequence = _SEQUENCE_SHAPES[shape](plain)
     scalar = getattr(numpy, kind)(plain)
@@ -884,7 +885,7 @@ def test_a_numpy_scalar_against_a_list_is_unequal_as_the_value_it_holds_is(asked
 @pytest.mark.parametrize("sequence", [[5], (5,)], ids=["list", "tuple"])
 def test_the_failure_of_a_numpy_scalar_against_a_sequence_does_not_call_them_equal(sequence):
     """The hint used to read numpy's array for the pair as equal values and name only their types."""
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     message = assert_that(numpy.int64(5)).check().is_equal_to(sequence).message
     assert_that(message).does_not_contain("only their types differ")
 
@@ -894,7 +895,7 @@ class _Values(list):
 
 
 def test_a_list_subclass_keeping_the_built_in_search_is_searched_past_a_broadcast():
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     assert_that(assert_that(_Values([numpy.int64(5)])).check().contains([5]).passed).is_false()
     assert_that(assert_that(_Values([[5]])).check().contains(numpy.int64(5)).passed).is_false()
 
@@ -923,7 +924,7 @@ _COLLISION_ASKED = {
 
 @pytest.mark.parametrize("asked", list(_COLLISION_ASKED))
 def test_a_hash_collision_between_a_numpy_scalar_and_a_tuple_answers_as_the_int_does(asked):
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     colliding = numpy.int64(hash(_HELD))
     assert_that(hash(colliding)).is_equal_to(hash(_HELD))
     expected = _COLLISION_ASKED[asked](hash(_HELD))
@@ -931,7 +932,7 @@ def test_a_hash_collision_between_a_numpy_scalar_and_a_tuple_answers_as_the_int_
 
 
 def test_a_one_shot_value_is_read_once_where_a_scalar_meets_a_list():
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     passed = assert_that(value for value in [numpy.int64(5), 2]).check().contains_only([5], 2).passed
     assert_that(passed).is_equal_to(assert_that(value for value in [5, 2]).check().contains_only([5], 2).passed)
 
@@ -947,7 +948,7 @@ def test_a_one_shot_value_is_read_once_where_a_scalar_meets_a_list():
 )
 def test_a_numpy_scalar_meeting_a_list_inside_a_containers_own_comparison_is_numpys_answer(asked):
     """The recorded boundary: two containers compared by their own C `==` take the truth of numpy's array."""
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     assert_that(asked(numpy.int64(5))).is_true()
 
 
@@ -976,7 +977,7 @@ _RAISED_INSIDE_ASKED = {
 @pytest.mark.parametrize("asked", list(_RAISED_INSIDE_ASKED))
 def test_a_containers_own_comparison_that_raised_on_the_pair_is_answered_as_the_int_is(asked):
     """Where numpy's array had no truth, the container's `==` raised, and the pairs are asked one by one."""
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     assert_that(_RAISED_INSIDE_ASKED[asked](numpy.int64(5))).is_equal_to(_RAISED_INSIDE_ASKED[asked](5))
 
 
@@ -1020,7 +1021,7 @@ _NO_BROADCAST_ASKED = {
 @pytest.mark.parametrize("asked", list(_NO_BROADCAST_ASKED))
 def test_an_ambiguous_truth_that_is_no_broadcast_is_handed_on(asked):
     """Two arrays are compared element by element by their own right, which `is_array_equal` is for."""
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     with pytest.raises(ValueError, match="truth value"):
         _NO_BROADCAST_ASKED[asked](numpy.array([1, 2]), numpy.array([1, 3]))
 
@@ -1031,7 +1032,7 @@ _RAGGED = [[5], [5, 6]]
 
 @pytest.mark.parametrize("asked", list(_BROADCAST_ASKED))
 def test_a_numpy_scalar_against_a_ragged_list_is_unequal_as_the_int_it_holds_is(asked):
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     assert_that(_BROADCAST_ASKED[asked](numpy.int64(5), _RAGGED)).is_equal_to(_BROADCAST_ASKED[asked](5, _RAGGED))
 
 
@@ -1051,7 +1052,7 @@ class _Truthy:
 
 def test_a_list_that_wrote_its_own_equality_keeps_its_answer_against_a_numpy_scalar():
     """Only `numpy`'s array is the broadcast; an answer of the subclass's own stands."""
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     assert_that(assert_that(_AlwaysEqualList([1])).check().is_equal_to(numpy.int64(5)).passed).is_true()
 
 
@@ -1068,14 +1069,14 @@ class _Declining(list):
 @pytest.mark.parametrize("held", [[5], [5, 6]], ids=["one-element", "two-elements"])
 def test_a_list_whose_own_equality_declined_a_numpy_scalar_is_unequal_as_to_the_int(asked, held):
     """Declined, the scalar's reflected `==` answered with its array, which is `numpy`'s broadcast after all."""
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     sequence = _Declining(held)
     assert_that(_BROADCAST_ASKED[asked](numpy.int64(5), sequence)).is_equal_to(_BROADCAST_ASKED[asked](5, sequence))
 
 
 def test_a_list_whose_own_equality_answers_an_array_is_read_as_numpys_broadcast():
     """The recorded boundary: only a second call could tell which method answered, so the array is read."""
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
 
     class AnsweringArray(list):
         def __eq__(self, other: object) -> object:
@@ -1087,7 +1088,7 @@ def test_a_list_whose_own_equality_answers_an_array_is_read_as_numpys_broadcast(
 
 
 def test_a_numpy_scalar_subclass_that_wrote_its_own_equality_keeps_its_answer():
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
 
     class AlwaysEqual(numpy.int64):
         def __eq__(self, other: object) -> object:

@@ -18,12 +18,15 @@ import typing
 import pytest
 from hypothesis import HealthCheck, event, example, given, reject, settings
 from hypothesis import strategies as st
-from typing_extensions import NotRequired, TypedDict
 
 from assertpy import AssertionFailure, assert_conforms, assert_that
+from tests.optional import needs
 
-pydantic = pytest.importorskip("pydantic", reason="pydantic not installed")
-pydantic_dataclass = pytest.importorskip("pydantic.dataclasses").dataclass
+pydantic = needs("pydantic")
+pydantic_dataclass = needs("pydantic.dataclasses").dataclass
+# pydantic reads a `TypedDict` only from typing_extensions below 3.12, and requires the package itself
+from typing_extensions import NotRequired, TypedDict
+
 AliasChoices, AliasPath, BaseModel, ConfigDict = (
     pydantic.AliasChoices,
     pydantic.AliasPath,

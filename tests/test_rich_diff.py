@@ -14,6 +14,7 @@ from assertpy._engine._path import _Path
 from assertpy.errors import DiffEntry, DiffResult, _cut, _within_budget
 from assertpy.helpers import HelpersMixin
 from assertpy.pytest_plugin import _format_diff
+from tests.optional import needs
 
 
 class _Boxed:
@@ -368,7 +369,7 @@ class TestContainsDiff:
             def __eq__(self, other: object) -> bool:
                 return False
 
-            __hash__ = None  # ty: ignore[invalid-assignment, invalid-method-override]  # a set is unhashable anyway
+            __hash__ = None  # ty: ignore[invalid-assignment, incompatible-method-override]  # a set is unhashable anyway
 
         for held in (Odd(), Odd({1})):
             operand = set(held)
@@ -896,7 +897,7 @@ class TestNestedDataclassDiff:
 
 class TestPydanticDiff:
     def test_pydantic_model_field_diff(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel
 
         class UserModel(BaseModel):
@@ -911,7 +912,7 @@ class TestPydanticDiff:
         assert_that(result.entries[0].expected).is_equal_to("Bob")
 
     def test_nested_pydantic_model_diff(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel
 
         class AddressModel(BaseModel):
@@ -931,7 +932,7 @@ class TestPydanticDiff:
         assert_that(paths).contains(".address.zip_code")
 
     def test_pydantic_is_equal_to_without_filter(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel
 
         class Item(BaseModel):
@@ -946,7 +947,7 @@ class TestPydanticDiff:
         assert_that(exc.diff.entries[0].path).is_equal_to(".price")
 
     def test_pydantic_in_list_diff(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel
 
         class Item(BaseModel):
@@ -961,7 +962,7 @@ class TestPydanticDiff:
         assert_that(paths).contains("[1].qty")
 
     def test_pydantic_format_diff_renders(self):
-        pytest.importorskip("pydantic", reason="pydantic not installed")
+        needs("pydantic")
         from pydantic import BaseModel
 
         class Simple(BaseModel):

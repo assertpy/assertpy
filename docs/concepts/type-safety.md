@@ -48,7 +48,7 @@ Two kinds of step break that on purpose:
 Because each overload is typed, a type checker flags an assertion that does not apply to the value, or an
 argument of the wrong type, without running anything:
 
-<!-- docs-guard: type-error -->
+<!-- docs-guard: type-error missing-attribute, invalid-argument-type -->
 ```python
 # type error: is_positive is not a string assertion
 assert_that("foo").is_positive()
@@ -59,7 +59,7 @@ assert_that(42).is_instance_of("int")
 The same holds for a relation between two values. An argument is bound to the type of the value under
 test, so a comparison that could never hold is a type error, not a runtime failure:
 
-<!-- docs-guard: type-error -->
+<!-- docs-guard: type-error invalid-argument-type, missing-attribute, no-matching-overload -->
 ```python
 assert_that([1, 2, 3]).contains("four")            # an item that cannot be in a list of int
 assert_that({"id": 1}).contains_key(3.14)          # a key that cannot be in a dict[str, int]
@@ -115,7 +115,7 @@ report these in the editor and in CI, turning a class of test bugs into errors y
 A value the library cannot see a use for gets the core surface, not every assertion there is. So a
 numeric assertion on a user class is a type error rather than a runtime one:
 
-<!-- docs-guard: type-error -->
+<!-- docs-guard: type-error missing-attribute -->
 ```python
 assert_that(person).is_positive()   # type error: a plain class has no numeric assertions
 ```
@@ -138,7 +138,7 @@ resolved at runtime from the value itself, so no overload can declare them ahead
 outside the typed surface by design, and a checker accepts them only where the value keeps the full
 builder:
 
-<!-- docs-guard: type-error -->
+<!-- docs-guard: type-error missing-attribute -->
 ```python
 assert_that(person).has_first_name("Fred")   # type error: a plain class has no dynamic assertions
 ```
@@ -158,7 +158,7 @@ dict, `_DictAssertion` would need a `__getattr__`, and that same declaration wou
 line, for the same reason. The name is attached at runtime, so it reaches a checker through that one
 `__getattr__` and nowhere else:
 
-<!-- docs-guard: type-error -->
+<!-- docs-guard: type-error missing-attribute -->
 ```python
 assert_that(order).is_paid()  # type error: a plain class has no dynamically attached names
 assert_that(5).is_5()         # type error: _NumericAssertion has no attribute is_5

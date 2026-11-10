@@ -5,6 +5,7 @@ import pytest
 
 from assertpy import assert_that
 from assertpy._engine._compare import _find_ambiguous_operand
+from tests.optional import needs
 
 
 def test_is_equal():
@@ -224,20 +225,20 @@ class TestArrayLikeEqualityGuard:
             assert_that(_FakeScalarArray()).is_not_equal_to(_FakeScalarArray())
 
     def test_numpy_array_raises_clear_error(self):
-        numpy = pytest.importorskip("numpy")
+        numpy = needs("numpy")
         with pytest.raises(TypeError) as exc_info:
             assert_that(numpy.array([1, 2, 3])).is_equal_to(numpy.array([1, 2, 3]))
         assert_that(str(exc_info.value)).contains("element-wise")
 
     def test_pandas_dataframe_raises_clear_error(self):
-        pandas = pytest.importorskip("pandas")
+        pandas = needs("pandas")
         frame = pandas.DataFrame({"a": [1, 2]})
         with pytest.raises(TypeError) as exc_info:
             assert_that(frame).is_equal_to(frame)
         assert_that(str(exc_info.value)).contains("element-wise")
 
     def test_polars_dataframe_raises_clear_error(self):
-        polars = pytest.importorskip("polars")
+        polars = needs("polars")
         frame = polars.DataFrame({"a": [1, 2]})
         with pytest.raises(TypeError) as exc_info:
             assert_that(frame).is_equal_to(frame)
@@ -347,7 +348,7 @@ class TestNestedArrayLikeEqualityGuard:
             assert_that({"a": _RaisingEq()}).is_not_equal_to({"a": _RaisingEq()})
 
     def test_numpy_array_nested_in_dict_raises_clear_error(self):
-        numpy = pytest.importorskip("numpy")
+        numpy = needs("numpy")
         with pytest.raises(TypeError) as exc_info:
             assert_that({"a": numpy.array([1, 2])}).is_equal_to({"a": numpy.array([1, 2])})
         assert_that(str(exc_info.value)).contains("element-wise")

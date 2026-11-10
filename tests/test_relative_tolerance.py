@@ -16,6 +16,7 @@ from hypothesis import assume, example, given, settings
 from hypothesis import strategies as st
 
 from assertpy import AssertionFailure, assert_that, match
+from tests.optional import needs
 
 _DIRECTED = [
     (102.0, 100.0, 0.02, True),
@@ -217,7 +218,7 @@ class TestWhatIsRefused:
             assert_that(str(refusal.value)).is_equal_to(said)
 
     def test_a_duration_has_no_size_either(self):
-        numpy = pytest.importorskip("numpy")
+        numpy = needs("numpy")
         second = numpy.timedelta64(1, "s")
         with pytest.raises(TypeError) as refusal:
             assert_that(2 * second).is_close_to(second, second, rel=0.1)

@@ -326,7 +326,7 @@ A `bool` is refused as the value, the expected value or the tolerance, and so is
 tolerance:
 
 <!-- docs-guard: raises -->
-<!-- docs-guard: type-error -->
+<!-- docs-guard: type-error missing-attribute -->
 ```python
 assert_that(True).is_close_to(1, 0)
 # TypeError: val must be a number other than a bool, or a datetime, but was <True> (bool)

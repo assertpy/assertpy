@@ -2,6 +2,8 @@ import logging
 from io import StringIO
 from unittest.mock import patch
 
+import pytest
+
 import assertpy.assertpy as assertpy_module
 from assertpy import WarningLoggingAdapter, assert_that, assert_warn
 
@@ -40,16 +42,16 @@ def test_failures():
     out = capture.getvalue()
     capture.close()
 
-    assert_that(out).contains("[test_warn.py:29]: Expected <foo> to be of length <4>, but was <3>.")
-    assert_that(out).contains("[test_warn.py:30]: Expected <foo> to be empty string, but was not.")
-    assert_that(out).contains("[test_warn.py:31]: Expected <foo> to be <False>, but was not.")
-    assert_that(out).contains("[test_warn.py:32]: Expected <foo> to contain only digits, but did not.")
-    assert_that(out).contains("[test_warn.py:33]: Expected <123> to contain only alphabetic chars, but did not.")
-    assert_that(out).contains("[test_warn.py:34]: Expected <foo> to contain only uppercase chars, but did not.")
-    assert_that(out).contains("[test_warn.py:35]: Expected <FOO> to contain only lowercase chars, but did not.")
-    assert_that(out).contains("[test_warn.py:36]: Expected <foo> to be equal to <bar>, but was not.")
-    assert_that(out).contains("[test_warn.py:37]: Expected <foo> to be not equal to <foo>, but was.")
-    assert_that(out).contains("[test_warn.py:38]: Expected <foo> to be case-insensitive equal to <BAR>, but was not.")
+    assert_that(out).contains("[test_warn.py:31]: Expected <foo> to be of length <4>, but was <3>.")
+    assert_that(out).contains("[test_warn.py:32]: Expected <foo> to be empty string, but was not.")
+    assert_that(out).contains("[test_warn.py:33]: Expected <foo> to be <False>, but was not.")
+    assert_that(out).contains("[test_warn.py:34]: Expected <foo> to contain only digits, but did not.")
+    assert_that(out).contains("[test_warn.py:35]: Expected <123> to contain only alphabetic chars, but did not.")
+    assert_that(out).contains("[test_warn.py:36]: Expected <foo> to contain only uppercase chars, but did not.")
+    assert_that(out).contains("[test_warn.py:37]: Expected <FOO> to contain only lowercase chars, but did not.")
+    assert_that(out).contains("[test_warn.py:38]: Expected <foo> to be equal to <bar>, but was not.")
+    assert_that(out).contains("[test_warn.py:39]: Expected <foo> to be not equal to <foo>, but was.")
+    assert_that(out).contains("[test_warn.py:40]: Expected <foo> to be case-insensitive equal to <BAR>, but was not.")
 
 
 def test_chained_failure():
@@ -64,9 +66,9 @@ def test_chained_failure():
     out = capture2.getvalue()
     capture2.close()
 
-    assert_that(out).contains("[test_warn.py:62]: Expected <foo> to be of length <4>, but was <3>.")
-    assert_that(out).contains("[test_warn.py:62]: Expected <foo> to be in <bar>, but was not.")
-    assert_that(out).contains("[test_warn.py:62]: Expected <foo> to not contain duplicates, but <o> was repeated.")
+    assert_that(out).contains("[test_warn.py:64]: Expected <foo> to be of length <4>, but was <3>.")
+    assert_that(out).contains("[test_warn.py:64]: Expected <foo> to be in <bar>, but was not.")
+    assert_that(out).contains("[test_warn.py:64]: Expected <foo> to not contain duplicates, but <o> was repeated.")
 
 
 def test_failures_with_renamed_import():
@@ -92,16 +94,16 @@ def test_failures_with_renamed_import():
     out = capture3.getvalue()
     capture3.close()
 
-    assert_that(out).contains("[test_warn.py:81]: Expected <foo> to be of length <4>, but was <3>.")
-    assert_that(out).contains("[test_warn.py:82]: Expected <foo> to be empty string, but was not.")
-    assert_that(out).contains("[test_warn.py:83]: Expected <foo> to be <False>, but was not.")
-    assert_that(out).contains("[test_warn.py:84]: Expected <foo> to contain only digits, but did not.")
-    assert_that(out).contains("[test_warn.py:85]: Expected <123> to contain only alphabetic chars, but did not.")
-    assert_that(out).contains("[test_warn.py:86]: Expected <foo> to contain only uppercase chars, but did not.")
-    assert_that(out).contains("[test_warn.py:87]: Expected <FOO> to contain only lowercase chars, but did not.")
-    assert_that(out).contains("[test_warn.py:88]: Expected <foo> to be equal to <bar>, but was not.")
-    assert_that(out).contains("[test_warn.py:89]: Expected <foo> to be not equal to <foo>, but was.")
-    assert_that(out).contains("[test_warn.py:90]: Expected <foo> to be case-insensitive equal to <BAR>, but was not.")
+    assert_that(out).contains("[test_warn.py:83]: Expected <foo> to be of length <4>, but was <3>.")
+    assert_that(out).contains("[test_warn.py:84]: Expected <foo> to be empty string, but was not.")
+    assert_that(out).contains("[test_warn.py:85]: Expected <foo> to be <False>, but was not.")
+    assert_that(out).contains("[test_warn.py:86]: Expected <foo> to contain only digits, but did not.")
+    assert_that(out).contains("[test_warn.py:87]: Expected <123> to contain only alphabetic chars, but did not.")
+    assert_that(out).contains("[test_warn.py:88]: Expected <foo> to contain only uppercase chars, but did not.")
+    assert_that(out).contains("[test_warn.py:89]: Expected <FOO> to contain only lowercase chars, but did not.")
+    assert_that(out).contains("[test_warn.py:90]: Expected <foo> to be equal to <bar>, but was not.")
+    assert_that(out).contains("[test_warn.py:91]: Expected <foo> to be not equal to <foo>, but was.")
+    assert_that(out).contains("[test_warn.py:92]: Expected <foo> to be case-insensitive equal to <BAR>, but was not.")
 
 
 def test_failure_without_locatable_caller_frame():
@@ -143,16 +145,28 @@ def test_warn_on_a_scalar_stays_a_single_line():
     assert_that(out.strip().splitlines()).is_length(1)
 
 
-def test_a_pivot_keeps_the_warn_logger():
-    """Six pivots built the next builder without the logger, so warn mode fell back to the root one."""
+def _pivot_capture() -> tuple[StringIO, WarningLoggingAdapter]:
     capture = StringIO()
     logger = logging.getLogger("pivot-capture")
     logger.handlers.clear()
     logger.addHandler(logging.StreamHandler(capture))
-    adapted = WarningLoggingAdapter(logger, None)
+    return capture, WarningLoggingAdapter(logger, None)
+
+
+def test_a_pivot_keeps_the_warn_logger():
+    """Six pivots built the next builder without the logger, so warn mode fell back to the root one."""
+    capture, adapted = _pivot_capture()
 
     assert_warn(b"abc", logger=adapted).decoded_as("utf-8").is_equal_to("xyz")
     assert_warn("a1", logger=adapted).matches_with_groups(r"(a)(\d)").is_equal_to(("x", "y"))
+
+    assert_that(capture.getvalue().count("Expected")).described_as("warnings").is_equal_to(2)
+
+
+@pytest.mark.needs("jsonpath_ng")
+def test_a_json_path_pivot_keeps_the_warn_logger():
+    capture, adapted = _pivot_capture()
+
     assert_warn({"a": 1}, logger=adapted).at_json_path("$.a").is_equal_to(2)
 
-    assert_that(capture.getvalue().count("Expected")).described_as("warnings").is_equal_to(3)
+    assert_that(capture.getvalue().count("Expected")).described_as("warnings").is_equal_to(1)

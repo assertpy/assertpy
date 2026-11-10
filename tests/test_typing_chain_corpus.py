@@ -17,8 +17,10 @@ import json
 
 import pytest
 
-pytest.importorskip("pyright", reason="the lint job installs the typecheck group and this cell does not")
-pytest.importorskip("mypy", reason="the lint job installs the typecheck group and this cell does not")
+from tests.optional import needs
+
+needs("pyright", delegated_to="the lint job")
+needs("mypy", delegated_to="the lint job")
 
 from assertpy import assert_that
 from tests import chain_corpus

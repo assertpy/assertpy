@@ -48,6 +48,7 @@ import pytest
 from assertpy import assert_that
 from assertpy.assertpy import AssertionBuilder
 from tests import typing_harness
+from tests.optional import needs
 from tests.poll_parity_baseline import DISPATCHES_TO, REACHES, RECORDED, WITNESSED_BY
 
 if TYPE_CHECKING:
@@ -354,7 +355,7 @@ def test_the_measurement_still_says_what_is_recorded() -> None:
     Any error on a case's line used to count, so a misspelt argument read as a refused pair and the
     pair was never asked, which is why every other error in the file fails the test instead.
     """
-    pytest.importorskip("pyright", reason="the lint job installs the typecheck group and this cell does not")
+    needs("pyright", delegated_to="the lint job")
     finished = subprocess.run(
         [sys.executable, "-m", "pyright", "--outputjson", "--pythonversion", "3.14", str(_CASES_FILE)],
         capture_output=True,

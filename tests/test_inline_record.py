@@ -18,8 +18,10 @@ import pytest
 from hypothesis import example, given, settings
 from hypothesis import strategies as st
 
-pytest.importorskip("executing", reason="executing not installed")
-pytest.importorskip("asttokens", reason="asttokens not installed")
+from tests.optional import needs
+
+needs("executing")
+needs("asttokens")
 
 import assertpy._inline as _inline
 import assertpy.pytest_plugin as _plugin

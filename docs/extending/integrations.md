@@ -440,7 +440,7 @@ A duration against a number has no distance:
 - A negative duration tolerance is refused like a negative number, and a `NaT` is close to nothing.
 
 <!-- docs-guard: raises -->
-<!-- docs-guard: type-error -->
+<!-- docs-guard: type-error invalid-argument-type -->
 ```python
 assert_that(1).is_close_to(1, np.timedelta64(1, "s"))
 # TypeError: given tolerance arg must be a number, to match val, but was <np.timedelta64(1,'s')> (timedelta64)
@@ -467,7 +467,7 @@ On a numpy integer, `float32` or `bool_` value, `is_even()`, `is_positive()`, `i
 `is_array_equal()` run, but the generic view does not declare them, so a checker refuses them. Convert
 the value first, with `int()` or `float()`, to reach the numeric view:
 
-<!-- docs-guard: type-error -->
+<!-- docs-guard: type-error missing-attribute -->
 ```python
 assert_that(np.int64(4)).is_even()
 ```

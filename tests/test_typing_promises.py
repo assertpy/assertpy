@@ -15,6 +15,7 @@ import pytest
 
 from assertpy import assert_that
 from tests import typing_harness, typing_promises
+from tests.optional import needs
 
 
 async def _awaited(coroutine):
@@ -68,8 +69,8 @@ def test_no_checker_disagrees_with_a_promise(checker: str) -> None:
 
     All three, because both defects this file was written for were accepted by all of them.
     """
-    pytest.importorskip("mypy", reason="the lint job installs the typecheck group and this cell does not")
-    pytest.importorskip("pyright", reason="the lint job installs the typecheck group and this cell does not")
+    needs("mypy", delegated_to="the lint job")
+    needs("pyright", delegated_to="the lint job")
     path = typing_harness.ROOT / "tests" / "typing_promises.py"
     reported = getattr(typing_harness, checker)(path)
     named = {line: sorted(codes) for line, codes in sorted(reported.items())}

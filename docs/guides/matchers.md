@@ -175,7 +175,7 @@ A matcher checks its arguments when it is built, so a mistake raises where it is
   they take one, as `&` and `|` do:
 
 <!-- docs-guard: raises -->
-<!-- docs-guard: type-error -->
+<!-- docs-guard: type-error invalid-argument-type -->
 ```python
 match.each_item(lambda x: x > 0)
 # TypeError: given matcher arg must be a Matcher, but was <<function <lambda> at ...

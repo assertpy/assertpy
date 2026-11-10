@@ -19,6 +19,7 @@ from assertpy._engine._introspection import definition_of
 from assertpy._engine._path import _ROOT
 from assertpy._hints import _STEPS, _UNSEEN_FACT, _accounted, _explains, diagnose, identity_candidate
 from assertpy.errors import AssertionFailure, DiffEntry, DiffResult
+from tests.optional import needs
 
 
 @dataclasses.dataclass
@@ -321,8 +322,8 @@ class TestSilenceOnEverythingElse:
         assert_that(_message(actual, expected)).does_not_contain("every difference here")
 
     def test_a_model_and_an_attrs_instance_are_both_read_as_their_fields(self):
-        pydantic = pytest.importorskip("pydantic")
-        attr = pytest.importorskip("attrs")
+        pydantic = needs("pydantic")
+        attr = needs("attrs")
 
         class Model(pydantic.BaseModel):
             name: str

@@ -20,10 +20,11 @@ from hypothesis import strategies as st
 
 from assertpy import AssertionFailure, assert_that, json_mixin
 from tests.format_corpus import durations, hostnames, uris
+from tests.optional import needs
 
-pytest.importorskip("jsonschema", reason="jsonschema not installed")
-oracle = pytest.importorskip("openapi_schema_validator", reason="openapi-schema-validator not installed")
-extend = pytest.importorskip("jsonschema.validators").extend
+needs("jsonschema")
+oracle = needs("openapi_schema_validator")
+extend = needs("jsonschema.validators").extend
 
 COMPONENTS: dict[str, Any] = {
     "Text": {"type": "string"},
@@ -294,12 +295,16 @@ class TestTheThreeFormatsBesideThePackagesJsonschemaAsks:
         "hostname": (json_mixin._is_hostname, "fqdn", hostnames),
         "duration": (json_mixin._is_duration, "isoduration", durations),
     }
+    # an `xn--` label is read through idna here
+    OURS_NEED: ClassVar[dict[str, str]] = {"hostname": "idna"}
 
     @pytest.mark.parametrize("form", sorted(CHECKS))
     def test_the_two_agree_but_for_what_the_grammar_rules_out(self, form):
         here, package, texts = self.CHECKS[form]
-        pytest.importorskip(package, reason=f"{package} not installed")
-        theirs = pytest.importorskip("jsonschema").FormatChecker()
+        needs(package)
+        if form in self.OURS_NEED:
+            needs(self.OURS_NEED[form])
+        theirs = needs("jsonschema").FormatChecker()
         assert_that(theirs.checkers).contains_key(form)
         wider = _TAKEN_HERE_ALONE.get(form, {})
         seen = {"taken by both": 0, "refused by both": 0, **dict.fromkeys([*_LEFT_OUT[form], *wider], 0)}

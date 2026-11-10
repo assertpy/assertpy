@@ -941,8 +941,12 @@ def test_every_restriction_is_one_the_pair_declares() -> None:
     assert_that(declaring).is_equal_to(set(_PREREQUISITES))
 
 
+_DRAWN_ONLY_WITH = {"contains_error": needs_groups, "has_json_path": pytest.mark.needs("jsonpath_ng")}
+
+
 @pytest.mark.parametrize(
-    "positive", [pytest.param(name, marks=needs_groups) if name == "contains_error" else name for name in _PAIRS]
+    "positive",
+    [pytest.param(name, marks=_DRAWN_ONLY_WITH[name]) if name in _DRAWN_ONLY_WITH else name for name in _PAIRS],
 )
 @pytest.mark.parametrize("verdict", ["held", "failed"])
 def test_every_pair_draws_both_verdicts(positive: str, verdict: str) -> None:

@@ -35,7 +35,9 @@ import types
 
 import pytest
 
-pytest.importorskip("pytest_examples")
+from tests.optional import needs
+
+needs("pytest_examples")
 
 from pytest_examples import CodeExample, EvalExample, find_examples
 
@@ -69,6 +71,13 @@ SKIP_MARKERS = {
 # grouped by page in document order: a block may register a matcher the block below removes.
 # Python state is fresh per block, so only what the library holds process-wide carries over
 _PAGES = {doc: sorted(find_examples(doc), key=lambda example: example.start_line) for doc in GUARDED_DOCS}
+_PAGE_NEEDS = {
+    "docs/getting-started/comparison.md": ("pydantic",),
+    "docs/guides/data.md": ("attrs", "jsonpath_ng", "jsonschema", "typing_extensions"),
+    "docs/guides/matchers.md": ("attrs", "pydantic"),
+    "docs/recipes.md": ("jsonpath_ng",),
+}
+"""What a page's blocks import or reach through an assertion, each a module some distribution may not carry."""
 
 
 def _skip_reason(example: CodeExample) -> str | None:
@@ -116,6 +125,8 @@ def _matchers_restored():
 @pytest.mark.parametrize("doc", list(_PAGES), ids=str)
 @pytest.mark.usefixtures("_matchers_restored")
 def test_doc_examples_run(doc: str, eval_example: EvalExample) -> None:
+    for module in _PAGE_NEEDS.get(doc, ()):
+        needs(module)
     ran = 0
     for example in _PAGES[doc]:
         if _skip_reason(example) is not None:

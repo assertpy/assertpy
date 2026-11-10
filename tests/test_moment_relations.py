@@ -20,6 +20,7 @@ from hypothesis import strategies as st
 
 from assertpy import AssertionFailure, _hints, assert_that
 from assertpy.date import DateMixin
+from tests.optional import needs
 
 UTC = dt.timezone.utc
 PLUS_ONE = dt.timezone(dt.timedelta(hours=1))
@@ -342,7 +343,7 @@ class TestOnlyWhereTheBaseTypeMadeTheVerdict:
         assert_that(_lines(lambda: assert_that(keyed(2026, 1, 1, 15)).is_before(NOON))).is_length(1)
 
     def test_a_pandas_timestamp_keeps_what_the_base_type_cannot_measure(self):
-        pandas = pytest.importorskip("pandas")
+        pandas = needs("pandas")
         late = pandas.Timestamp("2026-01-01 15:00:00.000000500")
         assert_that(_lines(lambda: assert_that(late).is_before(NOON))).is_length(1)
         assert_that(_lines(lambda: assert_that(late).is_close_to(NOON, dt.timedelta(hours=1)))).is_length(1)

@@ -88,15 +88,19 @@ include = [
 ]
 
 [dependency-groups]
-dev = [
+# all the suite requires: every other library it reads is optional, and a test that reads one skips without it
+test = [
     "hypothesis>=6.165.0",
     "pytest>=9.1.1",
+]
+dev = [
+    { include-group = "test" },
     "pytest-cov>=7.1.0",
     # not for running the suite in parallel, but so the xdist controller sweep can be tested against
     # real worker processes instead of a fake node
     "pytest-xdist>=3.8.0",
     "ruff>=0.16.8",
-    "ty>=0.0.85",
+    "ty>=0.0.100",
     "typing_extensions>=4.0",
 ]
 docs = [
@@ -299,13 +303,14 @@ pytest_add_cli_args = [
     "--deselect=tests/test_openapi_formats.py::TestEachIsCheckedAlikeEverywhere::test_importing_the_library_compiles_none_of_them_and_loads_no_module_for_them",
     "--deselect=tests/test_openapi_formats.py::TestEachIsCheckedAlikeEverywhere::test_ipaddress_is_loaded_for_an_address_in_brackets_and_for_nothing_else",
     # a child pytest starts from the mutants tree
-    "--deselect=tests/test_skip_guard.py::test_a_skip_that_says_why_is_left_alone",
+    "--deselect=tests/test_skip_guard.py::test_a_delegated_skip_is_left_alone",
     "--ignore=tests/test_requirement.py",
     # read what the mutants tree does not carry: ARCHITECTURE.md, the CI workflow, the unmutated source, bridge/
     "--deselect=tests/test_public_surface.py::TestEveryExportHasAReferenceEntry",
     "--ignore=tests/test_architecture_doc.py",
     "--ignore=tests/test_bridge.py",
     "--ignore=tests/test_complexity.py",
+    "--ignore=tests/test_absent_cells.py",
     "--ignore=tests/test_declared_floors.py",
     "--ignore=tests/test_docs_examples.py",
     # loads its generator from `scripts/` at import, so no test in it can be deselected alone
@@ -428,6 +433,7 @@ max-complexity = 32
     "SIM300",  # allow Yoda-style literal-first comparisons in hand-written test data
     "A002",    # fixtures/helpers may take args named like builtins (id, type, filter, ...)
     "ERA001",  # example snippets deliberately left as comments in tests
+    "E402",    # a file that needs an optional module skips through `needs()` before the imports that read it
 ]
 
 [tool.ty.analysis]

@@ -177,7 +177,7 @@ See [Some failures say why](../guides/errors.md#some-failures-say-why-not-only-w
 **Typed chains.** The editor offers only the assertions that fit the value, and a type checker flags the
 rest before the tests run:
 
-<!-- docs-guard: type-error -->
+<!-- docs-guard: type-error missing-attribute -->
 ```python
 assert_that("foo").is_positive()  # type error: is_positive is not a string assertion
 ```

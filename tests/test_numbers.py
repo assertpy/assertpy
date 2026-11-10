@@ -11,6 +11,7 @@ import pytest
 from assertpy import assert_that, match
 from assertpy._engine import _ordering
 from assertpy._engine._compare import _difference_within
+from tests.optional import needs
 
 
 def test_is_zero():
@@ -820,7 +821,7 @@ def test_an_infinity_is_close_only_to_itself_however_it_is_asked(value, other, t
 
 def test_the_special_values_numpy_holds_are_read_as_themselves():
     """A `numpy.float32` is neither a `float` nor a `Decimal`: its infinity matched every finite value."""
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     infinity = numpy.float32("inf")
     assert_that(1).is_not_close_to(infinity, math.inf)
     assert_that(match.close_to(infinity, math.inf).matches(1)).is_false()
@@ -900,7 +901,7 @@ def test_a_pair_a_decimal_will_not_order_is_measured_by_its_difference(spelling,
     let the private `UnorderableError` out, `is_close_to` over the `Decimal` a bare `TypeError`, and over the
     `numpy.int64` refused a pair it can measure.
     """
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     value, other = numpy.int64(5), decimal.Decimal("1.5")
     if not int64_first:
         value, other = other, value
@@ -1039,7 +1040,7 @@ def test_a_fraction_past_a_numpy_integers_width_is_ordered_by_exact_value(width,
     That overflows inside `Fraction`'s own code, which read as a bug in the value, so every ordering let numpy's
     `OverflowError` out.  An exact closeness window around a `Decimal` is such a `Fraction`.
     """
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     five = getattr(numpy, width)(5)
     assert_that(ask(_TINY, five)).is_equal_to(holds)
 
@@ -1100,7 +1101,7 @@ def test_a_class_whose_numbers_are_read_is_never_kept(monkeypatch):
 
     Kept on that answer, the class would then call its NaN no NaN.
     """
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
 
     class OrdersItself(numpy.float32):
         def __gt__(self, other: object) -> bool:
@@ -1134,7 +1135,7 @@ class _BorrowingFractionOrdering(float):
 
 def test_an_ordering_overflow_of_the_values_own_is_handed_on():
     """Only `Fraction`'s own ordering running its own comparison, for a `Fraction`, is ordered exactly instead."""
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     with pytest.raises(OverflowError, match="my own ordering overflows"):
         assert_that(_OrderingOverflowsOfItsOwn(1, 3)).is_less_than(numpy.int64(5))
 
@@ -1154,7 +1155,7 @@ def test_a_conversion_overflow_off_an_exact_fraction_is_still_handed_on():
 )
 def test_an_ordering_overflow_off_an_exact_fraction_is_still_handed_on(value):
     """Both code objects match, but the value compared is no exact `Fraction`, so the overflow is left as it is."""
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     try:
         10**20 * numpy.int64(5)
     except OverflowError:
@@ -1178,7 +1179,7 @@ def test_a_numpy_scalar_against_a_bignum_is_measured(spelling, scalar, scalar_fi
     The exact difference answers, where every spelling let the `OverflowError` out, and a `numpy.int64` goes
     into `Fraction` through `int`, since `Fraction` kept it as a fixed-width numerator that overflowed again.
     """
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     value, other = getattr(numpy, scalar)(5), 10**400
     if not scalar_first:
         value, other = other, value
@@ -1204,7 +1205,7 @@ def test_an_infinite_tolerance_covers_a_pair_measured_exactly(spelling, value, t
 @pytest.mark.parametrize("fraction_first", [False, True], ids=["fraction-second", "fraction-first"])
 def test_an_infinite_tolerance_covers_a_numpy_pair_measured_exactly(spelling, value, tolerance, fraction_first):
     """A `numpy` infinity read as the ordering engine reads one, where `Fraction` refuses a `numpy` float."""
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     kinds = {
         "decimal": (decimal.Decimal("1.5"), decimal.Decimal("Infinity")),
         "float32": (numpy.float32(2), numpy.float32("inf")),
@@ -1218,7 +1219,7 @@ def test_an_infinite_tolerance_covers_a_numpy_pair_measured_exactly(spelling, va
 @pytest.mark.parametrize("spelling", list(_CLOSENESS_SPELLINGS))
 def test_a_negative_infinite_numpy_tolerance_is_refused_in_every_spelling(spelling):
     """The matcher asks a `numpy` number's sign at construction too, which runs no code but `numpy`'s."""
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     with pytest.raises(ValueError, match="given tolerance arg must"):
         _CLOSENESS_SPELLINGS[spelling](decimal.Decimal("1.5"), fractions.Fraction(10**400, 3), numpy.float32("-inf"))
 
@@ -1247,7 +1248,7 @@ def test_a_pair_its_arithmetic_refuses_is_within_a_tolerance_exactly_its_distanc
 ):
     """`Decimal` refuses to subtract a `Fraction`; a tolerance of exactly their distance holds it, one ulp less not."""
     if isinstance(tolerance, str):
-        numpy = pytest.importorskip("numpy")
+        numpy = needs("numpy")
         half = numpy.float32(0.5)
         tolerance = half if tolerance == "float32" else numpy.nextafter(half, numpy.float32(0))
     pair = [decimal.Decimal("1.5"), fractions.Fraction(1)]
@@ -1264,7 +1265,7 @@ def test_a_pair_its_arithmetic_refuses_is_within_a_tolerance_exactly_its_distanc
 def test_the_exact_measure_takes_no_nan_tolerance(nan):
     """Out of reach of the public spellings, which refuse a NaN tolerance or hold nothing within one."""
     if isinstance(nan, str):
-        nan = pytest.importorskip("numpy").float32("nan")
+        nan = needs("numpy").float32("nan")
     assert_that(_difference_within(decimal.Decimal("1.5"), fractions.Fraction(1), nan)).is_none()
 
 
@@ -1293,7 +1294,7 @@ def test_a_numpy_float_against_a_bignum_is_ordered_by_its_exact_value(question, 
     a NaN against nothing.  Before, the assertion and the matcher let the `OverflowError` out.  Written as
     text, the `numpy.float32` side.
     """
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     value, other = (numpy.float32(side) if isinstance(side, str) else side for side in (value, other))
     with numpy.errstate(all="ignore"):
         assert_that(getattr(assert_that(value).check(), f"is_{question}")(other).passed).is_equal_to(holds)
@@ -1320,7 +1321,7 @@ def _ratio_raising(error: type[Exception]):
 )
 def test_an_overflow_with_no_trusted_exact_value_is_handed_on(as_integer_ratio):
     """No exact value, or one read from Python code that could call a finite value an infinity or a NaN."""
-    numpy = pytest.importorskip("numpy", minversion="2", reason="numpy 1 turns the bignum into a float and answers")
+    numpy = needs("numpy", minversion="2", why="numpy 1 turns the bignum into a float and answers")
     if as_integer_ratio == "float32":
         as_integer_ratio = numpy.float32.as_integer_ratio
     finite = type("Finite", (numpy.float64,), {"as_integer_ratio": as_integer_ratio})(1.0)
@@ -1354,18 +1355,18 @@ def _lying_about_its_sign(numpy, value=float("-inf")):
 )
 def test_a_finite_value_is_read_through_its_types_own_ratio(build):
     """The ratio is called as the type holds it, so neither the instance nor its lookup can call it infinite."""
-    numpy = pytest.importorskip("numpy", minversion="2", reason="numpy 1 turns the bignum into a float and answers")
+    numpy = needs("numpy", minversion="2", why="numpy 1 turns the bignum into a float and answers")
     assert_that(build(numpy)).is_less_than(_BIGNUM)
 
 
 def test_a_finite_value_with_a_comparison_of_its_own_is_still_measured():
     """Its own `>` is only needed for an infinity's sign, so a finite value is ordered by its exact value."""
-    numpy = pytest.importorskip("numpy", minversion="2", reason="numpy 1 turns the bignum into a float and answers")
+    numpy = needs("numpy", minversion="2", why="numpy 1 turns the bignum into a float and answers")
     assert_that(_lying_about_its_sign(numpy, 1.0)).is_less_than(_BIGNUM)
 
 
 def test_an_infinitys_sign_is_not_read_from_a_comparison_of_its_own():
-    numpy = pytest.importorskip("numpy", minversion="2", reason="numpy 1 turns the bignum into a float and answers")
+    numpy = needs("numpy", minversion="2", why="numpy 1 turns the bignum into a float and answers")
     with pytest.raises(OverflowError, match="too large"):
         assert_that(_lying_about_its_sign(numpy)).is_less_than(-_BIGNUM)
 
@@ -1373,7 +1374,7 @@ def test_an_infinitys_sign_is_not_read_from_a_comparison_of_its_own():
 @pytest.mark.parametrize(("bound", "outcome"), [("inf", ValueError), ("nan", AssertionError)])
 def test_a_numpy_float_bound_against_a_bignum_is_ordered(bound, outcome):
     """An infinite low bound sits above the bignum high one, and a NaN bound holds nothing between."""
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     with numpy.errstate(all="ignore"), pytest.raises(outcome):
         assert_that(-1).is_between(numpy.float32(bound), 10**401)
     with numpy.errstate(all="ignore"):
@@ -1414,7 +1415,7 @@ def test_a_numpy_float_nan_is_unordered_as_a_float_one_is(width, check):
     A sort holding it passed where one holding a `float` NaN fails, and a `Decimal` compared with it let
     `InvalidOperation` out where a `float` NaN is answered.
     """
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     with numpy.errstate(all="ignore"):
         assert_that(check(getattr(numpy, width)("nan"))).is_false()
 
@@ -1467,7 +1468,7 @@ def test_every_numpy_float_width_orders_against_a_bignum_as_python_does(width, t
     answers without overflowing, numpy 1 by refusing the pair and numpy 2 by turning the int into a
     `longdouble` with a warning, which is lossy where that type is a double, and the engine asks no further.
     """
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     value = getattr(numpy, width)(text)
     expected = getattr(operator, relation)(float(text), bignum)
     question = {"le": "is_less_than_or_equal_to", "ge": "is_greater_than_or_equal_to"}[relation]
@@ -1479,7 +1480,7 @@ def test_every_numpy_float_width_orders_against_a_bignum_as_python_does(width, t
 
 def test_a_nan_of_a_numpy_float_subclass_is_unordered_too():
     """A subclass carries its own module's name, so the NaN is read off the numpy type it inherits from."""
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     nan = type("Measured", (numpy.float32,), {})("nan")
     with numpy.errstate(all="ignore"):
         assert_that(assert_that([1.0, nan, 2.0]).check().is_sorted().passed).is_false()
@@ -1493,14 +1494,14 @@ def test_a_nan_beside_a_value_it_has_no_order_with_still_breaks_a_sort():
 
 
 def test_a_numpy_longdouble_nan_vouches_for_no_order_either():
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     nan = numpy.longdouble("nan")
     assert_that(assert_that([1.0, nan, 2.0]).check().is_sorted().passed).is_false()
     assert_that(match.is_sorted().matches([1.0, nan, 2.0])).is_false()
 
 
 def test_a_pair_a_decimal_will_not_order_fails_as_an_assertion_rather_than_refusing():
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     message = r"^Expected <1.5> to be close to <5> within tolerance <0>, but was not\.$"
     with pytest.raises(AssertionError, match=message):
         assert_that(decimal.Decimal("1.5")).is_close_to(numpy.int64(5), 0)
@@ -1529,7 +1530,7 @@ _ORDER_SPELLINGS = {
 @pytest.mark.parametrize("decimal_first", [True, False], ids=["decimal-first", "int64-first"])
 def test_a_decimal_against_a_numpy_integer_orders_as_against_the_int_it_holds(spelling, text, decimal_first):
     """The `Decimal` reads the integer's numerator, a `numpy` one, and refused a pair with an exact order."""
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     pair, stand_in = [decimal.Decimal(text), numpy.int64(5)], [decimal.Decimal(text), 5]
     if not decimal_first:
         pair.reverse()
@@ -1565,7 +1566,7 @@ def test_two_sequences_holding_a_decimal_against_a_numpy_integer_order_as_with_t
     spelling, kind, built, decimal_first
 ):
     """The built-in order asks `==` of each pair and `<` of the first unequal one, where the `Decimal` raises."""
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     pair = [kind(side) for side in built(numpy.int64(5))]
     stand_in = [kind(side) for side in built(5)]
     if not decimal_first:
@@ -1612,7 +1613,7 @@ def test_a_decimal_against_every_numpy_integer_width_answers_as_against_the_int_
     text, width, held, decimal_first
 ):
     """A `Decimal("sNaN")` refuses to go into a set on either side, so that one spelling is not asked of it."""
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     pair, stand_in = [decimal.Decimal(text), getattr(numpy, width)(held)], [decimal.Decimal(text), held]
     if not decimal_first:
         pair.reverse()
@@ -2054,7 +2055,7 @@ def test_a_list_against_a_numpy_scalar_is_unordered_as_against_the_int_it_holds(
     """`numpy` answered an array for the pair, true for one element and raising for several; a number and a
     list have no order, and each spelling refuses or fails the pair as it does the Python number's.
     """
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     scalar = getattr(numpy, kind)(6)
     expected = _order_outcome(_BROADCAST_ORDER[asked], sequence, scalar.item())
     assert_that(_order_outcome(_BROADCAST_ORDER[asked], sequence, scalar)).is_equal_to(expected)
@@ -2071,7 +2072,7 @@ def test_a_list_numpy_cannot_order_against_a_numpy_scalar_is_unordered_as_agains
     """`numpy` raised from the comparison itself: `ValueError` building a ragged list's array, and the NaN's
     signal where it ordered the element against the scalar.
     """
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     scalar = getattr(numpy, kind)(6)
     expected = _order_outcome(_BROADCAST_ORDER[asked], sequence, scalar.item())
     assert_that(_order_outcome(_BROADCAST_ORDER[asked], sequence, scalar)).is_equal_to(expected)
@@ -2087,7 +2088,7 @@ class _NeverLess(list):
 @pytest.mark.parametrize("kind", ["int64", "float64"])
 def test_the_reverse_comparison_of_a_list_against_a_numpy_scalar_is_asked_as_the_first_is(kind):
     """`numpy.float64(6) < _NeverLess([5])` broadcast, where the first comparison had answered a plain bool."""
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     with pytest.raises(TypeError, match="must be comparable"):
         assert_that(_NeverLess([5])).is_greater_than(getattr(numpy, kind)(6))
 
@@ -2105,7 +2106,7 @@ class _DecliningOrder(list):
 @pytest.mark.parametrize("asked", list(_BROADCAST_ORDER))
 @pytest.mark.parametrize("held", [[5], [5, 6]], ids=["one-element", "two-elements"])
 def test_a_list_whose_own_order_declined_a_numpy_scalar_is_unordered_as_against_the_int(asked, held):
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     sequence = _DecliningOrder(held)
     expected = _order_outcome(_BROADCAST_ORDER[asked], sequence, 6)
     assert_that(_order_outcome(_BROADCAST_ORDER[asked], sequence, numpy.int64(6))).is_equal_to(expected)
@@ -2114,7 +2115,7 @@ def test_a_list_whose_own_order_declined_a_numpy_scalar_is_unordered_as_against_
 @pytest.mark.parametrize("written", ["__lt__", "__gt__"])
 def test_a_numpy_scalar_that_wrote_one_order_is_unordered_against_a_list_by_the_one_numpy_wrote(written):
     """Its own operator answers `False`, and the one inherited from `numpy` broadcasts over the two elements."""
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     scalar = type("Written", (numpy.int64,), {written: lambda self, other: False, "__hash__": numpy.int64.__hash__})
     with pytest.raises(TypeError, match="must be comparable"):
         assert_that([5, 6]).is_greater_than(scalar(6))
@@ -2122,7 +2123,7 @@ def test_a_numpy_scalar_that_wrote_one_order_is_unordered_against_a_list_by_the_
 
 def test_two_lists_whose_own_order_raised_on_a_numpy_scalar_are_ordered_as_the_int_is():
     """`numpy`'s array for the first pair had no truth, and the pairs are asked one by one."""
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
 
     def asked(sequence: list[object], number: object) -> bool:
         return assert_that([number]).check().is_less_than(sequence).passed
@@ -2144,7 +2145,7 @@ _DURATIONS_CLOSE = {
 @pytest.mark.parametrize("case", list(_DURATIONS_CLOSE))
 def test_a_numpy_duration_is_measured_against_another_in_every_spelling(spelling, case):
     """Signed against a zero of its own unit: against a bare `0`, numpy 2 warned that a bare int has no unit."""
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     operands, close = _DURATIONS_CLOSE[case]
     value, other, tolerance = (numpy.timedelta64(*operand) for operand in operands)
     assert_that(_CLOSENESS_SPELLINGS[spelling](value, other, tolerance)).is_equal_to(close)
@@ -2152,7 +2153,7 @@ def test_a_numpy_duration_is_measured_against_another_in_every_spelling(spelling
 
 @pytest.mark.parametrize("spelling", list(_CLOSENESS_SPELLINGS))
 def test_a_negative_numpy_duration_tolerance_is_refused_in_every_spelling(spelling):
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     with pytest.raises(ValueError, match="given tolerance arg must"):
         _CLOSENESS_SPELLINGS[spelling](numpy.timedelta64(5, "s"), numpy.timedelta64(6, "s"), numpy.timedelta64(-2, "s"))
 
@@ -2168,7 +2169,7 @@ _MIXED_WITH_A_DURATION = {
 @pytest.mark.parametrize("mixed", list(_MIXED_WITH_A_DURATION))
 def test_an_assertion_refuses_a_numpy_duration_measured_against_a_number(spelling, mixed):
     """numpy registers a duration as an integer, and a number within one second has no meaning."""
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     operands, refusal = _MIXED_WITH_A_DURATION[mixed]
     with pytest.raises(TypeError, match=refusal):
         _CLOSENESS_SPELLINGS[spelling](*operands(numpy.timedelta64(1, "s")))
@@ -2176,14 +2177,14 @@ def test_an_assertion_refuses_a_numpy_duration_measured_against_a_number(spellin
 
 @pytest.mark.parametrize("mixed", list(_MIXED_WITH_A_DURATION))
 def test_a_matcher_measures_nothing_between_a_numpy_duration_and_a_number(mixed):
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     value, other, tolerance = _MIXED_WITH_A_DURATION[mixed][0](numpy.timedelta64(1, "s"))
     assert_that(_CLOSENESS_SPELLINGS["match.close_to"](value, other, tolerance)).is_false()
 
 
 def test_a_tolerance_leaves_a_leaf_of_the_other_kind_to_equality():
     """A duration tolerance measures no number, and a number measures no duration, as a string is not measured."""
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     second = numpy.timedelta64(1, "s")
     assert_that(assert_that({"a": 1}).check().is_equal_to({"a": 1.5}, tolerance=second).passed).is_false()
     assert_that(assert_that({"a": 1}).check().is_equal_to({"a": 1}, tolerance=second).passed).is_true()
@@ -2192,7 +2193,7 @@ def test_a_tolerance_leaves_a_leaf_of_the_other_kind_to_equality():
 
 
 def test_a_between_matcher_refuses_reversed_numpy_duration_bounds_when_built():
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     with pytest.raises(ValueError, match="given low arg must be less than given high arg"):
         match.between(numpy.timedelta64(5, "s"), numpy.timedelta64(1, "s"))
     assert_that(
@@ -2203,6 +2204,6 @@ def test_a_between_matcher_refuses_reversed_numpy_duration_bounds_when_built():
 @pytest.mark.parametrize("duration_low", [True, False], ids=["duration-low", "duration-high"])
 def test_a_between_matcher_does_not_order_a_numpy_duration_against_a_number_when_built(duration_low):
     """Asked, numpy 2 warns that a bare int has no unit, and the suite's warnings are errors."""
-    numpy = pytest.importorskip("numpy")
+    numpy = needs("numpy")
     bounds = (numpy.timedelta64(5, "s"), 1) if duration_low else (1, numpy.timedelta64(5, "s"))
     assert_that(match.between(*bounds).describe()).starts_with("a value between")

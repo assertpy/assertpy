@@ -6,6 +6,7 @@ from unittest.mock import patch
 import pytest
 
 from assertpy import assert_that
+from tests.optional import needs
 
 
 @contextlib.contextmanager
@@ -184,13 +185,13 @@ class TestRealLibraries:
     """Validate the real integration; skipped when the optional library is absent (CI without [data])."""
 
     def test_pandas_frame_equal_and_diff(self):
-        pandas = pytest.importorskip("pandas")
+        pandas = needs("pandas")
         assert_that(pandas.DataFrame({"a": [1, 2]})).is_frame_equal(pandas.DataFrame({"a": [1, 2]}))
         with pytest.raises(AssertionError):
             assert_that(pandas.DataFrame({"a": [1, 2]})).is_frame_equal(pandas.DataFrame({"a": [1, 9]}))
 
     def test_pandas_options_passthrough(self):
-        pandas = pytest.importorskip("pandas")
+        pandas = needs("pandas")
         actual = pandas.DataFrame({"a": [1, 2]}).astype("int64")
         expected = pandas.DataFrame({"a": [1, 2]}).astype("int32")
         assert_that(actual).is_frame_equal(expected, check_dtype=False)
@@ -198,11 +199,11 @@ class TestRealLibraries:
             assert_that(actual).is_frame_equal(expected)
 
     def test_pandas_series(self):
-        pandas = pytest.importorskip("pandas")
+        pandas = needs("pandas")
         assert_that(pandas.Series([1, 2, 3])).is_frame_equal(pandas.Series([1, 2, 3]))
 
     def test_pandas_dataframe_subclass_is_accepted(self):
-        pandas = pytest.importorskip("pandas")
+        pandas = needs("pandas")
 
         class MyFrame(pandas.DataFrame):
             @property
@@ -214,25 +215,25 @@ class TestRealLibraries:
             assert_that(MyFrame({"a": [1, 2]})).is_frame_equal(MyFrame({"a": [1, 9]}))
 
     def test_pandas_index_is_rejected(self):
-        pandas = pytest.importorskip("pandas")
+        pandas = needs("pandas")
         frame = pandas.DataFrame({"a": [1, 2]})
         with pytest.raises(TypeError, match="pandas or polars"):
             assert_that(frame.index).is_frame_equal(frame.index)
 
     def test_polars_frame_equal_and_diff(self):
-        polars = pytest.importorskip("polars")
+        polars = needs("polars")
         assert_that(polars.DataFrame({"a": [1, 2]})).is_frame_equal(polars.DataFrame({"a": [1, 2]}))
         with pytest.raises(AssertionError):
             assert_that(polars.DataFrame({"a": [1, 2]})).is_frame_equal(polars.DataFrame({"a": [1, 9]}))
 
     def test_numpy_array_equal(self):
-        numpy = pytest.importorskip("numpy")
+        numpy = needs("numpy")
         assert_that(numpy.array([1, 2, 3])).is_array_equal(numpy.array([1, 2, 3]))
         with pytest.raises(AssertionError):
             assert_that(numpy.array([1, 2, 3])).is_array_equal(numpy.array([1, 2, 9]))
 
     def test_numpy_array_close_to(self):
-        numpy = pytest.importorskip("numpy")
+        numpy = needs("numpy")
         assert_that(numpy.array([1.0, 2.0])).is_array_close_to(numpy.array([1.0, 2.0000001]))
         with pytest.raises(AssertionError):
             assert_that(numpy.array([1.0, 2.0])).is_array_close_to(numpy.array([1.0, 2.5]))
@@ -246,7 +247,7 @@ class TestRealLibraries:
         one, and `length_of()` is written to let that through.  Nothing static separates the two: the
         dimension is not in the stubs.
         """
-        numpy = pytest.importorskip("numpy")
+        numpy = needs("numpy")
         scalar = numpy.array(1)
         for call in (
             lambda: assert_that(scalar).is_not_empty(),
@@ -263,7 +264,7 @@ class TestRealLibraries:
         assert_that(scalar).contains(1)
 
     def test_numpy_array_equal_options_passthrough(self):
-        numpy = pytest.importorskip("numpy")
+        numpy = needs("numpy")
         actual = numpy.array([1, 2], dtype="int32")
         expected = numpy.array([1, 2], dtype="int64")
         assert_that(actual).is_array_equal(expected)
@@ -275,25 +276,25 @@ class TestAnArrayIsComparedByItsShape:
     """`is_array_equal` promises shape and every element, and numpy broadcasts a scalar over both."""
 
     def test_a_scalar_does_not_equal_an_array(self):
-        numpy = pytest.importorskip("numpy")
+        numpy = needs("numpy")
         assert_that(assert_that(numpy.array([5, 5])).check().is_array_equal(5).passed).is_false()
 
     def test_an_empty_array_equals_nothing_but_an_empty_one(self):
-        numpy = pytest.importorskip("numpy")
+        numpy = needs("numpy")
         assert_that(assert_that(numpy.array([])).check().is_array_equal(5).passed).is_false()
         assert_that(numpy.array([])).is_array_equal(numpy.array([]))
 
     def test_the_message_names_both_shapes(self):
-        numpy = pytest.importorskip("numpy")
+        numpy = needs("numpy")
         outcome = assert_that(numpy.array([[1, 2]])).check().is_array_equal(numpy.array([1, 2]))
         assert_that(outcome.message).contains("(1, 2)").contains("(2,)")
 
     def test_numpys_strict_is_about_dtype_and_not_a_way_out_of_the_shape(self):
         """`strict=False` is numpy's default and says nothing about shape, which is what is promised here."""
-        numpy = pytest.importorskip("numpy")
+        numpy = needs("numpy")
         assert_that(assert_that(numpy.array([5, 5])).check().is_array_equal(5, strict=False).passed).is_false()
         assert_that(numpy.array([1, 2])).is_array_equal(numpy.array([1.0, 2.0]), strict=False)
 
     def test_element_types_are_not_part_of_the_promise(self):
-        numpy = pytest.importorskip("numpy")
+        numpy = needs("numpy")
         assert_that(numpy.array([1, 2])).is_array_equal(numpy.array([1.0, 2.0]))

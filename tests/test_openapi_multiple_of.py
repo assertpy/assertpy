@@ -18,8 +18,9 @@ from hypothesis import given
 from hypothesis import strategies as st
 
 from assertpy import AssertionFailure, assert_that, json_mixin
+from tests.optional import needs
 
-jsonschema = pytest.importorskip("jsonschema", reason="jsonschema not installed")
+jsonschema = needs("jsonschema")
 
 _VERSIONS = ["2.0", "3.0.3", "3.1.0"]
 
@@ -105,7 +106,7 @@ class TestAMultipleIsAskedOfTheNumbersAsWritten:
         assert_that(_conforms(19.99, price(0.01))).is_true()
 
     def test_a_numpy_float_is_read_as_the_float_it_is(self):
-        numpy = pytest.importorskip("numpy", reason="numpy not installed")
+        numpy = needs("numpy")
         assert_that(_conforms(numpy.float64(19.99), 0.01)).is_true()
         assert_that(_conforms(numpy.float64(19.995), 0.01)).is_false()
         assert_that(_conforms(numpy.int64(8), 2)).is_true()

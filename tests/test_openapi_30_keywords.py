@@ -20,8 +20,9 @@ from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
 from assertpy import AssertionFailure, assert_that, json_mixin
+from tests.optional import needs
 
-pytest.importorskip("jsonschema", reason="jsonschema not installed")
+needs("jsonschema")
 
 SECRET = {"type": "string", "writeOnly": True}
 COMPONENTS: dict[str, Any] = {
@@ -534,8 +535,8 @@ def test_the_walk_reaches_every_schema_the_validator_asks(schema, value):
 
     Every reference the validator follows is one the walk followed, to the same node of the same document.
     """
-    jsonschema = pytest.importorskip("jsonschema")
-    referencing = pytest.importorskip("referencing")
+    jsonschema = needs("jsonschema")
+    referencing = needs("referencing")
     document = json_mixin._stringify_keys(_spec(schema, "3.0.3"))
     _, pointer = json_mixin._openapi_resolve(document, "/x", "get", None, "application/json")
     resource = referencing.Resource(contents=document, specification=referencing.jsonschema.DRAFT4)

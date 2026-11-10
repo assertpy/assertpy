@@ -77,17 +77,17 @@ DIVERGING = {
 # every one of them type-checks and then raises.
 REFUSED = {
     "frame-not-a-document": {
-        "ty": {"unresolved-attribute"},
+        "ty": {"missing-attribute"},
         "mypy": {"attr-defined"},
         "pyright": {"reportAttributeAccessIssue"},
     },
     "frame-not-ordered": {
-        "ty": {"unresolved-attribute"},
+        "ty": {"missing-attribute"},
         "mypy": {"attr-defined"},
         "pyright": {"reportAttributeAccessIssue"},
     },
     "frame-not-text": {
-        "ty": {"unresolved-attribute"},
+        "ty": {"missing-attribute"},
         "mypy": {"attr-defined"},
         "pyright": {"reportAttributeAccessIssue"},
     },

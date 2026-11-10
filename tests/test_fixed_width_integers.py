@@ -23,8 +23,9 @@ from hypothesis import strategies as st
 from assertpy import AssertionFailure, assert_that, match
 from assertpy._engine import _compare, _ordering
 from assertpy._engine._ordering import numpy_float, python_numbers, unwrapped
+from tests.optional import needs
 
-numpy = pytest.importorskip("numpy")
+numpy = needs("numpy")
 pytestmark = pytest.mark.filterwarnings("ignore:overflow encountered:RuntimeWarning")
 
 _FLOAT_KINDS = (numpy.float16, numpy.float32, numpy.float64)

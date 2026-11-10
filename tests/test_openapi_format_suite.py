@@ -18,9 +18,10 @@ from typing import Any
 import pytest
 
 from assertpy import assert_that
+from tests.optional import needs
 
-pytest.importorskip("jsonschema", reason="jsonschema not installed")
-pytest.importorskip("idna", reason="idna not installed")
+needs("jsonschema")
+needs("idna")
 
 _SUITE = pathlib.Path(__file__).resolve().parent / "data" / "json_schema_test_suite"
 _FORMATS = ("date", "date-time", "duration", "email", "hostname", "time", "uri")

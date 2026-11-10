@@ -31,6 +31,7 @@ from assertpy import (
     soft_fail,
 )
 from assertpy.assertpy import _ASSERTS, ASSERTPY_FILES, NegatedBuilder
+from tests.optional import needs
 
 _EARLIER = datetime.datetime(2026, 1, 1, tzinfo=datetime.timezone.utc)
 _LATER = datetime.datetime(2026, 1, 2, tzinfo=datetime.timezone.utc)
@@ -236,7 +237,7 @@ class TestTheSurfacesThatNameThemselves:
 
     def test_a_module_level_assertion_names_itself(self):
         """The one assertion that is a module function, so no frame of ours holds a builder."""
-        pydantic = pytest.importorskip("pydantic")
+        pydantic = needs("pydantic")
 
         class Order(pydantic.BaseModel):
             total: int

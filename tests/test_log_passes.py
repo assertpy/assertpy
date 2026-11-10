@@ -46,6 +46,7 @@ from assertpy import (
 from assertpy import assertpy as _assertpy
 from assertpy._engine._introspection import caller_stacklevel
 from assertpy._hints import _SIDE as _SIDES
+from tests.optional import needs
 
 _FILE = os.path.basename(__file__)
 
@@ -1729,7 +1730,7 @@ class TestTheMarginOfABound:
 
 class TestAContractReportsItself:
     def test_a_payload_that_conforms_is_one_line_naming_the_model(self):
-        pydantic = pytest.importorskip("pydantic")
+        pydantic = needs("pydantic")
 
         class Order(pydantic.BaseModel):
             id: int
@@ -1749,7 +1750,7 @@ class TestAContractReportsItself:
         assert_that(lines.lines[0]).contains("assert_conforms(<class ").contains(" passed for <{'id': 1}>")
 
     def test_one_that_does_not_reports_nothing(self):
-        pydantic = pytest.importorskip("pydantic")
+        pydantic = needs("pydantic")
 
         class Order(pydantic.BaseModel):
             id: int
@@ -1761,7 +1762,7 @@ class TestAContractReportsItself:
         assert_that(lines.records).is_empty()
 
     def test_one_inside_a_predicate_is_part_of_the_assertion_it_is_inside(self):
-        pydantic = pytest.importorskip("pydantic")
+        pydantic = needs("pydantic")
 
         class Order(pydantic.BaseModel):
             id: int
@@ -1773,7 +1774,7 @@ class TestAContractReportsItself:
         assert_that([outcome.requirement.operation for outcome in kept]).is_equal_to(["satisfies"])
 
     def test_an_assertion_its_validator_makes_is_part_of_it(self):
-        pydantic = pytest.importorskip("pydantic")
+        pydantic = needs("pydantic")
 
         class Order(pydantic.BaseModel):
             id: int
@@ -1791,7 +1792,7 @@ class TestAContractReportsItself:
         assert_that([outcome.requirement.operation for outcome in kept]).is_equal_to(["assert_conforms"])
 
     def test_a_logger_asking_a_contract_of_its_own_does_not_recurse(self):
-        pydantic = pytest.importorskip("pydantic")
+        pydantic = needs("pydantic")
 
         class Order(pydantic.BaseModel):
             id: int

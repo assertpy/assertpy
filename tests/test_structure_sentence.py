@@ -19,6 +19,7 @@ from hypothesis import strategies as st
 
 from assertpy import AssertionFailure, assert_that, errors, match
 from assertpy.matchers import BaseMatcher, StructureMatcher
+from tests.optional import needs
 
 _RECORD = {
     "id": 7,
@@ -276,7 +277,7 @@ class TestTheSentenceLeavesOutWhatMatched:
 
 class TestARecordIsWrittenAsItsClass:
     def test_a_model_is_named_and_its_fields_are_written_as_fields(self):
-        pydantic = pytest.importorskip("pydantic")
+        pydantic = needs("pydantic")
 
         class Address(pydantic.BaseModel):
             city: str
@@ -295,7 +296,7 @@ class TestARecordIsWrittenAsItsClass:
         )
 
     def test_an_attrs_instance_is_named_and_a_record_it_holds_is_printed_whole(self):
-        attrs = pytest.importorskip("attrs")
+        attrs = needs("attrs")
 
         @attrs.define
         class Point:

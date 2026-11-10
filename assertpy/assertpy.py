@@ -559,14 +559,14 @@ def _attach_soft_note(exc: BaseException, rendered: str) -> None:
     way past: there the unbound lookup raises `AttributeError` and the assignment takes over.
     """
     try:
-        BaseException.add_note(exc, rendered)  # ty: ignore[unresolved-attribute]  # absent on 3.10
+        BaseException.add_note(exc, rendered)  # ty: ignore[missing-attribute]  # absent on 3.10
         return
     except Exception:  # every failure here falls through to the assignment below
         pass
     try:
         existing = getattr(exc, "__notes__", ())
         notes = [*existing, rendered] if isinstance(existing, (list, tuple)) else [rendered]
-        exc.__notes__ = notes  # ty: ignore[unresolved-attribute]  # 3.10 lacks it until set
+        exc.__notes__ = notes  # ty: ignore[missing-attribute]  # 3.10 lacks it until set
     except Exception:  # a note is worth nothing next to the exception it annotates
         pass
 

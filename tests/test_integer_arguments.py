@@ -14,6 +14,7 @@ import numbers
 import pytest
 
 from assertpy import assert_that, match
+from tests.optional import needs
 
 
 class _Two(enum.IntEnum):
@@ -31,7 +32,7 @@ numbers.Integral.register(_OwnIndex)
 
 
 def _numpy(name: str, *args: object) -> object:
-    return getattr(pytest.importorskip("numpy"), name)(*args)
+    return getattr(needs("numpy"), name)(*args)
 
 
 _ACCEPTED = {

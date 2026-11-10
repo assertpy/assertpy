@@ -27,6 +27,7 @@ if TYPE_CHECKING:
 from assertpy import assert_that
 from assertpy._engine import _check_typing, _typing
 from assertpy._engine._operations import NOT_AN_OPERATION, WITHOUT_A_VERDICT
+from tests.optional import needs
 
 _ROOT = pathlib.Path(__file__).resolve().parent.parent
 
@@ -56,6 +57,7 @@ def test_the_generated_twins_match_the_protocols_they_mirror() -> None:
 
 def _formatted(source: str) -> str:
     """Both steps the generator runs after writing, so the comparison is of the same thing twice."""
+    needs("ruff")
     # in the generator's order: formatting first collapses the blank lines between stub bodies
     for command in (
         ["ruff", "format", "--stdin-filename", _check_typing.__file__, "-"],

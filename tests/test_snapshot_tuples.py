@@ -30,6 +30,7 @@ from assertpy import (
     register_snapshot_serializer,
 )
 from assertpy._snapshot_codec import _decode, _encode, _load, _save
+from tests.optional import needs
 from tests.snapshot_types_2_35 import Box, Colour, Future, Holder, Nested, Point, Shaped
 
 _FILES_2_35 = pathlib.Path(__file__).with_name("snapshot_files_2_35")
@@ -134,7 +135,7 @@ class TestATupleComesBackATuple:
 
     def test_a_pydantic_model_holding_a_tuple_compares_after_reading(self, tmp_path):
         """Its `==` compares the field, a list read where the tuple was failed the run after it was recorded."""
-        pydantic = pytest.importorskip("pydantic", reason="pydantic not installed")
+        pydantic = needs("pydantic")
         model = pydantic.create_model("Paired", pair=(tuple[int, int], ...), __module__=__name__)
         globals()["Paired"] = model
         try:

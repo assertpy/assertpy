@@ -4,8 +4,10 @@ from unittest.mock import patch
 
 import pytest
 
-pytest.importorskip("jsonpath_ng", reason="jsonpath-ng not installed")
-pytest.importorskip("jsonschema", reason="jsonschema not installed")
+from tests.optional import needs
+
+needs("jsonpath_ng")
+needs("jsonschema")
 
 from assertpy import assert_that, json_mixin, match, soft_assertions
 from assertpy.json_mixin import _ensure_jsonpath_ng, _ensure_jsonschema

@@ -18,9 +18,10 @@ from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
 from assertpy import assert_that, json_mixin
+from tests.optional import needs
 from tests.test_openapi_30_keywords import _BODIES, _DRAFT_FOUR, _spec
 
-pytest.importorskip("jsonschema", reason="jsonschema not installed")
+needs("jsonschema")
 
 
 def _said(spec: Any, value: object, path: Any = "/x", method: Any = "get", **options: Any) -> tuple[Any, ...]:

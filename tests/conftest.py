@@ -1,3 +1,4 @@
+import os
 import sys
 
 import pytest
@@ -6,6 +7,7 @@ from hypothesis import HealthCheck, settings
 from assertpy import errors as _errors
 from assertpy import snapshot as _snapshot
 from assertpy.assertpy import AssertionBuilder
+from tests import optional
 
 _UNINSTALLED: pytest.StashKey[str] = pytest.StashKey()
 
@@ -64,27 +66,82 @@ def builder() -> AssertionBuilder:
 
 
 # A skipped gate reads as a green one, which cost two red CI runs in one day: `pytest-examples` was absent
-# locally, so the whole doc-example file was skipped while the run was reported as passing.  Only the cell
-# enforcing the coverage floor promises every dependency is installed, so a module missing under that promise
-# is a defect and anywhere else an ordinary partial run.  A gate delegated to another job says so in its own
-# `importorskip` reason: the checkers are the case, the lint job installing the typecheck group and the
-# coverage cell not.
+# locally, so the whole doc-example file was skipped while the run was reported as passing.  Every skip for a
+# missing module names it, through `tests.optional`, and two runs claim to know which modules are installed: the
+# cell enforcing the coverage floor claims all of them, a delegated one aside, and a run told what is absent
+# (`ASSERTPY_SUITE_ABSENT`, from `scripts/check_sdist.py`) claims the rest.  A skip that contradicts the claim fails it.
+_ABSENT = "ASSERTPY_SUITE_ABSENT"
 _IMPORT_SKIP = ("could not import", "no module named")
-_missing_from: dict[str, str] = {}
+_missing_from: dict[str, list[str]] = {}
+
+
+def pytest_sessionstart(session) -> None:
+    # a runner that calls pytest twice in one process would otherwise hold the first run's reports against the second
+    _missing_from.clear()
+
+
+def pytest_configure(config) -> None:
+    config.addinivalue_line("markers", "needs(module, **options): skip where the module is absent, see tests.optional")
+
+
+def pytest_runtest_setup(item) -> None:
+    for mark in item.iter_markers("needs"):
+        optional.needs(*mark.args, **mark.kwargs)
 
 
 def _record(report) -> None:
     """Both report kinds, because the two ways a module goes missing arrive as different ones.
 
-    `pytest.importorskip` at the top of a file raises while the file is being collected, so it never
-    reaches a run report at all.  That is the shape that hid a whole skipped gate, so reading only the
-    run reports would leave the guard blind to exactly what it was written for.
+    `needs()` at the top of a file raises while the file is being collected, so it never reaches a run report
+    at all.  That is the shape that hid a whole skipped gate, so reading only the run reports would leave the
+    guard blind to exactly what it was written for.  A collection report holds no `user_properties`.
     """
+    for key, module in getattr(report, "user_properties", ()):
+        if key == optional.RECORD:
+            _note(report.nodeid, f"needs {module}: its cases were left out")
     if not report.skipped or not isinstance(report.longrepr, tuple):
         return
     _, _, reason = report.longrepr
-    if any(marker in reason.lower() for marker in _IMPORT_SKIP):
-        _missing_from[report.nodeid] = reason
+    if optional.REASON.match(reason) or any(marker in reason.lower() for marker in _IMPORT_SKIP):
+        _note(report.nodeid, reason)
+
+
+def _note(nodeid: str, reason: str) -> None:
+    """Every reason a test gives, since one it is allowed must not stand in for one it is not."""
+    said = _missing_from.setdefault(nodeid, [])
+    if reason not in said:
+        said.append(reason)
+
+
+def _contradicting(config) -> list[str]:
+    """The skips and records the run's claim does not allow, or none where it makes no claim.
+
+    A skip in pytest's own wording did not go through `needs()` and names no module that could be checked, and
+    one for an older release than a test asks is no absence at all, so neither is ever allowed.
+    """
+    told = os.environ.get(_ABSENT)
+    if told is None and config.getoption("cov_fail_under", None) is None:
+        return []
+    taken = set(filter(None, (told or "").split(",")))
+    found = []
+    for nodeid, reasons in sorted(_missing_from.items()):
+        for reason in reasons:
+            said = optional.REASON.match(reason)
+            if said is None or said["minversion"] is not None:
+                allowed = False
+            elif told is None:
+                allowed = said["delegated"] is not None
+            else:
+                allowed = not _enclosing(said["module"]).isdisjoint(taken)
+            if not allowed:
+                found.append(f"  {nodeid}: {reason}")
+    return found
+
+
+def _enclosing(module: str) -> set[str]:
+    """The module and every package holding it: `ns.a` is absent where `ns` left, or only `ns.a` did."""
+    parts = module.split(".")
+    return {".".join(parts[:end]) for end in range(1, len(parts) + 1)}
 
 
 def pytest_runtest_logreport(report) -> None:
@@ -96,10 +153,10 @@ def pytest_collectreport(report) -> None:
 
 
 def pytest_sessionfinish(session, exitstatus) -> None:
-    if not _missing_from or session.config.getoption("cov_fail_under", None) is None:
+    found = _contradicting(session.config)
+    if not found:
         return
-    listed = "\n".join(f"  {nodeid}: {reason}" for nodeid, reason in sorted(_missing_from.items()))
-    session.config.stash[_UNINSTALLED] = listed
+    session.config.stash[_UNINSTALLED] = "\n".join(found)
     session.exitstatus = pytest.ExitCode.TESTS_FAILED
 
 
@@ -108,4 +165,8 @@ def pytest_terminal_summary(terminalreporter) -> None:
     if listed is not None:
         terminalreporter.write_sep("=", "gates skipped for a missing module", red=True)
         terminalreporter.write_line(listed)
-        terminalreporter.write_line("this run enforces the coverage floor, so it claims every gate ran")
+        told = os.environ.get(_ABSENT)
+        if told is None:
+            terminalreporter.write_line("this run enforces the coverage floor, so it claims every gate ran")
+        else:
+            terminalreporter.write_line(f"this run was told that only these modules are absent: {told or 'none'}")

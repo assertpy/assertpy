@@ -12,13 +12,15 @@ import sys
 
 import pytest
 
-pytest.importorskip("pyright", reason="the lint job installs the typecheck group and this cell does not")
-pytest.importorskip("mypy", reason="the lint job installs the typecheck group and this cell does not")
-pytest.importorskip("requests")
-pytest.importorskip("httpx")
-pytest.importorskip("starlette")
-pytest.importorskip("flask")
-pytest.importorskip("django")
+from tests.optional import needs
+
+needs("pyright", delegated_to="the lint job")
+needs("mypy", delegated_to="the lint job")
+needs("requests")
+needs("httpx")
+needs("starlette")
+needs("flask")
+needs("django")
 
 import django.http
 import flask

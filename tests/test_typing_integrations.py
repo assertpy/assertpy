@@ -15,11 +15,13 @@ import sys
 
 import pytest
 
-pytest.importorskip("pyright", reason="the lint job installs the typecheck group and this cell does not")
-pytest.importorskip("mypy", reason="the lint job installs the typecheck group and this cell does not")
-pytest.importorskip("pandas")
-pytest.importorskip("polars")
-pytest.importorskip("numpy")
+from tests.optional import needs
+
+needs("pyright", delegated_to="the lint job")
+needs("mypy", delegated_to="the lint job")
+needs("pandas")
+needs("polars")
+needs("numpy")
 
 from assertpy import assert_that
 from tests import typing_harness

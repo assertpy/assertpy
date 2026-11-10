@@ -6,6 +6,7 @@ import pytest
 from assertpy import assert_that
 from assertpy._engine._equality import _reachable_call, carries_callable, supports_subscript
 from assertpy._engine._introspection import is_attrs_instance, is_model_dump_object, is_namedtuple
+from tests.optional import needs
 
 
 def test_custom_dict():
@@ -31,7 +32,7 @@ def test_custom_dict():
 
 
 def test_requests():
-    requests = pytest.importorskip("requests")
+    requests = needs("requests")
     headers = requests.structures.CaseInsensitiveDict(
         {
             "Accept-Encoding": "gzip, deflate",

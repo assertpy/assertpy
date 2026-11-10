@@ -4,7 +4,9 @@ import typing
 
 import pytest
 
-pytest.importorskip("jsonschema", reason="jsonschema not installed")
+from tests.optional import needs
+
+needs("jsonschema")
 
 from assertpy import assert_that
 
@@ -790,7 +792,7 @@ class TestAKeywordTheDialectDoesNotHaveIsRefused:
 
     def test_the_one_that_three_one_gave_up_is_read_by_the_draft_that_had_it(self):
         """``$recursiveRef`` is of 2019-09 alone: Draft 4 passes it over, and so does 2020-12, which renamed it."""
-        jsonschema = pytest.importorskip("jsonschema")
+        jsonschema = needs("jsonschema")
         ring = {"$recursiveAnchor": True, "type": "object", "properties": {"next": {"$recursiveRef": "#"}}}
         assert_that(jsonschema.Draft201909Validator(ring).is_valid({"next": 1})).is_false()
         assert_that(jsonschema.Draft4Validator(ring).is_valid({"next": 1})).is_true()
@@ -896,7 +898,7 @@ class TestAKeywordTheDialectDoesNotHaveIsRefused:
     def test_a_schema_that_names_a_dialect_of_its_own_is_read_as_the_document_is(self):
         """jsonschema reads a schema by the ``$schema`` it declares.  OpenAPI 3.0 has none in a Schema Object,
         so the document stays one dialect: the keyword is refused, and what 3.0 ignores is ignored there too."""
-        jsonschema = pytest.importorskip("jsonschema")
+        jsonschema = needs("jsonschema")
         later = "https://json-schema.org/draft/2020-12/schema"
         declared = {"$schema": later, "const": "a"}
         assert_that(jsonschema.Draft4Validator({"properties": {"p": declared}}).is_valid({"p": "b"})).is_false()
@@ -959,7 +961,7 @@ class TestAKeywordTheDialectDoesNotHaveIsRefused:
 
     def test_a_bound_as_a_number_is_read_by_draft_four_as_a_flag_whatever_the_number(self):
         """Why the number is refused beside a ``minimum`` as well: there it is not passed over, it is misread."""
-        jsonschema = pytest.importorskip("jsonschema")
+        jsonschema = needs("jsonschema")
         apart = {"type": "integer", "minimum": 0, "exclusiveMinimum": 5}
         assert_that(jsonschema.Draft4Validator(apart).is_valid(3)).is_true()
         assert_that(jsonschema.Draft202012Validator(apart).is_valid(3)).is_false()

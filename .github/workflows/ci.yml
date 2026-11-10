@@ -107,7 +107,7 @@ jobs:
     # `asttokens>=2.0` and `behave>=1.2.6`, which were simply wrong, then `starlette>=0.40`, whose test
     # client reaches a function deprecated in 3.14.
     #
-    # Scope, said exactly: every extra in `[project.optional-dependencies]`, plus the `dev` and
+    # Scope, said exactly: every extra in `[project.optional-dependencies]`, plus the `test`, `dev` and
     # `integrations` groups, which is what running the suite needs. The `docs`, `typecheck`, `mutation`,
     # `docs-examples` and `benchmark` groups are not here: each drives a tool with its own command rather
     # than this suite, and none of them is a promise to anyone installing the package.
@@ -275,9 +275,10 @@ jobs:
           project = tomllib.loads(pathlib.Path("pyproject.toml").read_text(encoding="utf-8"))
           sources = [project["project"]["dependencies"]]
           sources += list(project["project"]["optional-dependencies"].values())
-          sources += [project["dependency-groups"][name] for name in ("dev", "integrations")]
+          sources += [project["dependency-groups"][name] for name in ("test", "dev", "integrations")]
           for group in sources:
-              for line in group:
+              # an `include-group` table names a group read here on its own
+              for line in (entry for entry in group if isinstance(entry, str)):
                   requirement = Requirement(line)
                   floors = [spec.version for spec in requirement.specifier if spec.operator == ">="]
                   if floors and requirement.name != "assertpy":
@@ -413,17 +414,23 @@ jobs:
 
   sdist:
     # the suite as a distribution runs it, from the sdist: `scripts/check_sdist.py` says how and why
-    timeout-minutes: 20
+    timeout-minutes: 30
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         include:
+          # nothing optional: the package's own dependencies and the `test` group, which is all the suite requires,
+          # so no xdist workers either
           - mode: packager
-            options: '--export="--extra json"'
-          # the lint job's set, for the type-checker gates
+            options: "--bare"
+            pytest: "-q tests"
+          # the lint job's set and the other groups the suite reads, for the type-checker gates and for a file only
+          # a test of an installed integration reads; allure and behave have a job of their own, and pyright's
+          # baseline records what it reports without them
           - mode: developer
-            options: '--developer --export="--extra json --extra data --extra inline --group typecheck --group integrations"'
+            options: '--developer --export="--extra json --extra data --extra inline --group typecheck --group integrations --group oracle --group docs-examples"'
+            pytest: "-q -n 4 --dist loadfile --ignore=tests/test_docs_examples.py tests"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -437,14 +444,76 @@ jobs:
         with:
           python-version: "3.14"
 
-      - name: The suite from the sdist and from the checkout (${{ matrix.mode }})
-        run: >
-          python scripts/check_sdist.py ${{ matrix.options }} --work "$RUNNER_TEMP/check_sdist"
-          -- -q -n 4 --dist loadfile --ignore=tests/test_docs_examples.py tests
+      - name: The suite from the sdist (${{ matrix.mode }})
+        run: python scripts/check_sdist.py ${{ matrix.options }} --work "$RUNNER_TEMP/check_sdist" -- ${{ matrix.pytest }}
+
+  absent:
+    # A distribution packages the suite with whatever subset of the optional libraries it carries, so the suite
+    # runs from the sdist once without each of them and without what requires it: a test reading a library it
+    # does not declare fails in exactly the cell that takes that library away, whatever else is installed.
+    # Taking two away at once would let a test pass that reaches the second only where the first is present.
+    # The list is `scripts/optional_dependencies.py optional --python-version 3.14 --platform linux`, held to it
+    # by `tests/test_absent_cells.py`.
+    name: without ${{ matrix.distribution }}
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        distribution:
+          - allure-pytest
+          - asttokens
+          - attrs
+          - behave
+          - django
+          - executing
+          - flask
+          - fqdn
+          - httpx
+          - httpx2
+          - idna
+          - isoduration
+          - jsonpath-ng
+          - jsonschema
+          - numpy
+          - openapi-schema-validator
+          - pandas
+          - polars
+          - pydantic
+          - pytest-cov
+          - pytest-examples
+          - pytest-xdist
+          - referencing
+          - requests
+          - rfc3986-validator
+          - ruff
+          - starlette
+          - ty
+          - typing-extensions
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.14"
+
+      - name: The suite from the sdist without ${{ matrix.distribution }}
+        env:
+          DISTRIBUTION: ${{ matrix.distribution }}
+        # without pytest-xdist there are no workers to ask for
+        run: |
+          if [ "$DISTRIBUTION" = pytest-xdist ]; then set --; else set -- -n 4 --dist loadfile; fi
+          python scripts/check_sdist.py --without="$DISTRIBUTION" --work "$RUNNER_TEMP/check_sdist" -- -q "$@" tests
 
   ci-ok:
     timeout-minutes: 5
-    needs: [test, declared-floors, floors-reached, optional-integrations, lint, sdist]
+    needs: [test, declared-floors, floors-reached, optional-integrations, lint, sdist, absent]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -456,10 +525,12 @@ jobs:
           INTEGRATIONS_RESULT: ${{ needs.optional-integrations.result }}
           LINT_RESULT: ${{ needs.lint.result }}
           SDIST_RESULT: ${{ needs.sdist.result }}
+          ABSENT_RESULT: ${{ needs.absent.result }}
         run: |
           [ "$TEST_RESULT" = "success" ] &&
           [ "$FLOOR_RESULT" = "success" ] &&
           [ "$REACHED_RESULT" = "success" ] &&
           [ "$INTEGRATIONS_RESULT" = "success" ] &&
           [ "$LINT_RESULT" = "success" ] &&
-          [ "$SDIST_RESULT" = "success" ]
+          [ "$SDIST_RESULT" = "success" ] &&
+          [ "$ABSENT_RESULT" = "success" ]

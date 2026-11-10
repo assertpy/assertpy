@@ -45,6 +45,7 @@ from assertpy import AssertionFailure, assert_that, match, soft_assertions
 from assertpy._engine import _diff, _introspection
 from assertpy._engine._introspection import TakenApart, compares_by_parts
 from assertpy.errors import DiffEntry, Step
+from tests.optional import needs
 from tests.test_duality import _PAIRS, Case
 
 if TYPE_CHECKING:
@@ -1578,7 +1579,7 @@ def _knot(make: Callable[[], Any], first: object) -> list:
 
 
 def _attrs_records() -> tuple[type, type]:
-    attrs = pytest.importorskip("attrs", reason="attrs not installed")
+    attrs = needs("attrs")
 
     @attrs.define
     class Written:
@@ -1599,7 +1600,7 @@ def _attrs_records() -> tuple[type, type]:
 
 
 def _model() -> type:
-    pydantic = pytest.importorskip("pydantic", reason="pydantic not installed")
+    pydantic = needs("pydantic")
 
     class Model(pydantic.BaseModel):
         v: Any = 1
@@ -1655,7 +1656,7 @@ class TestADebtIsDroppedOnlyWhereEqualityReadsTheParts:
         assert_that(compares_by_parts(overridden)).is_false()
 
     def test_a_class_dressed_as_an_attrs_one_is_not_known(self):
-        pytest.importorskip("attrs", reason="attrs not installed")
+        needs("attrs")
         dressed = type("Dressed", (), {"__attrs_attrs__": (), "__eq__": lambda self, other: False})
         assert_that(compares_by_parts(dressed)).is_false()
 

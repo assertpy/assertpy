@@ -8,9 +8,10 @@ from assertpy import assert_that, match
 from assertpy._engine._introspection import is_attrs_instance
 from assertpy._snapshot_codec import _decode, _encode
 from assertpy.errors import AssertionFailure
+from tests.optional import needs
 
-attrs = pytest.importorskip("attrs", reason="attrs not installed")
-import attr  # noqa: E402  # low-level attrs API, imported only after importorskip confirms attrs is installed
+attrs = needs("attrs")
+import attr  # low-level attrs API, imported only after `needs()` confirms attrs is installed
 
 
 @attrs.define
@@ -170,7 +171,7 @@ class TestAKeyComparedFieldIsReadThroughItsKey:
         assert_that(str(caught.value)).contains("'X'").does_not_contain("'x'")
 
     def test_an_array_compared_through_cmp_using_is_shown_as_the_array(self):
-        numpy = pytest.importorskip("numpy")
+        numpy = needs("numpy")
         with pytest.raises(AssertionFailure) as caught:
             assert_that(KeyedArray(numpy.array([1, 2]))).is_equal_to(KeyedArray(numpy.array([1, 3]), 1), ignore="other")
         assert_that(str(caught.value)).contains("array([1, 2])").does_not_contain("object at 0x")
@@ -230,7 +231,7 @@ class TestAKeyComparedFieldIsReadThroughItsKey:
 
     def test_a_key_that_raises_leaves_no_array_to_blame(self):
         """attrs reads every key before comparing a field, so the array after the key never took part."""
-        numpy = pytest.importorskip("numpy")
+        numpy = needs("numpy")
         with pytest.raises(TypeError, match="lower") as caught:
             assert_that(Tagged(None, numpy.array([1, 2]))).is_equal_to(Tagged("a", numpy.array([1, 3])))
         assert_that(str(caught.value)).does_not_contain("cannot directly compare")
@@ -266,15 +267,15 @@ class TestAKeyComparedFieldIsReadThroughItsKey:
 class TestAnArrayInAnAttrsFieldIsNamed:
     def test_the_refusal_names_the_array_as_it_does_in_a_dataclass(self):
         """The search that names it went through dataclasses and models, and a bare `ValueError` came out."""
-        numpy = pytest.importorskip("numpy")
+        numpy = needs("numpy")
         with pytest.raises(TypeError) as caught:
             assert_that(Holder(numpy.array([1, 2]))).is_equal_to(Holder(numpy.array([1, 3])))
         assert_that(str(caught.value)).starts_with("is_equal_to() cannot directly compare <ndarray>")
 
     def test_a_field_equality_leaves_out_is_not_named(self):
         """Only the fields `==` compares can have broken it, so an ignored one is never the culprit."""
-        numpy = pytest.importorskip("numpy")
-        pandas = pytest.importorskip("pandas")
+        numpy = needs("numpy")
+        pandas = needs("pandas")
         with pytest.raises(TypeError) as caught:
             assert_that(Measured(pandas.Series([1]), numpy.array([1, 2]))).is_equal_to(
                 Measured(pandas.Series([2]), numpy.array([1, 3]))
@@ -284,7 +285,7 @@ class TestAnArrayInAnAttrsFieldIsNamed:
     @pytest.mark.parametrize("side", ["actual", "expected"])
     def test_an_array_on_one_side_only_is_named(self, side):
         """The search read one side's fields as missing, and only an array on both sides was found."""
-        numpy = pytest.importorskip("numpy")
+        numpy = needs("numpy")
         pair = [Holder(numpy.array([1, 2])), Holder(1)]
         actual, expected = pair if side == "actual" else pair[::-1]
         with pytest.raises(TypeError) as caught:
@@ -293,8 +294,8 @@ class TestAnArrayInAnAttrsFieldIsNamed:
 
     def test_a_field_compared_through_its_key_is_read_through_it(self):
         """The key compares the array, so the culprit is the field `==` compares as it is."""
-        numpy = pytest.importorskip("numpy")
-        pandas = pytest.importorskip("pandas")
+        numpy = needs("numpy")
+        pandas = needs("pandas")
         with pytest.raises(TypeError) as caught:
             assert_that(KeyedArray(numpy.array([1, 2]), pandas.Series([1, 2]))).is_equal_to(
                 KeyedArray(numpy.array([1, 2]), pandas.Series([1, 3]))

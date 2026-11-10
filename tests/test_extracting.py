@@ -6,6 +6,7 @@ from collections import namedtuple
 import pytest
 
 from assertpy import assert_that
+from tests.optional import needs
 
 
 class Person:
@@ -374,7 +375,7 @@ def test_extracting_model_dump_object_missing_field_failure():
 
 
 def test_extracting_real_pydantic_model():
-    pytest.importorskip("pydantic", reason="pydantic not installed")
+    needs("pydantic")
     from pydantic import BaseModel
 
     class User(BaseModel):

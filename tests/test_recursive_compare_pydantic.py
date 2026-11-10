@@ -1,6 +1,8 @@
 import pytest
 
-pytest.importorskip("pydantic", reason="pydantic not installed")
+from tests.optional import needs
+
+needs("pydantic")
 
 import dataclasses
 import json
@@ -270,7 +272,7 @@ class TestAModelIsReadByTheValuesItHolds:
     def test_an_array_a_serialiser_turns_into_a_list_is_still_named(self):
         """Read through the dump, the array was a list by the time anything looked for it, and the refusal
         naming it gave way to the bare `ValueError` about an ambiguous truth value."""
-        numpy = pytest.importorskip("numpy")
+        numpy = needs("numpy")
         with pytest.raises(TypeError) as caught:
             assert_that(_Listed(a=numpy.array([1, 2]))).is_equal_to(_Listed(a=numpy.array([1, 3])))
         assert_that(str(caught.value)).starts_with("is_equal_to() cannot directly compare <ndarray>")

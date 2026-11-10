@@ -73,7 +73,7 @@ def check(payload: object) -> None:
 
 And a wrong-domain assertion after it is still caught:
 
-<!-- docs-guard: type-error -->
+<!-- docs-guard: type-error invalid-argument-type -->
 ```python
 # type error: is_greater_than is not a string assertion
 assert_that("x").not_.is_empty().is_greater_than(0)

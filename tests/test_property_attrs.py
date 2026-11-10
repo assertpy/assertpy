@@ -17,8 +17,9 @@ from assertpy import assert_that, match
 from assertpy._snapshot_codec import _decode, _encode
 from assertpy.errors import AssertionFailure
 from assertpy.pytest_plugin import _format_diff
+from tests.optional import needs
 
-attrs = pytest.importorskip("attrs")
+attrs = needs("attrs")
 
 
 @attrs.define

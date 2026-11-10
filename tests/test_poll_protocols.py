@@ -28,6 +28,7 @@ from assertpy._engine import _builder_check_typing, _poll_typing, _typing
 from assertpy._engine._operations import NOT_AN_OPERATION, POLLS, WITHOUT_A_VERDICT
 from assertpy.assertpy import AssertionBuilder
 from tests.group_compat import ExceptionGroup, needs_groups
+from tests.optional import needs
 
 _ROOT = pathlib.Path(__file__).resolve().parent.parent
 
@@ -46,6 +47,7 @@ def _generator() -> ModuleType:
 
 
 def _formatted(source: str) -> str:
+    needs("ruff")
     for command in (
         ["ruff", "format", "--stdin-filename", _poll_typing.__file__, "-"],
         ["ruff", "check", "--fix", "--quiet", "--stdin-filename", _poll_typing.__file__, "-"],

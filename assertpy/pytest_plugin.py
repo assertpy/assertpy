@@ -71,7 +71,7 @@ class _Worker(Protocol):
 
 
 try:
-    import allure  # ty: ignore[unresolved-import]  # optional dependency
+    import allure  # ty: ignore[import-not-found]  # optional dependency
 
     _HAS_ALLURE = True  # pragma: no cover - only when allure-pytest is installed
 except ImportError:

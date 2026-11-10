@@ -8,6 +8,7 @@ import pytest
 
 from assertpy import AssertionFailure, assert_that, match
 from assertpy._engine import _equality
+from tests.optional import needs
 
 
 def test_ignore_key():
@@ -545,8 +546,8 @@ class TestAValueThatHoldsItselfUnderIgnoreAndInclude:
             assert_that(actual).is_equal_to([_Link(value=0, items=[_Link(value=1), other])], ignore="next")
 
     def test_an_attrs_instance_and_a_model_that_hold_themselves(self):
-        attrs = pytest.importorskip("attrs", reason="attrs not installed")
-        pydantic = pytest.importorskip("pydantic", reason="pydantic not installed")
+        attrs = needs("attrs")
+        pydantic = needs("pydantic")
 
         @attrs.define
         class Knot:
@@ -625,7 +626,7 @@ class TestAValueThatHoldsItselfUnderIgnoreAndInclude:
     def test_a_field_compared_through_a_key_is_held_raw_where_its_tuple_was_met_again(self):
         """A tuple met again is put back rebuilt, except in a field attrs compares through a key, which reads the
         value as it is held: here the class of what the tuple holds."""
-        attrs = pytest.importorskip("attrs", reason="attrs not installed")
+        attrs = needs("attrs")
 
         @attrs.define
         class Keyed:
@@ -682,8 +683,8 @@ class TestAValueThatHoldsItselfUnderIgnoreAndInclude:
 
     def test_both_ways_of_taking_apart_agree_where_nothing_leads_back(self):
         """The way that remembers runs only where the plain one gives up, so nothing else compares them."""
-        attrs = pytest.importorskip("attrs", reason="attrs not installed")
-        pydantic = pytest.importorskip("pydantic", reason="pydantic not installed")
+        attrs = needs("attrs")
+        pydantic = needs("pydantic")
         point = collections.namedtuple("point", "x y")
 
         class Falsy:
@@ -1006,7 +1007,7 @@ class TestADictBesideARecordIsReadAsDeep:
             assert_that(Row(1)).is_equal_to(_Holder(0), ignore="missing")
 
     def test_a_dict_beside_a_model_is_read_through_the_dataclasses_a_model_is_read_through(self):
-        pydantic = pytest.importorskip("pydantic")
+        pydantic = needs("pydantic")
 
         class Shape(pydantic.BaseModel):
             at: _Holder

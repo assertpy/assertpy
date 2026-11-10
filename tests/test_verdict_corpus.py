@@ -20,6 +20,7 @@ import re
 import pytest
 
 from assertpy import assert_that
+from tests.optional import missing, needs
 from tests.verdict_corpus import CASES, GROUPS, NAMED, answer
 
 _GOLDEN = pathlib.Path(__file__).resolve().parent / "verdict_golden.txt"
@@ -79,12 +80,18 @@ def test_every_case_is_recorded() -> None:
     assert_that(sorted(set(CASES) - set(_recorded()))).described_as("a case with no recorded answer").is_empty()
 
 
-def test_an_optional_dependency_that_is_here_is_asked() -> None:
-    """The skip is about a cell without the extra, never about a case quietly dropping out."""
-    silent = sorted(name for name, case in CASES.items() if case.requires and not _available(case.requires))
-    if silent:
-        pytest.skip(f"not installed here: {silent[0].split('/')[0]}")
-    assert_that(silent).described_as("cases skipped for a missing dependency").is_empty()
+def test_an_optional_dependency_that_is_here_is_asked(request: pytest.FixtureRequest) -> None:
+    """The skip is about a cell without the extra, never about a case quietly dropping out.
+
+    Every module missing is recorded, not only the one the skip names, so the guard holds each to the run's claim.
+    """
+    absent = [
+        module
+        for module in sorted({case.requires for case in CASES.values() if case.requires})
+        if missing(module, request.node)
+    ]
+    if absent:
+        needs(absent[0])
 
 
 def test_no_input_decides_differently(asked: dict[str, str]) -> None:

@@ -18,8 +18,9 @@ import pytest
 
 from assertpy import AssertionFailure, assert_that, json_mixin
 from tests.format_corpus import mailboxes, uris
+from tests.optional import needs
 
-jsonschema = pytest.importorskip("jsonschema", reason="jsonschema not installed")
+jsonschema = needs("jsonschema")
 
 
 def _spec(version: str, schema: dict[str, Any]) -> dict[str, Any]:
@@ -495,7 +496,7 @@ class TestAHostnameIsWrittenAsRfc1123WritesIt:
         ["xn--nxasmq6b", "XN--NXASMQ6B", "Xn--NxAsMq6B", "www.xn--nxasmq6b.example", "axn--b.example", "a.xn-b"],
     )
     def test_a_label_that_opens_xn_is_an_a_label_of_idna(self, name):
-        pytest.importorskip("idna", reason="idna not installed")
+        needs("idna")
         assert_that(_conforms(name, _text_of("hostname"), "3.1.0")).is_true()
         assert_that(_conforms(name, _text_of("hostname"), "3.2.0")).is_true()
 
@@ -523,7 +524,7 @@ class TestAHostnameIsWrittenAsRfc1123WritesIt:
     def test_a_label_that_opens_xn_and_is_no_a_label_fails_where_the_dialect_has_a_labels(self, text):
         """JSON Schema took punycode into the format in 2019.  Before it, and so under OpenAPI 3.0 and Swagger
         2.0, a host name is its syntax, which every one of these has."""
-        pytest.importorskip("idna", reason="idna not installed")
+        needs("idna")
         assert_that(_conforms(text, _text_of("hostname"), "3.1.0")).is_false()
         assert_that(_conforms(text, _text_of("hostname"), "3.2.0")).is_false()
         assert_that(_conforms(text, _text_of("hostname"), "3.0.3")).is_true()
@@ -539,7 +540,7 @@ class TestAHostnameIsWrittenAsRfc1123WritesIt:
             assert_that(_conforms("xn--nxasmq6b", _text_of("hostname"), "3.0.3")).is_true()
 
     def test_the_package_is_loaded_for_such_a_label_and_for_nothing_else(self):
-        pytest.importorskip("idna", reason="idna not installed")
+        needs("idna")
         asked = (
             "import sys; from assertpy import json_mixin; loaded = lambda: 'idna' in sys.modules;"
             "before = loaded(); plain = ('example.com', 'not_one', 5, 'axn--b');"

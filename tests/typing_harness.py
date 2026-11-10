@@ -20,6 +20,8 @@ import subprocess
 import sys
 from typing import Any, Final
 
+from tests.optional import needs
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 Reported = dict[int, set[str]]
@@ -129,6 +131,7 @@ def mypy(path: pathlib.Path, *options: str) -> Reported:
 
 
 def ty(path: pathlib.Path, *options: str) -> Reported:
+    needs("ty")
     output = run("ty", "check", "--output-format", "concise", *options, str(path))
     found: Reported = {}
     for number, code in re.findall(rf"{re.escape(path.name)}:(\d+):\d+: error\[([\w-]+)\]", output):

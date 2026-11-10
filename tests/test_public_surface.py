@@ -346,6 +346,7 @@ class TestNoOptionalDependencyIsImportedEagerly:
         eager = json.loads(result.stdout)
         assert_that(eager).described_as("optional dependencies imported by `import assertpy`").is_empty()
 
+    @pytest.mark.needs("attrs")
     def test_the_guard_can_see_an_eager_import(self):
         program = (
             "import sys, json; import attrs; import assertpy; "

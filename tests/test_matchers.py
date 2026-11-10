@@ -8,6 +8,7 @@ import pytest
 
 from assertpy import AssertionFailure, Matcher, _matcher_impls, assert_that, match
 from assertpy.matchers import AllOfMatcher, AnyOfMatcher, BaseMatcher, EachMatcher, HasPropertyMatcher, NotMatcher
+from tests.optional import needs
 
 
 class TestTemporalMatchers:
@@ -281,13 +282,13 @@ class TestCloseToMatcher:
         assert_that(match.close_to(5.0, nan).matches(5.0)).is_false()
 
     def test_a_negative_numpy_tolerance_is_refused_at_construction(self):
-        numpy = pytest.importorskip("numpy")
+        numpy = needs("numpy")
         with pytest.raises(ValueError, match="given tolerance arg must not be negative"):
             match.close_to(1, numpy.float32(-1))
 
     def test_a_number_claiming_to_be_numpys_is_not_asked_at_construction(self):
         """A subclass naming its module `numpy` still wrote its own comparison, which construction must not run."""
-        numpy = pytest.importorskip("numpy")
+        numpy = needs("numpy")
 
         class Claiming(numpy.float64):
             __module__ = "numpy"

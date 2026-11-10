@@ -14,6 +14,7 @@ import datetime
 import pytest
 
 from assertpy import assert_conforms, assert_that, match
+from tests.optional import needs
 
 
 class _UnrenderedError(Exception):
@@ -188,7 +189,7 @@ def test_the_failure_survives_a_value_that_cannot_render_itself(failing):
 
 
 def test_a_rejected_model_input_survives_it():
-    pydantic = pytest.importorskip("pydantic")
+    pydantic = needs("pydantic")
 
     class Model(pydantic.BaseModel):
         name: str

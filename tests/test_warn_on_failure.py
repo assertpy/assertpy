@@ -6,6 +6,8 @@ import os
 import sys
 from unittest.mock import patch
 
+import pytest
+
 from assertpy import AssertionOutcome, assert_that, assert_warn
 from assertpy.assertpy import _Subscribed
 
@@ -62,9 +64,15 @@ def test_a_negation_is_handed_over_as_negated():
 def test_a_pivot_and_an_extraction_keep_the_callback():
     got = []
     assert_warn(b"abc", on_failure=got.append).decoded_as("utf-8").is_equal_to("xyz")
-    assert_warn({"a": 1}, on_failure=got.append).at_json_path("$.a").is_equal_to(2)
     assert_warn([{"a": 1}], on_failure=got.append).extracting("a").contains(2)
-    assert_that(got).is_length(3)
+    assert_that(got).is_length(2)
+
+
+@pytest.mark.needs("jsonpath_ng")
+def test_a_json_path_pivot_keeps_the_callback():
+    got = []
+    assert_warn({"a": 1}, on_failure=got.append).at_json_path("$.a").is_equal_to(2)
+    assert_that(got).is_length(1)
 
 
 def test_an_expected_exception_chain_keeps_the_callback():

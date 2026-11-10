@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import ast
 import collections.abc
-import importlib.util
 import itertools
 import pathlib
 from typing import Any
@@ -21,6 +20,7 @@ import assertpy
 from assertpy import AssertionFailure, BaseMatcher, assert_that, match, soft_assertions
 from assertpy._engine._introspection import Replay
 from assertpy.assertpy import AssertionBuilder
+from tests.optional import missing
 
 
 class _Counting:
@@ -221,7 +221,7 @@ class TestNoAssertionReadsBesideTheBuilder:
     walks nothing, and the two answers part.  Asked of every public assertion with every argument shape here.
     """
 
-    def test_every_assertion_that_reads_answers_alike_when_asked_twice(self):
+    def test_every_assertion_that_reads_answers_alike_when_asked_twice(self, request):
         read, parted, through_equality = set(), [], set()
         # the second run of items holds one twice, which the assertions about duplicates tell from a run of none
         shapes = itertools.product(_NAMES, _ARGUMENTS, _KEYWORDS, [(1, 2, 3), (1, 1, 2)])
@@ -238,8 +238,8 @@ class TestNoAssertionReadsBesideTheBuilder:
                 parted.append(f"{name}{arguments!r} {sorted(keywords)} over {items}: {first} then {second}")
         assert_that(parted).described_as("answered otherwise the second time").is_empty()
         assert_that(sorted(read)).described_as("the assertions that read a one-shot value").is_equal_to(_READERS)
-        # numpy is absent from a reduced cell, and `is_array_equal` refuses there before it reads anything
-        handed = _HANDED_BY_EQUALITY if importlib.util.find_spec("numpy") else _HANDED_BY_EQUALITY - {"is_array_equal"}
+        # without numpy `is_array_equal` refuses before it reads anything
+        handed = _HANDED_BY_EQUALITY - {"is_array_equal"} if missing("numpy", request.node) else _HANDED_BY_EQUALITY
         assert_that(through_equality).described_as("a matcher reading items handed the value by `==`").is_equal_to(
             handed
         )

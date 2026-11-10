@@ -36,9 +36,9 @@ import pathlib
 import subprocess
 import sys
 
-import pytest
+from tests.optional import needs
 
-pytest.importorskip("pyright", reason="the lint job installs the typecheck group and this cell does not")
+needs("pyright", delegated_to="the lint job")
 
 from typing import Any, Final
 

@@ -11,8 +11,10 @@ Three markers steer this guard, all invisible in the rendered page:
   cannot resolve: a dynamic assertion (``has_<attr>``), which is deliberately outside the typed surface,
   or a name that only exists above the supported floor. ``ty`` reads ``requires-python``, so a 3.11
   builtin like ``ExceptionGroup`` is undefined to it even where the example is correct.
-* ``<!-- docs-guard: type-error -->`` the block demonstrates a rejection, so it has to fail the check.
-  A counter-example that silently starts passing is how a page's promise rots unnoticed.
+* ``<!-- docs-guard: type-error RULE, ... -->`` the block demonstrates a rejection, by the ty rules named, so
+  each of its lines has to fail with one of them and nothing else in it may fail.  A counter-example that
+  silently starts passing is how a page's promise rots unnoticed, and so is one that goes on failing for
+  another reason, a name that no longer exists among them.
 
 Anything else has to type-check, which also means this guard reports the reverse of what
 test_protocol_parity.py reports: parity proves every declared method exists, this proves the methods
@@ -21,6 +23,7 @@ the docs actually use are declared.
 
 from __future__ import annotations
 
+import dataclasses
 import pathlib
 import re
 import subprocess
@@ -28,7 +31,13 @@ import sys
 
 import pytest
 
-pytest.importorskip("pytest_examples")
+from tests.optional import needs
+
+needs("pytest_examples")
+needs("ty")
+# what the typed blocks import: without one, every block reading it fails to resolve and nothing else is learnt
+for _module in ("attrs", "numpy", "pandas", "polars", "pydantic", "typing_extensions"):
+    needs(_module)
 
 from pytest_examples import CodeExample, find_examples
 
@@ -46,7 +55,17 @@ CHECKED_DOCS = documented_pages(UNCHECKED_DOCS)
 PREAMBLE = "import datetime, json, logging, re\nfrom pathlib import Path\nfrom assertpy import *  # noqa: F403\n"
 
 SKIP_MARKERS = ("docs-guard: skip", "docs-guard: untyped")
-TYPE_ERROR_MARKER = "docs-guard: type-error"
+TYPE_ERROR = re.compile(r"docs-guard: type-error(?P<rules>[^>]*?)\s*-->")
+_ERROR = re.compile(r"(?P<file>[\w.-]+\.py):(?P<line>\d+):\d+: error\[(?P<rule>[\w-]+)\]")
+_SUMMARY = re.compile(r"^(?:Found \d+ diagnostics?|All checks passed!)$", re.MULTILINE)
+
+
+@dataclasses.dataclass(frozen=True)
+class CounterExample:
+    """The lines of a generated file that must fail, and the rules they may fail with."""
+
+    lines: frozenset[int]
+    rules: frozenset[str]
 
 
 def _markers(example: CodeExample) -> list[str]:
@@ -59,15 +78,15 @@ def _snippet(example: CodeExample, doc: str) -> str:
     return PREAMBLE + PAGE_FIXTURES.get(doc, "") + example.source
 
 
-def _write_snippets(target: pathlib.Path) -> tuple[int, dict[str, set[int]]]:
-    """Write every checkable block, and report the counter-examples as ``{file: lines that must fail}``.
+def _write_snippets(target: pathlib.Path) -> tuple[int, dict[str, CounterExample]]:
+    """Write every checkable block, and report the counter-examples by the file each was written to.
 
     Per line rather than per file, because a two-line counter-example was passing on one diagnostic:
     the second line could quietly start type-checking and nothing would say so.  The line numbers are
     the snippet's own, which is what a checker reports against.
     """
     written = 0
-    must_fail: dict[str, set[int]] = {}
+    must_fail: dict[str, CounterExample] = {}
     for doc in CHECKED_DOCS:
         for example in find_examples(doc):
             markers = _markers(example)
@@ -77,46 +96,112 @@ def _write_snippets(target: pathlib.Path) -> tuple[int, dict[str, set[int]]]:
             snippet = _snippet(example, doc)
             (target / name).write_text(snippet, encoding="utf-8")
             written += 1
-            if any(TYPE_ERROR_MARKER in line for line in markers):
+            marked = next((found for line in markers if (found := TYPE_ERROR.search(line))), None)
+            if marked is not None:
                 offset = len(snippet.splitlines()) - len(example.source.splitlines())
-                must_fail[name] = {
+                lines = {
                     offset + number
                     for number, line in enumerate(example.source.splitlines(), 1)
                     if line.strip() and not line.lstrip().startswith("#")
                 }
+                rules = {rule for rule in re.split(r"[\s,]+", marked["rules"]) if rule}
+                must_fail[name] = CounterExample(frozenset(lines), frozenset(rules))
     return written, must_fail
 
 
 def _check(target: pathlib.Path) -> list[str]:
-    result = subprocess.run(
-        [sys.executable, "-m", "ty", "check", "--output-format", "concise", str(target)],
-        capture_output=True,
-        text=True,
-        check=False,
+    return _errors(
+        subprocess.run(
+            # the interpreter named: run from an sdist there is no `.venv` and no `VIRTUAL_ENV` for ty to find
+            [
+                sys.executable,
+                "-m",
+                "ty",
+                "check",
+                "--python",
+                sys.executable,
+                "--output-format",
+                "concise",
+                str(target),
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
     )
+
+
+def _errors(result: subprocess.CompletedProcess[str]) -> list[str]:
+    """ty's error lines, from a check it finished: 0 is clean, 1 is diagnostics, and anything else is ty failing.
+
+    Read only off a run that printed its summary, since one that failed to start prints nothing to read and
+    would leave every documented block passing.
+    """
+    if result.returncode not in (0, 1) or _SUMMARY.search(result.stdout) is None:
+        raise AssertionError(f"ty did not finish the check, exit {result.returncode}:\n{result.stderr}{result.stdout}")
     return [line for line in result.stdout.splitlines() if ": error" in line]
 
 
-def _reported_lines(reported: list[str], name: str) -> set[int]:
-    """The snippet line numbers a checker reported against, for one generated file."""
-    found = set()
+def _judged(reported: list[str], must_fail: dict[str, CounterExample]) -> tuple[list[str], dict[str, list[int]]]:
+    """The errors no counter-example accounts for, and the lines of each that no error it names fell on."""
+    unexpected: list[str] = []
+    met: dict[str, set[int]] = {name: set() for name in must_fail}
     for line in reported:
-        match = re.search(rf"{re.escape(name)}:(\d+):", line)
-        if match:
-            found.add(int(match.group(1)))
-    return found
+        found = _ERROR.search(line)
+        counter = must_fail.get(found["file"]) if found is not None else None
+        if (
+            found is not None
+            and counter is not None
+            and int(found["line"]) in counter.lines
+            and found["rule"] in counter.rules
+        ):
+            met[found["file"]].add(int(found["line"]))
+        else:
+            unexpected.append(line)
+    accepted = {
+        name: sorted(counter.lines - met[name]) for name, counter in must_fail.items() if counter.lines - met[name]
+    }
+    return unexpected, accepted
 
 
 def test_doc_examples_type_check(tmp_path: pathlib.Path) -> None:
     written, must_fail = _write_snippets(tmp_path)
     # a broken extractor would make this guard pass by checking nothing
     assert_that(written).is_greater_than(20)
-    reported = _check(tmp_path)
-    diagnostics = [line for line in reported if not any(name in line for name in must_fail)]
-    assert_that(diagnostics).described_as("type errors in documented examples").is_empty()
-    accepted = {
-        name: sorted(expected - _reported_lines(reported, name))
-        for name, expected in must_fail.items()
-        if expected - _reported_lines(reported, name)
-    }
-    assert_that(accepted).described_as("counter-example lines a checker still accepts").is_empty()
+    unnamed = sorted(name for name, counter in must_fail.items() if not counter.rules)
+    assert_that(unnamed).described_as("counter-examples that name no rule they are refused by").is_empty()
+    unexpected, accepted = _judged(_check(tmp_path), must_fail)
+    assert_that(unexpected).described_as("type errors in documented examples").is_empty()
+    assert_that(accepted).described_as("counter-example lines not refused by a rule they name").is_empty()
+
+
+_ONE = {"page__1.py": CounterExample(frozenset({4}), frozenset({"invalid-argument-type"}))}
+
+
+class TestTheJudgement:
+    """What the guard makes of what ty reports, on reports written out here."""
+
+    def test_a_line_refused_by_the_rule_named_is_what_was_promised(self):
+        reported = ["/tmp/page__1.py:4:5: error[invalid-argument-type] Argument is incorrect"]
+        assert_that(_judged(reported, _ONE)).is_equal_to(([], {}))
+
+    def test_a_line_refused_by_another_rule_is_reported_and_left_unrefused(self):
+        """The block that stopped showing its rejection and fails on a name that no longer exists."""
+        reported = ["/tmp/page__1.py:4:5: error[unresolved-reference] Name `gone` used when not defined"]
+        assert_that(_judged(reported, _ONE)).is_equal_to((reported, {"page__1.py": [4]}))
+
+    def test_an_error_elsewhere_in_a_counter_example_is_reported(self):
+        reported = [
+            "/tmp/page__1.py:2:1: error[invalid-argument-type] in the fixture",
+            "/tmp/page__1.py:4:5: error[invalid-argument-type] Argument is incorrect",
+        ]
+        assert_that(_judged(reported, _ONE)).is_equal_to((reported[:1], {}))
+
+    def test_a_ty_that_did_not_finish_fails_the_check(self):
+        broken = subprocess.CompletedProcess([], 2, stdout="", stderr="error: unexpected argument '--nope' found")
+        with pytest.raises(AssertionError, match="unexpected argument"):
+            _errors(broken)
+
+    def test_a_ty_that_printed_no_summary_fails_the_check(self):
+        with pytest.raises(AssertionError, match="did not finish"):
+            _errors(subprocess.CompletedProcess([], 0, stdout="", stderr=""))

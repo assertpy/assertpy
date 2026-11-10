@@ -294,7 +294,7 @@ class TestAFailureIsTheOneOfTheEqualityItAsked:
             def __eq__(self, other: object) -> bool:
                 return False
 
-            __hash__ = None  # ty: ignore[invalid-assignment, invalid-method-override]  # a dict is unhashable anyway
+            __hash__ = None  # ty: ignore[invalid-assignment, incompatible-method-override]  # a dict is unhashable anyway
 
         held = Kept(a=1)
         with pytest.raises(AssertionFailure) as caught:
@@ -357,7 +357,7 @@ class TestAFailureIsTheOneOfTheEqualityItAsked:
             def __eq__(self, other: object) -> bool:
                 return False
 
-            __hash__ = None  # ty: ignore[invalid-assignment, invalid-method-override]  # a list is unhashable anyway
+            __hash__ = None  # ty: ignore[invalid-assignment, incompatible-method-override]  # a list is unhashable anyway
 
         for held in ([1], list(range(40))):
             with pytest.raises(AssertionFailure) as caught:

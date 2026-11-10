@@ -1,6 +1,8 @@
 import pytest
 
-pytest.importorskip("attrs", reason="attrs not installed")
+from tests.optional import needs
+
+needs("attrs")
 
 import attrs
 from hypothesis import given, settings
