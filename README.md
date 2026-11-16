@@ -17,7 +17,7 @@
   <br>
   <a href="https://assertpy.github.io/assertpy/concepts/type-safety/"><img src="https://img.shields.io/badge/overloads-ty%20%7C%20mypy%20%7C%20pyright%20%7C%20pyrefly-2ea043" alt="every public overload checked by ty, mypy --strict, pyright and pyrefly with zero suppressions"></a>
   <a href="https://assertpy.github.io/assertpy/"><img src="https://img.shields.io/badge/docs-online-black" alt="Documentation"></a>
-  <a href="https://scorecard.dev/viewer/?uri=github.com/assertpy/assertpy"><img src="https://img.shields.io/ossf-scorecard/github.com/assertpy/assertpy?label=OpenSSF%20Scorecard" alt="OpenSSF Scorecard"></a>
+  <a href="https://scorecard.dev/viewer/?uri=github.com/assertpy/assertpy"><img src="https://img.shields.io/ossf-scorecard/github.com/assertpy/assertpy?label=OpenSSF" alt="OpenSSF"></a>
 </p>
 
 <h2 align="center"><a href="https://assertpy.github.io/assertpy/getting-started/quickstart/">Quick start</a></h2>
