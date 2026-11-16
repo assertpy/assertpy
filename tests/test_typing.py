@@ -655,8 +655,9 @@ if TYPE_CHECKING:
     assert_type(match.is_type_of(int), IsTypeOfMatcher)
 
     class _FakeResponse:
-        status_code: int
-        headers: dict[str, str]
+        def __init__(self) -> None:
+            self.status_code = 200
+            self.headers: dict[str, str] = {}
 
         def json(self) -> Any: ...
 
