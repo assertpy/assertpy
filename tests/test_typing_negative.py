@@ -175,7 +175,7 @@ class TestWhatTheCheckersRefuse:
             },
             # a member declared with a type nothing can call, which is how a polling chain refuses `check()`
             {
-                "ty": {"call-non-callable"},
+                "ty": {"not-callable"},
                 "mypy": {"operator"},
                 "pyright": {"reportCallIssue"},
                 "pyrefly": {"not-callable"},

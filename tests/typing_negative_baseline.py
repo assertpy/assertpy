@@ -81,14 +81,14 @@ _PREDICATE_OVER_THE_SUBJECT: dict[str, frozenset[str]] = {
 }
 
 _NO_EXPECTATION_YET: dict[str, frozenset[str]] = {
-    "ty": frozenset({"call-non-callable"}),
+    "ty": frozenset({"not-callable"}),
     "mypy": frozenset(),
     "pyright": frozenset({"reportCallIssue"}),
     "pyrefly": frozenset({"not-callable"}),
 }
 
 _NOT_CALLABLE: dict[str, frozenset[str]] = {
-    "ty": frozenset({"call-non-callable"}),
+    "ty": frozenset({"not-callable"}),
     "mypy": frozenset({"operator"}),
     "pyright": frozenset({"reportCallIssue"}),
     "pyrefly": frozenset({"not-callable"}),

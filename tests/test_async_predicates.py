@@ -106,7 +106,7 @@ def test_equality_against_a_matcher_refuses_rather_than_answering_no() -> None:
     """
 
     class Never(BaseMatcher):
-        async def matches(self, value: object) -> bool:  # ty: ignore[invalid-return-type]  # the shape under test
+        async def matches(self, value: object) -> bool:
             return False
 
         def describe(self) -> str:

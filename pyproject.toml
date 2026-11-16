@@ -100,7 +100,7 @@ dev = [
     # real worker processes instead of a fake node
     "pytest-xdist>=3.8.0",
     "ruff>=0.16.8",
-    "ty>=0.0.100",
+    "ty>=0.0.104",
     "typing_extensions>=4.0",
 ]
 docs = [

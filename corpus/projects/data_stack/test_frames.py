@@ -6,10 +6,15 @@ list of concrete types refuses it.  That mistake shipped once; this project is w
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import numpy
 import pandas
 
 from assertpy import assert_that
+
+if TYPE_CHECKING:
+    from typing_extensions import assert_type
 
 
 def frame() -> pandas.DataFrame:
@@ -32,7 +37,10 @@ def test_numpy_values_pass_through_the_assertions_that_take_them() -> None:
 def test_a_frame_reports_its_own_shape() -> None:
     assert_that(frame().shape).is_equal_to((3, 3))
     assert_that(list(frame().columns)).contains("id", "total", "customer")
-    assert_that(frame()["total"].sum()).is_greater_than(60)
+    totals: pandas.Series[float] = frame()["total"]
+    result = assert_that(totals.sum()).is_greater_than(60)
+    if TYPE_CHECKING:
+        assert_type(result.value, float)
 
 
 def test_frames_compare_with_the_frame_assertion() -> None:
